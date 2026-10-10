@@ -1,4 +1,4 @@
-import { DEMO_NARRATIONS, demoLeadLine, yourTurnLine } from "./assessment-engine/demo-lines";
+import { DEMO_NARRATIONS, demoLeadLine, WALK_NARRATIONS, yourTurnLine } from "./assessment-engine/demo-lines";
 import { cycleFor, EVERYDAY_EXERCISE_ID, EXERCISES, LAUNCH_EXERCISE_IDS, resolveExercise, type Rung } from "./exercise-engine/config";
 import { CONTRAST_HINTS } from "./exercise-engine/contrast";
 import { LIGHTING_HINTS } from "./exercise-engine/lighting";
@@ -177,6 +177,8 @@ export const SETUP_HINT_LINES = [
 // themselves speak in her voice from the original runner.
 const assessmentLines = [
   ...Object.values(DEMO_NARRATIONS),
+  // Walking's two demonstrations, filming from the side and then from the front, each with its own narration.
+  ...Object.values(WALK_NARRATIONS),
   demoLeadLine(0),
   demoLeadLine(1),
   yourTurnLine("T1"),

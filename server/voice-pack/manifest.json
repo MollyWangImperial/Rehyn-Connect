@@ -13,8 +13,8 @@
       "speed": 0.95
     }
   },
-  "ready": 821,
-  "total": 821,
+  "ready": 823,
+  "total": 823,
   "clips": {
     "9267c8099078927d73806efc790ab3dbea4432876205dd196f0b7f1ea02809ae.mp3": {
       "phraseIds": [
@@ -410,6 +410,20 @@
       ],
       "text": "Walking. With room, film from the side: phone sideways at hip height, three big steps away; walk across, turn, and walk back. No room? Film from the front: phone upright at one end; walk away, turn, and walk back. Keep your feet in the picture.",
       "bytes": 306408
+    },
+    "344c3f79e59850dd6de0c70afe7da6adecde7b229a532ac1c199df9c8832a787.mp3": {
+      "phraseIds": [
+        "assess-aa3b20a5"
+      ],
+      "text": "Walking. First, a video from the side, if you have the room: prop your phone sideways at hip height, about three big steps away. Walk across at your usual pace, turn, and walk back. Keep your feet in the picture.",
+      "bytes": 266284
+    },
+    "f9c003211061231422daf385f3ddd36aea579f0aa0326000f507f161b41015ff.mp3": {
+      "phraseIds": [
+        "assess-d001f376"
+      ],
+      "text": "Next, a video from the front: stand the phone up at hip height at one end of the room. Walk away from it, turn, and walk back toward it. Keep your feet in the picture.",
+      "bytes": 179348
     },
     "d46652786282bb8350e6d978b751de125105e58f419f77196b20553650d51933.mp3": {
       "phraseIds": [

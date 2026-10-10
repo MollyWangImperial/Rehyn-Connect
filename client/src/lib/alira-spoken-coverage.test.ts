@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { DEMO_SPECS } from "@/components/assessment/DemoReel";
+import { DEMO_SPECS, demoNarration } from "@/components/assessment/DemoReel";
 import { aliraSpokenLines, SETUP_HINT_LINES } from "./alira-spoken-lines";
 import { demoLeadLine, yourTurnLine } from "./assessment-engine/demo-lines";
 import type { AssessmentTaskId } from "./assessment-engine/types";
@@ -59,6 +59,7 @@ describe("Alira's recorded lines cover what the exercises say", () => {
       expect(registered.has(DEMO_SPECS[id].narration), id).toBe(true);
       expect(registered.has(yourTurnLine(id)), id).toBe(true);
     }
+    for (const view of ["side", "front"] as const) expect(registered.has(demoNarration("L6", view)), view).toBe(true);
     for (const index of [0, 1, 4]) expect(registered.has(demoLeadLine(index)), String(index)).toBe(true);
   });
 
