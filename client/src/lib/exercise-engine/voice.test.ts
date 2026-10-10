@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createVoice, pickEnglishVoice } from "./voice";
+import { createVoice, FETCH_TIMEOUT_MS, pickEnglishVoice } from "./voice";
 
 const voice = (name: string, lang: string) => ({ name, lang }) as SpeechSynthesisVoice;
 class Utterance {
@@ -42,7 +42,7 @@ function mockAudio() {
 }
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-describe("Alira's voice in the exercises (opt-in, off for now)", () => {
+describe("Alira's voice in the exercises", () => {
   it("speaks each instruction in Alira's voice first, without the device voice", async () => {
     vi.useFakeTimers();
     const synth = mockSpeech(() => [voice("Microsoft Sonia", "en-GB")]);
@@ -64,6 +64,22 @@ describe("Alira's voice in the exercises (opt-in, off for now)", () => {
     audio[0].onended?.();
     await vi.advanceTimersByTimeAsync(0);
     expect(api.busy(100000)).toBe(false);
+  });
+
+  it("gives up on Alira's audio that never arrives and reads the line in the device voice", async () => {
+    vi.useFakeTimers();
+    const synth = mockSpeech(() => [voice("Microsoft Sonia", "en-GB")]);
+    // A request that hangs until it is aborted.
+    vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+    })));
+    const api = createVoice({ alira: true });
+    api.say("Now lower your foot slowly.");
+    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS - 100);
+    expect(synth.speak).not.toHaveBeenCalled();
+    expect(api.busy(0)).toBe(true);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(synth.speak).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -136,7 +152,7 @@ describe("English-only exercise voice when Alira's voice is unavailable", () => 
     api.onAvailability = vi.fn();
     api.say("Relax your shoulder.");
     await vi.advanceTimersByTimeAsync(3100);
-    // Alira's voice is off for the exercises by default, so only the local voice is asked.
+    // Without the Alira option (the native movement check), only the local voice is asked.
     expect(calls.map(call => call.provider ?? "local")).toEqual(["local"]);
     expect(audio).toHaveLength(1);
     expect(synth.speak).not.toHaveBeenCalled();

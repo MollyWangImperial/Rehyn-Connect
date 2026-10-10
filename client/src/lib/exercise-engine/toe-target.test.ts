@@ -316,9 +316,10 @@ describe("the toe lift's set-up foot guide", () => {
     expect(toeRestCheck(toeBody(side, { turn: 0 }), side, ASPECT).lapMissing).toBe(`Put your ${side} foot in the area marked on the floor: heel under your knee, toes turned out onto the outline.`);
     // The other foot set down further forward than this one, so the feet are not level: both into their areas.
     expect(toeRestCheck(toeBody(side, { otherFoot: [0, 0, 0.6] }), side, ASPECT).lapMissing).toBe("Put both feet in the areas marked on the floor, side by side.");
-    // The set-up voice and instruction say so too.
+    // The calibration instruction says so too, and the set-up voice keeps the safety advice.
     expect(EXERCISES[ID].calibrationInstruction).toMatch(/areas marked on the floor/);
-    expect(EXERCISES[ID].setupVoice).toMatch(/area on the floor for each foot/);
+    expect(EXERCISES[ID].setupVoice).toMatch(/stable chair with a back/);
+    expect(EXERCISES[ID].setupVoice).toMatch(/pain, cramp or numbness/);
   });
   it.each(SIDES)("does not send a foot set a little forward back toward the chair: set-up does not judge the knee's 3D angle (%s side)", side => {
     // 40 cm forward of under the knee: the knee reads about 134 degrees open in 3D, past the knee exercise's 130 at rest.

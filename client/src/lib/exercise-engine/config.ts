@@ -233,8 +233,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     ghost: "mouth",
     // Built like the forward reach's setup speech; the head-up cue comes early because, as for the reach,
     // the demonstration may begin 12 s in, before a long introduction has finished.
-    setupVoice: "Welcome. We are going to practice hand-to-mouth. Keep your head up: the cup comes to your mouth, not your mouth to the cup. Sit upright, with your back away from the chair. Place your affected hand on your lap. A cup is drawn on your screen, so you do not need a real one.",
-    calibrationInstruction: "Before we begin, sit upright and still with your affected hand resting on the visible part of your lap. Keep your face, shoulders, affected arm, and the top of your affected thigh in view while I learn your upright position.",
+    setupVoice: "Let's practise bringing a cup to your mouth, using the cup drawn on your screen. Keep your head up: the cup comes to your mouth, not your mouth to the cup. Sit tall, with your back away from the chair.",
+    calibrationInstruction: "Rest your affected hand on your lap. Hold still while I learn your starting position.",
     romSteps: [
       { id: "elbow_flexion", label: "Elbow bend", metric: "elbow_flexion", targets: { easy: 65, medium: 80, difficult: 95 }, weight: 0.7 },
       { id: "shoulder_flexion", label: "Shoulder lift", metric: "shoulder_flexion", targets: { easy: 20, medium: 30, difficult: 40 }, weight: 0.3 },
@@ -285,8 +285,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     tracking: "pose",
     ghost: "raise",
     // Worded for the table; the armrest version swaps in SLIDE_ARMREST (resolveExercise).
-    setupVoice: "Welcome. We are going to practise sliding your arm out to the side toward a cup on your screen. Rest your forearm on a table beside your affected side, with your elbow bent, and your other hand on your thigh or the chair's other armrest. Place the camera in front of you at chest height so I can see you from your head to your thighs, with room beside your arm. Move only in a comfortable, pain-free range.",
-    calibrationInstruction: "Sit tall with your elbow bent and your forearm resting beside you. Make sure the room is well lit, with the light in front of you. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise sliding your arm out to the side, towards a cup drawn on your screen. Keep it pain-free. Rest your affected forearm on a table beside you, elbow bent. Have the camera at chest height.",
+    calibrationInstruction: "Sit tall with your shoulders relaxed. Hold still while I learn your starting position.",
     // How far the hand moves out across the picture (shoulder widths) decides the circle and most of the score; the
     // shoulder's elevation from the pose model's 3D landmarks adds the rest. The live goals are the ones learned in
     // practice, just inside the practice hold; the levels stay for planning.
@@ -339,8 +339,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     // The hand every frame; the body every third frame, for the trunk and shoulder checks (tracker.ts).
     tracking: "pose+hand",
     ghost: "hand_open",
-    setupVoice: "Welcome. We are going to practise opening and closing your hand. Rest your affected elbow on an armrest or a table, and hold your hand up in the shaded area beside your body, at chest height, with your palm facing the camera. Keeping your hand there leaves your face and both shoulders in view.",
-    calibrationInstruction: "Before we begin, hold your hand in the shaded area with your palm facing the camera, and let your fingers relax and curl gently. Do not open your hand yet. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise opening and closing your hand. Rest your affected elbow on an armrest or table. Hold your hand up in the shaded area, palm facing the camera.",
+    calibrationInstruction: "Let your fingers relax and curl gently. Hold still while I learn your starting position.",
     romSteps: [{ id: "finger_extension", label: "Finger opening", metric: "finger_extension", targets: { easy: 130, medium: 145, difficult: 158 }, weight: 1 }],
     compensations: [
       // Engineering defaults (hand-target.ts), measured against the relaxed hand learned at set-up.
@@ -381,8 +381,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     // The hand every frame (open, close, wrist, cup), the body every second frame (grasp-target.ts).
     tracking: "pose+hand",
     ghost: "grasp",
-    setupVoice: "Welcome. We are going to practise picking up a cup, carrying it across your body and setting it down. The cup is drawn on your screen, so you do not need a real one. Sit back so your head, both shoulders, both hips and both hands are in view, with your hands resting on your thighs.",
-    calibrationInstruction: "Before we begin, rest both hands on your thighs and sit tall. Make sure the room is well lit, with the light in front of you. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise picking up a cup drawn on your screen, carrying it across your body and setting it down. Sit away from any table. Take your time.",
+    calibrationInstruction: "Sit tall with both hands resting on your thighs. Hold still while I learn your starting position.",
     romSteps: [
       { id: "elbow_extension", label: "Elbow extension at the cup", metric: "elbow_extension", targets: { easy: 118, medium: 130, difficult: 142 }, weight: 0.3, steps: [0] },
       { id: "shoulder_flexion", label: "Reach to the cup", metric: "shoulder_flexion", targets: { easy: 30, medium: 42, difficult: 52 }, weight: 0.2, steps: [0] },
@@ -438,8 +438,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     // The hand every frame; the body every third frame, for the trunk, shoulder and other-hand checks (tracker.ts).
     tracking: "pose+hand",
     ghost: "pinch",
-    setupVoice: "Welcome. We are going to practise pinching, as if picking up a small peg. The peg and a tray are drawn on your screen, so you do not need real objects. Rest your affected elbow on an armrest or a table, and hold your hand up in the shaded area beside your body, at chest height, with your palm facing the camera and your fingers open. Keeping your hand there leaves your face and both shoulders in view.",
-    calibrationInstruction: "Before we begin, hold your hand in the shaded area with your palm facing the camera, then open your fingers and thumb, so your thumb is well away from your first finger. Make sure the room is well lit, with the light in front of you. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise pinching, as if picking up a small peg. The peg and tray are drawn on your screen. Rest your affected elbow on an armrest or table. Hold your hand up in the shaded area.",
+    calibrationInstruction: "Turn your palm to the camera, fingers and thumb open. Hold still while I learn your starting position.",
     // How far the thumb has closed on each fingertip (pinch-target.ts), 0-100: 75 is touching. The scored goal sits just
     // inside the closest pinch held in practice, and is never more than touching.
     romSteps: [
@@ -486,8 +486,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     framing: "Front, seated, head to feet in view, both feet flat on the floor",
     tracking: "pose",
     ghost: "knee",
-    setupVoice: "Welcome. We are going to practise straightening your knee while you sit. Sit in a stable chair with a back, with both feet flat on the floor, and keep a carer nearby if you need help with balance. Place the camera about two metres in front of you, at about knee to hip height, so I can see you from your head to your feet.",
-    calibrationInstruction: "Sit tall with your back against the chair, both feet flat on the floor and your hands resting on your thighs. Make sure the room is well lit, with the light in front of you. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise straightening your knee while you sit. Use a stable chair with a back, with a carer nearby if you need help. Stop if it hurts. Place the camera about two metres away, at knee to hip height.",
+    calibrationInstruction: "Sit tall, back against the chair, feet flat on the floor. Hold still while I learn your starting position.",
     // The knee angle from the pose model's 3D landmarks (knee-target.ts); the scored goal sits just inside the practice hold.
     romSteps: [{ id: "knee_extension", label: "Knee extension", metric: "knee_extension", targets: { easy: 125, medium: 140, difficult: 152 }, weight: 1, learnedShare: 0.9 }],
     compensations: [
@@ -541,8 +541,8 @@ export const EXERCISES: Record<string, ExerciseConfig> = {
     framing: "Front, seated, head to feet in view, the exercising foot turned out to the side",
     tracking: "pose",
     ghost: "toe",
-    setupVoice: "Welcome. We are going to practise lifting the front of your foot while your heel stays on the floor. Sit in a stable chair with a back, with both feet on the floor, and keep a carer nearby if you need help with balance. Place the camera about two metres in front of you, at about knee height, so I can see you from your head to your feet. When the camera starts, the screen marks an area on the floor for each foot: put your feet in them, with the foot you are exercising turned out to the side to fit its outline and the heel under your knee. The camera sees your toes lift best from the side. Bare feet or thin flat shoes work best. Stop if you feel cramp, pain or numbness.",
-    calibrationInstruction: "Sit tall with your back against the chair and your hands resting on your thighs. Put your feet in the areas marked on the floor on the screen: the foot you are exercising turned out to the side to fit its outline, with the heel under your knee. Make sure the room is well lit, with the light in front of you. Hold still while I learn your starting position.",
+    setupVoice: "Let's practise lifting your toes, heel down. Use a stable chair with a back, with a carer nearby if you need help. Stop if you feel pain, cramp or numbness. Place the camera about two metres away, at knee height. Bare feet or thin flat shoes work best.",
+    calibrationInstruction: "Sit tall, back against the chair, feet in the areas marked on the floor on screen, affected foot turned out to the side. Hold still while I learn your starting position.",
     // The foot's angle in the picture, heel to toes, in degrees above level (toe-target.ts): about level at rest with
     // the foot turned out. The live goal is learned in practice; the levels stay ascending for planning. The best is
     // reported as the lift from rest.
@@ -638,7 +638,7 @@ export const EXERCISE_RUNGS: Record<string, Record<Rung, RungSpec>> = Object.fro
 
 /** Supported Arm Elevation from the chair's armrest: the hand lifts from it toward a raised cup. */
 const SLIDE_ARMREST = {
-  setupVoice: "Welcome. We are going to practise lifting your arm out to the side toward a cup on your screen. Rest your forearm on the armrest of your chair, with your elbow bent, and your other hand on your thigh or the other armrest. Place the camera in front of you at chest height so I can see you from your head to your thighs, with room beside your arm. Move only in a comfortable, pain-free range.",
+  setupVoice: "Let's practise lifting your arm out to the side, towards a cup drawn on your screen. Keep it pain-free. Rest your affected forearm on the chair's armrest, elbow bent. Have the camera at chest height.",
   reach: "Follow the arrow: lift your hand from the armrest out to the cup, and hold. Stop before pain.",
   back: "Now lower your hand back to the armrest.",
 };

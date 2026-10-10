@@ -7,6 +7,8 @@ export type RunnerVoice = Voice & {
 };
 
 const readingMs = (text: string) => 600 + text.length * 52;
+/** A voice request that has not answered in this long is given up (recorded lines answer at once; live ones in 1–4 s). */
+export const FETCH_TIMEOUT_MS = 8000;
 const isEnglish = (voice: SpeechSynthesisVoice) => /^en(?:[-_]|$)/i.test(voice.lang.trim());
 
 export function pickEnglishVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
@@ -35,16 +37,19 @@ export function createVoice(options: { alira?: boolean; aliraOnly?: boolean } = 
   const aliraUnavailable = !(options.alira || options.aliraOnly) || typeof fetch !== "function";
   const requests = new Set<AbortController>();
 
-  // Prepare the next instruction while the current one plays; the server caches repeated lines.
+  // Prepare the next instruction while the current one plays; the server caches repeated lines. A request that stalls
+  // (a slow live recording, a dropped connection) gives up after FETCH_TIMEOUT_MS, as a refusal does, so the session
+  // waiting on the voice is never held.
   const fetchClips = (lines: string[], provider?: "alira") => Promise.all(lines.map(async text => {
     const controller = new AbortController();
     requests.add(controller);
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
       const response = await fetch("/api/exercise-voice", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(provider ? { text, provider } : { text }), signal: controller.signal });
       if (!response.ok || !/^en(?:-|$)/i.test(response.headers.get("X-Exercise-Language") ?? "")) throw new Error("English audio unavailable.");
       if (provider === "alira" && (response.headers.get("X-Exercise-Voice") !== "Alira" || response.headers.get("X-Exercise-Voice-Provider") !== "elevenlabs")) throw new Error("Alira audio unavailable.");
-      return response.blob();
-    } finally { requests.delete(controller); }
+      return await response.blob();
+    } finally { clearTimeout(timer); requests.delete(controller); }
   }));
 
   const playClips = async (clips: Blob[], run: number) => {

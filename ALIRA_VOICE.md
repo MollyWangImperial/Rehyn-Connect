@@ -6,7 +6,9 @@ On this site that covers four places:
 
 - **The Alira page and the welcome conversation**: `/api/alira/voice` for her fixed lines, `/api/alira/speak` for everything else she writes.
 - **The warm-up repetition**: `createVoice({ alira: true })` asks `/api/exercise-voice` with `provider: "alira"`.
-- **Graded Forward Reach**: always uses Alira, with saved instructions, corrections, scores and all rounded best-reach results (0–180 degrees) in `server/voice-pack`. These are included in `pnpm voice:bake` by default. It never switches to a different speaker; English captions stay visible if audio is unavailable. Other daily exercises keep their existing voice path; record their lines with `pnpm voice:bake --exercises` before switching them on.
+- **Graded Forward Reach**: always uses Alira, with saved instructions, corrections, scores and all rounded best-reach results (0–180 degrees) in `server/voice-pack`. It never switches to a different speaker; English captions stay visible if audio is unavailable.
+- **The other daily exercises**: `createVoice({ alira: true })`, from lines recorded in `server/voice-pack` (set-up, calibration, demonstration, practice, steps, the review's score and tip, the wrap, then the set-up hints). A line not yet recorded is spoken live while credits last; when her voice can't answer, the device's English voice reads it. `client/src/lib/alira-spoken-coverage.test.ts` simulates every exercise and fails if a line it says is not registered.
+- **The movement check** (`/assessment`): the original runner speaks each task in Alira's voice through Rehyn's own `/tts/generate`; the companion's demonstrations before each task (`DemoReel`), with their hand-over lines (`client/src/lib/assessment-engine/demo-lines.ts`), use `createVoice({ alira: true })`. The native check (`/assessment/native`, kept for comparison) keeps the device's voice until its own lines are recorded.
 - **The emergency FAST check**: `/api/tts/generate`.
 - **The copied assessment service** (`assessment-service/`): `local_app.py` turns on Alira's voice for every line (`INSTRUCTION_TTS_PROVIDER=elevenlabs`, `ELEVENLABS_VOICE_SCOPE=all`) and reads the key from this site's `.env.local`, however the service is started. Its recorded lines are in `assessment-service/frontend/public/audio/prepared`.
 
@@ -24,7 +26,7 @@ To change her voice: change `voiceId` in `shared/alira-voice.ts`, set the same I
 
 ## The voice pack
 
-Alira's fixed lines are recorded once and committed in `server/voice-pack`. A recorded line plays without an API key and without spending ElevenLabs credits, so production does not need the key for them. The fixed exercise, warm-up and FAST check lines are listed in `client/src/lib/alira-spoken-lines.ts` and recorded after her page's lines (the FAST check first, the exercises last). Lines built while a patient exercises, such as a repetition's score, can't be recorded ahead; they are spoken live while credits last.
+Alira's fixed lines are recorded once and committed in `server/voice-pack`. A recorded line plays without an API key and without spending ElevenLabs credits, so production does not need the key for them. The fixed exercise, movement check, warm-up and FAST check lines are listed in `client/src/lib/alira-spoken-lines.ts` and recorded after her page's lines (the FAST check and the movement check first, the exercises last, their set-up hints at the very end). Lines built while a patient exercises, such as a repetition's score, can't be recorded ahead; they are spoken live while credits last.
 
 ```
 pnpm voice:bake --dry-run    # what is ready and what is missing
@@ -33,7 +35,7 @@ pnpm voice:bake --max 2000   # spend at most this many credits now
 pnpm voice:bake --prune      # also delete clips from an older voice or deleted lines
 ```
 
-The script reads `ELEVENLABS_API_KEY` from `.env.local`, asks ElevenLabs how many credits are left, and records the new patient's first conversation before anything else if credits are short. All the lines together are about 5,500 characters. `server/voice-pack/manifest.json` lists what has been recorded.
+The script reads `ELEVENLABS_API_KEY` from `.env.local`, asks ElevenLabs how many credits are left, and records the new patient's first conversation before anything else if credits are short. Use `--max` to keep credits back for what Alira writes in the moment on her page, which is always spoken live. `server/voice-pack/manifest.json` lists what has been recorded.
 
 Run it again after changing any of Alira's wording, because a changed line is a new recording.
 

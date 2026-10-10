@@ -38,15 +38,19 @@ afterEach(async () => {
 });
 
 describe("Alira's voice in the exercises and the FAST check", () => {
-  it("adds every fixed exercise and FAST line to Alira's recorded phrases", () => {
+  it("adds every fixed exercise, demonstration hand-over and FAST line to Alira's recorded phrases", () => {
     const lines = new Set(Object.values(aliraVoicePhrases));
     for (const exercise of Object.values(EXERCISES)) {
       expect(lines.has(exercise.setupVoice)).toBe(true);
-      expect(lines.has(exercise.praise)).toBe(true);
+      expect(lines.has(exercise.calibrationInstruction)).toBe(true);
       for (const step of exercise.cycle) expect(lines.has(step.voice)).toBe(true);
+      // After a repetition the reach says its card line (recorded with it); the others say the short correction.
+      if (exercise.id !== "ex_reach") for (const comp of exercise.compensations) expect(lines.has(comp.correction), comp.id).toBe(true);
     }
+    expect(lines.has(EXERCISES.ex_reach.praise)).toBe(true);
     expect(lines.has("Face. Please smile and hold while I compare both sides.")).toBe(true);
-    expect(Object.keys(aliraSpokenLines).every(id => /^(exercise|reach|warmup|fast)-[0-9a-f]{8}$/.test(id))).toBe(true);
+    expect(lines.has("Now it's your turn. Follow my voice and the circle.")).toBe(true);
+    expect(Object.keys(aliraSpokenLines).every(id => /^(exercise|reach|warmup|fast|assess)-[0-9a-f]{8}$/.test(id))).toBe(true);
   });
 
   it("plays a recorded line from the voice pack without calling ElevenLabs", async () => {

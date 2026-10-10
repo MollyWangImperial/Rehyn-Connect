@@ -447,10 +447,8 @@ export default function ExerciseRunner({ assessment }: { assessment?: Assessment
           // Hand to mouth's chest point follows the body during set-up and stays where it was learned.
           if (assess?.taskId === "T3" && now.phase === "setup") chestRef.current = followPoint(chestRef.current, chestFrom(tracked.pose, opts.side), 0.2);
           if (conditionsNow && now.phase === "setup") {
-            // Graded Forward Reach speaks only lines recorded in Alira's voice, and these hints are not (yet): for it
-            // the lighting and clothing rows show their hints on screen without holding set-up for them.
-            const unrecorded = session.cfg.id === EVERYDAY_EXERCISE_ID;
-            const light = unrecorded ? null : lighting.current, contrast = unrecorded ? null : lightingProbe.current.contrast();
+            // The lighting and clothing hints are recorded in Alira's voice (alira-spoken-lines.ts), Graded Forward Reach's too.
+            const light = lighting.current, contrast = lightingProbe.current.contrast();
             if (graspNow && !graspLayoutRef.current) { frame.lapRest = undefined; frame.lapMissing = "Sit back so your shoulders and both hips are in view."; }
             else if (graspNow && handOpenness(graspHand(detection, opts.side)) === undefined) { frame.lapRest = undefined; frame.lapMissing = GRASP_HAND_HINT; }
             else if (dialEx && frame.lapRest && (!dialNow || !kneeDialRef.current)) { frame.lapRest = undefined; frame.lapMissing = KNEE_DIAL_HINT; }
@@ -1059,9 +1057,11 @@ export default function ExerciseRunner({ assessment }: { assessment?: Assessment
     // The movement check's own rows: the other hand and thigh for the seated arm tasks, then the reach's room above the head.
     if (task?.taskId === "T1" || task?.taskId === "T3") setBodyChecks(checks => [...checks, ...otherHandRows(null, opts.side).map(row => ({ ...row, progress: 0 }))]);
     if (task?.taskId === "T1") setBodyChecks(checks => [...checks, { ...ROOM_CHECK, visible: false, progress: 0 }]);
-    // The everyday exercise speaks in Alira's voice; the others keep the device voice while in development. The movement
-    // check uses the device's own voice for every task.
-    const voice = task ? createVoice() : createVoice({ alira: base.id === EVERYDAY_EXERCISE_ID, aliraOnly: base.id === EVERYDAY_EXERCISE_ID });
+    // Every exercise speaks in Alira's voice, from lines recorded in advance (alira-spoken-lines.ts). The everyday
+    // exercise keeps that voice throughout (captions if a clip can't play); the others fall back to the device's English
+    // voice only when hers is unavailable. The native movement check (/assessment/native, kept for comparison) keeps
+    // the device's voice: its lines are not recorded, and generating them live would use the credits kept for Alira's chat.
+    const voice = task ? createVoice() : createVoice({ alira: true, aliraOnly: base.id === EVERYDAY_EXERCISE_ID });
     voice.stop();
     voice.setMuted(muted);
     // A line said during a repetition's review (its score, advice, countdown) is not shown once the next one starts.

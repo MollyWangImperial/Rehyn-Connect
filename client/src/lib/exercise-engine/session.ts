@@ -2,7 +2,7 @@
 // Frame-driven and free of DOM and speech APIs so it can run against camera frames, simulated frames
 // or a test harness. Timing comes from frame.t.
 
-import { ANGLE_ADVICE, bestLine, CLOSER_TARGET_LINE, ELBOW_ADVICE, finalRepAdvice, finishedLevelLine, goodRepsLine, keepInViewLine, handInViewLine, graspHandInViewLine, bodyInViewLine, slideHandsInViewLine, moveFurtherLine, NEXT_REP_COUNTDOWN_LINE, PRACTICE_LINE, PRACTISE_AGAIN_LINE, reachedTargetsLine, repsAheadLine, repScoreLine, SHOULDER_ADVICE, word, cap } from "./spoken";
+import { ANGLE_ADVICE, bestLine, CLOSER_TARGET_LINE, ELBOW_ADVICE, finalRepAdvice, finishedLevelLine, goodRepsLine, keepInViewLine, handInViewLine, graspHandInViewLine, bodyInViewLine, slideHandsInViewLine, moveFurtherLine, NEXT_REP_COUNTDOWN_LINE, PRACTISE_AGAIN_LINE, practiceLine, learnHoldLine, LOST_VIEW_LINES, reachedTargetsLine, repsAheadLine, repScoreLine, SHOULDER_ADVICE, word, cap } from "./spoken";
 import { cycleFor, EVERYDAY_EXERCISE_ID, REPS_BY_RUNG, resolveExercise, DOSE_PRESETS, LEVEL_BY_RUNG, usesTargetFlow, type CycleStep, type ExerciseConfig, type Rung, type Side } from "./config";
 import { compensationStatus, medianGeo, type Frame, type Geo, type LapRest } from "./metrics";
 import { attainment, romAttainment, EXERCISE_SCORE_VERSION, isGoodRep, isMiss, repScore, sessionScore, type HoldOutcome } from "./scoring";
@@ -629,7 +629,7 @@ export class ExerciseSession {
       if (usesTargetFlow(this.cfg.id)) { this.holdAcc = 0; this.restAcc = 0; this.inZone = false; if (this.phase === "warm") this.reachTargetCalibration.reset(); }
       if (this.lostSince === null) this.lostSince = t;
       // Seated targets only need the affected hand once set up, so both ask for the same thing.
-      if (t - this.lostSince > TIMING.lostMs) this.nag(t, away ? frame.readyHint ?? READY_HINT : this.cfg.id === KNEE_ID || this.cfg.id === TOE_ID ? frame.missing ?? "Keep your knees and feet in view of the camera." : this.cfg.id === SLIDE_ID ? frame.missing ?? "Keep your shoulder, elbow and hand in view of the camera." : usesTargetFlow(this.cfg.id) ? "Bring your affected hand back into view." : frame.missing ?? "I can't see you. Move back into view of the camera.");
+      if (t - this.lostSince > TIMING.lostMs) this.nag(t, away ? frame.readyHint ?? READY_HINT : this.cfg.id === KNEE_ID || this.cfg.id === TOE_ID ? frame.missing ?? LOST_VIEW_LINES.legs : this.cfg.id === SLIDE_ID ? frame.missing ?? LOST_VIEW_LINES.slide : usesTargetFlow(this.cfg.id) ? LOST_VIEW_LINES.hand : frame.missing ?? LOST_VIEW_LINES.body);
       return;
     }
     if (this.lostSince !== null) {
@@ -797,12 +797,7 @@ export class ExerciseSession {
     // its line, recorded in Alira's voice.
     const again = this.warmCount++ > 0;
     this.voice.say(this.assess ? this.tryOutLine() : this.cfg.id === "ex_reach" ? "Now one practice repetition. It is not scored. Reach to the circle and hold while I learn your movement, then return to your lap."
-      : again ? PRACTISE_AGAIN_LINE
-      : this.cfg.id === "ex_handopen" ? `${PRACTICE_LINE} Show me your palm in the shaded area.`
-      : this.cfg.id === PINCH_ID ? `${PRACTICE_LINE} Show me your open palm in the shaded area.`
-      : this.cfg.id === TOE_ID ? `${PRACTICE_LINE} The ankle dial beside your shoulder moves with your foot.`
-      : this.cfg.id === KNEE_ID ? `${PRACTICE_LINE} The knee dial beside your shoulder moves with your knee.`
-      : PRACTICE_LINE);
+      : again ? PRACTISE_AGAIN_LINE : practiceLine(this.cfg.id));
     this.resetRep(t);
   }
 
@@ -1140,11 +1135,7 @@ export class ExerciseSession {
           if (!learned) {
             this.holdAcc = 0;
             this.reachTargetCalibration.reset();
-            this.nag(t, this.cfg.id === "ex_handopen" ? "Keep your fingers open at the ring and your whole hand in view while I learn your movement."
-              : this.cfg.id === PINCH_ID ? "Keep your thumb and finger together in the circle and your whole hand in view while I learn your movement."
-              : this.cfg.id === TOE_ID ? "Keep your toes up at the circle and your feet in view while I learn your movement." : this.cfg.id === KNEE_ID ? "Keep your knee straight at the circle and your feet in view while I learn your movement."
-              : this.cfg.id === SLIDE_ID ? "Keep your hand at the cup and your arm in view while I learn your movement."
-              : "Keep your hand in the circle and your whole arm in view while I learn your movement.");
+            this.nag(t, learnHoldLine(this.cfg.id));
             return;
           }
           // Steps that learn their own measures add them to what earlier steps of the practice learned.

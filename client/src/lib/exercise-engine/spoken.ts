@@ -18,6 +18,30 @@ export const NEXT_REP_COUNTDOWN_LINE = "The next repetition starts in three seco
 /** The practice after the demonstration, which has already shown the movement. */
 export const PRACTICE_LINE = "Your turn. One practice repetition, not scored.";
 export const PRACTISE_AGAIN_LINE = "Let's practise once more.";
+/** What the practice adds that the demonstration cannot show: where the hand goes first, or that the dial follows the leg. */
+const PRACTICE_EXTRA: Record<string, string> = {
+  ex_handopen: "Show me your palm in the shaded area.",
+  ex_pinch: "Show me your open palm in the shaded area.",
+  ex_ankle_dorsiflexion: "The ankle dial beside your shoulder moves with your foot.",
+  ex_lower_selective: "The knee dial beside your shoulder moves with your knee.",
+};
+export const practiceLine = (exerciseId: string) => (PRACTICE_EXTRA[exerciseId] ? `${PRACTICE_LINE} ${PRACTICE_EXTRA[exerciseId]}` : PRACTICE_LINE);
+/** Said when the practice's hold ended before its goal could be learned (the measure was unsure). */
+const LEARN_HOLD_LINES: Record<string, string> = {
+  ex_handopen: "Keep your fingers open at the ring and your whole hand in view while I learn your movement.",
+  ex_pinch: "Keep your thumb and finger together in the circle and your whole hand in view while I learn your movement.",
+  ex_ankle_dorsiflexion: "Keep your toes up at the circle and your feet in view while I learn your movement.",
+  ex_lower_selective: "Keep your knee straight at the circle and your feet in view while I learn your movement.",
+  ex_wallslide: "Keep your hand at the cup and your arm in view while I learn your movement.",
+};
+export const learnHoldLine = (exerciseId: string) => LEARN_HOLD_LINES[exerciseId] ?? "Keep your hand in the circle and your whole arm in view while I learn your movement.";
+/** Said while the patient is out of view during a repetition (when the frame names nothing more precise). */
+export const LOST_VIEW_LINES = {
+  legs: "Keep your knees and feet in view of the camera.",
+  slide: "Keep your shoulder, elbow and hand in view of the camera.",
+  hand: "Bring your affected hand back into view.",
+  body: "I can't see you. Move back into view of the camera.",
+} as const;
 export const goodRepsLine = (good: number, planned: number) => `${cap(word(good))} of ${word(planned)} good reps.`;
 /** units: how the measure is read out (degrees unless calibration.ts metricUnitName says otherwise, as for the pinch). */
 export const bestLine = (label: string, degrees: number, units = "degrees") => `Your best ${label} was ${Math.round(degrees)} ${units}.`;
@@ -28,18 +52,15 @@ export const moveFurtherLine = (romLabel: string, finalRep: boolean) =>
   `Move a little further through ${romLabel.toLowerCase()}${finalRep ? "." : " on your next repetition."}`;
 export const keepInViewLine = (finalRep: boolean) =>
   `Keep your face and both shoulders in view so I can check your posture${finalRep ? "." : " on the next repetition."}`;
+// The seven exercises' versions are one short sentence each, the same after every repetition (one recording each).
 /** Hand opening's version: the hand in the shaded area leaves the face and both shoulders in view. */
-export const handInViewLine = (finalRep: boolean) =>
-  `Keep your hand in the shaded area, clear of your face and shoulders, so I can check your posture${finalRep ? "." : " on the next repetition."}`;
+export const handInViewLine = (_finalRep?: boolean) => "Keep your hand in the shaded area, clear of your face and shoulders.";
 /** The grasp's version when only the hand's own checks were missed (the body was in view). */
-export const graspHandInViewLine = (finalRep: boolean) =>
-  `Keep your hand in view while you hold and carry the cup so I can check it${finalRep ? "." : " on the next repetition."}`;
+export const graspHandInViewLine = (_finalRep?: boolean) => "Keep your hand in view while you hold and carry the cup.";
 /** Seated Knee Extension's version: the whole seated body, head to feet, carries its posture checks. */
-export const bodyInViewLine = (finalRep: boolean) =>
-  `Keep your whole body, from your head to your feet, in view so I can check your posture${finalRep ? "." : " on the next repetition."}`;
+export const bodyInViewLine = (_finalRep?: boolean) => "Keep your whole body in view, from your head to your feet.";
 /** Supported Arm Elevation's version when only its hand checks were missed (the body was in view). */
-export const slideHandsInViewLine = (finalRep: boolean) =>
-  `Keep both hands in view, one resting beside you and the other on your thigh or armrest, so I can check them${finalRep ? "." : " on the next repetition."}`;
+export const slideHandsInViewLine = (_finalRep?: boolean) => "Keep both hands in view, so I can check them.";
 export const reachedTargetsLine = (finalRep: boolean) =>
   finalRep ? "You reached the movement targets with a smooth movement." : "You reached the movement targets. Keep the same smooth movement on your next repetition.";
 export const finalRepAdvice = (say: string) => say.replace("On the next repetition, try", "Try").replace(" on the next try", "");

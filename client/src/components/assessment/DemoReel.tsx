@@ -1,6 +1,6 @@
 // The movement check's demonstrations (/assessment): before the camera check runs every task in one go, each task's
 // demonstration plays once more here, full screen and as large as the window allows, one after another. Each one
-// opens with the device voice reading its narration while the target is drawn inactive (a dashed circle); when the
+// opens with Alira's voice reading its narration while the target is drawn inactive (a dashed circle); when the
 // voice finishes, the movement plays with the exercises' own target activation (the movement, the hold ring, the
 // completion ripple), then the return or let-go, a short pause, and it keeps looping without repeating the narration
 // until the patient moves on. Reach, hand to mouth, hand opening and pinch reuse the exercise engine's drawings
@@ -17,7 +17,7 @@ import { checkPinchDemoDuration, checkPinchDemoState, drawCheckPinchDemo } from 
 import { drawReachDemo, reachDemoDuration, reachDemoState } from "@/lib/exercise-engine/reach-demo";
 import { TARGET_COMPLETION_MS, TARGET_HOLD_MS } from "@/lib/exercise-engine/target-timing";
 import { createVoice, type RunnerVoice } from "@/lib/exercise-engine/voice";
-import { demoLeadLine, yourTurnLine } from "@/lib/assessment-engine/demo-lines";
+import { DEMO_NARRATIONS, demoLeadLine, yourTurnLine } from "@/lib/assessment-engine/demo-lines";
 import "./demo-reel.css";
 
 export type DemoReelProps = {
@@ -41,7 +41,7 @@ export const autoAdvanceAfterMs = (taskId: AssessmentTaskId, reducedMotion: bool
 
 export type DemoSpec = {
   title: string;
-  /** Read by the device voice as the demonstration opens, while its target is still inactive. */
+  /** Read in Alira's voice as the demonstration opens, while its target is still inactive (demo-lines.ts, recorded in advance). */
   narration: string;
   /** The short "what to do" line under the caption. */
   whatToDo(side: "left" | "right"): string;
@@ -50,27 +50,27 @@ export type DemoSpec = {
 export const DEMO_SPECS: Record<AssessmentTaskId, DemoSpec> = {
   T1: {
     title: "Reach",
-    narration: "Reach. When the circle lights up, reach your hand up into it and hold it there for a moment, then bring your hand back to your lap. In the check there can be up to three circles, each a little higher.",
+    narration: DEMO_NARRATIONS.T1,
     whatToDo: side => `With your ${side} arm, reach up into the circle and hold, then bring your hand back to your lap.`,
   },
   T3: {
     title: "Hand to mouth",
-    narration: "Hand to mouth. Raise your hand to the starting circle, then bring it up to your mouth and hold it there. Keep your head still: your hand comes to your mouth.",
+    narration: DEMO_NARRATIONS.T3,
     whatToDo: side => `Bring your ${side} hand up to your mouth and hold, keeping your head still.`,
   },
   H4: {
     title: "Hand opening",
-    narration: "Hand opening. Hold your hand up at chest height with your palm facing the camera. Then open your fingers as wide as is comfortable, and hold.",
+    narration: DEMO_NARRATIONS.H4,
     whatToDo: side => `Hold your ${side} hand up at chest height, palm to the camera, then open your fingers wide and hold.`,
   },
   H3: {
     title: "Pinch",
-    narration: "Pinch. Bring your thumb and first finger together, tip to tip, and hold. Then let go.",
+    narration: DEMO_NARRATIONS.H3,
     whatToDo: side => `With your ${side} hand, bring your thumb and first finger together, tip to tip, hold, then let go.`,
   },
   L6: {
     title: "Walking",
-    narration: "Walking. Prop your phone sideways at hip height. Stand side-on, about three big steps away. Then walk across at your usual pace, turn, and walk back.",
+    narration: DEMO_NARRATIONS.L6,
     whatToDo: () => "Phone sideways at hip height. Walk across side-on at your usual pace, turn, and walk back.",
   },
 };
@@ -324,7 +324,8 @@ export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = 
   // One demonstration: the narration over the inactive target, then the movement, looping until the patient moves on.
   useEffect(() => {
     if (!task) return;
-    const voice = (voiceRef.current ??= createVoice());
+    // Alira's voice, as the runner's tasks speak (the device's English voice only if hers is unavailable).
+    const voice = (voiceRef.current ??= createVoice({ alira: true }));
     const narration = DEMO_SPECS[task].narration;
     // The movement check says first that a demonstration is coming, and when it ends that the task is next
     // (demo-lines.ts). The task starts only once that has been said, so it never talks over the runner's voice.

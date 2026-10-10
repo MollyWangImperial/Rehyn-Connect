@@ -13,8 +13,8 @@
       "speed": 0.95
     }
   },
-  "ready": 618,
-  "total": 618,
+  "ready": 821,
+  "total": 821,
   "clips": {
     "9267c8099078927d73806efc790ab3dbea4432876205dd196f0b7f1ea02809ae.mp3": {
       "phraseIds": [
@@ -375,6 +375,69 @@
       ],
       "text": "Demo only. The app is simulating a 999 call. No emergency call has been placed. In a real emergency, call 999 immediately.",
       "bytes": 174751
+    },
+    "cbf31a1a2d3120d09ddb7211ea7648889e937a51c66ddb21ee8102ee8b5d96d8.mp3": {
+      "phraseIds": [
+        "assess-961906a5"
+      ],
+      "text": "Reach. When the circle lights up, reach your hand up into it and hold it there for a moment, then bring your hand back to your lap. In the check there can be up to three circles, each a little higher.",
+      "bytes": 203172
+    },
+    "94b87bd6a8dc5d4b09a9b9f908559bf18eb38e1a1a3ae8c9e94c38a855b23ef9.mp3": {
+      "phraseIds": [
+        "assess-6b21f081"
+      ],
+      "text": "Hand to mouth. Raise your hand to the starting circle, then bring it up to your mouth and hold it there. Keep your head still: your hand comes to your mouth.",
+      "bytes": 145911
+    },
+    "ac72e189952805269dbc4ba63d49ecc39cf667dbbd190f9e517e763a826a26d2.mp3": {
+      "phraseIds": [
+        "assess-27605019"
+      ],
+      "text": "Hand opening. Hold your hand up at chest height with your palm facing the camera. Then open your fingers as wide as is comfortable, and hold.",
+      "bytes": 148001
+    },
+    "2a12720876f5016d47924ad0e533686ad590d3a5f4ca0a912e2aa873acaa0df4.mp3": {
+      "phraseIds": [
+        "assess-0c1571ff"
+      ],
+      "text": "Pinch. Bring your thumb and first finger together, tip to tip, and hold. Then let go.",
+      "bytes": 96174
+    },
+    "a55c47f1c708c9394e351058bd7942a87b5853a5fa57467e975d680374ac5bdb.mp3": {
+      "phraseIds": [
+        "assess-535cbde3"
+      ],
+      "text": "Walking. With room, film from the side: phone sideways at hip height, three big steps away; walk across, turn, and walk back. No room? Film from the front: phone upright at one end; walk away, turn, and walk back. Keep your feet in the picture.",
+      "bytes": 306408
+    },
+    "d46652786282bb8350e6d978b751de125105e58f419f77196b20553650d51933.mp3": {
+      "phraseIds": [
+        "assess-0a32ac16"
+      ],
+      "text": "Before each task, I'll show you a short demonstration. Just watch for now.",
+      "bytes": 71515
+    },
+    "3c20484d1ae43463cfbec488b84e54fceef6248e26bd9c5fd8d6cc9c022e8c3f.mp3": {
+      "phraseIds": [
+        "assess-5b3ec7d4"
+      ],
+      "text": "First, a short demonstration. Just watch.",
+      "bytes": 50199
+    },
+    "1da720418ada14da62a9555f07e206d3b2ce7bd8969106fcb4886f7b6f9ca8c4.mp3": {
+      "phraseIds": [
+        "assess-1ecfc1e5"
+      ],
+      "text": "Now it's your turn. Follow my voice and the circle.",
+      "bytes": 55214
+    },
+    "660cf852cc02efeab168264403ad2ce44ea02e2a0125b6063232d3936a27d819.mp3": {
+      "phraseIds": [
+        "assess-18ddf3cc"
+      ],
+      "text": "Now it's your turn. Follow the steps on the next screen.",
+      "bytes": 51453
     },
     "50b8f3969ac2bfa51ee8f7b1ed2300ce4512066cf692fcac9ea931f17400cc59.mp3": {
       "phraseIds": [
@@ -4337,6 +4400,1364 @@
       ],
       "text": "I noticed you leaned to the side. Try staying upright and centred, and let your arm reach forward.",
       "bytes": 84471
+    },
+    "c9771ed1541152fa088e99f46b3c9895ef2b1883b7eb77d1381a0a8813c5caaf.mp3": {
+      "phraseIds": [
+        "reach-9fcd9232"
+      ],
+      "text": "It's a little dark. Turn on a light in front of you.",
+      "bytes": 48527
+    },
+    "906d5413707f4ff51c415faeb3bafcbb5b939ead91002b083980ecc2ee777e73.mp3": {
+      "phraseIds": [
+        "reach-929e3371"
+      ],
+      "text": "The picture is too bright. Move out of direct sunlight.",
+      "bytes": 53124
+    },
+    "5a2e3e05e57e927eb6d1df2c0a68cf06b25d85f002d82df2620acbcbba9ca978.mp3": {
+      "phraseIds": [
+        "reach-3135b17b"
+      ],
+      "text": "There's bright light behind you. Turn so the light is in front of you, or close the curtain behind you.",
+      "bytes": 99100
+    },
+    "f04284769865d6d221a8ee00906c3537b71115d90c3a575eddb89f02a6376fd2.mp3": {
+      "phraseIds": [
+        "reach-f33f912f"
+      ],
+      "text": "The picture is washed out. Add some light in front of you.",
+      "bytes": 53124
+    },
+    "29b263935502b17af05845badebe8ff33b1083d54d73319af0b691cfbccb17ff.mp3": {
+      "phraseIds": [
+        "reach-b4e10568"
+      ],
+      "text": "Your top blends in with the background. If you can, wear a colour that stands out from it, or change the background.",
+      "bytes": 106623
+    },
+    "800327cbe31df250cabaa78ac2eeacfe3c09252221634bdd53518ed0aca4c451.mp3": {
+      "phraseIds": [
+        "exercise-63b2b9f4"
+      ],
+      "text": "Let's practise bringing a cup to your mouth, using the cup drawn on your screen. Keep your head up: the cup comes to your mouth, not your mouth to the cup. Sit tall, with your back away from the chair.",
+      "bytes": 210695
+    },
+    "f0ff8f0075ea5c1cc0094a0563dc23e13493541d774780cad883db712896ff0f.mp3": {
+      "phraseIds": [
+        "exercise-e14c7c73"
+      ],
+      "text": "Rest your affected hand on your lap. Hold still while I learn your starting position.",
+      "bytes": 75276
+    },
+    "7110bc427e2a8edb5f2a224ae2eadedf03024a56fb88ac3a115e824e5bb3bd9b.mp3": {
+      "phraseIds": [
+        "exercise-a565c245"
+      ],
+      "text": "Bring the cup to your mouth and hold, as if taking a sip.",
+      "bytes": 54378
+    },
+    "2c093deb464bbc6417d141c220619701b26cd0f6c84fae315ba0e4c0737b4106.mp3": {
+      "phraseIds": [
+        "exercise-45483fa1"
+      ],
+      "text": "Lower the cup and return to your lap.",
+      "bytes": 35152
+    },
+    "463e42462c5cb47c680da287eb70bd2919f43cf41a2886e4a7447cf1008eab4a.mp3": {
+      "phraseIds": [
+        "exercise-30f9bba0"
+      ],
+      "text": "Your turn. One practice repetition, not scored.",
+      "bytes": 52288
+    },
+    "e75b1edc275e0e474419f1d52fd8e3afe42c4d473c75fad702a599164cff9bbc.mp3": {
+      "phraseIds": [
+        "exercise-1b08e29b"
+      ],
+      "text": "Let's practise once more.",
+      "bytes": 24285
+    },
+    "30c79b8cca5f14d0a5d4287a6ed1a486874a57f0a15ebc53755e755d5623e9af.mp3": {
+      "phraseIds": [
+        "exercise-39703303"
+      ],
+      "text": "Bring the cup slowly to your mouth and hold, head up, shoulder relaxed.",
+      "bytes": 72351
+    },
+    "295c7c12db9546d515f86ab1dfe8b67db529a3a7edef2f298d8245312cbbc0bf.mp3": {
+      "phraseIds": [
+        "exercise-8fd40d3f"
+      ],
+      "text": "Now lower it back to your lap.",
+      "bytes": 30973
+    },
+    "70e274d3bf3048f3fd0f7cffa662718545f68092201b119b5b5f98fbc62c6740.mp3": {
+      "phraseIds": [
+        "exercise-dd13606e"
+      ],
+      "text": "Keep your head up and bring the cup to your mouth, not your mouth to the cup.",
+      "bytes": 61066
+    },
+    "eb14164c8bd60a709c93864c598b65d7f162956c804b887371ea34a2575f59fb.mp3": {
+      "phraseIds": [
+        "exercise-f6dc2028"
+      ],
+      "text": "Keep your back tall and let your arm bring the cup to your mouth.",
+      "bytes": 56050
+    },
+    "a6b0b27da026ec794bd7b2c28e86a977dcaf8e310cd76c605aad2c825f6b1307.mp3": {
+      "phraseIds": [
+        "exercise-4a63b470"
+      ],
+      "text": "Relax the shoulder before bending the elbow again.",
+      "bytes": 49363
+    },
+    "2f71a54d9faef2ef10fd228ce96d907e2a446f1723529fbd867716d0a6ca094c.mp3": {
+      "phraseIds": [
+        "exercise-af48c29e"
+      ],
+      "text": "Bend your elbow a little more to bring the cup all the way to your mouth.",
+      "bytes": 60648
+    },
+    "db8892b7c34f79657d80e65e7e11bd0fdf06021a23c4d9ce09ef887175c3ec4c.mp3": {
+      "phraseIds": [
+        "exercise-31b97274"
+      ],
+      "text": "Lift your elbow a little more from your shoulder, keeping your head up.",
+      "bytes": 56886
+    },
+    "a66e0eb8e82ed5b0ed5885734afb2faa4bb9e96ff916f2a406078b91ff8c5976.mp3": {
+      "phraseIds": [
+        "exercise-d9bc6f3c"
+      ],
+      "text": "Let's practise sliding your arm out to the side, towards a cup drawn on your screen. Keep it pain-free. Rest your affected forearm on a table beside you, elbow bent. Have the camera at chest height.",
+      "bytes": 196484
+    },
+    "67d72224272fb8c46d22d0852aef8430be8c33f45a37aa88f7bddaa35fb7a9c0.mp3": {
+      "phraseIds": [
+        "exercise-6631034b"
+      ],
+      "text": "Let's practise lifting your arm out to the side, towards a cup drawn on your screen. Keep it pain-free. Rest your affected forearm on the chair's armrest, elbow bent. Have the camera at chest height.",
+      "bytes": 215711
+    },
+    "e30fc47ae5d3e1d772cff3630fee538361144c08c538ff6b95cb55352ef95068.mp3": {
+      "phraseIds": [
+        "exercise-4bd95c08"
+      ],
+      "text": "Sit tall with your shoulders relaxed. Hold still while I learn your starting position.",
+      "bytes": 75276
+    },
+    "7ebd2ea4dfc547d92dc1483f83536da3810c68026881402a4d349f57ca30d307.mp3": {
+      "phraseIds": [
+        "exercise-fea475a6"
+      ],
+      "text": "Move your hand out to the cup and hold.",
+      "bytes": 38914
+    },
+    "02def88e8e364f7a313ee7dfd8552ade34626b91f338aa4085caa46fea147d83.mp3": {
+      "phraseIds": [
+        "exercise-ab1beca9"
+      ],
+      "text": "Bring your hand back to rest.",
+      "bytes": 29301
+    },
+    "c73332b3b2a923429991169e1b9f61930bb4b4d320c8d88e31c0af84f7d52efe.mp3": {
+      "phraseIds": [
+        "exercise-ba542d86"
+      ],
+      "text": "Follow the arrow: slide your hand out to the cup, keeping it low, close to the table, and hold. Stop before pain.",
+      "bytes": 135462
+    },
+    "66e93ab552451061f188213cbd2b4e7a09c7a938e48f95a24676edf18f961968.mp3": {
+      "phraseIds": [
+        "exercise-300b1c61"
+      ],
+      "text": "Out to the cup.",
+      "bytes": 22613
+    },
+    "f71bb6be675c1f9ad68ae79d402b192636a0f913b004238c6bd6ae94f7230df4.mp3": {
+      "phraseIds": [
+        "exercise-969d1f58"
+      ],
+      "text": "Now slide your hand back to rest.",
+      "bytes": 37660
+    },
+    "fa10c9c05d9462796ec55e238c89c58307971ed377369a19d42506e1cdcd969c.mp3": {
+      "phraseIds": [
+        "exercise-ebd21b4b"
+      ],
+      "text": "Back to rest.",
+      "bytes": 20524
+    },
+    "41c49df931e2dafc99856be97aa74753227281b49d9667579e7958bc6316c2c3.mp3": {
+      "phraseIds": [
+        "exercise-948515bf"
+      ],
+      "text": "Follow the arrow: lift your hand from the armrest out to the cup, and hold. Stop before pain.",
+      "bytes": 124595
+    },
+    "86aeae27d8315d38ae1348ca20d321aa6c42b86726c755db347b4163729289dc.mp3": {
+      "phraseIds": [
+        "exercise-78f35d8b"
+      ],
+      "text": "Now lower your hand back to the armrest.",
+      "bytes": 38078
+    },
+    "f3ff790fdd1a071cac32189b43d8b687268213a254281b36dd64518d9500169a.mp3": {
+      "phraseIds": [
+        "exercise-63be3dd7"
+      ],
+      "text": "Nice and slow as your arm moves out.",
+      "bytes": 42675
+    },
+    "fa9c796fca6beeb971f74b7c90bc33be5244b6ba65a29d27abef5b397e41a815.mp3": {
+      "phraseIds": [
+        "exercise-86f23ca7"
+      ],
+      "text": "Bring it back a little more slowly.",
+      "bytes": 31391
+    },
+    "1d6939b0b436144fe6fa4095541ddc3da54c3c7ed37b803a571ec78a84501fcf.mp3": {
+      "phraseIds": [
+        "exercise-d89f5e37"
+      ],
+      "text": "Sit tall and let your shoulder move your arm.",
+      "bytes": 44347
+    },
+    "43d05044ac742ad3faf5dec489976ad778c0e079a6cb354736afd70e42ac42ce.mp3": {
+      "phraseIds": [
+        "exercise-c0e81054"
+      ],
+      "text": "Keep your shoulder down and relaxed as your arm moves out.",
+      "bytes": 55214
+    },
+    "e25fc3a58801b2e2c6741f0a2ccfa49b78fdb3aa3d773641e02013fce5a9e279.mp3": {
+      "phraseIds": [
+        "exercise-3bd1c734"
+      ],
+      "text": "Stay tall and centred as your arm moves out.",
+      "bytes": 48527
+    },
+    "6762439d7f92175884f36c2387976dad95c5bb529fe791bff32c652649361930.mp3": {
+      "phraseIds": [
+        "exercise-6bc4f61a"
+      ],
+      "text": "Keep your hand low, close to the table, as you slide.",
+      "bytes": 56050
+    },
+    "7e64971abf85c35f569a92837b767e8f3467e401c09429aff275383cd7e052ee.mp3": {
+      "phraseIds": [
+        "exercise-454d1738"
+      ],
+      "text": "Keep your other hand resting still.",
+      "bytes": 33062
+    },
+    "f01b480b5f8980ae3a6f9259c2e91cce041f8c706e35aef34100850378933b5b.mp3": {
+      "phraseIds": [
+        "exercise-4ddb1ab6"
+      ],
+      "text": "Move your arm a little further out from your shoulder, keeping your body upright.",
+      "bytes": 66499
+    },
+    "f6e8d76d60e3792af3a8bb208b9f4d270748f483a64217f3cc5db24dffa81efb.mp3": {
+      "phraseIds": [
+        "exercise-6e82f385"
+      ],
+      "text": "Move your hand a little further out toward the cup.",
+      "bytes": 45601
+    },
+    "6032b4f663aa5343c6ad4f6723879b3573e2d03e6701a47826091bc1dc1f760b.mp3": {
+      "phraseIds": [
+        "exercise-ff0d5456"
+      ],
+      "text": "Keep your hand at the cup and your arm in view while I learn your movement.",
+      "bytes": 68589
+    },
+    "302778228d0e3a3a0b10303c36cc7362c733f26490727f1624b4a9807609ae6f.mp3": {
+      "phraseIds": [
+        "exercise-85de1462"
+      ],
+      "text": "Let's practise opening and closing your hand. Rest your affected elbow on an armrest or table. Hold your hand up in the shaded area, palm facing the camera.",
+      "bytes": 166809
+    },
+    "f5b9ed7676c67f571832bf90192a705a1db2f23efe6c51fded4faa68f1d47916.mp3": {
+      "phraseIds": [
+        "exercise-2bdae94c"
+      ],
+      "text": "Let your fingers relax and curl gently. Hold still while I learn your starting position.",
+      "bytes": 87397
+    },
+    "53ae2e6ce21696ff0f411fc380e9cc202baca88ea7e302edb212f3106e4e47cd.mp3": {
+      "phraseIds": [
+        "exercise-15fe23f9"
+      ],
+      "text": "Open your hand to the ring and hold.",
+      "bytes": 37660
+    },
+    "80d13076e40afce2e804078c38cc3ca4abce2f1926f00ee0dbe25026f0bad073.mp3": {
+      "phraseIds": [
+        "exercise-d7fdcde2"
+      ],
+      "text": "Close your hand gently.",
+      "bytes": 25539
+    },
+    "50d30fecd16314540023907b893ac9e00165c662fa07d029f1810bdb763acf30.mp3": {
+      "phraseIds": [
+        "exercise-1303cdd2"
+      ],
+      "text": "Your turn. One practice repetition, not scored. Show me your palm in the shaded area.",
+      "bytes": 99100
+    },
+    "3746b38961cf022a5b49102030e265d442ec7bcc084923f3813f4a49ae754ad7.mp3": {
+      "phraseIds": [
+        "exercise-7994abd7"
+      ],
+      "text": "Open your fingers out to the ring and hold, wrist straight.",
+      "bytes": 55214
+    },
+    "aca9dfa172067bfd8934f2359fd3ba877551bf102daf96fe3cf5a8b9e0a3a40f.mp3": {
+      "phraseIds": [
+        "exercise-6601760d"
+      ],
+      "text": "Open your hand.",
+      "bytes": 24703
+    },
+    "729cd108b506a6c2d3c3dd727dfccad53854dd3db6549ed7efbc1cc02c67d94a.mp3": {
+      "phraseIds": [
+        "exercise-25cc8994"
+      ],
+      "text": "Now close your hand gently.",
+      "bytes": 32226
+    },
+    "53786934a446d4b1def1d788885b90dbce914f8a0e86129ea938122a0a3284d6.mp3": {
+      "phraseIds": [
+        "exercise-a0914fd0"
+      ],
+      "text": "Close gently.",
+      "bytes": 18852
+    },
+    "5c41ae0051467fb94bb692d3fc116810b8501a9d2755248b81c8dbc29b1f21e9.mp3": {
+      "phraseIds": [
+        "exercise-36668f4f"
+      ],
+      "text": "Keep your wrist straight and let your fingers do the opening.",
+      "bytes": 51453
+    },
+    "9d1bf6d89e4ab6f8c4dad21fe344b0e065a76e63b0df58e6994e5984b8065148.mp3": {
+      "phraseIds": [
+        "exercise-d2711360"
+      ],
+      "text": "Keep your palm facing the camera as your fingers open.",
+      "bytes": 53960
+    },
+    "64c34950f7924394e6f1f08ad939b0a8ed5d0e8b7a5bf2fdff3599415c5f994e.mp3": {
+      "phraseIds": [
+        "exercise-2feab646"
+      ],
+      "text": "Sit tall and let your fingers do the work.",
+      "bytes": 41004
+    },
+    "b0a2a37fb853bad2628ae501dd25dd12aa3cbd48ea21a66decbf38478fbedff8.mp3": {
+      "phraseIds": [
+        "exercise-6e0eafb1"
+      ],
+      "text": "Relax the shoulder before opening your hand again.",
+      "bytes": 49363
+    },
+    "c25042f58c5f7947243246b502cecbc106fe469a38e29043f83a098345dbb8fe.mp3": {
+      "phraseIds": [
+        "exercise-d9ad765e"
+      ],
+      "text": "Open your fingers a little wider, out to the ring.",
+      "bytes": 47273
+    },
+    "eb84e53f8ad55c9e4fa183f7f0923e93c5dbf781e04e4f60b70417e5ecb6ddd5.mp3": {
+      "phraseIds": [
+        "exercise-f1132c33"
+      ],
+      "text": "Keep your fingers open at the ring and your whole hand in view while I learn your movement.",
+      "bytes": 81128
+    },
+    "0600cb2f641aeab2e5a0b0270ba313e6ab4c71b9e8c4be4c269c3603ae46b572.mp3": {
+      "phraseIds": [
+        "exercise-10a20f2f"
+      ],
+      "text": "Let's practise picking up a cup drawn on your screen, carrying it across your body and setting it down. Sit away from any table. Take your time.",
+      "bytes": 139224
+    },
+    "0142eabddf6bbec8f2613fc478eca2295d763ac92a4d3de8c1bbaf8c2b3ce06a.mp3": {
+      "phraseIds": [
+        "exercise-070abfbf"
+      ],
+      "text": "Sit tall with both hands resting on your thighs. Hold still while I learn your starting position.",
+      "bytes": 92413
+    },
+    "67a4535c594277da0d4c927adda0abd6db89f689403891741723acc780ec40f7.mp3": {
+      "phraseIds": [
+        "exercise-5207e25f"
+      ],
+      "text": "Reach to the cup and open your hand.",
+      "bytes": 38078
+    },
+    "dfbe675642cffa549bdc0238d6f409b381bc476787f4a30399135e9dfc695eb0.mp3": {
+      "phraseIds": [
+        "exercise-e8420713"
+      ],
+      "text": "Close your hand around the cup.",
+      "bytes": 34316
+    },
+    "e65ff54b547512d7519c64b0b506402cc89c8cfd7161898224ab2bb2d2e5e0cf.mp3": {
+      "phraseIds": [
+        "exercise-420a5050"
+      ],
+      "text": "Carry the cup across.",
+      "bytes": 19688
+    },
+    "51caeabb015f2de8348cd2b8601c5f61755a4b775c8f284e90f7cf41c808269f.mp3": {
+      "phraseIds": [
+        "exercise-187daac3"
+      ],
+      "text": "Open your hand to let go.",
+      "bytes": 29301
+    },
+    "b12359f33820df4078a93695a3e8198b5e63b61b7eb5f6fecbee3e446d2414bf.mp3": {
+      "phraseIds": [
+        "exercise-5859c364"
+      ],
+      "text": "Return your hand to your lap.",
+      "bytes": 29301
+    },
+    "3aa618064d350fca7b7ff917468ebf65410f7d1a0a6ce00bd5c732278feaac32.mp3": {
+      "phraseIds": [
+        "exercise-48975570"
+      ],
+      "text": "Reach for the cup, opening your hand, and hold.",
+      "bytes": 50199
+    },
+    "ceefbe1589f73d0d642ae62262e2c01faab89f3f5535a5bfce3358dd2d411454.mp3": {
+      "phraseIds": [
+        "exercise-5746ef52"
+      ],
+      "text": "Reach for the cup.",
+      "bytes": 24703
+    },
+    "5e73061d7f80b39df1dbbe5046be73e23c5c1885c7649912a3faed44c65cb6c6.mp3": {
+      "phraseIds": [
+        "exercise-129e3941"
+      ],
+      "text": "Now close your hand around the cup and hold.",
+      "bytes": 44347
+    },
+    "b51d99aa459d4bb600bbf600724bd202b5e26572fc9a44063e8c1d8e738d3157.mp3": {
+      "phraseIds": [
+        "exercise-4c862723"
+      ],
+      "text": "Grasp the cup.",
+      "bytes": 23449
+    },
+    "30d8061be83b86525f8c37b7a5e830243eaced0a91d60563faf6b595e6215ff0.mp3": {
+      "phraseIds": [
+        "exercise-97996727"
+      ],
+      "text": "Carry it across to the other circle, upright, and hold.",
+      "bytes": 57722
+    },
+    "5bb8a719d5b34ffbb7752cb9d5bbcbddf636e54837a2132c57ce317fa124f4a7.mp3": {
+      "phraseIds": [
+        "exercise-fe768cb2"
+      ],
+      "text": "Carry it across.",
+      "bytes": 19688
+    },
+    "9cb4b94241896bdc450724e7e44bf2021e8e119bbfce03a9a6b239d569371999.mp3": {
+      "phraseIds": [
+        "exercise-7fa70108"
+      ],
+      "text": "Now open your hand to let it go.",
+      "bytes": 37660
+    },
+    "0cbed9fee43cfa3b59996704e42e2f31b62a0acd6c245937f8e3ebdb44a237f7.mp3": {
+      "phraseIds": [
+        "exercise-a0e77c23"
+      ],
+      "text": "Let it go.",
+      "bytes": 23449
+    },
+    "f303e5fb4fc7885a3bbfff7a142692693b7e732104fc1c4f99a1939c66832648.mp3": {
+      "phraseIds": [
+        "exercise-96e0c661"
+      ],
+      "text": "Now back to your lap.",
+      "bytes": 28465
+    },
+    "a1169139e1832d136e5f3ef835ac4bebaffb0ceb561c1671a690f914e1de5840.mp3": {
+      "phraseIds": [
+        "exercise-880efdd7"
+      ],
+      "text": "Back to your lap.",
+      "bytes": 23449
+    },
+    "d6c1cd68fa1ac232b3dc91f179fad56404ef7ee9a400fe17eb2d1e9efb261477.mp3": {
+      "phraseIds": [
+        "exercise-870950c6"
+      ],
+      "text": "Sit tall and let your arm do the reaching.",
+      "bytes": 42675
+    },
+    "5658ee657ed2fd997784319d171cb93fabe74f7da56854e3f9837e64a3e2b4f4.mp3": {
+      "phraseIds": [
+        "exercise-6fa05656"
+      ],
+      "text": "Keep your body upright and let your arm carry the cup across.",
+      "bytes": 59812
+    },
+    "ab1f9e28a8a09f818f8c0aa1e9299f7ba04b7a7ee9cd8cf422e9ad50b27ac356.mp3": {
+      "phraseIds": [
+        "exercise-2e311efa"
+      ],
+      "text": "Keep your shoulder down and relaxed as you move the cup.",
+      "bytes": 50199
+    },
+    "8371d39d5a7dfb332fbaa1415a0a44f35c034295e97a52b64b0739a102e7679f.mp3": {
+      "phraseIds": [
+        "exercise-1257b056"
+      ],
+      "text": "Keep your elbow close to your side and carry the cup across with your forearm.",
+      "bytes": 71515
+    },
+    "3cd6e18f94424a7d446d81a6eb73ac03c443bc645c4dfe3091992dce863d45da.mp3": {
+      "phraseIds": [
+        "exercise-e0f74a1c"
+      ],
+      "text": "Keep your wrist in line with your forearm while you hold the cup.",
+      "bytes": 52288
+    },
+    "9ed0b12de7c5561d077d4678215db10efa5d2be0261d4e37a7e42dde28f325d5.mp3": {
+      "phraseIds": [
+        "exercise-9d32ad3d"
+      ],
+      "text": "Keep the cup upright as you carry it.",
+      "bytes": 41839
+    },
+    "3e364990e5696b4213612f2ee3942c4e8cd155942a58caa94ea0de8be6a74f90.mp3": {
+      "phraseIds": [
+        "exercise-16587574"
+      ],
+      "text": "Straighten your elbow a little more as you reach for the cup.",
+      "bytes": 52288
+    },
+    "4d2ff417c6786bc02a3a356a5751d7f5172512dfba43c4720e47596fa974be2d.mp3": {
+      "phraseIds": [
+        "exercise-f2b4e91a"
+      ],
+      "text": "Lift your arm a little more from your shoulder as you reach for the cup.",
+      "bytes": 61066
+    },
+    "afec487c74dd05c9414b560a638fb0f49a6c8f4a5b91d9c99fb68173a4147d04.mp3": {
+      "phraseIds": [
+        "exercise-d78ba6e5"
+      ],
+      "text": "Open your hand a little wider as you reach for the cup.",
+      "bytes": 57722
+    },
+    "6a35c1a285df7a35bf0adcfee9f42e9f9ba74d1e340cdad08acd24e0caa3e0cf.mp3": {
+      "phraseIds": [
+        "exercise-760bbff6"
+      ],
+      "text": "Carry the cup a little further across your body.",
+      "bytes": 40586
+    },
+    "336046bc3e68d9d0a9d4c3c5c0155070b24d4e9fdd6e34e12a6c2121829fb0cb.mp3": {
+      "phraseIds": [
+        "exercise-8a4b92e5"
+      ],
+      "text": "Let's practise pinching, as if picking up a small peg. The peg and tray are drawn on your screen. Rest your affected elbow on an armrest or table. Hold your hand up in the shaded area.",
+      "bytes": 187707
+    },
+    "91f35b1675088cac9656f5d1b3b2a8ee95657ff9407b7516541201e1e9f30fdd.mp3": {
+      "phraseIds": [
+        "exercise-0505fcfe"
+      ],
+      "text": "Turn your palm to the camera, fingers and thumb open. Hold still while I learn your starting position.",
+      "bytes": 99936
+    },
+    "11576078c5648eb954299bcd41674ea84ee25e902fbbebc1b0e79a0c7af69f79.mp3": {
+      "phraseIds": [
+        "exercise-4428ce61"
+      ],
+      "text": "Pinch your thumb to your first finger.",
+      "bytes": 34316
+    },
+    "af32a3d508752448551b85dc034b9a6864655a0859cc757a4b46f447a181af12.mp3": {
+      "phraseIds": [
+        "exercise-5748a0fe"
+      ],
+      "text": "Let go.",
+      "bytes": 16762
+    },
+    "2701f5ac43c5057d64af91843a8404d2ad8f298a48324c59c29c30de0641c4c5.mp3": {
+      "phraseIds": [
+        "exercise-402f2eb6"
+      ],
+      "text": "Pinch your thumb to your middle finger.",
+      "bytes": 34316
+    },
+    "ed4021c61c0d4b84e526fffd36be35167765f8e9a4301df7867c523e7174825f.mp3": {
+      "phraseIds": [
+        "exercise-3e6fac26"
+      ],
+      "text": "Your turn. One practice repetition, not scored. Show me your open palm in the shaded area.",
+      "bytes": 91577
+    },
+    "66eb1f98fa61261a25e891da88005529d2160a4698796d589d6bd5e3993394b2.mp3": {
+      "phraseIds": [
+        "exercise-21b70f89"
+      ],
+      "text": "Bring your thumb and first finger together, tip to tip, to pick up the peg, and hold.",
+      "bytes": 76112
+    },
+    "8f0ce9e146b240715c3485ae3cec0161ffd46a810abb259ec86decd8b237ac6b.mp3": {
+      "phraseIds": [
+        "exercise-7d3cdd2d"
+      ],
+      "text": "Pinch your first finger.",
+      "bytes": 27211
+    },
+    "078edce1e692edb808a0129de0627587dc64ca5b972d9e4e311ee1ede2e7c53d.mp3": {
+      "phraseIds": [
+        "exercise-9392f2d9"
+      ],
+      "text": "Now let the peg drop into the tray.",
+      "bytes": 36824
+    },
+    "814e42273b7c51f45c61f83441e9d3ccf421850f5edda729d51ddf23f6534c54.mp3": {
+      "phraseIds": [
+        "exercise-4c42a6e2"
+      ],
+      "text": "Now your thumb and middle finger, tip to tip, and hold.",
+      "bytes": 54378
+    },
+    "679ca8005dc3e204d9029326cc3412da023bbbe1c9b543592be0493e74cec266.mp3": {
+      "phraseIds": [
+        "exercise-237aba7a"
+      ],
+      "text": "Pinch your middle finger.",
+      "bytes": 24703
+    },
+    "9beb2f922e84e72000a7a6eb7516f2f739ad0ea787d04dd6afb9704ca3abfd3c.mp3": {
+      "phraseIds": [
+        "exercise-563de415"
+      ],
+      "text": "Now your thumb and first finger, tip to tip, and hold.",
+      "bytes": 60648
+    },
+    "54003c41ba0fdaa2953d1e26457000f3311c0e08493f33326e2f729d7ea26049.mp3": {
+      "phraseIds": [
+        "exercise-3f1939b1"
+      ],
+      "text": "Keep your shoulder relaxed as you pinch.",
+      "bytes": 38914
+    },
+    "52a3a59e49f24a877f1aee09f2a55edefa364dfc9a2e046000779ce699dfe7dd.mp3": {
+      "phraseIds": [
+        "exercise-2efed938"
+      ],
+      "text": "Keep your palm facing the camera as you pinch.",
+      "bytes": 42675
+    },
+    "78e32d38f51547e8bc2820c60e9d3529e5505be5c8ee737efb75b988e25298e8.mp3": {
+      "phraseIds": [
+        "exercise-d8795580"
+      ],
+      "text": "Rest your other hand on your lap.",
+      "bytes": 31391
+    },
+    "2b94a87427f9b4c6daa51e06471919b6a1ac95f59435fc5d45b0a70783000f30.mp3": {
+      "phraseIds": [
+        "exercise-55df0aa4"
+      ],
+      "text": "Keep your wrist straight and let your thumb and finger do the work.",
+      "bytes": 58976
+    },
+    "4927bf263e1fa79a182be7bbeb6232a59a29d5b2e785fe97978a7655d92debda.mp3": {
+      "phraseIds": [
+        "exercise-ff22f04c"
+      ],
+      "text": "Keep your other fingers relaxed and out as you pinch.",
+      "bytes": 51035
+    },
+    "7f31a22c3ace062434d3fc181bad9ad027ccf9a700a5db33ded42d3f663ce3a4.mp3": {
+      "phraseIds": [
+        "exercise-3bf4fa7e"
+      ],
+      "text": "Bring your thumb a little closer to your first fingertip, tip to tip.",
+      "bytes": 74022
+    },
+    "bcaa0cff60f35330b208e07ec658cbcb7271906f1ba0028e3e3aa6190ce9422a.mp3": {
+      "phraseIds": [
+        "exercise-b673d169"
+      ],
+      "text": "Bring your thumb a little closer to your middle fingertip, tip to tip.",
+      "bytes": 65663
+    },
+    "dc51ba25189084d6594cca54874e08156ccc2a49ac9847489d9efee5430eca91.mp3": {
+      "phraseIds": [
+        "exercise-bb5459f9"
+      ],
+      "text": "Keep your thumb and finger together in the circle and your whole hand in view while I learn your movement.",
+      "bytes": 92413
+    },
+    "2d7635fa2650e32313cba7ad0c437b4ac1ce6972929f356da1d55e3ad6b7811c.mp3": {
+      "phraseIds": [
+        "exercise-88096521"
+      ],
+      "text": "Let's practise straightening your knee while you sit. Use a stable chair with a back, with a carer nearby if you need help. Stop if it hurts. Place the camera about two metres away, at knee to hip height.",
+      "bytes": 209023
+    },
+    "d5742636c60bb6e6e68582335a91b31099d502fc6794ef1585c1c428829a1e9b.mp3": {
+      "phraseIds": [
+        "exercise-0a791abc"
+      ],
+      "text": "Sit tall, back against the chair, feet flat on the floor. Hold still while I learn your starting position.",
+      "bytes": 96174
+    },
+    "301ed2c3ec7592a95743ecf7c36b5a89b868226c679ccbb2eb54030e55514733.mp3": {
+      "phraseIds": [
+        "exercise-5459d996"
+      ],
+      "text": "Straighten your knee and hold.",
+      "bytes": 33062
+    },
+    "049d91850205a410599a23b5b631845673b0aa0794fc0bc81473240c81249676.mp3": {
+      "phraseIds": [
+        "exercise-feec6091"
+      ],
+      "text": "Lower your foot to the floor.",
+      "bytes": 30137
+    },
+    "c0f11b97fb8cfddc7e76307db0149dd84c0bc76e9b829feff69d1377ae729755.mp3": {
+      "phraseIds": [
+        "exercise-43419855"
+      ],
+      "text": "Your turn. One practice repetition, not scored. The knee dial beside your shoulder moves with your knee.",
+      "bytes": 99936
+    },
+    "262acb8e0fe745bd04e65938edc15006564c0f60c36ef027a31dcb98cb5b69bc.mp3": {
+      "phraseIds": [
+        "exercise-86255371"
+      ],
+      "text": "Straighten your knee along the arrow, toward the camera, and hold. Keep your thigh on the chair.",
+      "bytes": 87815
+    },
+    "321eb918a1b311caba6b31956946c91dbe28a3264977f745fa1116e59f3bcffd.mp3": {
+      "phraseIds": [
+        "exercise-2973ad6d"
+      ],
+      "text": "Straighten along the arrow.",
+      "bytes": 29301
+    },
+    "1b5ff59b0afed0670b85d2fd1eedd0ae9462a9711ebec35afd135c426c0c6cc4.mp3": {
+      "phraseIds": [
+        "exercise-715cf1cf"
+      ],
+      "text": "Now lower your foot slowly.",
+      "bytes": 31391
+    },
+    "99f0e4a297af850686282b65b530fb4907069180489d14c575b9956b7f555bb8.mp3": {
+      "phraseIds": [
+        "exercise-a058ca3a"
+      ],
+      "text": "Lower slowly.",
+      "bytes": 20524
+    },
+    "770ee157edffec6483e5201da2e23cbb27aa122914f8d8c687295c0aaf221de7.mp3": {
+      "phraseIds": [
+        "exercise-749445fa"
+      ],
+      "text": "Nice and slow as you straighten.",
+      "bytes": 35988
+    },
+    "52b0813a6fcace5fc6f3879dcd7aa20d0228cdc7fc60a06cc9fcb0a7cb1dd2d0.mp3": {
+      "phraseIds": [
+        "exercise-43c518b9"
+      ],
+      "text": "Lower your foot slowly.",
+      "bytes": 27211
+    },
+    "afa945269c29ac84aa401c95ba3c91dfed7534347918f5f68c833e6c03de905e.mp3": {
+      "phraseIds": [
+        "exercise-75c27117"
+      ],
+      "text": "Sit tall and let your knee do the lifting.",
+      "bytes": 45601
+    },
+    "dcccc1a41b6ae2aeee6134533e5eac4b8874c6357bd3908c9a35547c8c788adf.mp3": {
+      "phraseIds": [
+        "exercise-b44171c7"
+      ],
+      "text": "Sit tall with your back against the chair.",
+      "bytes": 38914
+    },
+    "a35762150cc9b818149cb8592be8d77f546c33e32f1fd13b019a5469a4241b10.mp3": {
+      "phraseIds": [
+        "exercise-f1283a0b"
+      ],
+      "text": "Keep your weight even on both hips.",
+      "bytes": 33898
+    },
+    "a434e467d5ddd568a3eaefd41d91f6a1449887cb0a53528af278aff71c5890ca.mp3": {
+      "phraseIds": [
+        "exercise-e283a6b1"
+      ],
+      "text": "Keep both hips settled on the chair.",
+      "bytes": 34316
+    },
+    "d6a291fbafe28f4090296521ec91df6b592e304244322a5529948f1e1d4ad743.mp3": {
+      "phraseIds": [
+        "exercise-34f8824d"
+      ],
+      "text": "Keep your thigh resting on the chair and let your knee straighten.",
+      "bytes": 56886
+    },
+    "b71fdfbf0a0b530ae3aebfa06da1ebf5301f1992bcbeb9502af20a68ebf76829.mp3": {
+      "phraseIds": [
+        "exercise-c9714d19"
+      ],
+      "text": "Keep your other foot still on the floor.",
+      "bytes": 34316
+    },
+    "910750142f133ade54342757edbc5af88d33917e4f3ffb938b35d0194b5520f0.mp3": {
+      "phraseIds": [
+        "exercise-519638cd"
+      ],
+      "text": "Straighten your knee a little more, as far as is comfortable.",
+      "bytes": 55214
+    },
+    "add6f40551d9a2feb159547a82baee55ce97fccc0cf7b07cd3d626ca7b5ea7ef.mp3": {
+      "phraseIds": [
+        "exercise-ee0b75ce"
+      ],
+      "text": "Keep your knee straight at the circle and your feet in view while I learn your movement.",
+      "bytes": 80710
+    },
+    "40c2b967e204e8747c9b24fee88c16826b5d6d33700550e4abaa9b882f7e617d.mp3": {
+      "phraseIds": [
+        "exercise-fdf7bc0a"
+      ],
+      "text": "Let's practise lifting your toes, heel down. Use a stable chair with a back, with a carer nearby if you need help. Stop if you feel pain, cramp or numbness. Place the camera about two metres away, at knee height. Bare feet or thin flat shoes work best.",
+      "bytes": 293033
+    },
+    "5da0d2ec4912d8fd591b0d3897f6fec8a69b25c782510eac063e696f4b0610a5.mp3": {
+      "phraseIds": [
+        "exercise-ead72067"
+      ],
+      "text": "Sit tall, back against the chair, feet in the areas marked on the floor on screen, affected foot turned out to the side. Hold still while I learn your starting position.",
+      "bytes": 150509
+    },
+    "18b603c5c31dc3129435a71947b15fe55bbfb1140b2bcb56984d9e5a1ad1874f.mp3": {
+      "phraseIds": [
+        "exercise-438cb704"
+      ],
+      "text": "Lift your toes and hold.",
+      "bytes": 31391
+    },
+    "42d3c572e719508d66f85ce08efaaa0a1426ba8b97ee7c9bd1c12488a2039e6a.mp3": {
+      "phraseIds": [
+        "exercise-66c2fca6"
+      ],
+      "text": "Lower your toes slowly.",
+      "bytes": 26375
+    },
+    "47c2173721b1f93e7e4cb120179f576ffb77f38991c9f9c349daa44763225b88.mp3": {
+      "phraseIds": [
+        "exercise-62a0230a"
+      ],
+      "text": "Your turn. One practice repetition, not scored. The ankle dial beside your shoulder moves with your foot.",
+      "bytes": 114564
+    },
+    "26d369d93f249a77de75cbf2175c8a03fd4f9a5a289bc3419e5e0a79d84a75bd.mp3": {
+      "phraseIds": [
+        "exercise-63bfed6b"
+      ],
+      "text": "With your foot turned out and your heel down, lift your toes to the circle, and hold.",
+      "bytes": 79038
+    },
+    "eaafe3b161f50c16c2dbbdfc0c74065dc94b4bac8dc5c45db46a25777d6ca5b6.mp3": {
+      "phraseIds": [
+        "exercise-0f39e53a"
+      ],
+      "text": "Lift your toes, heel down.",
+      "bytes": 31391
+    },
+    "3536350732b09788392dfa595014039909863ce80f7dbceaa6f420841b7689ea.mp3": {
+      "phraseIds": [
+        "exercise-5eec8750"
+      ],
+      "text": "Now lower your toes slowly.",
+      "bytes": 29301
+    },
+    "f23d716afc820f8c6557e41530cad5debe1512aad8e279b033728395eeccd3b4.mp3": {
+      "phraseIds": [
+        "exercise-973ad7c0"
+      ],
+      "text": "Nice and slow as you lift.",
+      "bytes": 28465
+    },
+    "040e078248e9226f5e1d03d9e534c6829e30c764681322397b2c498c4e844f26.mp3": {
+      "phraseIds": [
+        "exercise-7eb0e914"
+      ],
+      "text": "Nice and slow as you lower.",
+      "bytes": 27629
+    },
+    "56d8fdebab16431edfca8f21c6f4f60525011a65586cef57b6ab2022a72b72e2.mp3": {
+      "phraseIds": [
+        "exercise-9d47049f"
+      ],
+      "text": "Keep your heel on the floor and lift only the front of your foot.",
+      "bytes": 54378
+    },
+    "7649ee2032e211f2e17545875070744da5c094affd09dc85501e08702bafb875.mp3": {
+      "phraseIds": [
+        "exercise-ff1cac05"
+      ],
+      "text": "Keep your knee still and let your ankle do the lifting.",
+      "bytes": 51035
+    },
+    "3583582cb62c115b73e2c9dff9f147026453b643268846daa5b3d6fa7182ee61.mp3": {
+      "phraseIds": [
+        "exercise-4737009b"
+      ],
+      "text": "Keep your knee still where it started.",
+      "bytes": 36824
+    },
+    "129c6653b5e4f3c4e9cf908e2179359dfca668c8975227d0d44d4bf03c4eb1c0.mp3": {
+      "phraseIds": [
+        "exercise-312a8cdf"
+      ],
+      "text": "Sit tall and let your ankle do the lifting.",
+      "bytes": 41004
+    },
+    "c120d84e874a3ac2762c7562cf48b1061690039b799488deb20c39620fc96a40.mp3": {
+      "phraseIds": [
+        "exercise-9cf58944"
+      ],
+      "text": "Lift your toes a little higher, keeping your heel down.",
+      "bytes": 48527
+    },
+    "d8b43b7d06057d9c7952ac1958d2178ba74d99f51418d4f687e761acba18a482.mp3": {
+      "phraseIds": [
+        "exercise-e1109225"
+      ],
+      "text": "Keep your toes up at the circle and your feet in view while I learn your movement.",
+      "bytes": 74440
+    },
+    "d6ec7ab87b5e6ffbfa31cb642cd2e06b54d4dee84f18d0d442ebabb9eb38af5c.mp3": {
+      "phraseIds": [
+        "exercise-7e089cad"
+      ],
+      "text": "Keep your knees and feet in view of the camera.",
+      "bytes": 47273
+    },
+    "a65f252a99c943b737565508892416e509b27cb978d7c39e4c4d317e8e180fa9.mp3": {
+      "phraseIds": [
+        "exercise-a5f8848b"
+      ],
+      "text": "Keep your shoulder, elbow and hand in view of the camera.",
+      "bytes": 55214
+    },
+    "0ed36ed0b7938b88e8f8d11087157f12d18053588ca07a5d0f26e78654b836b8.mp3": {
+      "phraseIds": [
+        "exercise-573d167e"
+      ],
+      "text": "Keep your hand in the shaded area, clear of your face and shoulders.",
+      "bytes": 69425
+    },
+    "a806cca42408a7dd5260d660be1763e0c285e4018b83aa6544de25406eca0f8e.mp3": {
+      "phraseIds": [
+        "exercise-f6456c14"
+      ],
+      "text": "Keep your hand in view while you hold and carry the cup.",
+      "bytes": 51453
+    },
+    "f4609d978f4637893cc873752e7d10b85e002cad05897f15aadb081e26e522d7.mp3": {
+      "phraseIds": [
+        "exercise-d965f5b9"
+      ],
+      "text": "Keep your whole body in view, from your head to your feet.",
+      "bytes": 54378
+    },
+    "71eb917887df54ce0ffed58e64c79e8a8b61c4bb2fbf98972ed2b06e482a1b48.mp3": {
+      "phraseIds": [
+        "exercise-3f04e53c"
+      ],
+      "text": "Keep both hands in view, so I can check them.",
+      "bytes": 41839
+    },
+    "d6440bac565116ca3fda75adf8cb08d6bc60ad7094333b05f7988984044c21d1.mp3": {
+      "phraseIds": [
+        "exercise-c4284cb9"
+      ],
+      "text": "Hold your left hand up in the shaded area with your palm facing the camera.",
+      "bytes": 71515
+    },
+    "cb1df66b2bb0add11fd40d244801e21d6f6b9e712d0aeaf9efbf3b8331c97159.mp3": {
+      "phraseIds": [
+        "exercise-2fb632e2"
+      ],
+      "text": "Hold your right hand up in the shaded area with your palm facing the camera.",
+      "bytes": 72351
+    },
+    "82f4079f6a43206efac3442fc51a8881693727722d347378c61f3407e0d316be.mp3": {
+      "phraseIds": [
+        "exercise-fd538f2b"
+      ],
+      "text": "Hold your hand toward the camera so I can see every finger.",
+      "bytes": 51453
+    },
+    "a8e09ee05064e6be969a075cd4543a852e38d14008d8ba2849c558a98afc5ea0.mp3": {
+      "phraseIds": [
+        "exercise-488bf605"
+      ],
+      "text": "Move your hand back a little so I can see every fingertip.",
+      "bytes": 60648
+    },
+    "3dc72a4629f6ac0f3e62f1e672bc59b30cc04e5b22c15f86f3958bbb99e31a9c.mp3": {
+      "phraseIds": [
+        "exercise-97ab257d"
+      ],
+      "text": "Keep your face and both shoulders in view.",
+      "bytes": 39750
+    },
+    "6ae968a5baeeab8fed458557bc69f89755504d865256a98bf227c8b8b46187cf.mp3": {
+      "phraseIds": [
+        "exercise-b27dc9c4"
+      ],
+      "text": "Bring your hand into the shaded area.",
+      "bytes": 35988
+    },
+    "e812b1b7ef4890601d3dd31f8e8b7b2c3151ca9845953a6e489faa14386376b6.mp3": {
+      "phraseIds": [
+        "exercise-351db2a5"
+      ],
+      "text": "Move your hand a little further out, away from your face.",
+      "bytes": 53960
+    },
+    "c89dfdd7447f989419d4ccdb687a6e45f4c1c305c23535c67d9e8a4a7a91b7b7.mp3": {
+      "phraseIds": [
+        "exercise-be69699a"
+      ],
+      "text": "Move your hand a little further out, away from your shoulder.",
+      "bytes": 53960
+    },
+    "b0bb309222af1b1f6681067fc0e6cdfce0f34ab3c4fb33946356c2fad32ab2f2.mp3": {
+      "phraseIds": [
+        "exercise-e78fc8ad"
+      ],
+      "text": "Turn your palm to face the camera.",
+      "bytes": 35152
+    },
+    "e8cad163cd8324d29992ee451265ef3e6bdcc5258e88355b2f520ecdfe26c7d9.mp3": {
+      "phraseIds": [
+        "exercise-29fc8dca"
+      ],
+      "text": "Hold your wrist as you did at the start.",
+      "bytes": 35152
+    },
+    "ea1342749967f4df78c2f2de25cd73d2571a8bbc8ec0d382303422bcc3e7f307.mp3": {
+      "phraseIds": [
+        "exercise-2300c6fd"
+      ],
+      "text": "Let your fingers relax first.",
+      "bytes": 35152
+    },
+    "eb683ff4fb2585753f7d287bdf699494a606cc401203859d2069628ce6e6020c.mp3": {
+      "phraseIds": [
+        "exercise-50a4a79f"
+      ],
+      "text": "Let your fingers relax and curl gently. Don't open your hand yet.",
+      "bytes": 67753
+    },
+    "4e978adb19c58d00cd62cea2b9398b0d9fb85a4812348cd5e5b96ac15495380a.mp3": {
+      "phraseIds": [
+        "exercise-d213cbde"
+      ],
+      "text": "Open your fingers and thumb, so your thumb is away from your first finger.",
+      "bytes": 67753
+    },
+    "b1a0e1a592a53cc8c8aae5ad7c93b7a41c1e77896bf357c1608de7905d4a3ab5.mp3": {
+      "phraseIds": [
+        "exercise-bb9467c1"
+      ],
+      "text": "Open your fingers and thumb.",
+      "bytes": 28465
+    },
+    "c908b7cabd5f047b954dcee9a0be582eba399af5e2ca50d68f1e45f9fc510c8b.mp3": {
+      "phraseIds": [
+        "exercise-df0c61d7"
+      ],
+      "text": "Your hand is hard to see against the background. If you can, sit in front of a plain background of a different colour.",
+      "bytes": 99936
+    },
+    "430aa14581c302f514ff6f73b07e955e1b8c710137a7fd29bb2af5dae3f563a7.mp3": {
+      "phraseIds": [
+        "exercise-7f6ad3ca"
+      ],
+      "text": "Sit back so your shoulders and both hips are in view.",
+      "bytes": 51035
+    },
+    "78cf9d71e9372577adc4e5597b5a2940438c07e917d0b3117dade1ec5b71dfe5.mp3": {
+      "phraseIds": [
+        "exercise-dfd7c27a"
+      ],
+      "text": "Rest your hand on your thigh where the camera can see your whole hand.",
+      "bytes": 59812
+    },
+    "b67bdc8efe275a85a4fb0404c0bb36ceb58b4f06aa58604e728ec5f6187dd0a9.mp3": {
+      "phraseIds": [
+        "exercise-8bc1932f"
+      ],
+      "text": "Move the camera back so I can see you from your head to your feet.",
+      "bytes": 57722
+    },
+    "8036e853780ef4abf53ee89e83de3f51fb5ae2eb15210880fc7deaceb611de66.mp3": {
+      "phraseIds": [
+        "exercise-a7384e67"
+      ],
+      "text": "Move the camera back so I can see both shoulders.",
+      "bytes": 44765
+    },
+    "17854804db0fcba16231c5ad0c29d96fba060e8a53ec0d3ceed08e36751742cd.mp3": {
+      "phraseIds": [
+        "exercise-4868edd8"
+      ],
+      "text": "Sit facing the camera so I can see both hips.",
+      "bytes": 49363
+    },
+    "880a10713c86d4fadc15191f78fc44280f604c03af840cb5da266941cc695305.mp3": {
+      "phraseIds": [
+        "exercise-077c6cdc"
+      ],
+      "text": "Move the camera back so I can see both knees.",
+      "bytes": 44347
+    },
+    "4a12f4b366535918ac176e86ada53762f523d19618bb60e24001096c1d37e27f.mp3": {
+      "phraseIds": [
+        "exercise-c868212f"
+      ],
+      "text": "Move the camera back, or tilt it down, so I can see both feet.",
+      "bytes": 56886
+    },
+    "47999c8f48e836a0672b063b735ec37155f3c390401745273f117b7e9d49ec26.mp3": {
+      "phraseIds": [
+        "exercise-14d317c1"
+      ],
+      "text": "Sit down on a chair facing the camera, with your knees bent and both feet flat on the floor.",
+      "bytes": 87815
+    },
+    "85328f76c568dc9ea07d4701c4bc1ff526d17887edd9689f164d4a4bf4fdf505.mp3": {
+      "phraseIds": [
+        "exercise-158d194c"
+      ],
+      "text": "Tilt the camera up a little so there is space above your head.",
+      "bytes": 52288
+    },
+    "3b174ed105205527356c7089bcff46f54fbcebc5e12f8f0685c586b1468fbfc3.mp3": {
+      "phraseIds": [
+        "exercise-a2534ecd"
+      ],
+      "text": "Tilt the camera down a little so there is space below your feet.",
+      "bytes": 59812
+    },
+    "d9dc54b77ed549b3d97be3cd2c0fb564702a4bcc6b621019aed25de61abaa5b4.mp3": {
+      "phraseIds": [
+        "exercise-fe159d7c"
+      ],
+      "text": "Move the camera so you are in the middle of the picture.",
+      "bytes": 53124
+    },
+    "e469744f58584ffba020c1f62283a44221529eff1f109d0c5611659d45e54123.mp3": {
+      "phraseIds": [
+        "exercise-279398b3"
+      ],
+      "text": "Move the camera a little closer.",
+      "bytes": 35988
+    },
+    "47d91afda792c903fc9bc41c7d9779a5c16353f6cab45343ca0a3df8191f9a5f.mp3": {
+      "phraseIds": [
+        "exercise-7000ae77"
+      ],
+      "text": "Move the camera back a little, or sit nearer the middle of the picture, so there is space beside your shoulder.",
+      "bytes": 95338
+    },
+    "4c95aaf0d8eba36bb0b133555aaaaa369a7f224f0e16a3b4ac2eacb6322397c2.mp3": {
+      "phraseIds": [
+        "exercise-5f8aaafb"
+      ],
+      "text": "Your trousers blend in with the background. If you can, wear a colour that stands out from it, or change the background.",
+      "bytes": 101190
+    },
+    "ef8982077f34cc834b8a2a248d714c772574ba92dec5528a34cb11e01b831fb1.mp3": {
+      "phraseIds": [
+        "exercise-55ffb88d"
+      ],
+      "text": "Put your foot flat on the floor, below your knee.",
+      "bytes": 41004
+    },
+    "e8b3f567ddd5f07f1f238bb077032754e2e376d383ed02ebeb7cd09266234e61.mp3": {
+      "phraseIds": [
+        "exercise-4395cbeb"
+      ],
+      "text": "Put both feet flat on the floor, about hip-width apart.",
+      "bytes": 61066
+    },
+    "1a5b54ebbfcb53d496ac32dd4f0c351cc13ec10cbc3d6754332d41e2f4cbb0f0.mp3": {
+      "phraseIds": [
+        "exercise-4cba88aa"
+      ],
+      "text": "Go back to Set up so I can place the knee dial.",
+      "bytes": 45601
+    },
+    "a271c133a063ddcf2e1a0a6387c4432c332c8b93b3a87d0ee1e865af813b388a.mp3": {
+      "phraseIds": [
+        "exercise-d61edf2b"
+      ],
+      "text": "Put your left foot in the area marked on the floor, heel under your knee.",
+      "bytes": 66499
+    },
+    "639e4f2029b9a5cbf840f0c63c38a39741ba57f4393ad2c9e36db30fd64bb2fd.mp3": {
+      "phraseIds": [
+        "exercise-bbfae090"
+      ],
+      "text": "Put your right foot in the area marked on the floor, heel under your knee.",
+      "bytes": 70261
+    },
+    "b4ea9356eeb5c45bcb51b7e231fd6616ed41898f309cd44e39d7fc59657b257e.mp3": {
+      "phraseIds": [
+        "exercise-68ceb20d"
+      ],
+      "text": "Put your left foot in the area marked on the floor: heel under your knee, toes turned out onto the outline.",
+      "bytes": 103697
+    },
+    "e9d401c993bef4a7dabe3399baacea2f2c91995e2cc9e1fc82d3aa0ceb3ca65f.mp3": {
+      "phraseIds": [
+        "exercise-893a80b6"
+      ],
+      "text": "Put your right foot in the area marked on the floor: heel under your knee, toes turned out onto the outline.",
+      "bytes": 107459
+    },
+    "5590e501ba0a7b41793af1ea081eed7f5e61d4f031963a45bc218a76446163be.mp3": {
+      "phraseIds": [
+        "exercise-aa2e9900"
+      ],
+      "text": "Put both feet in the areas marked on the floor, side by side.",
+      "bytes": 62737
+    },
+    "1a10ee87fddc325b5e62c630445af34890df976c6c155bad594d6897a18be887.mp3": {
+      "phraseIds": [
+        "exercise-9bc6206d"
+      ],
+      "text": "Move the camera a little closer, keeping your feet in view.",
+      "bytes": 53124
+    },
+    "22a7b03bda89259e8a4a7e1c246b6607009981fc69c6abb3b3cf6cde2d1b795f.mp3": {
+      "phraseIds": [
+        "exercise-b9d894dd"
+      ],
+      "text": "Rest your toes on the floor, heel down.",
+      "bytes": 39750
+    },
+    "6de0118c367b5a3eab559c930649df4639af2ba0cde499c8e60a6ebce0f563ba.mp3": {
+      "phraseIds": [
+        "exercise-c34e0b62"
+      ],
+      "text": "Go back to Set up so I can place the ankle dial.",
+      "bytes": 45601
+    },
+    "9dad3108859fd901dcd72a2ed3818a2ca588b229467a79220b1d73fcfc66d205.mp3": {
+      "phraseIds": [
+        "exercise-9030f094"
+      ],
+      "text": "Move the camera back so I can see you from your head to your thighs.",
+      "bytes": 64409
+    },
+    "cd736eb23bf1b77189716748949248d5865e7919152316aae84efc4bac5381ad.mp3": {
+      "phraseIds": [
+        "exercise-3e81c308"
+      ],
+      "text": "Move the camera back so I can see both hips.",
+      "bytes": 47691
+    },
+    "8a053c8e1eac7930cd5d90911a5e017db017a37f40ba7669c6748dfd085a1d4f.mp3": {
+      "phraseIds": [
+        "exercise-2131b488"
+      ],
+      "text": "Move the camera back so I can see your hips.",
+      "bytes": 37660
+    },
+    "d927cfc6520a7ea8bb05f233f8416951e5c61a7c38f93b490232ec5d4599a1a5.mp3": {
+      "phraseIds": [
+        "exercise-cdea53f9"
+      ],
+      "text": "Rest your left forearm on the table beside you, with your elbow bent.",
+      "bytes": 67753
+    },
+    "6a20ac0e4bf9165e593cf5b92a99b407dd7d4a2a4bf29892d5e839aed0ecc83b.mp3": {
+      "phraseIds": [
+        "exercise-68a8c682"
+      ],
+      "text": "Rest your right forearm on the table beside you, with your elbow bent.",
+      "bytes": 64409
+    },
+    "ee9e6b9b101a8d0093658ff46e4a8eb4d091fa3c2362cfad8d0cc4427ab56670.mp3": {
+      "phraseIds": [
+        "exercise-e3e864df"
+      ],
+      "text": "Rest your left forearm on the armrest of your chair, with your elbow bent.",
+      "bytes": 67335
+    },
+    "7119000c571e41e9aa8996e3587d7e13c66755faef03ff5fb18704da65c43762.mp3": {
+      "phraseIds": [
+        "exercise-42ef2f44"
+      ],
+      "text": "Rest your right forearm on the armrest of your chair, with your elbow bent.",
+      "bytes": 67753
+    },
+    "20d81fc03ddd35b1f69aaae9177fdefb6d89215654436cac46dd8a71800d4f7e.mp3": {
+      "phraseIds": [
+        "exercise-09427a8a"
+      ],
+      "text": "Rest your other hand on your thigh or the other armrest, where the camera can see it.",
+      "bytes": 72351
+    },
+    "dad59ebd35698a6fc3de5495ec31753578c3e0eb6e0a79e99216b2f9a6995bba.mp3": {
+      "phraseIds": [
+        "exercise-143a4c8d"
+      ],
+      "text": "Rest your other hand on your thigh or on the chair's other armrest.",
+      "bytes": 61066
+    },
+    "83b5351bdc7b1b7136914ac0cbf7f71b5ca4e8d56920f56baa00777cb6142366.mp3": {
+      "phraseIds": [
+        "exercise-189b3708"
+      ],
+      "text": "Raise the camera to chest height, above your forearm.",
+      "bytes": 48527
+    },
+    "3d03b5ba4a1a979c4702ee10e07b173ec75599bb3d8312b347353147fadc8733.mp3": {
+      "phraseIds": [
+        "exercise-54e6d8b7"
+      ],
+      "text": "Move the camera back a little, or sit a little toward your other side, so there is room beside your arm for the cup.",
+      "bytes": 102026
+    },
+    "e75b420451f1fc1b051d7114aec91e22ad20255de26153358a39b871c53d619b.mp3": {
+      "phraseIds": [
+        "exercise-bf637f29"
+      ],
+      "text": "Go back to Set up so I can place the cup.",
+      "bytes": 41004
     },
     "33dbc5d8929fc122e249a226cb8ed888a47566f7af5f3918c285c0ebeaa57c26.mp3": {
       "phraseIds": [

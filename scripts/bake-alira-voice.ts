@@ -6,7 +6,6 @@
 //   pnpm voice:bake --dry-run    report what is ready and what is missing; record nothing
 //   pnpm voice:bake --max 2000   spend at most this many credits in this run
 //   pnpm voice:bake --prune      also delete clips left over from an older voice or old lines
-//   pnpm voice:bake --exercises  also record the exercise lines (off while exercises use the device voice)
 //
 // The key comes from ELEVENLABS_API_KEY in .env.local (never commit it). The voice comes from
 // shared/alira-voice.ts, or ELEVENLABS_VOICE_ID when that is set.
@@ -33,8 +32,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const prune = args.includes("--prune");
-// Exercise lines are recorded only on request, while the exercises keep the device voice.
-const withExercises = args.includes("--exercises");
 const maxIndex = args.indexOf("--max");
 const maxCredits = maxIndex >= 0 ? Number(args[maxIndex + 1]) : Infinity;
 if (Number.isNaN(maxCredits) || maxCredits < 0)
@@ -46,16 +43,15 @@ const cacheDir = path.join(root, ".cache", "alira-elevenlabs");
 const api = "https://api.elevenlabs.io";
 
 // Input placeholders are registered with the other onboarding copy but are never read aloud.
-const neverSpoken = (id: string) =>
-  /^onboarding-placeholder-\d+$/.test(id) || (!withExercises && id.startsWith("exercise-"));
+const neverSpoken = (id: string) => /^onboarding-placeholder-\d+$/.test(id);
 // When credits run short, the new patient's first conversation is recorded first.
-// The emergency FAST check comes straight after; the daily exercises come last.
+// The emergency FAST check and the movement check come straight after; the daily exercises come last.
 const rank = (id: string) =>
   id === "onboarding-adminDone"
     ? 9
     : /^(onboarding|guided)-/.test(id)
       ? 0
-      : id.startsWith("topic-") || id.startsWith("fast-")
+      : /^(topic|fast|assess)-/.test(id)
         ? 1
         : id.startsWith("exercise-")
           ? 3
@@ -144,14 +140,7 @@ async function main() {
   );
 
   if (prune && !dryRun) {
-    // Exercise clips are kept even when this run doesn't record them.
-    const keep = new Set([
-      ...lines.map(line => line.file),
-      ...Object.entries(aliraVoicePhrases)
-        .filter(([id]) => id.startsWith("exercise-"))
-        .map(([, text]) => `${aliraVoiceKey(config, text)}.mp3`),
-      "manifest.json",
-    ]);
+    const keep = new Set([...lines.map(line => line.file), "manifest.json"]);
     for (const name of await readdir(packDir)) {
       if (keep.has(name) || !name.endsWith(".mp3")) continue;
       await rm(path.join(packDir, name));

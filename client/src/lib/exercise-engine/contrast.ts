@@ -20,9 +20,9 @@ export const SIMILAR_DELTA_E = 12;
 const MIN_PIXELS = 12;
 
 export const CONTRAST_HINTS: Record<ContrastPart, string> = {
-  arm: "Your top is a similar colour to the background behind your arm. If you can, wear a top that stands out from it, or sit in front of a different background.",
-  leg: "Your trousers are a similar colour to what is behind your legs. If you can, wear trousers that stand out from it, or change the background.",
-  hand: "Your hand is hard to see against the background. If you can, sit in front of a plainer background of a different colour.",
+  arm: "Your top blends in with the background. If you can, wear a colour that stands out from it, or change the background.",
+  leg: "Your trousers blend in with the background. If you can, wear a colour that stands out from it, or change the background.",
+  hand: "Your hand is hard to see against the background. If you can, sit in front of a plain background of a different colour.",
 };
 
 /** The part each exercise tracks. */
