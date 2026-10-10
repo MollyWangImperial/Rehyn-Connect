@@ -27,10 +27,76 @@ const STEP_WAIT = `${STEP_ANCHOR}
   try {
     const hostTask = tasks[currentTaskIdx];
     const hostOpening = hostTask && hostTask.id === "H3" && typeof taskResults !== "undefined" ? ((taskResults.find(row => row && row.task_id === "H4") || {}).metrics || {}).ladder : null;
-    if (typeof window.__rehynHostDemos === "function" && !(hostOpening && !hostOpening.best_alone)) await window.__rehynHostDemos(hostTask, currentTaskIdx, tasks.length, currentStepIdx);
+    if (typeof window.__rehynHostDemos === "function" && !(hostOpening && !hostOpening.best_alone)) {
+      const hostReply = await window.__rehynHostDemos(hostTask, currentTaskIdx, tasks.length, currentStepIdx);
+      if (hostTask && hostTask.id === "L6" && hostReply && hostReply.walking && await __rehynHostWalking(hostTask, hostReply.walking)) return;
+    }
   } catch (error) { /* never in the way of the task */ }`;
+
+/**
+ * Walking measured by the host (WalkingVideos: the patient's side and/or front videos, analysed on their device):
+ * recorded as the runner records an uploaded walking video in its preview mode (completeUploadedWalkingTask), its
+ * measurements scored by the Rehyn app; or walking skipped, as its own skip button does. Declared in the runner's
+ * module, before startStep, so it can reach the runner's state. Returns false to let the runner run its own walking.
+ */
+const HOST_WALKING = `async function __rehynHostWalking(task, walking){
+  if (!task || typeof walking !== "object") return false;
+  if (walking.skipped === true) {
+    taskResults[currentTaskIdx] = { task_id:task.id, completed_steps:0, total_steps:0, duration_ms:0, steps:[], metrics:{ walking_skipped:true, skip_reason:"patient_unable_or_restricted" } };
+    postRN({ type:"walking_skipped", package_id:ASSESSMENT_PACKAGE, task_id:task.id });
+    walkingCaptureActive = true;
+    currentStepIdx = 0;
+    currentTaskIdx += 1;
+    if (currentTaskIdx >= tasks.length) finishAssessment(); else startStep();
+    return true;
+  }
+  // Signed in, the runner saves the walking video itself: it runs its own walking.
+  if (!LOCAL_PREVIEW_MODE) return false;
+  const durationMs = Math.max(0, Math.round(Number(walking.duration_ms) || 0));
+  const views = Array.isArray(walking.views) ? walking.views.filter(view => view === "side" || view === "front") : [];
+  const evidence = walking.evidence && typeof walking.evidence === "object"
+    ? { ...walking.evidence, provenance:{ ...(walking.evidence.provenance || {}), source_video_id:"local-preview-walking" } }
+    : null;
+  const metrics = {
+    walking_capture_mode:"uploaded_video",
+    walking_video_role:"gait_scoring_input",
+    lower_limb_result_source:"walking_video_analysis",
+    walking_video_analysis_status:evidence ? "ready_for_backend_scoring" : "unscorable",
+    walking_video_accepted:true,
+    walking_video_metadata_readable:true,
+    uploaded_video_duration_ms:durationMs,
+    walking_video_views:views,
+  };
+  const stepMetrics = { ...metrics };
+  if (evidence) metrics.gait_2d_evidence = evidence;
+  const perStepDuration = Math.round(durationMs / Math.max(1, task.steps.length));
+  taskResults[currentTaskIdx] = {
+    task_id:task.id,
+    completed_steps:task.steps.length,
+    total_steps:task.steps.length,
+    duration_ms:durationMs,
+    steps:task.steps.map(step => ({ step_id:step.id, completed:true, failure_code:null, duration_ms:perStepDuration, metrics:stepMetrics })),
+    metrics,
+  };
+  walkingCaptureActive = true;
+  // The walking is recorded: a hiccup in the celebration must not turn walking into a live camera task.
+  const walkingIndex = currentTaskIdx;
+  try { await celebrateAndAdvance(); } catch (error) {
+    console.warn("Walking celebration failed", error);
+    // Still move on (walking is usually the last task: the results).
+    if (currentTaskIdx === walkingIndex) {
+      currentStepIdx = 0;
+      currentTaskIdx += 1;
+      if (currentTaskIdx >= tasks.length) finishAssessment(); else startStep();
+    }
+  }
+  return true;
+}
+`;
 /** How long a task waits for the host's demonstration before starting anyway (it then tells the host, which closes it). */
 export const HOST_WAIT_MS = 600000;
+/** Walking waits longer: the patient may go and film their walk after its demonstration. */
+export const HOST_WALKING_WAIT_MS = 3600000;
 
 /**
  * The hook, a classic script at the end of the body: it runs while the page is parsed, before the runner's module, so
@@ -46,15 +112,15 @@ export const RUNNER_HOOK = `<script>
     introduced[index] = true;
     return new Promise(function(resolve){
       var done = false;
-      var finish = function(){ if (done) return; done = true; window.removeEventListener("message", onMessage); clearTimeout(timer); resolve(); };
+      var finish = function(reply){ if (done) return; done = true; window.removeEventListener("message", onMessage); clearTimeout(timer); resolve(reply || null); };
       var onMessage = function(event){
         if (event.source !== window.parent || event.origin !== window.location.origin) return;
         var data = event.data;
         if (typeof data === "string") { try { data = JSON.parse(data); } catch (error) { return; } }
-        if (data && data.type === "host_continue" && data.task_id === task.id) finish();
+        if (data && data.type === "host_continue" && data.task_id === task.id) finish(data);
       };
       window.addEventListener("message", onMessage);
-      var timer = setTimeout(function(){ post({ type: "task_intro_timeout", task_id: task.id }); finish(); }, ${HOST_WAIT_MS});
+      var timer = setTimeout(function(){ post({ type: "task_intro_timeout", task_id: task.id }); finish(null); }, task.id === "L6" ? ${HOST_WALKING_WAIT_MS} : ${HOST_WAIT_MS});
       post({ type: "task_intro", task_id: task.id, task_index: index, task_count: total });
     });
   };
@@ -72,7 +138,7 @@ export function prepareRunnerHtml(html: string, upstream = RUNNER_UPSTREAM): str
   // Function replacers, so nothing in the page or the hook is read as a "$" replacement pattern.
   return fixed.html
     .replace(API_ANCHOR, () => JSON.stringify(`${upstream}/api`))
-    .replace(STEP_ANCHOR, () => STEP_WAIT)
+    .replace(STEP_ANCHOR, () => `${HOST_WALKING}${STEP_WAIT}`)
     .split(POST_ANCHOR).join("postMessage(message,window.location.origin)")
     .replace(/<\/body>(?![\s\S]*<\/body>)/, () => `${scripts}\n</body>`);
 }

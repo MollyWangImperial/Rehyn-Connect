@@ -10,6 +10,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Play, RotateCcw, SkipForward } from "lucide-react";
 import { drawWalkFilmingDemo, walkDemoHeight, walkDemoState, WALK_DEMO_CAPTIONS, WALK_DEMO_MS } from "@/lib/assessment-engine/walk-demo";
+import { drawWalkFrontDemo, walkFrontDemoHeight, walkFrontDemoState, WALK_FRONT_DEMO_CAPTIONS, WALK_FRONT_DEMO_MS } from "@/lib/assessment-engine/walk-front-demo";
 import type { AssessmentTaskId, CameraTaskId } from "@/lib/assessment-engine/types";
 import { drawHandDemo, handDemoDuration, handDemoState } from "@/lib/exercise-engine/hand-target";
 import { drawMouthDemo, mouthDemoDuration, mouthDemoState } from "@/lib/exercise-engine/mouth-demo";
@@ -17,7 +18,7 @@ import { checkPinchDemoDuration, checkPinchDemoState, drawCheckPinchDemo } from 
 import { drawReachDemo, reachDemoDuration, reachDemoState } from "@/lib/exercise-engine/reach-demo";
 import { TARGET_COMPLETION_MS, TARGET_HOLD_MS } from "@/lib/exercise-engine/target-timing";
 import { createVoice, type RunnerVoice } from "@/lib/exercise-engine/voice";
-import { DEMO_NARRATIONS, demoLeadLine, yourTurnLine } from "@/lib/assessment-engine/demo-lines";
+import { DEMO_NARRATIONS, demoLeadLine, WALK_NARRATIONS, yourTurnLine } from "@/lib/assessment-engine/demo-lines";
 import "./demo-reel.css";
 
 export type DemoReelProps = {
@@ -32,12 +33,23 @@ export type DemoReelProps = {
   autoAdvance?: boolean;
   /** Where this demonstration sits in the whole check, for its heading ("Task 2 of 5"). */
   progress?: { index: number; count: number };
+  /** Walking: which filming to show (the check shows the side, then later the front); both by default. */
+  walkView?: WalkDemoView;
 };
 
 /** With reduced motion, an auto-advancing demonstration's still shows this long after the narration. */
 export const AUTO_STILL_MS = 4000;
 /** When an auto-advancing demonstration moves on, `armedMs` after its narration: one whole loop (or the still). */
-export const autoAdvanceAfterMs = (taskId: AssessmentTaskId, reducedMotion: boolean) => (reducedMotion ? AUTO_STILL_MS : demoLoopMs(taskId));
+export const autoAdvanceAfterMs = (taskId: AssessmentTaskId, reducedMotion: boolean, view: WalkDemoView = "both") =>
+  (reducedMotion ? AUTO_STILL_MS * (taskId === "L6" && view === "both" ? 2 : 1) : demoLoopMs(taskId, view));
+/**
+ * Walking's demonstration: filming from the side, filming from the front, or both one after the other. The check shows
+ * them one at a time, each before its own video's upload.
+ */
+export type WalkDemoView = "both" | "side" | "front";
+/** The narration a demonstration opens with (walking's for the view shown). */
+export const demoNarration = (taskId: AssessmentTaskId, view: WalkDemoView = "both") =>
+  taskId === "L6" && view !== "both" ? WALK_NARRATIONS[view] : DEMO_SPECS[taskId].narration;
 
 export type DemoSpec = {
   title: string;
@@ -71,7 +83,7 @@ export const DEMO_SPECS: Record<AssessmentTaskId, DemoSpec> = {
   L6: {
     title: "Walking",
     narration: DEMO_NARRATIONS.L6,
-    whatToDo: () => "Phone sideways at hip height. Walk across side-on at your usual pace, turn, and walk back.",
+    whatToDo: () => "From the side if you have the room; if not, from the front, walking away from the phone and back. Keep your feet in the picture.",
   },
 };
 
@@ -125,21 +137,26 @@ export type DemoPhase = "narration" | DemoSegment["kind"];
 export type DemoMoment = { phase: DemoPhase; elapsedMs: number; loop: number };
 
 /** One loop of a demonstration after its narration: the movement, the return (or let-go) and a pause; walking is its own loop. */
-export function demoSegments(taskId: AssessmentTaskId): DemoSegment[] {
-  if (taskId === "L6") return [{ kind: "move", ms: WALK_DEMO_MS }];
+export function demoSegments(taskId: AssessmentTaskId, view: WalkDemoView = "both"): DemoSegment[] {
+  // Walking: filming from the side ("move"), then from the front ("return"); or one of them on its own.
+  if (taskId === "L6") {
+    if (view === "side") return [{ kind: "move", ms: WALK_DEMO_MS }];
+    if (view === "front") return [{ kind: "return", ms: WALK_FRONT_DEMO_MS }];
+    return [{ kind: "move", ms: WALK_DEMO_MS }, { kind: "return", ms: WALK_FRONT_DEMO_MS }];
+  }
   const demo = ENGINE[taskId];
   return [{ kind: "move", ms: demo.duration(false) }, { kind: "return", ms: demo.duration(true) }, { kind: "pause", ms: DEMO_PAUSE_MS }];
 }
 
-export const demoLoopMs = (taskId: AssessmentTaskId) => demoSegments(taskId).reduce((sum, segment) => sum + segment.ms, 0);
+export const demoLoopMs = (taskId: AssessmentTaskId, view: WalkDemoView = "both") => demoSegments(taskId, view).reduce((sum, segment) => sum + segment.ms, 0);
 
 /**
  * Where a demonstration is, `armedMs` after its narration finished (null: the narration is still being read): its
  * phase, the time into that phase and which loop it is on.
  */
-export function demoMoment(taskId: AssessmentTaskId, armedMs: number | null): DemoMoment {
+export function demoMoment(taskId: AssessmentTaskId, armedMs: number | null, view: WalkDemoView = "both"): DemoMoment {
   if (armedMs === null || !Number.isFinite(armedMs) || armedMs < 0) return { phase: "narration", elapsedMs: 0, loop: 0 };
-  const segments = demoSegments(taskId), cycle = demoLoopMs(taskId);
+  const segments = demoSegments(taskId, view), cycle = demoLoopMs(taskId, view);
   const loop = Math.floor(armedMs / cycle);
   let t = armedMs - loop * cycle;
   for (const segment of segments) {
@@ -167,11 +184,15 @@ const holdStillMs = (taskId: CameraTaskId) => ENGINE[taskId].duration(false) - T
 const withoutPercent = (text: string) => text.replace(/\s*·\s*\d+%$/, "");
 
 /** The live caption: the demonstration state's own instruction (the walk's caption for walking). */
-export function demoCaption(taskId: AssessmentTaskId, armedMs: number | null, reducedMotion: boolean): string {
+export function demoCaption(taskId: AssessmentTaskId, armedMs: number | null, reducedMotion: boolean, view: WalkDemoView = "both"): string {
   if (taskId === "L6") {
     if (armedMs === null) return WALK_LISTEN;
-    if (reducedMotion) return `${WALK_DEMO_CAPTIONS[0]} · ${WALK_DEMO_CAPTIONS[1]} ${WALK_DEMO_CAPTIONS[2]}`;
-    return WALK_DEMO_CAPTIONS[walkDemoState(demoMoment(taskId, armedMs).elapsedMs).phase];
+    if (reducedMotion) {
+      const captions = (view === "both" ? walkStillIsFront(armedMs) : view === "front") ? WALK_FRONT_DEMO_CAPTIONS : WALK_DEMO_CAPTIONS;
+      return `${captions[0]} · ${captions[1]} ${captions[2]}`;
+    }
+    const moment = demoMoment(taskId, armedMs, view);
+    return moment.phase === "return" ? WALK_FRONT_DEMO_CAPTIONS[walkFrontDemoState(moment.elapsedMs).phase] : WALK_DEMO_CAPTIONS[walkDemoState(moment.elapsedMs).phase];
   }
   const demo = ENGINE[taskId];
   if (armedMs === null) return demo.instruction(0, false, false);
@@ -184,11 +205,19 @@ export function demoCaption(taskId: AssessmentTaskId, armedMs: number | null, re
  * Draws a demonstration into a `drawWidth` x `drawHeight` space (the caller scales the context to the canvas). While
  * the narration is read the target is inactive; reduced motion draws a still frame.
  */
-export function drawDemo(ctx: CanvasRenderingContext2D, taskId: AssessmentTaskId, armedMs: number | null, size: { drawWidth: number; drawHeight: number }, now: number, reducedMotion: boolean) {
+export function drawDemo(ctx: CanvasRenderingContext2D, taskId: AssessmentTaskId, armedMs: number | null, size: { drawWidth: number; drawHeight: number }, now: number, reducedMotion: boolean, view: WalkDemoView = "both") {
   const { drawWidth: width, drawHeight: height } = size;
   if (taskId === "L6") {
-    if (reducedMotion) drawWalkFilmingDemo(ctx, 0, width, height, true);
-    else drawWalkFilmingDemo(ctx, armedMs === null ? ((now % WALK_PULSE_MS) + WALK_PULSE_MS) % WALK_PULSE_MS : demoMoment(taskId, armedMs).elapsedMs, width, height, false);
+    const front = view !== "both" ? view === "front"
+      : reducedMotion ? armedMs !== null && walkStillIsFront(armedMs) : armedMs !== null && demoMoment(taskId, armedMs, view).phase === "return";
+    const elapsed = reducedMotion ? 0 : armedMs === null ? ((now % WALK_PULSE_MS) + WALK_PULSE_MS) % WALK_PULSE_MS : demoMoment(taskId, armedMs, view).elapsedMs;
+    // Each walking demonstration draws at its own height for this width, centred in the space sized for the taller.
+    const own = (front ? walkFrontDemoHeight : walkDemoHeight)(width, reducedMotion);
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.translate(0, Math.max(0, (height - own) / 2));
+    (front ? drawWalkFrontDemo : drawWalkFilmingDemo)(ctx, elapsed, width, Math.min(height, own), reducedMotion);
+    ctx.restore();
     return;
   }
   const demo = ENGINE[taskId];
@@ -219,10 +248,10 @@ export function fitFixedDrawing(availWidth: number, availHeight: number, drawWid
  * or down to fit, and counting shrinking against it (small text); at equal size, the wider drawing.
  */
 export function fitWalkDrawing(availWidth: number, availHeight: number, reducedMotion: boolean, { minWidth = 260, maxWidth = 960, maxScale = 2 } = {}): DemoCanvasFit {
-  const w = positive(availWidth, 340), h = positive(availHeight, walkDemoHeight(340, reducedMotion));
+  const w = positive(availWidth, 340), h = positive(availHeight, walkingHeight(340, reducedMotion));
   let best: DemoCanvasFit | null = null, bestScore = -Infinity;
   for (let width = maxWidth; width >= minWidth; width -= 4) {
-    const height = walkDemoHeight(width, reducedMotion);
+    const height = walkingHeight(width, reducedMotion);
     const scale = Math.min(w / width, h / height, maxScale), shrink = Math.min(1, scale);
     const score = width * height * scale * scale * shrink * shrink;
     if (!best || score > bestScore * 1.005) {
@@ -230,8 +259,12 @@ export function fitWalkDrawing(availWidth: number, availHeight: number, reducedM
       best = { cssWidth: Math.max(1, Math.floor(width * scale)), cssHeight: Math.max(1, Math.floor(height * scale)), drawWidth: width, drawHeight: height, scale };
     }
   }
-  return best ?? fitFixedDrawing(w, h, minWidth, walkDemoHeight(minWidth, reducedMotion));
+  return best ?? fitFixedDrawing(w, h, minWidth, walkingHeight(minWidth, reducedMotion));
 }
+/** Walking shows the side and the front demonstrations in one canvas: tall enough for either at this width. */
+export const walkingHeight = (width: number, reducedMotion: boolean) => Math.max(walkDemoHeight(width, reducedMotion), walkFrontDemoHeight(width, reducedMotion));
+/** With reduced motion, walking's two stills take turns (side, then front), AUTO_STILL_MS each. */
+export const walkStillIsFront = (armedMs: number) => Math.floor(Math.max(0, armedMs) / AUTO_STILL_MS) % 2 === 1;
 
 export const fitDemoCanvas = (taskId: AssessmentTaskId, availWidth: number, availHeight: number, reducedMotion: boolean): DemoCanvasFit =>
   taskId === "L6" ? fitWalkDrawing(availWidth, availHeight, reducedMotion) : fitFixedDrawing(availWidth, availHeight);
@@ -241,7 +274,7 @@ export const fitDemoCanvas = (taskId: AssessmentTaskId, availWidth: number, avai
 const prefersReducedMotion = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const px = (value: string) => parseFloat(value) || 0;
 
-export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = false, progress }: DemoReelProps) {
+export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = false, progress, walkView = "both" }: DemoReelProps) {
   const taskKey = taskIds.join(",");
   const tasks = useMemo(() => demoTasks(taskKey ? taskKey.split(",") : []), [taskKey]);
   const [index, setIndex] = useState(0);
@@ -252,7 +285,8 @@ export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = 
 
   const current = Math.min(index, Math.max(0, tasks.length - 1));
   const task: AssessmentTaskId | undefined = tasks[current];
-  const demoKey = `${current}:${run}:${task ?? ""}`;
+  const demoKey = `${current}:${run}:${task ?? ""}:${walkView}`;
+  const view = walkView;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -326,7 +360,7 @@ export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = 
     if (!task) return;
     // Alira's voice, as the runner's tasks speak (the device's English voice only if hers is unavailable).
     const voice = (voiceRef.current ??= createVoice({ alira: true }));
-    const narration = DEMO_SPECS[task].narration;
+    const narration = demoNarration(task, view);
     // The movement check says first that a demonstration is coming, and when it ends that the task is next
     // (demo-lines.ts). The task starts only once that has been said, so it never talks over the runner's voice.
     const auto = autoRef.current, lead = auto ? demoLeadLine(progressRef.current?.index ?? 0) : "", turn = auto ? yourTurnLine(task) : "";
@@ -343,24 +377,24 @@ export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = 
       const armedMs = armedAt === null ? null : now - armedAt;
       const still = reducedRef.current, fit = fitRef.current, ctx = canvasRef.current?.getContext("2d");
       if (ctx && fit) {
-        // Reduced motion: draw only when the still changes (narration to hold, a new size).
-        const key = `${armedMs === null ? "narration" : "armed"}|${fit.version}|${still}`;
+        // Reduced motion: draw only when the still changes (narration to hold, a new size, walking's side to front).
+        const key = `${armedMs === null ? "narration" : "armed"}|${fit.version}|${still}|${task === "L6" && armedMs !== null && walkStillIsFront(armedMs)}`;
         if (!still || key !== drawnKey) {
           drawnKey = key;
           ctx.setTransform(fit.dpr * fit.scale, 0, 0, fit.dpr * fit.scale, 0, 0);
-          drawDemo(ctx, task, armedMs, fit, now, still);
+          drawDemo(ctx, task, armedMs, fit, now, still, view);
         }
       }
       // After one whole movement, "your turn" is said (and shown), and the task starts once it has been said.
-      if (auto && turnAt === null && armedMs !== null && armedMs >= autoAdvanceAfterMs(task, still)) { turnAt = now; voice.say(turn); }
-      const text = turnAt !== null ? turn : demoCaption(task, armedMs, still);
+      if (auto && turnAt === null && armedMs !== null && armedMs >= autoAdvanceAfterMs(task, still, view)) { turnAt = now; voice.say(turn); }
+      const text = turnAt !== null ? turn : demoCaption(task, armedMs, still, view);
       if (text !== caption) { caption = text; setLive({ key: demoKey, text }); }
       if (turnAt !== null && narrationFinished(now - turnAt, voice.busy(now), turn)) { finishRef.current(); return; }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     // Auto-advancing: also by the clock, so a page whose frames stall (hidden, throttled) still lets the task start.
-    const fallback = auto ? window.setTimeout(() => { if (!stopped) finishRef.current(); }, narrationCapMs(spoken) + demoLoopMs(task) + narrationCapMs(turn) + 2000) : 0;
+    const fallback = auto ? window.setTimeout(() => { if (!stopped) finishRef.current(); }, narrationCapMs(spoken) + demoLoopMs(task, view) + narrationCapMs(turn) + 2000) : 0;
     // Skipped before "your turn": the narration stops and "your turn" is said, so the patient still hears what comes next.
     skipRef.current = auto ? () => {
       if (stopped || turnAt !== null) return false;
@@ -383,7 +417,7 @@ export default function DemoReel({ taskIds, side, onDone, onExit, autoAdvance = 
   if (!task) return null;
   const spec = DEMO_SPECS[task];
   const last = current >= tasks.length - 1;
-  const caption = live?.key === demoKey ? live.text : demoCaption(task, null, reduced);
+  const caption = live?.key === demoKey ? live.text : demoCaption(task, null, reduced, view);
 
   const halt = () => { stopRef.current(); voiceRef.current?.stop(); };
   // The check starts once, however often it is asked for.

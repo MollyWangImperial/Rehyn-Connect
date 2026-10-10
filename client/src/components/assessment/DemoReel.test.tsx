@@ -3,10 +3,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { AssessmentTaskId } from "@/lib/assessment-engine/types";
 import { walkDemoHeight, WALK_DEMO_CAPTIONS, WALK_DEMO_MS } from "@/lib/assessment-engine/walk-demo";
+import { walkFrontDemoHeight, WALK_FRONT_DEMO_CAPTIONS, WALK_FRONT_DEMO_MS } from "@/lib/assessment-engine/walk-front-demo";
 import { reachDemoDuration } from "@/lib/exercise-engine/reach-demo";
 import { pinchDemoDuration } from "@/lib/exercise-engine/pinch-target";
 import DemoReel, {
-  DEMO_PAUSE_MS, DEMO_SPECS, demoCaption, demoLoopMs, demoMoment, demoProgressLabel, demoSegments, demoTasks, drawDemo, fitDemoCanvas, fitFixedDrawing,
+  AUTO_STILL_MS, autoAdvanceAfterMs, demoNarration, walkingHeight, DEMO_PAUSE_MS, DEMO_SPECS, demoCaption, demoLoopMs, demoMoment, demoProgressLabel, demoSegments, demoTasks, drawDemo, fitDemoCanvas, fitFixedDrawing,
   fitWalkDrawing, narrationCapMs, narrationFinished, NARRATION_MIN_MS, primaryLabel,
 } from "./DemoReel";
 
@@ -121,7 +122,10 @@ describe("narration", () => {
       expect(narration).not.toMatch(/watch first/i);
     }
     expect(DEMO_SPECS.H3.narration).toBe("Pinch. Bring your thumb and first finger together, tip to tip, and hold. Then let go.");
-    expect(DEMO_SPECS.L6.narration).toContain("Prop your phone sideways at hip height.");
+    // Walking: from the side with room, from the front without.
+    expect(DEMO_SPECS.L6.narration).toContain("film from the side: phone sideways at hip height");
+    expect(DEMO_SPECS.L6.narration).toContain("No room? Film from the front");
+    expect(DEMO_SPECS.L6.narration).toContain("feet in the picture");
   });
 
   it("arms the target when the voice is quiet, after a short minimum, and never waits forever", () => {
@@ -157,8 +161,26 @@ describe("the demonstration's timeline", () => {
 
   it("pinches then lets go, and walks its own loop", () => {
     expect(demoSegments("H3").map(segment => segment.ms)).toEqual([pinchDemoDuration(false), pinchDemoDuration(true), DEMO_PAUSE_MS]);
-    expect(demoSegments("L6")).toEqual([{ kind: "move", ms: WALK_DEMO_MS }]);
-    expect(demoMoment("L6", WALK_DEMO_MS + 250)).toEqual({ phase: "move", elapsedMs: 250, loop: 1 });
+    // Walking: filming from the side, then from the front.
+    expect(demoSegments("L6")).toEqual([{ kind: "move", ms: WALK_DEMO_MS }, { kind: "return", ms: WALK_FRONT_DEMO_MS }]);
+    expect(demoMoment("L6", WALK_DEMO_MS + 250)).toEqual({ phase: "return", elapsedMs: 250, loop: 0 });
+    expect(demoMoment("L6", WALK_DEMO_MS + WALK_FRONT_DEMO_MS + 250)).toEqual({ phase: "move", elapsedMs: 250, loop: 1 });
+    expect(autoAdvanceAfterMs("L6", false)).toBe(WALK_DEMO_MS + WALK_FRONT_DEMO_MS);
+    expect(autoAdvanceAfterMs("L6", true)).toBe(2 * AUTO_STILL_MS);
+    // The check shows them one at a time: the side view before the side video, the front view before the front video.
+    expect(demoSegments("L6", "side")).toEqual([{ kind: "move", ms: WALK_DEMO_MS }]);
+    expect(demoSegments("L6", "front")).toEqual([{ kind: "return", ms: WALK_FRONT_DEMO_MS }]);
+    expect(autoAdvanceAfterMs("L6", false, "front")).toBe(WALK_FRONT_DEMO_MS);
+    expect(autoAdvanceAfterMs("L6", true, "side")).toBe(AUTO_STILL_MS);
+    expect(WALK_FRONT_DEMO_CAPTIONS).toContain(demoCaption("L6", 500, false, "front"));
+    expect(WALK_DEMO_CAPTIONS).toContain(demoCaption("L6", WALK_DEMO_MS + 500, false, "side"));
+    expect(demoCaption("L6", 100, true, "front")).toContain(WALK_FRONT_DEMO_CAPTIONS[0]);
+    expect(demoNarration("L6", "side")).toContain("from the side");
+    expect(demoNarration("L6", "front")).toContain("from the front");
+    expect(demoNarration("T1", "front")).toBe(DEMO_SPECS.T1.narration);
+    const frontOnly = recordingContext();
+    drawDemo(frontOnly.ctx, "L6", 500, { drawWidth: 700, drawHeight: walkingHeight(700, false) }, 1000, false, "front");
+    expect(frontOnly.texts).toContain(WALK_FRONT_DEMO_CAPTIONS[0]);
   });
 
   it("captions each moment with the demonstration's own instruction", () => {
@@ -175,7 +197,10 @@ describe("the demonstration's timeline", () => {
     expect(demoCaption("T1", 5000, true)).toBe("Hold on target");
     expect(demoCaption("H4", 5000, true)).toBe("Hold your hand open");
     for (const t of [500, 3200, 7000]) expect(WALK_DEMO_CAPTIONS).toContain(demoCaption("L6", t, false));
+    for (const t of [500, 3200, 7000]) expect(WALK_FRONT_DEMO_CAPTIONS).toContain(demoCaption("L6", WALK_DEMO_MS + t, false));
+    expect(demoCaption("L6", WALK_DEMO_MS + 500, false)).toBe(WALK_FRONT_DEMO_CAPTIONS[0]);
     expect(demoCaption("L6", 100, true)).toContain(WALK_DEMO_CAPTIONS[0]);
+    expect(demoCaption("L6", AUTO_STILL_MS + 100, true)).toContain(WALK_FRONT_DEMO_CAPTIONS[0]);
   });
 
   it("draws the inactive target during the narration, then the movement, for every task", () => {
@@ -196,8 +221,16 @@ describe("the demonstration's timeline", () => {
       expect(texts.length).toBeGreaterThan(0);
     }
     const walk = recordingContext();
-    drawDemo(walk.ctx, "L6", null, { drawWidth: 700, drawHeight: walkDemoHeight(700, false) }, 1000, false);
+    drawDemo(walk.ctx, "L6", null, { drawWidth: 700, drawHeight: walkingHeight(700, false) }, 1000, false);
     expect(walk.texts).toEqual(expect.arrayContaining(["Set up", "What the camera sees", WALK_DEMO_CAPTIONS[0]]));
+    const front = recordingContext();
+    drawDemo(front.ctx, "L6", WALK_DEMO_MS + 500, { drawWidth: 700, drawHeight: walkingHeight(700, false) }, 1000, false);
+    expect(front.texts).toEqual(expect.arrayContaining([WALK_FRONT_DEMO_CAPTIONS[0]]));
+    for (const width of [360, 900]) for (const reduced of [false, true]) {
+      const { ctx, texts } = recordingContext();
+      drawDemo(ctx, "L6", reduced ? AUTO_STILL_MS + 10 : WALK_DEMO_MS + 4000, { drawWidth: width, drawHeight: walkingHeight(width, reduced) }, 1000, reduced);
+      expect(texts.length).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -226,8 +259,9 @@ describe("fitting the canvas", () => {
       expect(fit.cssWidth).toBeLessThanOrEqual(width);
       expect(fit.cssHeight).toBeLessThanOrEqual(height);
       expect(fit.drawWidth >= 520).toBe(sideBySide);
-      // The drawing keeps the shape the walk demonstration asks for at its width.
-      expect(fit.drawHeight).toBe(walkDemoHeight(fit.drawWidth, false));
+      // The drawing keeps the shape the walk demonstrations ask for at its width (the taller of side and front).
+      expect(fit.drawHeight).toBe(walkingHeight(fit.drawWidth, false));
+      expect(fit.drawHeight).toBe(Math.max(walkDemoHeight(fit.drawWidth, false), walkFrontDemoHeight(fit.drawWidth, false)));
       expect(fit.cssHeight / fit.cssWidth).toBeCloseTo(fit.drawHeight / fit.drawWidth, 1);
     }
     // Large: the side-by-side picture fills the height, scaled up so its text grows too.
@@ -236,7 +270,7 @@ describe("fitting the canvas", () => {
     expect(large.scale).toBeGreaterThan(1);
     // Reduced motion: the three stills' own shape.
     const still = fitWalkDrawing(1200, 600, true);
-    expect(still.drawHeight).toBe(walkDemoHeight(still.drawWidth, true));
+    expect(still.drawHeight).toBe(walkingHeight(still.drawWidth, true));
     expect(fitDemoCanvas("L6", 1400, 680, false)).toEqual(large);
     expect(fitDemoCanvas("H4", 1000, 600, false)).toEqual(fitFixedDrawing(1000, 600));
   });

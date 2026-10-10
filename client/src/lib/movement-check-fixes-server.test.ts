@@ -130,6 +130,33 @@ describe("the runner's keypoint steadier", () => {
     expect(shown.pose[11].x).toBeCloseTo(0.6, 2);
   });
 
+  it("keeps the elbow in place when the pose model flips it on its own", () => {
+    const { steady } = steadier();
+    let shown: any;
+    const at = (elbowY: number) => { const p = pose(0.5, 0.4); p[14] = P(0.37, elbowY); return p; };
+    for (let t = 0; t <= 600; t += 33) shown = frame(steady, t, at(0.62));
+    // The elbow alone jumps to the hip for 500 ms: still drawn where it was.
+    for (let t = 633; t <= 1133; t += 33) { shown = frame(steady, t, at(0.88)); expect(shown.pose[14].y).toBeLessThan(0.66); }
+    // A real, steady move of the elbow is followed.
+    for (let t = 1166, y = 0.62; t <= 1700; t += 33, y = Math.max(0.5, y - 0.01)) shown = frame(steady, t, at(y));
+    expect(shown.pose[14].y).toBeLessThan(0.55);
+  });
+
+  it("does not make a joint flicker when its confidence hovers at the threshold", () => {
+    const { steady } = steadier();
+    const seen: boolean[] = [];
+    for (let i = 0, t = 0; i < 40; i++, t += 33) {
+      const p = pose(0.5, 0.4);
+      p[14] = P(0.37, 0.62, i % 2 ? 0.32 : 0.45);
+      seen.push(frame(steady, t, p).visible[14]);
+    }
+    expect(seen.every(Boolean)).toBe(true);
+    // A joint that stays unseen is hidden.
+    let last = true;
+    for (let i = 0, t = 2000; i < 20; i++, t += 33) { const p = pose(0.5, 0.4); p[14] = P(0.37, 0.62, 0.3); last = frame(steady, t, p).visible[14]; }
+    expect(last).toBe(false);
+  });
+
   it("follows a real movement at once and stays close behind it", () => {
     const { steady } = steadier();
     for (let t = 0; t <= 500; t += 33) frame(steady, t, pose(0.45, 0.75));

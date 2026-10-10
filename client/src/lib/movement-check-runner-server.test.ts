@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import vm from "node:vm";
 import type { Server } from "node:http";
-import { createMovementCheckRunnerRouter, HOST_WAIT_MS, prepareRunnerHtml, RUNNER_HOOK, RUNNER_UPSTREAM } from "../../../server/movement-check-runner";
+import { createMovementCheckRunnerRouter, HOST_WAIT_MS, HOST_WALKING_WAIT_MS, prepareRunnerHtml, RUNNER_HOOK, RUNNER_UPSTREAM } from "../../../server/movement-check-runner";
 
 /** The parts of the live runner page the companion relies on, as the Rehyn app serves them (its main script is a module). */
 const PAGE = `<!doctype html><html><body><script type="module">
@@ -125,6 +125,78 @@ describe("the hook that waits for each task's demonstration", () => {
     expect(held.posted.at(-1)).toMatchObject({ type: "task_intro", task_id: "H3" });
     held.send({ type: "host_continue", task_id: "H3" });
     await expect(step).resolves.toBe("started");
+  });
+
+  /** The runner at its walking task, in preview mode, with its celebrate-and-advance and finish recorded. */
+  const walkingPage = (search?: string) => {
+    const page = runnerPage(search);
+    const calls: string[] = [];
+    Object.assign(page.context, {
+      tasks: [{ id: "L6", steps: [{ id: "L6-S1" }] }], currentTaskIdx: 0, currentStepIdx: 0, LOCAL_PREVIEW_MODE: true, ASSESSMENT_PACKAGE: "initial",
+      celebrateAndAdvance: async () => { calls.push("celebrate"); }, finishAssessment: () => { calls.push("finish"); },
+    });
+    return { ...page, calls };
+  };
+
+  it("records the walking the host measured as the runner's own uploaded walking, then celebrates and moves on", async () => {
+    const page = walkingPage();
+    const step = page.context.startStep();
+    await Promise.resolve();
+    expect(page.posted.at(-1)).toMatchObject({ type: "task_intro", task_id: "L6" });
+    const evidence = { status: "completed", features: { step_events: [] }, provenance: { views: ["front"] } };
+    page.send({ type: "host_continue", task_id: "L6", walking: { skipped: false, evidence, duration_ms: 11167, views: ["front", "elsewhere"] } });
+    await step;
+    await new Promise(resolve => setTimeout(resolve, 0));
+    // The runner's own walking capture never opened, and its task result is the uploaded walking's.
+    expect(page.started).toEqual([]);
+    expect(page.calls).toEqual(["celebrate"]);
+    const result = page.context.taskResults[0];
+    expect(result).toMatchObject({ task_id: "L6", completed_steps: 1, total_steps: 1, duration_ms: 11167 });
+    expect(result.metrics).toMatchObject({ walking_capture_mode: "uploaded_video", walking_video_analysis_status: "ready_for_backend_scoring", walking_video_views: ["front"] });
+    expect(result.metrics.gait_2d_evidence.provenance).toEqual({ views: ["front"], source_video_id: "local-preview-walking" });
+    expect(result.steps[0].metrics.gait_2d_evidence).toBeUndefined();
+    expect(page.context.walkingCaptureActive).toBe(true);
+  });
+
+  it("still finishes the check if the celebration fails, never falling back to a live camera walking task", async () => {
+    const page = walkingPage();
+    page.context.celebrateAndAdvance = async () => { page.calls.push("celebrate"); throw new Error("voice failed"); };
+    page.context.console = { warn: () => {} };
+    const step = page.context.startStep();
+    await Promise.resolve();
+    page.send({ type: "host_continue", task_id: "L6", walking: { skipped: false, evidence: null, duration_ms: 9000, views: [] } });
+    await step;
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(page.calls).toEqual(["celebrate", "finish"]);
+    expect(page.started).toEqual([]);
+    expect(page.context.taskResults[0].metrics.walking_video_analysis_status).toBe("unscorable");
+  });
+
+  it("records walking as skipped when the patient skips it, and finishes the check", async () => {
+    const page = walkingPage();
+    const step = page.context.startStep();
+    await Promise.resolve();
+    page.send({ type: "host_continue", task_id: "L6", walking: { skipped: true } });
+    await step;
+    expect(page.context.taskResults[0]).toMatchObject({ task_id: "L6", metrics: { walking_skipped: true } });
+    expect(page.posted.at(-1)).toEqual({ type: "walking_skipped", package_id: "initial", task_id: "L6" });
+    expect(page.calls).toEqual(["finish"]);
+    expect(page.started).toEqual([]);
+  });
+
+  it("lets the runner run its own walking when the host sends no walking, and waits longer for walking", async () => {
+    const page = walkingPage();
+    const step = page.context.startStep();
+    await Promise.resolve();
+    page.send({ type: "host_continue", task_id: "L6" });
+    await expect(step).resolves.toBe("started");
+    vi.useFakeTimers();
+    const later = walkingPage();
+    const waiting = later.context.startStep();
+    await vi.advanceTimersByTimeAsync(HOST_WAIT_MS);
+    expect(later.started).toEqual([]);
+    await vi.advanceTimersByTimeAsync(HOST_WALKING_WAIT_MS - HOST_WAIT_MS);
+    await expect(waiting).resolves.toBe("started");
   });
 
   it("does nothing without host_demos=1, or outside a frame", async () => {

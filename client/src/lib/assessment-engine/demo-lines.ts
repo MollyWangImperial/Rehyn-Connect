@@ -10,8 +10,17 @@ export const DEMO_NARRATIONS: Record<AssessmentTaskId, string> = {
   T3: "Hand to mouth. Raise your hand to the starting circle, then bring it up to your mouth and hold it there. Keep your head still: your hand comes to your mouth.",
   H4: "Hand opening. Hold your hand up at chest height with your palm facing the camera. Then open your fingers as wide as is comfortable, and hold.",
   H3: "Pinch. Bring your thumb and first finger together, tip to tip, and hold. Then let go.",
-  L6: "Walking. Prop your phone sideways at hip height. Stand side-on, about three big steps away. Then walk across at your usual pace, turn, and walk back.",
+  L6: "Walking. With room, film from the side: phone sideways at hip height, three big steps away; walk across, turn, and walk back. No room? Film from the front: phone upright at one end; walk away, turn, and walk back. Keep your feet in the picture.",
 };
+
+/**
+ * Walking is filmed in two steps, each with its own demonstration: from the side first (the side video's upload follows
+ * it), then from the front (the front video's upload follows it).
+ */
+export const WALK_NARRATIONS = {
+  side: "Walking. First, a video from the side, if you have the room: prop your phone sideways at hip height, about three big steps away. Walk across at your usual pace, turn, and walk back. Keep your feet in the picture.",
+  front: "Next, a video from the front: stand the phone up at hip height at one end of the room. Walk away from it, turn, and walk back toward it. Keep your feet in the picture.",
+} as const;
 
 /** Said before a task's demonstration (`index`: the task's place in the check); the narration then names the task. */
 export function demoLeadLine(index: number): string {

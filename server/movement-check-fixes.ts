@@ -64,12 +64,81 @@ export const RUNNER_STEADY = `<script>
     return null;
   }
 
+  /**
+   * One point that cannot teleport (the affected elbow): a reading that follows on from the drawn one at a real
+   * limb's speed is drawn; one that jumps further waits until it has stayed there a moment (longer for a drop unless
+   * the arm is being lowered); then it is smoothed with its own One Euro filter.
+   */
+  function PointGate(){ this.reset(); }
+  PointGate.prototype.reset = function(){ this.drawn = null; this.rival = null; this.last = null; this.seenAt = null; this.shown = null; this.raw = null; this.v = { x: 0, y: 0 }; this.t = null; };
+  PointGate.prototype.observe = function(at, lowering, scale, aspect){
+    var self = this, drawn = this.drawn;
+    var accept = function(){ self.drawn = at; self.rival = null; return true; };
+    if (!drawn) return accept();
+    var distance = function(from){ return Math.hypot((at.x - from.x) * aspect, at.y - from.y) / scale; };
+    var step = CFG.speed * Math.min(Math.max(0, at.t - (this.last ? this.last.t : drawn.t)), CFG.maxStepGapMs) / 1000 + CFG.slack;
+    var drop = (at.y - drawn.y) / scale >= CFG.dropTorso;
+    if (distance(drawn) <= step) return accept();
+    if (this.rival && distance(this.rival.at) <= step) {
+      this.rival.at = at;
+      return at.t - this.rival.since >= (this.rival.drop && !lowering ? CFG.dropConfirmMs : CFG.confirmMs) ? accept() : false;
+    }
+    var reach = CFG.speed * (at.t - drawn.t) / 1000 + CFG.slack;
+    if (this.rival && (!drop || lowering) && distance(drawn) <= reach) return accept();
+    this.rival = { at: at, since: at.t, drop: drop };
+    return false;
+  };
+  /** A fresh reading (or null when the point is unseen); returns the point to draw, or null. */
+  PointGate.prototype.update = function(t, point, fresh, lowering, scale, aspect){
+    if (this.seenAt !== null && t - this.seenAt > CFG.lostMs) this.reset();
+    if (point) {
+      this.seenAt = t;
+      if (fresh) {
+        var at = copy(point); at.t = t;
+        this.observe(at, lowering, scale, aspect);
+        this.last = at;
+      }
+    }
+    if (!this.drawn || this.seenAt === null || t - this.seenAt > CFG.graceMs) { this.shown = null; this.t = null; return null; }
+    var target = this.drawn;
+    if (!this.shown || this.t === null) { this.shown = copy(target); this.raw = copy(target); this.v = { x: 0, y: 0 }; this.t = t; return copy(this.shown); }
+    if (!fresh && target === this.raw) return copy(this.shown);
+    var dt = Math.min(CFG.maxStepGapMs, Math.max(1, t - this.t)) / 1000, k = alpha(CFG.speedCutoff, dt);
+    this.t = t;
+    this.v = { x: this.v.x + k * ((target.x - this.raw.x) * aspect / scale / dt - this.v.x), y: this.v.y + k * ((target.y - this.raw.y) / scale / dt - this.v.y) };
+    this.raw = target;
+    var a = alpha(CFG.minCutoff + CFG.beta * Math.hypot(this.v.x, this.v.y), dt);
+    var gap = Math.hypot((target.x - this.shown.x) * aspect, target.y - this.shown.y) / scale;
+    if (a * gap > CFG.glideSpeed * dt) a = CFG.glideSpeed * dt / gap;
+    var q = copy(target); q.x = this.shown.x + a * (target.x - this.shown.x); q.y = this.shown.y + a * (target.y - this.shown.y);
+    this.shown = q;
+    return copy(q);
+  };
+
+  /** A joint's line keeps showing while its confidence dips briefly below the drawing threshold (no flicker). */
+  var SHOW_VIS = 0.4, HIDE_VIS = 0.15, HIDE_AFTER_MS = 300;
+
   function Steady(){ this.reset(); }
   Steady.prototype.reset = function(){
     this.task = null; this.scale = null;
     this.drawn = null; this.rival = null; this.last = null; this.seenAt = null; this.stale = false; this.handSeenAt = null; this.previous = null;
     this.cup = null; this.target = null; this.velocity = { x: 0, y: 0 }; this.arm = null; this.hand = null; this.t = null;
-    this.body = null; this.bodyT = null;
+    this.body = null; this.bodyT = null; this.bodySource = null; this.bodyShown = null;
+    this.elbow = new PointGate(); this.elbowSource = null;
+    this.shownJoint = []; this.lowSince = [];
+  };
+  /** Which joints to draw this frame, with the hysteresis above. */
+  Steady.prototype.visibleJoints = function(t, pose){
+    var shown = this.shownJoint, low = this.lowSince;
+    return pose ? pose.map(function(p, i){
+      var v = finite(p) ? vis(p) : 0;
+      if (v >= SHOW_VIS) { shown[i] = true; low[i] = null; }
+      else if (shown[i]) {
+        if (low[i] == null) low[i] = t;
+        if (v < HIDE_VIS || t - low[i] > HIDE_AFTER_MS) shown[i] = false;
+      }
+      return !!shown[i] && finite(p);
+    }) : null;
   };
   /** Where the affected hand is this frame: the hand model's palm when it sees the hand, else the pose's hand points. */
   Steady.prototype.reading = function(pose, hand, side){
@@ -135,7 +204,15 @@ export const RUNNER_STEADY = `<script>
   };
   /** The rest of the body, point by point. */
   Steady.prototype.smoothBody = function(t, pose){
-    if (!pose) { this.body = null; return null; }
+    if (!pose) { this.body = null; this.bodySource = null; return null; }
+    // The same reading drawn again (the pose is read less often than the drawing runs) keeps its smoothed place.
+    if (pose === this.bodySource && this.bodyShown) return this.bodyShown.map(copy);
+    this.bodySource = pose;
+    var shown = this.smoothBodyReading(t, pose);
+    this.bodyShown = shown.map(copy);
+    return shown;
+  };
+  Steady.prototype.smoothBodyReading = function(t, pose){
     var dt = this.bodyT === null ? 0 : Math.min(CFG.maxStepGapMs, Math.max(1, t - this.bodyT)) / 1000;
     this.bodyT = t;
     if (!this.body || this.body.length !== pose.length || !dt) {
@@ -192,13 +269,22 @@ export const RUNNER_STEADY = `<script>
     }
     var source = this.drawn && !this.stale && this.seenAt !== null && t - this.seenAt <= CFG.graceMs ? this.drawn : null;
     var body = this.smoothBody(t, pose);
-    if (!source) { this.cup = null; this.t = null; this.arm = null; this.hand = null; return { pose: body, hand: null, side: side, task: input.task }; }
-    var shown = this.smoothArm(t, source.arm, source.hand, source.at);
-    if (body && shown.arm) {
-      var indices = (function(jj){ return [jj.elbow, jj.wrist].concat(jj.hand); })(joints(side));
-      indices.forEach(function(index, i){ if (shown.arm[i]) body[index] = shown.arm[i]; });
-    }
-    return { pose: body, hand: shown.hand, side: side, task: input.task };
+    // The affected elbow is gated on its own: it flips with the forearm too, even when the hand stays put.
+    var elbowIndex = joints(side).elbow, elbowPoint = pose && inFrame(pose[elbowIndex]) && vis(pose[elbowIndex]) >= 0.3 ? pose[elbowIndex] : null;
+    var elbowFresh = !!elbowPoint && pose !== this.elbowSource;
+    if (elbowPoint) this.elbowSource = pose;
+    var elbow = this.elbow.update(t, elbowPoint, elbowFresh, !!input.lowering, this.scale, this.aspect);
+    var hand = null;
+    if (source) {
+      var shown = this.smoothArm(t, source.arm, source.hand, source.at);
+      hand = shown.hand;
+      if (body && shown.arm) {
+        var indices = (function(jj){ return [jj.elbow, jj.wrist].concat(jj.hand); })(joints(side));
+        indices.forEach(function(index, i){ if (shown.arm[i]) body[index] = shown.arm[i]; });
+      }
+    } else { this.cup = null; this.t = null; this.arm = null; this.hand = null; }
+    if (body && elbow) body[elbowIndex] = elbow;
+    return { pose: body, hand: hand, side: side, task: input.task, visible: this.visibleJoints(t, body) };
   };
 
   /** The body in the exercises' style (the canvas is mirrored by CSS, so raw image coordinates). */
@@ -208,18 +294,19 @@ export const RUNNER_STEADY = `<script>
     var j = joints(state.side), mine = {};
     [j.shoulder, j.elbow, j.wrist, j.hip, j.knee, j.ankle, j.foot].forEach(function(i){ mine[i] = true; });
     var handTask = /^H/.test(String(state.task || ""));
+    var seen = function(i){ return state.visible ? !!state.visible[i] : finite(lm[i]) && vis(lm[i]) >= 0.4; };
     ctx.save();
     ctx.lineWidth = Math.max(3, width / 220); ctx.lineCap = "round";
     (handTask ? [[11, 12]] : POSE_LINES).forEach(function(line){
       var a = lm[line[0]], b = lm[line[1]];
-      if (!finite(a) || !finite(b) || vis(a) < 0.4 || vis(b) < 0.4) return;
+      if (!seen(line[0]) || !seen(line[1])) return;
       ctx.strokeStyle = mine[line[0]] && mine[line[1]] ? "#e18e6d" : "rgba(217,229,220,.85)";
       ctx.beginPath(); ctx.moveTo(a.x * width, a.y * height); ctx.lineTo(b.x * width, b.y * height); ctx.stroke();
     });
     ctx.fillStyle = "#fff";
     (handTask ? [0, 11, 12] : POSE_DOTS).forEach(function(i){
       var p = lm[i];
-      if (!finite(p) || vis(p) < 0.4) return;
+      if (!seen(i)) return;
       ctx.beginPath(); ctx.arc(p.x * width, p.y * height, Math.max(3, width / 260), 0, Math.PI * 2); ctx.fill();
     });
     ctx.restore();

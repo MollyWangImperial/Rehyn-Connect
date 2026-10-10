@@ -5,6 +5,7 @@ import {
   buildRunnerUrl,
   assessmentPlanFrom,
   getAssessmentBase,
+  loadRememberedAssessment,
   parseRunnerMessage,
   rememberAssessment,
   type StartRungs,
@@ -16,6 +17,10 @@ import { adaptedStartRungs } from "@/lib/alira-learning-store";
 import { renderReviewControlsEnabled } from "@/lib/administrative-controls";
 import type { AssessmentTaskId } from "@/lib/assessment-engine/types";
 import DemoReel, { DEMO_SPECS } from "@/components/assessment/DemoReel";
+import WalkingVideos, { type WalkingHandoff } from "@/components/assessment/WalkingVideos";
+import type { WalkView as WalkStep } from "@/lib/assessment-engine/walk-video";
+import AssessmentDashboard from "@/components/assessment/AssessmentDashboard";
+import { buildDashboard, type Dashboard } from "@/lib/assessment-dashboard";
 import "./assessment.css";
 
 const LOAD_TIMEOUT_MS = 25000;
@@ -60,7 +65,10 @@ export default function Assessment() {
   }, [base, answers, plan, aliraPath, viaCompanion]);
   const runnerOrigin = useMemo(() => new URL(runnerUrl).origin, [runnerUrl]);
   // The task the runner is waiting on while its demonstration plays (null: none).
-  const [demo, setDemo] = useState<{ taskId: AssessmentTaskId; index: number; count: number } | null>(null);
+  // Walking shows its side-view demonstration, then later its front-view one (walkView).
+  const [demo, setDemo] = useState<{ taskId: AssessmentTaskId; index: number; count: number; walkView?: WalkStep } | null>(null);
+  // Walking: after each of its demonstrations the patient chooses that video here: the side video, then the front.
+  const [walking, setWalking] = useState<{ index: number; count: number; step: WalkStep } | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [stalled, setStalled] = useState(false);
   const [tasksDone, setTasksDone] = useState(0);
@@ -68,6 +76,10 @@ export default function Assessment() {
   const [previewComplete, setPreviewComplete] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const learningStarted = useRef(false);
+  // The results dashboard, over the runner once its results arrive; compared with the check before this one (read
+  // now, before this check's results replace it).
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const previousCheck = useRef(loadRememberedAssessment());
 
   useEffect(() => {
     if (loaded || result) return;
@@ -76,9 +88,22 @@ export default function Assessment() {
   }, [loaded, result]);
 
   /** The demonstration is over (watched, skipped or the patient left it): the runner starts the task. */
-  const continueTask = (taskId: string) => {
+  const continueTask = (taskId: string, walkingHandoff?: WalkingHandoff) => {
     setDemo(null);
-    frame.current?.contentWindow?.postMessage(JSON.stringify({ type: "host_continue", task_id: taskId }), runnerOrigin);
+    setWalking(null);
+    frame.current?.contentWindow?.postMessage(JSON.stringify({ type: "host_continue", task_id: taskId, ...(walkingHandoff ? { walking: walkingHandoff } : {}) }), runnerOrigin);
+  };
+  /** A demonstration ended: walking goes on to that view's video (the runner keeps waiting), any other task starts. */
+  const demoDone = (current: { taskId: AssessmentTaskId; index: number; count: number; walkView?: WalkStep }) => {
+    if (current.taskId !== "L6") return continueTask(current.taskId);
+    setDemo(null);
+    setWalking({ index: current.index, count: current.count, step: current.walkView ?? "side" });
+  };
+  /** Walking's side video is chosen (or there is no room for it): the front video's demonstration, then its upload. */
+  const walkingNext = () => {
+    if (!walking) return;
+    setWalking({ ...walking, step: "front" });
+    setDemo({ taskId: "L6", index: walking.index, count: walking.count, walkView: "front" });
   };
 
   useEffect(() => {
@@ -90,6 +115,15 @@ export default function Assessment() {
         void startLearning("assessment");
       } catch {
         /* Learning must never get in the way of the results. */
+      }
+    }
+    /** The runner shows its results: this page's dashboard takes over when the results carry a function score. */
+    function showDashboard(assessment: unknown) {
+      try {
+        const next = assessment && typeof assessment === "object" ? buildDashboard(assessment as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date()) : null;
+        if (next) setDashboard(next);
+      } catch {
+        /* The runner's own results stay on screen. */
       }
     }
     function onMessage(event: MessageEvent) {
@@ -112,18 +146,19 @@ export default function Assessment() {
         case "task_intro": {
           // The runner waits before this task: show its demonstration, or carry straight on for a task without one.
           const taskId = String(message.task_id ?? "");
-          if (Object.hasOwn(DEMO_SPECS, taskId)) setDemo({ taskId: taskId as AssessmentTaskId, index: Number(message.task_index) || 0, count: Number(message.task_count) || plan.taskIds.length });
+          if (Object.hasOwn(DEMO_SPECS, taskId)) setDemo({ taskId: taskId as AssessmentTaskId, index: Number(message.task_index) || 0, count: Number(message.task_count) || plan.taskIds.length, ...(taskId === "L6" ? { walkView: "side" as const } : {}) });
           else frame.current?.contentWindow?.postMessage(JSON.stringify({ type: "host_continue", task_id: taskId }), runnerOrigin);
           break;
         }
         case "task_intro_timeout":
           // The runner stopped waiting and started the task: the demonstration must not hide it.
           setDemo(current => (current?.taskId === message.task_id ? null : current));
+          if (message.task_id === "L6") setWalking(null);
           break;
         case "assessment_complete":
           // Current runners present the analysis and results inside the frame.
           // Keep the fallback for older deployed runners that only post completion.
-          if (message.results_in_runner === true) rememberAssessment(message.assessment);
+          if (message.results_in_runner === true) { rememberAssessment(message.assessment); showDashboard(message.assessment); }
           else setResult(rememberAssessment(message.assessment) ?? { id: "", completedAt: new Date().toISOString() });
           learnFromResults();
           break;
@@ -131,7 +166,7 @@ export default function Assessment() {
           // Keep results visible in the runner; its Done action returns to Alira.
           const previewResult = rememberAssessment(message.assessment);
           learnFromResults();
-          if (message.results_in_runner === true) break;
+          if (message.results_in_runner === true) { showDashboard(message.assessment); break; }
           setPreviewComplete(true);
           setResult(previewResult ?? { id: "", completedAt: new Date().toISOString() });
           break;
@@ -158,8 +193,15 @@ export default function Assessment() {
     <div className="assessment-page">
       {/* The task's demonstration over the waiting runner (camera still on), until it ends or is skipped. */}
       {demo && !result && <div className="assessment-demo">
-        <DemoReel key={`${demo.taskId}-${demo.index}`} taskIds={[demo.taskId]} side={affectedSideFrom(answers)} autoAdvance progress={{ index: demo.index, count: demo.count }}
-          onDone={() => continueTask(demo.taskId)} onExit={() => navigate(aliraPath)} />
+        <DemoReel key={`${demo.taskId}-${demo.index}-${demo.walkView ?? ""}`} taskIds={[demo.taskId]} side={affectedSideFrom(answers)} autoAdvance progress={{ index: demo.index, count: demo.count }} walkView={demo.walkView}
+          onDone={() => demoDone(demo)} onExit={() => navigate(aliraPath)} />
+      </div>}
+      {dashboard && <AssessmentDashboard dashboard={dashboard} onAlira={() => navigate(aliraPath)} onHome={() => navigate("/")} />}
+      {/* Walking's videos, chosen and checked here; the runner scores their measurements. */}
+      {/* Kept mounted (hidden) while the demonstration plays again, so the chosen videos and their checks carry on. */}
+      {walking && !result && <div className="assessment-demo" hidden={!!demo}>
+        <WalkingVideos step={walking.step} onNext={walkingNext} onDone={handoff => continueTask("L6", handoff)} onExit={() => navigate(aliraPath)}
+          onWatchAgain={() => setDemo({ taskId: "L6", index: walking.index, count: walking.count, walkView: walking.step })} />
       </div>}
       {!result && (
         <iframe
