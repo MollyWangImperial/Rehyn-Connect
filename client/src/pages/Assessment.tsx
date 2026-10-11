@@ -7,6 +7,7 @@ import {
   getAssessmentBase,
   loadRememberedAssessment,
   parseRunnerMessage,
+  onlyTasksFrom,
   rememberAssessment,
   type StartRungs,
   type StoredAssessment,
@@ -57,13 +58,19 @@ export default function Assessment() {
   const aliraPath = onboarding ? "/alira?onboarding=1" : "/alira";
   const base = useMemo(() => getAssessmentBase(import.meta.env.VITE_ASSESSMENT_BASE, import.meta.env.DEV), []);
   const answers = useMemo(() => loadOnboardingAnswers(), []);
-  const plan = useMemo(() => assessmentPlanFrom(answers), [answers]);
+  // Testing (Settings → Exercise Engine): `?only=L6` runs just those tasks, and its results are shown but not kept.
+  const onlyTasks = useMemo(() => onlyTasksFrom(query.get("only")), [search]);
+  const testOnly = onlyTasks.length > 0;
+  const plan = useMemo(() => {
+    const planned = assessmentPlanFrom(answers);
+    return testOnly ? { ...planned, taskIds: onlyTasks, caregiverRoute: false } : planned;
+  }, [answers, testOnly, onlyTasks]);
   const [caregiverAcknowledged, setCaregiverAcknowledged] = useState(false);
   // The review runner (Render, or ?runner=review in development) comes through this origin with the demonstrations.
   const viaCompanion = renderReviewControlsEnabled() || (import.meta.env.DEV && query.get("runner") === "review");
   // Alira's learned start points are read once, as the check opens (after any warm-up and learning run).
   const { runnerUrl, directOrigin } = useMemo(() => {
-    const direct = buildRunnerUrl(base, { affectedSide: affectedSideFrom(answers), answers, startRungs: learnedStartRungs(plan.startRung), guestReview: viaCompanion, returnTo: aliraPath });
+    const direct = buildRunnerUrl(base, { affectedSide: affectedSideFrom(answers), answers, startRungs: learnedStartRungs(plan.startRung), guestReview: viaCompanion, returnTo: aliraPath, onlyTaskIds: testOnly ? plan.taskIds : undefined });
     return { runnerUrl: viaCompanion ? companionRunnerUrl(direct, window.location.origin, { saveVideos: administrativeControlsEnabled() }) : direct, directOrigin: new URL(direct).origin };
   }, [base, answers, plan, aliraPath, viaCompanion]);
   const runnerOrigin = useMemo(() => new URL(runnerUrl).origin, [runnerUrl]);
@@ -129,8 +136,10 @@ export default function Assessment() {
 
   useEffect(() => {
     // Alira reviews the new results in the background, once per check. Without consent it does nothing.
+    // A test run (?only=) is shown but not kept: the real check, the Journey and Alira's learning stay as they were.
+    const keep = (assessment: unknown) => (testOnly ? null : rememberAssessment(assessment));
     function learnFromResults() {
-      if (learningStarted.current) return;
+      if (learningStarted.current || testOnly) return;
       learningStarted.current = true;
       try {
         void startLearning("assessment");
@@ -188,13 +197,13 @@ export default function Assessment() {
         case "assessment_complete":
           // Current runners present the analysis and results inside the frame.
           // Keep the fallback for older deployed runners that only post completion.
-          if (message.results_in_runner === true) showDashboard(message.assessment, rememberAssessment(message.assessment));
-          else setResult(rememberAssessment(message.assessment) ?? { id: "", completedAt: new Date().toISOString() });
+          if (message.results_in_runner === true) showDashboard(message.assessment, keep(message.assessment));
+          else setResult(keep(message.assessment) ?? { id: "", completedAt: new Date().toISOString() });
           learnFromResults();
           break;
         case "assessment_preview_complete":
           // Keep results visible in the runner; its Done action returns to Alira.
-          const previewResult = rememberAssessment(message.assessment);
+          const previewResult = keep(message.assessment);
           learnFromResults();
           if (message.results_in_runner === true) { showDashboard(message.assessment, previewResult); break; }
           setPreviewComplete(true);
@@ -206,7 +215,7 @@ export default function Assessment() {
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [aliraPath, navigate, runnerOrigin, directOrigin, plan.taskIds.length]);
+  }, [aliraPath, navigate, runnerOrigin, directOrigin, plan.taskIds.length, testOnly]);
 
   if (!plan.taskIds.length || (plan.caregiverRoute && !caregiverAcknowledged)) return (
     <div className="assessment-page"><div className="assessment-veil is-solid">

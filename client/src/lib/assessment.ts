@@ -33,7 +33,15 @@ export type RunnerOptions = {
   guestReview?: boolean;
   /** Guest Done returns to the same Alira flow even if the iframe handoff is missed. */
   returnTo?: "/alira" | "/alira?onboarding=1";
+  /** Testing: run only these tasks (e.g. walking alone), in place of the plan's. */
+  onlyTaskIds?: readonly string[];
 };
+
+/** Testing: the tasks named in `?only=` (e.g. "L6"), the known ones in check order; none when absent. */
+export function onlyTasksFrom(value: string | null): string[] {
+  const named = (value ?? "").split(",").map(id => id.trim().toUpperCase());
+  return FUNCTION_CORE_TASK_IDS.filter(id => named.includes(id));
+}
 
 /** Companion core tasks, with hand opening before pinch. The app keeps its own assignment. */
 export const FUNCTION_CORE_TASK_IDS = ["T1", "T3", "H4", "H3", "L6"] as const;
@@ -72,14 +80,14 @@ function startRungJson(learned: Record<string, unknown> | undefined, planned: Re
 }
 
 /** The companion opts into the shared deterministic function ladder. */
-export function buildRunnerUrl(base: string, { affectedSide, voiceGuidance = true, answers = {}, plan: suppliedPlan, startRungs, guestReview = false, returnTo = "/alira" }: RunnerOptions): string {
+export function buildRunnerUrl(base: string, { affectedSide, voiceGuidance = true, answers = {}, plan: suppliedPlan, startRungs, guestReview = false, returnTo = "/alira", onlyTaskIds }: RunnerOptions): string {
   const plan = suppliedPlan ? { taskIds: suppliedPlan.taskIds, startRung: suppliedPlan.startRungs,
     helper: suppliedPlan.helper === "none" ? "0" : "ask", walkingHelper: suppliedPlan.walkHelper,
     goal: suppliedPlan.mainGoal } : assessmentPlanFrom(answers);
   const query = new URLSearchParams();
   query.set("package", "initial");
   query.set("ladder", "1");
-  query.set("task_ids", plan.taskIds.join(","));
+  query.set("task_ids", (onlyTaskIds?.length ? onlyTaskIds : plan.taskIds).join(","));
   query.set("start_rung", startRungJson(startRungs, plan.startRung));
   query.set("helper", plan.helper);
   if (plan.walkingHelper) query.set("walking_helper", "1");

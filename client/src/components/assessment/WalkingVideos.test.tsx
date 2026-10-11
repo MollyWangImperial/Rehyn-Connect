@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { WalkEvidence, WalkVideoAnalysis } from "@/lib/assessment-engine/walk-video";
-import WalkingVideos, { slotStatus, walkingHandoff, WALK_SLOTS, WALK_STEPS } from "./WalkingVideos";
+import WalkingVideos, { SIDE_FEET_OUT, slotStatus, walkingHandoff, WALK_SLOTS, WALK_STEPS } from "./WalkingVideos";
 
 const evidence = (steps: number, views: ("side" | "front")[]): WalkEvidence => ({
   status: "completed", analysis_method: "mediapipe_browser_body_centric_2d_v1", camera_motion_handling: "body_centric_2d_browser",
@@ -30,7 +30,8 @@ describe("WalkingVideos", () => {
     expect(html).not.toContain(WALK_SLOTS.front.title);
     expect(html).toContain("feet included");
     expect(html.match(/type="file"/g)).toHaveLength(1);
-    expect(html).toContain("No room for this");
+    expect(html).toContain("No room, or feet won&#x27;t fit: skip");
+    expect(WALK_STEPS.side.lead).toContain("can't fit your feet in the picture from the side? Skip it");
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Next: the front video/);
     expect(html).toContain("Skip walking for now");
     expect(html).toContain("Watch how to film");
@@ -64,5 +65,16 @@ describe("WalkingVideos", () => {
     expect(walkingHandoff(analysis("front", true, 11000), analysis("side", false, 14000))).toMatchObject({ views: ["front"], duration_ms: 11000 });
     expect(walkingHandoff(analysis("front", false), analysis("side", false))).toBeNull();
     expect(walkingHandoff(null, null)).toBeNull();
+  });
+
+  it("asks the patient to skip a side video without the feet, and scores the front video instead", () => {
+    const hipsKnees = (durationMs = 14000): WalkVideoAnalysis => {
+      const side = analysis("side", true, durationMs);
+      return { ...side, measuredFrom: "hips_knees", evidence: { ...side.evidence!, provenance: { ...side.evidence!.provenance, measured_from: "hips_knees" } } };
+    };
+    expect(slotStatus({ state: "done", name: "s.mp4", analysis: hipsKnees() })).toBe(SIDE_FEET_OUT);
+    expect(SIDE_FEET_OUT).toContain("Skip it and go on to the front video");
+    // With a front video, the score comes from the front video alone.
+    expect(walkingHandoff(analysis("front", true, 11000), hipsKnees())).toMatchObject({ views: ["front"], duration_ms: 11000, measured_from: "feet" });
   });
 });

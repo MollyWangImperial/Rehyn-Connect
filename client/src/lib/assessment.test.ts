@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { buildRunnerUrl, assessmentPlanFrom, companionTaskPlan, withEverydayExercise, type PlanExercise, type StartRungs } from "./assessment";
+import { buildRunnerUrl, assessmentPlanFrom, companionTaskPlan, onlyTasksFrom, withEverydayExercise, type PlanExercise, type StartRungs } from "./assessment";
+
+describe("testing: running only some tasks (?only=)", () => {
+  it("reads the known tasks in check order, and runs only those", () => {
+    expect(onlyTasksFrom("L6")).toEqual(["L6"]);
+    expect(onlyTasksFrom("l6, t1 ,xx")).toEqual(["T1", "L6"]);
+    expect(onlyTasksFrom(null)).toEqual([]);
+    const url = new URL(buildRunnerUrl("https://rehyn.onrender.com", { affectedSide: "right", onlyTaskIds: ["L6"] }));
+    expect(url.searchParams.get("task_ids")).toBe("L6");
+    expect(new URL(buildRunnerUrl("https://rehyn.onrender.com", { affectedSide: "right" })).searchParams.get("task_ids")).toBe("T1,T3,H4,H3,L6");
+  });
+});
 
 describe("the everyday exercise", () => {
   const handOpen: PlanExercise = { id: "ex_handopen", name: "Active Hand Opening", description: "Open.", sets: 2, reps: 8, frequency: "Daily", difficulty: "medium" };

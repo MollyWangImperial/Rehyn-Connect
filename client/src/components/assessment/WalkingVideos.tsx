@@ -26,8 +26,16 @@ export const WALK_SLOTS: Record<WalkView, { title: string; when: string }> = {
   front: { title: "Front view", when: "Walking away from the phone and back toward it." },
 };
 
+/** A side video whose feet were out of the picture: the patient is asked to skip it for the front video. */
+export const SIDE_FEET_OUT =
+  "Your feet were out of the picture, so this side video can't give an accurate walking score. Skip it and go on to the front video: your walking score will come from that.";
+
+/** Whether a slot holds a side video measured without the feet (from the hips and knees). */
+const feetOut = (slot: Slot) => slot.state === "done" && slot.analysis.view === "side" && slot.analysis.measuredFrom === "hips_knees";
+
 /** A slot's line for the patient. */
 export function slotStatus(slot: Slot): string {
+  if (feetOut(slot)) return SIDE_FEET_OUT;
   if (slot.state === "empty") return "No video chosen yet.";
   // Nothing done yet: the movement model is starting, or the other video is being checked first.
   if (slot.state === "analysing") return slot.share > 0 ? `Checking your walk… ${Math.round(slot.share * 100)}%` : "Getting ready to check this video…";
@@ -52,7 +60,7 @@ export function walkingHandoff(front: WalkVideoAnalysis | null, side: WalkVideoA
 export const WALK_STEPS: Record<WalkView, { title: string; lead: string }> = {
   side: {
     title: "Your side video",
-    lead: "Choose the video you just filmed from the side: walking across the picture, turning, and walking back. No room for this? That's fine, the front video comes next.",
+    lead: "Choose the video you just filmed from the side: walking across the picture, turning, and walking back. No room for this, or can't fit your feet in the picture from the side? Skip it: the front video comes next, and your walking score will come from that.",
   },
   front: {
     title: "Your front video",
@@ -104,6 +112,8 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
   const busy = slots.side.state === "analysing" || slots.front.state === "analysing";
   const bothUsable = !!done("side")?.evidence && !!done("front")?.evidence;
   const sideChosen = slots.side.state !== "empty";
+  // A side video without the feet is skipped for the front video (which then gives the score).
+  const sideFeetOut = feetOut(slots.side);
 
   return (
     <section className="walking-videos" aria-labelledby="walking-videos-title">
@@ -116,12 +126,12 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
         <h1 id="walking-videos-title">{WALK_STEPS[step].title}</h1>
         <p className="walking-videos-lead">{WALK_STEPS[step].lead} Your whole body, feet included, needs to stay in the picture.</p>
         {/* The front step also shows how the side video went (still being checked, ready, or not usable). */}
-        {step === "front" && sideChosen && <p className="walking-videos-earlier"><b>Side video:</b> {slotStatus(slots.side)}</p>}
+        {step === "front" && sideChosen && <p className="walking-videos-earlier"><b>Side video:</b> {sideFeetOut ? "skipped, as your feet were out of the picture. Your walking score will come from your front video." : slotStatus(slots.side)}</p>}
         <div className="walking-videos-slots is-single">
           {([step] as const).map(view => {
             const slot = slots[view];
-            const ok = slot.state === "done" && !!slot.analysis.evidence;
-            const problem = slot.state === "failed" || (slot.state === "done" && !slot.analysis.evidence);
+            const ok = slot.state === "done" && !!slot.analysis.evidence && !feetOut(slot);
+            const problem = slot.state === "failed" || (slot.state === "done" && !slot.analysis.evidence) || feetOut(slot);
             return (
               <div key={view} className={`walking-slot${ok ? " is-ready" : ""}${problem ? " is-problem" : ""}`}>
                 <div className="walking-slot-head">
@@ -150,15 +160,15 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
         <button type="button" className="demo-reel-btn demo-reel-quiet" onClick={() => onDone({ skipped: true })}><SkipForward size={17} aria-hidden="true" />Skip walking for now</button>
         {step === "side" ? (
           <div className="walking-videos-actions">
-            {!sideChosen && <button type="button" className="demo-reel-btn demo-reel-secondary" onClick={onNext}>No room for this</button>}
+            {!sideChosen && <button type="button" className="demo-reel-btn demo-reel-secondary" onClick={onNext}>No room, or feet won't fit: skip</button>}
             {/* The side video keeps being checked while the front video's demonstration plays. */}
             <button type="button" className="demo-reel-btn demo-reel-primary" disabled={!sideChosen} onClick={onNext}>
-              Next: the front video<ArrowRight size={17} aria-hidden="true" />
+              {sideFeetOut ? "Skip it: go to the front video" : "Next: the front video"}<ArrowRight size={17} aria-hidden="true" />
             </button>
           </div>
         ) : (
           <button type="button" className="demo-reel-btn demo-reel-primary" disabled={!handoff || busy} onClick={() => handoff && onDone(handoff)}>
-            {bothUsable ? "Get my walking score from both videos" : slots.front.state === "empty" && done("side")?.evidence ? "Use the side video only" : "Get my walking score"}
+            {bothUsable ? "Get my walking score from both videos" : slots.front.state === "empty" && done("side")?.evidence && !sideFeetOut ? "Use the side video only" : "Get my walking score"}
           </button>
         )}
       </footer>

@@ -9,6 +9,7 @@ import Welcome from "./pages/Welcome";
 import Journey from "./pages/Journey";
 import Alira from "./pages/Alira";
 import Assessment from "./pages/Assessment";
+import { onlyTasksFrom } from "./lib/assessment";
 import NativeAssessment from "./pages/NativeAssessment";
 import FastCheck from "./pages/FastCheck";
 import ExerciseRunner from "./pages/ExerciseRunner";
@@ -37,7 +38,8 @@ function Router() {
       <Route path={"/warm-up"} component={WarmUp} />
       {/* The native movement check on the exercise engine, kept for comparison while /assessment uses the original runner. */}
       <Route path={"/assessment/native"}>{() => <WarmRepGate gate="pre_assessment"><NativeAssessment /></WarmRepGate>}</Route>
-      <Route path={"/assessment"}>{() => <WarmRepGate gate="pre_assessment"><Assessment /></WarmRepGate>}</Route>
+      {/* Testing (?only=L6, Settings → Exercise Engine): straight to those tasks, without the warm-up. */}
+      <Route path={"/assessment"}>{() => (onlyTasksFrom(new URLSearchParams(window.location.search).get("only")).length ? <Assessment /> : <WarmRepGate gate="pre_assessment"><Assessment /></WarmRepGate>)}</Route>
       <Route path={"/fast-check"} component={FastCheck} />
       <Route path={"/my-time"} component={MyTime} />
       <Route path={"/community"} component={Community} />

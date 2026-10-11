@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, ChevronRight, Hand, Play } from "lucide-react";
+import { Activity, ChevronRight, Footprints, Hand, Play } from "lucide-react";
 import { DOMAIN_LABEL, EXERCISE_RUNGS, EXERCISES, LAUNCH_EXERCISE_IDS, SOLO_EXCLUDED_IDS, type Domain } from "@/lib/exercise-engine/config";
 import { metricUnitName } from "@/lib/exercise-engine/calibration";
 import "@/pages/exercise-engine.css";
@@ -90,6 +90,22 @@ export function ExerciseLabPanel({ onLaunch }: { onLaunch: (path: string) => voi
             <button className="xe-lab-clear" onClick={() => { clearLabSessions(); setSessions([]); }}>Clear history</button>
           </>
         )}
+      </section>
+
+      <section className="xe-lab-group" aria-labelledby="xe-walk-test">
+        <h3 id="xe-walk-test">Movement check: walking only</h3>
+        <article className="xe-lab-card">
+          <div className="xe-lab-head">
+            <span className="xe-lab-icon" aria-hidden="true"><Footprints size={19} /></span>
+            <div>
+              <h4>Walking test</h4>
+              <p>Opens the movement check at walking: the side demonstration and video, then the front ones, then the walking score. The other tasks are skipped, and the result is not saved as a check.</p>
+            </div>
+          </div>
+          <div className="xe-lab-actions">
+            <button className="xe-lab-open" onClick={() => onLaunch("/assessment?only=L6")}><Play size={15} aria-hidden="true" /> Open the walking test <ChevronRight size={15} aria-hidden="true" /></button>
+          </div>
+        </article>
       </section>
 
       <p className="xe-lab-foot">Left out of the solo set: {SOLO_EXCLUDED_IDS.length} library exercises (trunk-restrained reach is now the chair-back mode of forward reach; the rest are therapist-set).</p>
