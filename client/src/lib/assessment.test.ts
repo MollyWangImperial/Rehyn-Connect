@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { buildRunnerUrl, assessmentPlanFrom, companionTaskPlan, onlyTasksFrom, withEverydayExercise, type PlanExercise, type StartRungs } from "./assessment";
+import { buildRunnerUrl, assessmentPlanFrom, companionTaskPlan, onlyTasksFrom, withDemoWalking, withEverydayExercise, type PlanExercise, type StartRungs } from "./assessment";
+
+describe("for now: walking shows 100 once its videos are uploaded", () => {
+  const check = (walk: Record<string, unknown>) => ({ task_results: [{ task_id: "L6", metrics: walk }], metrics: { function_score: {
+    display_total: 89, areas: { upper_limb: { display_score: 100 }, hand: { display_score: 100 }, lower_limb: { display_score: 67 } }, tasks: [{ task_id: "L6", points: 67, level: null }] } } });
+  it("sets walking to 100 and works the daily score out with it", () => {
+    const shown = withDemoWalking(check({ walking_capture_mode: "uploaded_video", walking_video_views: ["side", "front"] }));
+    expect(shown.metrics.function_score.areas.lower_limb.display_score).toBe(100);
+    expect(shown.metrics.function_score.tasks[0]).toMatchObject({ points: 100, level: 4 });
+    expect(shown.metrics.function_score.display_total).toBe(100);
+  });
+  it("leaves a skipped walk, and a check without walking videos, as they were", () => {
+    expect(withDemoWalking(check({ walking_skipped: true })).metrics.function_score.areas.lower_limb.display_score).toBe(67);
+    expect(withDemoWalking(check({})).metrics.function_score.display_total).toBe(89);
+    expect(withDemoWalking(check({ walking_video_views: ["front"] }), null).metrics.function_score.areas.lower_limb.display_score).toBe(67);
+  });
+});
 
 describe("testing: running only some tasks (?only=)", () => {
   it("reads the known tasks in check order, and runs only those", () => {

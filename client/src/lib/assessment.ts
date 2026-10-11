@@ -37,6 +37,34 @@ export type RunnerOptions = {
   onlyTaskIds?: readonly string[];
 };
 
+/**
+ * For now (demonstrations): once walking videos are uploaded, the check's walking score is this, whatever was measured, and the daily
+ * function score is worked out with it. `null` goes back to the measured score. The walking-only test in Settings
+ * (?only=L6) always keeps its measured score.
+ */
+export const WALKING_DEMO_SCORE: number | null = 100;
+
+type ScoreArea = { display_score?: number | null } & Record<string, unknown>;
+type ScoreTask = { task_id?: string; points?: number | null; level?: number | null } & Record<string, unknown>;
+
+/** A check's results with walking set to WALKING_DEMO_SCORE (when walking was part of the check), else unchanged. */
+export function withDemoWalking<T>(assessment: T, score: number | null = WALKING_DEMO_SCORE): T {
+  if (score === null || !assessment || typeof assessment !== "object") return assessment;
+  const record = assessment as { metrics?: { function_score?: { display_total?: number | null; areas?: Record<string, ScoreArea>; tasks?: ScoreTask[] } } & Record<string, unknown> };
+  const fs = record.metrics?.function_score;
+  if (!fs || typeof fs !== "object" || !fs.areas) return assessment;
+  // Only when the patient uploaded walking videos in this check (not when walking was skipped or left out).
+  const results = (record as { task_results?: { task_id?: string; metrics?: Record<string, unknown> }[] }).task_results ?? [];
+  const walk = results.find(task => task?.task_id === "L6")?.metrics ?? {};
+  const uploaded = walk.walking_skipped !== true && (walk.walking_capture_mode === "uploaded_video" || (Array.isArray(walk.walking_video_views) && walk.walking_video_views.length > 0));
+  if (!uploaded) return assessment;
+  const areas = { ...fs.areas, lower_limb: { ...(fs.areas.lower_limb ?? {}), display_score: score, partial: false } };
+  const tasks = (fs.tasks ?? []).map(task => (task?.task_id === "L6" ? { ...task, points: score, level: 4 } : task));
+  const shown = Object.values(areas).map(area => area?.display_score).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const display_total = shown.length ? Math.round(shown.reduce((sum, value) => sum + value, 0) / shown.length) : fs.display_total ?? null;
+  return { ...record, metrics: { ...record.metrics, function_score: { ...fs, areas, tasks, display_total } } } as T;
+}
+
 /** Testing: the tasks named in `?only=` (e.g. "L6"), the known ones in check order; none when absent. */
 export function onlyTasksFrom(value: string | null): string[] {
   const named = (value ?? "").split(",").map(id => id.trim().toUpperCase());

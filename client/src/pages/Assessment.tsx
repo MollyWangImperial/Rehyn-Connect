@@ -9,6 +9,7 @@ import {
   parseRunnerMessage,
   onlyTasksFrom,
   rememberAssessment,
+  withDemoWalking,
   type StartRungs,
   type StoredAssessment,
 } from "@/lib/assessment";
@@ -138,6 +139,8 @@ export default function Assessment() {
     // Alira reviews the new results in the background, once per check. Without consent it does nothing.
     // A test run (?only=) is shown but not kept: the real check, the Journey and Alira's learning stay as they were.
     const keep = (assessment: unknown) => (testOnly ? null : rememberAssessment(assessment));
+    // For now, the check shows walking as WALKING_DEMO_SCORE; the walking-only test keeps what it measured.
+    const results = (assessment: unknown) => (testOnly ? assessment : withDemoWalking(assessment));
     function learnFromResults() {
       if (learningStarted.current || testOnly) return;
       learningStarted.current = true;
@@ -198,15 +201,16 @@ export default function Assessment() {
         case "assessment_complete":
           // Current runners present the analysis and results inside the frame.
           // Keep the fallback for older deployed runners that only post completion.
-          if (message.results_in_runner === true) showDashboard(message.assessment, keep(message.assessment));
-          else setResult(keep(message.assessment) ?? { id: "", completedAt: new Date().toISOString() });
+          if (message.results_in_runner === true) { const checked = results(message.assessment); showDashboard(checked, keep(checked)); }
+          else setResult(keep(results(message.assessment)) ?? { id: "", completedAt: new Date().toISOString() });
           learnFromResults();
           break;
         case "assessment_preview_complete":
           // Keep results visible in the runner; its Done action returns to Alira.
-          const previewResult = keep(message.assessment);
+          const previewChecked = results(message.assessment);
+          const previewResult = keep(previewChecked);
           learnFromResults();
-          if (message.results_in_runner === true) { showDashboard(message.assessment, previewResult); break; }
+          if (message.results_in_runner === true) { showDashboard(previewChecked, previewResult); break; }
           setPreviewComplete(true);
           setResult(previewResult ?? { id: "", completedAt: new Date().toISOString() });
           break;
