@@ -131,6 +131,57 @@ export function buildDashboard(report: AssessmentReport, previous: StoredAssessm
   };
 }
 
+// ---------------------------------------------------------------- re-opening a check's dashboard (Journey)
+
+const DASHBOARDS_KEY = "rehyn-assessment-dashboards";
+/** The checks kept for re-opening, the most recent ones. */
+const KEPT_DASHBOARDS = 12;
+type SavedDashboard = { id: string; completedAt: string; dashboard: Dashboard };
+
+function savedDashboards(): SavedDashboard[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(DASHBOARDS_KEY) ?? "[]") as unknown;
+    return Array.isArray(list) ? list.filter((item): item is SavedDashboard => !!item && typeof item.id === "string" && typeof item.completedAt === "string" && !!item.dashboard && typeof item.dashboard === "object") : [];
+  } catch { return []; }
+}
+
+/** Keeps a check's dashboard as it was first shown (with its comparison to the check before it), to re-open later. */
+export function saveCheckDashboard(id: string, completedAt: string, dashboard: Dashboard) {
+  if (!id) return;
+  const list = [...savedDashboards().filter(item => item.id !== id), { id, completedAt, dashboard }]
+    .sort((a, b) => a.completedAt.localeCompare(b.completedAt)).slice(-KEPT_DASHBOARDS);
+  try { localStorage.setItem(DASHBOARDS_KEY, JSON.stringify(list)); } catch { /* it can still be rebuilt for the latest check */ }
+}
+
+/** Whole days from `now` to the check-up due after a check completed at `completedAt` (0 when due or past). */
+export function daysUntilNextCheck(completedAt: string, now: Date): number {
+  const due = new Date(completedAt);
+  if (Number.isNaN(due.getTime())) return REASSESSMENT_CYCLE_DAYS;
+  due.setDate(due.getDate() + REASSESSMENT_CYCLE_DAYS);
+  const day = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return Math.max(0, Math.round((day(due) - day(now)) / 86_400_000));
+}
+
+/**
+ * A finished check's dashboard, to re-open from the Journey: as it was saved when first shown, or (for the latest
+ * check, saved before dashboards were kept) rebuilt from its stored report. Its next check-up counts from `now`.
+ */
+export function reopenCheckDashboard(id: string, latest: StoredAssessment | null, now = new Date()): Dashboard | null {
+  const saved = savedDashboards().find(item => item.id === id);
+  const completedAt = saved?.completedAt ?? (latest?.id === id ? latest.completedAt : null);
+  let dashboard = saved?.dashboard ?? null;
+  if (!dashboard && latest?.id === id && latest.report) {
+    const when = new Date(latest.completedAt);
+    dashboard = buildDashboard(latest.report, null, Number.isNaN(when.getTime()) ? now : when);
+  }
+  if (!dashboard || !completedAt) return dashboard;
+  return { ...dashboard, next: { ...dashboard.next, days: daysUntilNextCheck(completedAt, now) } };
+}
+
+/** Whether a check's dashboard can be re-opened. */
+export const canReopenCheckDashboard = (id: string | undefined, latest: StoredAssessment | null) =>
+  !!id && (savedDashboards().some(item => item.id === id) || (latest?.id === id && !!functionScore(latest.report)));
+
 /** How the score is put together, for "How we scored this". */
 export const SCORING_NOTE = [
   "Each movement earns up to 100: 100 for the full movement on your own with steady posture, 75 on your own when your posture needed help or could not be seen clearly, 50 for an easier version on your own, 25 when you started it or had help, and 0 when it was not done yet.",

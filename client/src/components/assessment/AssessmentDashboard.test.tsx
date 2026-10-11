@@ -2,8 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { AssessmentReport, StoredAssessment } from "@/lib/assessment";
-import { buildDashboard, standingFor } from "@/lib/assessment-dashboard";
-import AssessmentDashboard, { videosLine } from "./AssessmentDashboard";
+import { buildDashboard, canReopenCheckDashboard, daysUntilNextCheck, reopenCheckDashboard, standingFor } from "@/lib/assessment-dashboard";
+import AssessmentDashboard, { nextInWords, videosLine } from "./AssessmentDashboard";
 
 const task = (task_id: string, domain: string, level: number | null, points = level === null ? null : level * 25) => ({ task_id, domain, level, points, task_label: task_id });
 /** A report as the Rehyn app returns it (function score: areas and tasks). */
@@ -76,5 +76,40 @@ describe("the results dashboard", () => {
     for (const text of ["Movement check · 10 October", "Your movement check", "Daily function score 63 out of 100", "Arm", "Strong", "Hand", "Building", "Walking", "Not measured",
       "Since last time", "vs. your check on 2 October", "Arm −13", "Hand −50", "Next check-up", "Saturday 24 October", "Until then, try to",
       "Bring your thumb to your first finger", "Continue to Alira", "Go to my home", "How we scored this"]) expect(html).toContain(text);
+  });
+});
+
+describe("re-opening a check's results from the Journey", () => {
+  const latest: StoredAssessment = { id: "c11", completedAt: today.toISOString(), report: report() };
+
+  it("rebuilds the latest check's dashboard from its stored report, with the check-up counted from now", () => {
+    expect(canReopenCheckDashboard("c11", latest)).toBe(true);
+    expect(canReopenCheckDashboard("other", latest)).toBe(false);
+    expect(canReopenCheckDashboard(undefined, latest)).toBe(false);
+    expect(canReopenCheckDashboard("c11", { ...latest, report: undefined })).toBe(false);
+    const reopened = reopenCheckDashboard("c11", latest, new Date(2026, 9, 20, 9, 0))!;
+    expect(reopened).toMatchObject({ dateLabel: "10 October", total: 63 });
+    expect(reopened.next).toMatchObject({ dateLabel: "Saturday 24 October", days: 4 });
+    expect(reopenCheckDashboard("other", latest)).toBeNull();
+  });
+
+  it("counts the days to the next check-up, down to due", () => {
+    expect(daysUntilNextCheck(today.toISOString(), today)).toBe(14);
+    expect(daysUntilNextCheck(today.toISOString(), new Date(2026, 9, 23, 22, 0))).toBe(1);
+    expect(daysUntilNextCheck(today.toISOString(), new Date(2026, 9, 30))).toBe(0);
+    expect([14, 1, 0].map(nextInWords)).toEqual(["in 14 days", "tomorrow", "due now"]);
+  });
+
+  it("says the check's day instead of today, and has a way back to the Journey", () => {
+    const previous: StoredAssessment = { id: "p", completedAt: new Date(2026, 9, 2).toISOString(), report: report({ arm: 88, hand: 100 }) };
+    const dashboard = buildDashboard(report(), previous, today)!;
+    const html = renderToStaticMarkup(createElement(AssessmentDashboard, { dashboard, onAlira: () => {}, onHome: () => {}, onBack: () => {} }));
+    expect(html).toContain("Back to my journey");
+    expect(html).toContain("Every number here comes from your own movements on 10 October.");
+    expect(html).not.toContain(">Today<");
+    expect(html).toContain('role="dialog"');
+    const fresh = renderToStaticMarkup(createElement(AssessmentDashboard, { dashboard, onAlira: () => {}, onHome: () => {} }));
+    expect(fresh).not.toContain("Back to my journey");
+    expect(fresh).toContain(">Today<");
   });
 });

@@ -317,7 +317,8 @@ export type PlanRow = { exercise: JourneyExercise; doneToday: boolean; score: nu
 /** `changes` lists what the daily plan review changed after yesterday, under `changesLead`. */
 export type AliraNote = { kind: "note" | "care" | "letter"; label: string; text: string; tips: string[]; changesLead?: string; changes?: string[] };
 export type NextMedal = { id: "first-step" | "sunrise" | "month" | "reassessment"; name: string; description: string; pct: number };
-export type AssessmentColumn = { label: string; date: string; scores: AreaScores | null };
+/** `id`: the check's own id (its results dashboard can be re-opened by it); none for the next, pending check. */
+export type AssessmentColumn = { label: string; date: string; scores: AreaScores | null; id?: string };
 
 export type JourneyModel = {
   day: number;
@@ -560,7 +561,7 @@ export function buildJourney({ assessment, start, assessments, store, now, range
   const startingScores = assessments.length ? assessments[0].scores : assessmentScores(assessment);
   const assessmentColumns: AssessmentColumn[] = assessments.map((item, i) => ({
     label: i === 0 ? "Starting point" : `Week ${Math.floor(Math.max(0, dayIndexOf(start, new Date(item.completedAt))) / 7) + 1}`,
-    date: dayMonth(new Date(item.completedAt)), scores: item.scores,
+    date: dayMonth(new Date(item.completedAt)), scores: item.scores, id: item.id,
   }));
   if (!assessmentColumns.length) assessmentColumns.push({ label: "Starting point", date: dayMonth(start), scores: startingScores });
   assessmentColumns.push({ label: "Next check", date: dayMonth(dateOfDay(start, reassessmentDay)), scores: null });

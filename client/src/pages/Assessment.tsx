@@ -21,7 +21,7 @@ import DemoReel, { DEMO_SPECS } from "@/components/assessment/DemoReel";
 import WalkingVideos, { type WalkingHandoff } from "@/components/assessment/WalkingVideos";
 import type { WalkView as WalkStep } from "@/lib/assessment-engine/walk-video";
 import AssessmentDashboard from "@/components/assessment/AssessmentDashboard";
-import { buildDashboard, type Dashboard } from "@/lib/assessment-dashboard";
+import { buildDashboard, saveCheckDashboard, type Dashboard } from "@/lib/assessment-dashboard";
 import "./assessment.css";
 
 const LOAD_TIMEOUT_MS = 25000;
@@ -139,11 +139,13 @@ export default function Assessment() {
       }
     }
     /** The runner shows its results: this page's dashboard takes over when the results carry a function score. */
-    function showDashboard(assessment: unknown) {
+    function showDashboard(assessment: unknown, stored: StoredAssessment | null) {
       checkResults.current = assessment;
       try {
         const next = assessment && typeof assessment === "object" ? buildDashboard(assessment as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date()) : null;
         if (next) setDashboard(next);
+        // Kept so the Journey's Assessments card can open it again.
+        if (next && stored) saveCheckDashboard(stored.id, stored.completedAt, next);
       } catch {
         /* The runner's own results stay on screen. */
       }
@@ -186,7 +188,7 @@ export default function Assessment() {
         case "assessment_complete":
           // Current runners present the analysis and results inside the frame.
           // Keep the fallback for older deployed runners that only post completion.
-          if (message.results_in_runner === true) { rememberAssessment(message.assessment); showDashboard(message.assessment); }
+          if (message.results_in_runner === true) showDashboard(message.assessment, rememberAssessment(message.assessment));
           else setResult(rememberAssessment(message.assessment) ?? { id: "", completedAt: new Date().toISOString() });
           learnFromResults();
           break;
@@ -194,7 +196,7 @@ export default function Assessment() {
           // Keep results visible in the runner; its Done action returns to Alira.
           const previewResult = rememberAssessment(message.assessment);
           learnFromResults();
-          if (message.results_in_runner === true) { showDashboard(message.assessment); break; }
+          if (message.results_in_runner === true) { showDashboard(message.assessment, previewResult); break; }
           setPreviewComplete(true);
           setResult(previewResult ?? { id: "", completedAt: new Date().toISOString() });
           break;

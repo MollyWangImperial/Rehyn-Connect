@@ -9,6 +9,8 @@ import AliraAvatar from "@/components/AliraAvatar";
 import MedalArtwork from "@/components/MedalArtwork";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { loadRememberedAssessment } from "@/lib/assessment";
+import AssessmentDashboard from "@/components/assessment/AssessmentDashboard";
+import { canReopenCheckDashboard, reopenCheckDashboard, type Dashboard } from "@/lib/assessment-dashboard";
 import { patientExerciseReady } from "@/lib/exercise-engine/config";
 import { affectedSideFrom, loadOnboardingAnswers } from "@/lib/alira-onboarding";
 import { dayKey, PATIENT_NAME } from "@/lib/home-stage";
@@ -50,6 +52,8 @@ export default function JourneyProgress({ animateEntrance = true, reveal = false
   const [shareStep, setShareStep] = useState<0 | 1 | 2>(0);
   const [draftSections, setDraftSections] = useState<Record<ShareSectionKey, boolean>>(allSectionsOn);
   const [draftRows, setDraftRows] = useState<SharePerson[]>([{ name: "", email: "" }]);
+  // A finished check's results dashboard, opened again from the Assessments card.
+  const [openDashboard, setOpenDashboard] = useState<Dashboard | null>(null);
   const planHeading = useRef<HTMLHeadingElement>(null);
   const shareCard = useRef<HTMLElement>(null);
 
@@ -194,6 +198,9 @@ export default function JourneyProgress({ animateEntrance = true, reveal = false
   const noLaunchable = !noPlan && !m.exercises.some(e => e.launchable);
   const report = assessment.report;
   const domains = report?.function_rehab_plan?.caregiver_domains ?? [];
+  // The most recent check whose results can be opened again (saved when it finished, or the latest stored one).
+  const latestCheckId = [...m.assessments].reverse().find(column => column.id && canReopenCheckDashboard(column.id, assessment))?.id ?? null;
+  const openCheck = (id: string) => setOpenDashboard(reopenCheckDashboard(id, assessment));
 
   return (
     <div className={`jp jp-${par}`} data-day={m.day} data-entrance={animateUpdate ? "first" : "seen"}>
@@ -269,10 +276,18 @@ export default function JourneyProgress({ animateEntrance = true, reveal = false
 
           {n > 0 && (
             <section className="jp-card jp-assessments" aria-labelledby="jp-assess-title">
-              <div className="jp-card-head"><h2 id="jp-assess-title">Assessments</h2></div>
+              <div className="jp-card-head">
+                <h2 id="jp-assess-title">Assessments</h2>
+                {latestCheckId && <button type="button" className="jp-assess-open" onClick={() => openCheck(latestCheckId)}>View my latest results<ChevronRight size={16} aria-hidden="true" /></button>}
+              </div>
               <table>
                 <thead>
-                  <tr><th scope="col">Score</th>{m.assessments.map((column, i) => <th scope="col" key={i} className={column.scores ? "" : "is-pending"}><b>{column.label}</b><small>{column.date}</small></th>)}</tr>
+                  <tr><th scope="col">Score</th>{m.assessments.map((column, i) => (
+                    <th scope="col" key={i} className={column.scores ? "" : "is-pending"}>
+                      <b>{column.label}</b><small>{column.date}</small>
+                      {column.id && column.id !== latestCheckId && canReopenCheckDashboard(column.id, assessment) && <button type="button" className="jp-assess-view" onClick={() => openCheck(column.id!)} aria-label={`View the results of your check on ${column.date}`}>View results</button>}
+                    </th>
+                  ))}</tr>
                 </thead>
                 <tbody>
                   {AREA_ORDER.map(area => (
@@ -501,6 +516,7 @@ export default function JourneyProgress({ animateEntrance = true, reveal = false
           </>}
         </DialogContent>
       </Dialog>
+      {openDashboard && <AssessmentDashboard dashboard={openDashboard} onBack={() => setOpenDashboard(null)} onAlira={() => navigate("/alira")} onHome={() => navigate("/")} />}
     </div>
   );
 }

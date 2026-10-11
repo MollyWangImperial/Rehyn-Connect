@@ -95,6 +95,11 @@
 .jp-assessments tbody th { font-size:14px; font-weight:700; }
 .jp-assessments td b { font:500 20px "Newsreader",Georgia,serif; }
 .jp-assessments td span { color:#a5a89f; font-size:14px; }
+/* Opening a finished check's results dashboard again. */
+.jp-assess-open { display:inline-flex; align-items:center; gap:4px; min-height:40px; padding:0 14px 0 16px; border-radius:999px; border:0; background:#1F4D3A; color:#fff; font:600 14px/1 inherit; font-family:inherit; cursor:pointer; white-space:nowrap; transition:background .2s ease; }
+.jp-assess-open:hover { background:#2E7D5B; }
+.jp-assess-open:focus-visible, .jp-assess-view:focus-visible { outline:3px solid #2E7D5B; outline-offset:2px; }
+.jp-assess-view { display:block; margin-top:4px; padding:0; border:0; background:none; color:#2E7D5B; font:600 12px/1.4 inherit; font-family:inherit; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
 
 /* Today's session */
 .jp-plan { scroll-margin-top:28px; }

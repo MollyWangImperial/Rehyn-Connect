@@ -64,21 +64,39 @@ export function videosLine(state: DashboardVideos["state"]): string {
   return "Save this check's task videos to a folder on this computer (for example on D:). Later checks then replace them there by themselves.";
 }
 
-export default function AssessmentDashboard({ dashboard, onAlira, onHome, videos }: { dashboard: Dashboard; onAlira(): void; onHome(): void; videos?: DashboardVideos }) {
+/** When the next check-up is, from today. */
+export const nextInWords = (days: number) => (days > 1 ? `in ${days} days` : days === 1 ? "tomorrow" : "due now");
+
+/**
+ * `onBack`: re-opened later (from the Journey), so it says the check's day rather than "today" and has a way back
+ * (also Escape).
+ */
+export default function AssessmentDashboard({ dashboard, onAlira, onHome, videos, onBack }: { dashboard: Dashboard; onAlira(): void; onHome(): void; videos?: DashboardVideos; onBack?: () => void }) {
   const shown = useCountUp(dashboard.total);
   const [howOpen, setHowOpen] = useState(false);
   const top = useRef<HTMLDivElement>(null);
   useEffect(() => { top.current?.focus(); }, []);
+  useEffect(() => {
+    if (!onBack) return;
+    const key = (event: KeyboardEvent) => { if (event.key === "Escape") onBack(); };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [onBack]);
   const total = dashboard.total;
+  const thisCheck = onBack ? dashboard.dateLabel : "Today";
   return (
-    <div className="assessment-dashboard" role="region" aria-label="Your movement check results">
+    <div className="assessment-dashboard" role={onBack ? "dialog" : "region"} aria-modal={onBack ? true : undefined} aria-label="Your movement check results">
       <div className="ad-page" ref={top} tabIndex={-1}>
+        {onBack && <button type="button" className="ad-back" onClick={onBack}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          Back to my journey
+        </button>}
         <header className="ad-rise ad-header">
           <div className="ad-header-left">
             <div className="ad-eyebrow">Movement check · {dashboard.dateLabel}</div>
             <h1 className="ad-serif ad-title">Your movement check</h1>
           </div>
-          <p className="ad-lead">Every number here comes from your own movements today.</p>
+          <p className="ad-lead">{onBack ? `Every number here comes from your own movements on ${dashboard.dateLabel}.` : "Every number here comes from your own movements today."}</p>
         </header>
 
         <section className="ad-rise ad-hero" style={{ animationDelay: ".1s" }}>
@@ -118,7 +136,7 @@ export default function AssessmentDashboard({ dashboard, onAlira, onHome, videos
             </div>
             {dashboard.since && total !== null ? (
               <div className="ad-bars">
-                {[{ value: dashboard.since.total, label: dashboard.since.dateLabel, now: false }, { value: total, label: "Today", now: true }].map((bar, i) => (
+                {[{ value: dashboard.since.total, label: dashboard.since.dateLabel, now: false }, { value: total, label: thisCheck, now: true }].map((bar, i) => (
                   <div key={bar.label} className="ad-bar">
                     <div className="ad-bar-track"><div className={`ad-grow${bar.now ? " is-now" : ""}`} style={{ height: `${Math.max(2, bar.value)}%`, animationDelay: `${1.4 + i * 0.15}s` }} /></div>
                     <div className={`ad-serif ad-bar-value${bar.now ? " is-now" : ""}`}>{bar.value}</div>
@@ -139,7 +157,7 @@ export default function AssessmentDashboard({ dashboard, onAlira, onHome, videos
             <div className="ad-aurora" aria-hidden="true" />
             <div className="ad-card-head">
               <h2 className="ad-serif">Next check-up</h2>
-              <div className="ad-next-in">in {dashboard.next.days} days</div>
+              <div className="ad-next-in">{nextInWords(dashboard.next.days)}</div>
             </div>
             <div className="ad-serif ad-next-date">{dashboard.next.dateLabel}</div>
             <div className="ad-next-try">
