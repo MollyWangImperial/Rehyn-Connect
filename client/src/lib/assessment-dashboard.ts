@@ -94,19 +94,32 @@ function tryTo(tasks: TaskRow[]): string[] {
   return out.length ? out : ["Keep up your daily movements"];
 }
 
-/** The dashboard for a check's report, the previous check (if any), and when this check was completed. */
-export function buildDashboard(report: AssessmentReport, previous: StoredAssessment | null, completedAt: Date): Dashboard | null {
+/**
+ * The dashboard for a check's report, the previous check (if any), and when this check was completed. `fillFrom`
+ * (testing: a check of only some tasks, e.g. walking alone): the areas this check did not measure are shown from that
+ * check instead, saying so, and the daily function score is the average of the areas shown, as the app's is.
+ */
+export function buildDashboard(report: AssessmentReport, previous: StoredAssessment | null, completedAt: Date, { fillFrom = null as StoredAssessment | null } = {}): Dashboard | null {
   const score = functionScore(report);
   if (!score) return null;
   const walk = (report.task_results ?? []).find(task => task?.task_id === "L6") as { metrics?: { walking_video_views?: unknown; walking_measured_from?: unknown } } | undefined;
   const walkingViews = Array.isArray(walk?.metrics?.walking_video_views) ? (walk!.metrics!.walking_video_views as unknown[]).filter((v): v is string => typeof v === "string") : [];
   const walkingFrom = typeof walk?.metrics?.walking_measured_from === "string" ? walk.metrics.walking_measured_from : "feet";
-  const areas = AREAS.filter(area => area.id in score.areas || area.id === "lower_limb").map(area => {
-    const value = score.areas[area.id]?.display_score ?? null;
+  const filler = functionScore(fillFrom?.report);
+  const fillerDate = fillFrom ? new Date(fillFrom.completedAt) : null;
+  const fillerLabel = fillerDate && !Number.isNaN(fillerDate.getTime()) ? dayMonth(fillerDate) : null;
+  let filled = false;
+  const areas = AREAS.filter(area => area.id in score.areas || area.id === "lower_limb" || !!filler).map(area => {
+    const own = score.areas[area.id]?.display_score ?? null;
+    const borrowed = own === null && filler && fillerLabel ? filler.areas[area.id]?.display_score ?? null : null;
+    const value = own ?? borrowed;
     const standing = standingFor(value);
-    return { ...area, score: value, standing, word: STANDING_WORDS[standing], summary: areaSummary(area.id, score.tasks, walkingViews, walkingFrom) };
+    if (borrowed !== null) filled = true;
+    const summary = borrowed !== null ? `From your check on ${fillerLabel}: not part of this walking test.` : own === null && filler ? "Not part of this test, and not measured in your last check." : areaSummary(area.id, score.tasks, walkingViews, walkingFrom);
+    return { ...area, score: value, standing, word: STANDING_WORDS[standing], summary };
   });
-  const total = score.display_total ?? null;
+  const shown = areas.map(area => area.score).filter((value): value is number => value !== null);
+  const total = filled && shown.length ? Math.round(shown.reduce((sum, value) => sum + value, 0) / shown.length) : score.display_total ?? null;
   const standing = standingFor(total);
 
   const before = functionScore(previous?.report);

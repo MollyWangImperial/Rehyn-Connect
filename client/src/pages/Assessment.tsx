@@ -151,7 +151,8 @@ export default function Assessment() {
     function showDashboard(assessment: unknown, stored: StoredAssessment | null) {
       checkResults.current = assessment;
       try {
-        const next = assessment && typeof assessment === "object" ? buildDashboard(assessment as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date()) : null;
+        // A test of only some tasks shows the other areas from the last saved check.
+        const next = assessment && typeof assessment === "object" ? buildDashboard(assessment as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date(), { fillFrom: testOnly ? previousCheck.current : null }) : null;
         if (next) setDashboard(next);
         // Kept so the Journey's Assessments card can open it again.
         if (next && stored) saveCheckDashboard(stored.id, stored.completedAt, next);

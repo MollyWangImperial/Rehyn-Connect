@@ -79,6 +79,21 @@ describe("the results dashboard", () => {
   });
 });
 
+describe("a walking-only test's results", () => {
+  it("shows arm and hand from the last saved check, saying so, and averages the areas shown", () => {
+    const walkingOnly = { preview_only: true, task_results: [{ task_id: "L6", metrics: { walking_video_views: ["front"] } }],
+      metrics: { function_score: { display_total: 67, areas: { lower_limb: { display_score: 67 } }, tasks: [{ task_id: "L6", domain: "lower_limb", level: null, points: 67 }] } } } as unknown as AssessmentReport;
+    const last: StoredAssessment = { id: "c11", completedAt: new Date(2026, 9, 11).toISOString(), report: report({ arm: 100, hand: 100 }) };
+    const dashboard = buildDashboard(walkingOnly, last, today, { fillFrom: last })!;
+    expect(dashboard.areas.map(area => [area.title, area.score])).toEqual([["Arm", 100], ["Hand", 100], ["Walking", 67]]);
+    expect(dashboard.areas[0].summary).toBe("From your check on 11 October: not part of this walking test.");
+    expect(dashboard.areas[2].summary).toBe("Measured from your front video: your steps, their evenness and rhythm.");
+    expect(dashboard.total).toBe(89);
+    // Without a saved check, they stay not measured.
+    expect(buildDashboard(walkingOnly, null, today)!.areas.map(area => area.title)).toEqual(["Walking"]);
+  });
+});
+
 describe("re-opening a check's results from the Journey", () => {
   const latest: StoredAssessment = { id: "c11", completedAt: today.toISOString(), report: report() };
 
