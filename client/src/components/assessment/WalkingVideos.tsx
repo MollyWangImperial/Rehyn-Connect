@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleAlert, Film, LoaderCircle, RotateCcw, SkipForward } from "lucide-react";
-import { combineWalkEvidence, WALK_VIDEO_REASONS, type WalkEvidence, type WalkVideoAnalysis, type WalkView } from "@/lib/assessment-engine/walk-video";
+import { combineWalkEvidence, WALK_VIDEO_REASONS, type WalkEvidence, type WalkMeasure, type WalkVideoAnalysis, type WalkView } from "@/lib/assessment-engine/walk-video";
 import { analyzeWalkVideoFile, WALK_FILE_ERRORS } from "@/lib/assessment-engine/walk-video-file";
 import "./demo-reel.css";
 import "./walking-videos.css";
@@ -13,7 +13,7 @@ import "./walking-videos.css";
 /** What the movement check gets: the measurements to score, or a skip. */
 export type WalkingHandoff =
   | { skipped: true }
-  | { skipped: false; evidence: WalkEvidence | null; duration_ms: number; views: WalkView[] };
+  | { skipped: false; evidence: WalkEvidence | null; duration_ms: number; views: WalkView[]; measured_from: WalkMeasure };
 
 type Slot =
   | { state: "empty" }
@@ -35,7 +35,9 @@ export function slotStatus(slot: Slot): string {
   const { analysis } = slot;
   if (analysis.evidence) {
     const steps = analysis.evidence.features.step_events.length;
-    return `Ready: ${steps} clear step${steps === 1 ? "" : "s"} measured.`;
+    return analysis.measuredFrom === "hips_knees"
+      ? `Ready: ${steps} step${steps === 1 ? "" : "s"} measured from your hips and knees (your feet were out of the picture).`
+      : `Ready: ${steps} clear step${steps === 1 ? "" : "s"} measured.`;
   }
   return analysis.reasons.map(reason => WALK_VIDEO_REASONS[reason]).join(" ");
 }
@@ -43,7 +45,7 @@ export function slotStatus(slot: Slot): string {
 /** What the movement check is handed for the chosen videos (null while none is usable). */
 export function walkingHandoff(front: WalkVideoAnalysis | null, side: WalkVideoAnalysis | null): WalkingHandoff | null {
   const combined = combineWalkEvidence(front, side);
-  return combined ? { skipped: false, evidence: combined.evidence, duration_ms: combined.durationMs, views: combined.views } : null;
+  return combined ? { skipped: false, evidence: combined.evidence, duration_ms: combined.durationMs, views: combined.views, measured_from: combined.measuredFrom } : null;
 }
 
 /** Each step's heading, what to choose, and its primary button. */

@@ -63,12 +63,13 @@ const LEVEL_PHRASES: Record<number, string> = {
   0: "not yet",
 };
 
-function areaSummary(id: AreaId, tasks: TaskRow[], walkingViews: string[]): string {
+function areaSummary(id: AreaId, tasks: TaskRow[], walkingViews: string[], walkingFrom: string): string {
   if (id === "lower_limb") {
     const walk = tasks.find(task => task.task_id === "L6");
     if (!walk || walk.points === null) return "Walking was not measured in this check.";
     const views = walkingViews.includes("side") && walkingViews.includes("front") ? "your side and front videos"
       : walkingViews.includes("side") ? "your side video" : walkingViews.includes("front") ? "your front video" : "your walking video";
+    if (walkingFrom === "hips_knees") return `Based on your hips and knees in ${views} (your feet were out of the picture): your steps' timing, evenness and length.`;
     return `Measured from ${views}: your steps, their evenness and rhythm.`;
   }
   const rows = tasks.filter(task => task.domain === id || (!task.domain && (id === "hand" ? /^H/ : /^T/).test(task.task_id)));
@@ -97,12 +98,13 @@ function tryTo(tasks: TaskRow[]): string[] {
 export function buildDashboard(report: AssessmentReport, previous: StoredAssessment | null, completedAt: Date): Dashboard | null {
   const score = functionScore(report);
   if (!score) return null;
-  const walk = (report.task_results ?? []).find(task => task?.task_id === "L6") as { metrics?: { walking_video_views?: unknown } } | undefined;
+  const walk = (report.task_results ?? []).find(task => task?.task_id === "L6") as { metrics?: { walking_video_views?: unknown; walking_measured_from?: unknown } } | undefined;
   const walkingViews = Array.isArray(walk?.metrics?.walking_video_views) ? (walk!.metrics!.walking_video_views as unknown[]).filter((v): v is string => typeof v === "string") : [];
+  const walkingFrom = typeof walk?.metrics?.walking_measured_from === "string" ? walk.metrics.walking_measured_from : "feet";
   const areas = AREAS.filter(area => area.id in score.areas || area.id === "lower_limb").map(area => {
     const value = score.areas[area.id]?.display_score ?? null;
     const standing = standingFor(value);
-    return { ...area, score: value, standing, word: STANDING_WORDS[standing], summary: areaSummary(area.id, score.tasks, walkingViews) };
+    return { ...area, score: value, standing, word: STANDING_WORDS[standing], summary: areaSummary(area.id, score.tasks, walkingViews, walkingFrom) };
   });
   const total = score.display_total ?? null;
   const standing = standingFor(total);

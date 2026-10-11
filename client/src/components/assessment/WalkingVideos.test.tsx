@@ -14,7 +14,7 @@ const evidence = (steps: number, views: ("side" | "front")[]): WalkEvidence => (
     left_swing_knee_flexion_deg: views[0] === "side" ? 55 : null, right_swing_knee_flexion_deg: views[0] === "side" ? 52 : null,
     trunk_lateral_excursion_deg: null, trunk_measurement_reliable: false,
   },
-  provenance: { source_video_id: "", pose_model: "pose_landmarker_lite.task", analysis_fps: 30, processing_location: "patient_browser", uses_3d_reconstruction: false, frame_detection_mode: "video", views, analysed_frames: 150 },
+  provenance: { source_video_id: "", pose_model: "pose_landmarker_lite.task", analysis_fps: 30, processing_location: "patient_browser", uses_3d_reconstruction: false, frame_detection_mode: "video", views, analysed_frames: 150, measured_from: "feet" },
 });
 const analysis = (view: "side" | "front", ok: boolean, durationMs = 12000): WalkVideoAnalysis =>
   ({ view, evidence: ok ? evidence(view === "side" ? 8 : 6, [view]) : null, reasons: ok ? [] : ["feet_not_visible"], durationMs, analysedSeconds: ok ? 5 : 0 });

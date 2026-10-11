@@ -159,10 +159,26 @@ describe("walking videos: side view", () => {
     expect(median(panning.evidence!.features.step_events.map(e => e.step_length_proxy_leg_ratio))).toBeCloseTo(0.75, 1);
   });
 
-  it("says when the feet are out of the picture (the phone too close or too high)", () => {
+  it("scores a side video with the feet out of the picture from the hips and knees", () => {
     const cut = analyse("side", { view: "side", yShift: 0.25, seed: 6 });
+    expect(cut.measuredFrom).toBe("hips_knees");
+    const evidence = cut.evidence!;
+    expect(evidence.provenance.measured_from).toBe("hips_knees");
+    expect(evidence.features.step_events.length).toBeGreaterThanOrEqual(4);
+    expect(new Set(evidence.features.step_events.map(e => e.side)).size).toBe(2);
+    // Steps at the walker's 100 a minute on average (the thigh's forward and back peaks are not exactly half a stride
+    // apart, so single steps alternate a little longer and shorter), and no knee bend (it needs the ankles).
+    const gaps = evidence.features.step_events.slice(1).map((e, k) => e.time_s - evidence.features.step_events[k].time_s).filter(g => g < 1);
+    expect(gaps.reduce((a, b) => a + b, 0) / gaps.length).toBeGreaterThan(0.52);
+    expect(gaps.reduce((a, b) => a + b, 0) / gaps.length).toBeLessThan(0.68);
+    expect(evidence.features.left_swing_knee_flexion_deg).toBeNull();
+    expect(rehynScore(evidence)).toBeGreaterThan(60);
+  });
+
+  it("says so when even the knees are out of the picture", () => {
+    const cut = analyse("side", { view: "side", yShift: 0.45, seed: 6 });
     expect(cut.evidence).toBeNull();
-    expect(cut.reasons).toContain("feet_not_visible");
+    expect(cut.reasons).toEqual(["legs_not_visible"]);
   });
 
   it("says when a video filmed from the front was chosen as the side view", () => {
@@ -224,9 +240,13 @@ describe("walking videos: both", () => {
     expect(both.evidence.features.left_swing_knee_flexion_deg).toBe(side.evidence!.features.left_swing_knee_flexion_deg);
     expect(both.evidence.provenance.views).toEqual(["side", "front"]);
     expect(both.durationMs).toBe(side.durationMs + front.durationMs);
-    const cut = analyse("side", { view: "side", yShift: 0.25, seed: 6 });
-    expect(combineWalkEvidence(front, cut)).toMatchObject({ views: ["front"], evidence: front.evidence, durationMs: front.durationMs });
+    // A side video measured from the hips and knees: the front video is scored when there is one, else that.
+    const knees = analyse("side", { view: "side", yShift: 0.25, seed: 6 });
+    expect(combineWalkEvidence(front, knees)).toMatchObject({ views: ["front"], evidence: front.evidence, durationMs: front.durationMs, measuredFrom: "feet" });
+    expect(combineWalkEvidence(null, knees)).toMatchObject({ views: ["side"], measuredFrom: "hips_knees" });
     expect(combineWalkEvidence(null, side)).toMatchObject({ views: ["side"], evidence: side.evidence });
-    expect(combineWalkEvidence(null, cut)).toBeNull();
+    const none = analyse("side", { view: "side", yShift: 0.45, seed: 6 });
+    expect(combineWalkEvidence(front, none)).toMatchObject({ views: ["front"] });
+    expect(combineWalkEvidence(null, none)).toBeNull();
   });
 });

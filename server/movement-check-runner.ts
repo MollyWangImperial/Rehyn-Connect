@@ -66,6 +66,7 @@ const HOST_WALKING = `async function __rehynHostWalking(task, walking){
     walking_video_metadata_readable:true,
     uploaded_video_duration_ms:durationMs,
     walking_video_views:views,
+    walking_measured_from:walking.measured_from === "hips_knees" ? "hips_knees" : "feet",
   };
   const stepMetrics = { ...metrics };
   if (evidence) metrics.gait_2d_evidence = evidence;

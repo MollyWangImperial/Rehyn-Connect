@@ -39,6 +39,9 @@ describe("the results dashboard", () => {
     const front = buildDashboard(report({ walking: 80, views: ["front"] }), null, today)!;
     expect(front.areas[2]).toMatchObject({ score: 80, word: "Strong", summary: "Measured from your front video: your steps, their evenness and rhythm." });
     expect(buildDashboard(report({ walking: 70, views: ["side", "front"] }), null, today)!.areas[2].summary).toContain("your side and front videos");
+    const knees = report({ walking: 55, views: ["side"] });
+    (knees.task_results![0].metrics as Record<string, unknown>).walking_measured_from = "hips_knees";
+    expect(buildDashboard(knees, null, today)!.areas[2].summary).toBe("Based on your hips and knees in your side video (your feet were out of the picture): your steps' timing, evenness and length.");
   });
 
   it("compares with the previous check, area by area, and starts fresh without one", () => {

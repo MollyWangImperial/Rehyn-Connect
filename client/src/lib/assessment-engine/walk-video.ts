@@ -61,6 +61,8 @@ export type WalkEvidence = {
     frame_detection_mode: "video";
     views: WalkView[];
     analysed_frames: number;
+    /** What the steps were measured from: the feet, or (a side video with the feet out of the picture) the hips and knees. */
+    measured_from: WalkMeasure;
   };
 };
 
@@ -68,6 +70,7 @@ export type WalkEvidence = {
 export const WALK_VIDEO_REASONS = {
   no_person: "We could not find you in this video.",
   feet_not_visible: "Your feet were out of the picture for most of the walk. Stand the phone further away (or lower) so your whole body, feet included, stays in view.",
+  legs_not_visible: "We could not see your legs well enough. Keep at least your hips and knees in the picture (your feet too, if you can) while you walk.",
   too_short: "There was not enough walking in view. Walk for at least five or six steps in view.",
   too_few_steps: "We could not see clear steps. Walk at your usual pace with your whole body in view.",
   not_side_on: "This does not look like a side view. Film from the side, walking across the picture.",
@@ -84,7 +87,10 @@ export type WalkVideoAnalysis = {
   durationMs: number;
   /** Seconds of the video analysed (the stretches with the legs and feet in view). */
   analysedSeconds: number;
+  /** What the steps were measured from (when measured). */
+  measuredFrom?: WalkMeasure;
 };
+export type WalkMeasure = "feet" | "hips_knees";
 
 // MediaPipe pose points.
 const L = { shoulder: 11, hip: 23, knee: 25, ankle: 27, heel: 29, toe: 31 } as const;
@@ -230,9 +236,9 @@ function bodyFrame(t: number, pose: WalkPoint[], aspect: number, people: number)
 }
 
 /** Stretches of consecutive analysable frames (gaps of at most STRETCH_GAP_S), at least MIN_STRETCH_S long. */
-function stretches(rows: BodyFrame[]): BodyFrame[][] {
-  const out: BodyFrame[][] = [];
-  let current: BodyFrame[] = [];
+function stretches<T extends { t: number }>(rows: T[]): T[][] {
+  const out: T[][] = [];
+  let current: T[] = [];
   for (const row of rows) {
     if (current.length && row.t - current[current.length - 1].t > STRETCH_GAP_S) { out.push(current); current = []; }
     current.push(row);
@@ -276,7 +282,7 @@ function peaks(values: number[], times: number[], prominence: number): number[] 
 }
 
 /** Steps in one stretch from the left foot's lead (leg lengths, + when the left foot is ahead). */
-function stretchSteps(rows: BodyFrame[], lead: number[], length: (row: BodyFrame, lead: number) => number): WalkStepEvent[] {
+function stretchSteps<T extends { t: number }>(rows: T[], lead: number[], length: (row: T, lead: number) => number): WalkStepEvent[] {
   const times = rows.map(r => r.t);
   const series = smooth(lead, times);
   const range = (percentile(series, 0.95) ?? 0) - (percentile(series, 0.05) ?? 0);
@@ -459,8 +465,19 @@ export function analyzeWalkVideo(frames: WalkVideoFrame[], aspect: number, view:
   // A phone video often repeats a frame: a repeat adds nothing and would flatten the steps' timing.
   const people = frames.map(f => ({ t: f.t, pose: choosePerson(f.poses), count: f.poses.length }))
     .filter((p, i, all) => i === 0 || !p.pose || !all[i - 1].pose || !samePose(p.pose, all[i - 1].pose!));
+  if (!people.some(p => p.pose)) return { view, evidence: null, durationMs, analysedSeconds: 0, reasons: ["no_person"] };
+  const feet = analyzeFromFeet(people, aspect, view, durationMs);
+  if (view !== "side" || feet.evidence) return feet;
+  // A side video with the feet out of the picture (often a phone held close): the steps from the hips and knees.
+  const knees = analyzeSideFromKnees(people, aspect, durationMs);
+  if (knees.evidence) return knees;
+  return feet.reasons.includes("feet_not_visible") ? { ...feet, reasons: knees.reasons } : feet;
+}
+
+type Person = { t: number; pose: WalkPoint[] | null; count: number };
+
+function analyzeFromFeet(people: Person[], aspect: number, view: WalkView, durationMs: number): WalkVideoAnalysis {
   const base = { view, evidence: null, durationMs, analysedSeconds: 0 };
-  if (!people.some(p => p.pose)) return { ...base, reasons: ["no_person"] };
   const rows = people.map(p => (p.pose ? bodyFrame(p.t, p.pose, aspect, p.count) : null)).filter((r): r is BodyFrame => !!r);
   const fitting = rows.filter(r => (view === "front" ? r.hipWidth >= FRONT_MIN_HIP && r.leg >= FRONT_MIN_LEG_HEIGHT : r.hipWidth <= SIDE_MAX_HIP))
     // From the front, walking is moving toward or away from the phone: standing, stopping and turning are left out.
@@ -561,10 +578,140 @@ export function analyzeWalkVideo(frames: WalkVideoFrame[], aspect: number, view:
       frame_detection_mode: "video",
       views: [view],
       analysed_frames: analysed.length,
+      measured_from: "feet",
     },
   };
   const reasons = scoreGateReasons(evidence);
-  return { view, evidence: reasons.length ? null : evidence, reasons, durationMs, analysedSeconds: round(analysedSeconds, 2) };
+  return { view, evidence: reasons.length ? null : evidence, reasons, durationMs, analysedSeconds: round(analysedSeconds, 2), measuredFrom: "feet" };
+}
+
+// ------------------------------------------------------------------------------------------------------------------
+// Side videos with the feet out of the picture: the steps from the near leg's thigh.
+//
+// A phone held close films the hips and knees but not the lower legs. The far leg is then hidden behind the near one
+// and the pose model only copies the near leg onto it, so it is not used. The near leg's thigh swings forward and
+// back once a stride: it is furthest forward as its own foot lands, and furthest back just as the other foot lands
+// (hip extension peaks at the other side's initial contact). So both feet's landings are timed from the one thigh,
+// and each step's length is the thigh's swing into it (two thigh-swing halves make a step: 2·sin(half the swing)
+// leg lengths). The knee's bend in swing needs the ankles and is not measured.
+
+/** The near knee counts at this visibility, and up to this far below the picture's edge (the pose model still places it). */
+export const KNEE_SEEN = 0.5, KNEE_EDGE = 1.08;
+/** Hip width over thigh length: a side view at most this (a body turned to the camera, at a turn, is left out). */
+export const KNEE_SIDE_MAX_HIP = 0.6;
+
+type KneeFrame = { t: number; near: 0 | 1; thigh: number; nose: number; nearVisibility: number; people: number };
+
+function kneeFrame(t: number, pose: WalkPoint[], aspect: number, people: number): KneeFrame | null {
+  const P = (i: number): V => ({ x: pose[i].x * aspect, y: pose[i].y });
+  if (![L.hip, R.hip, L.shoulder, R.shoulder].every(i => seen(pose[i], TRUNK_SEEN))) return null;
+  const near: 0 | 1 = (pose[L.knee]?.visibility ?? 0) >= (pose[R.knee]?.visibility ?? 0) ? 0 : 1;
+  const hipIndex = near === 0 ? L.hip : R.hip, kneeIndex = near === 0 ? L.knee : R.knee, knee = pose[kneeIndex];
+  if (!knee || !finite(knee.x) || !finite(knee.y) || (knee.visibility ?? 1) < KNEE_SEEN || knee.y > KNEE_EDGE || knee.x < 0 || knee.x > 1) return null;
+  const pelvis = mid(P(L.hip), P(R.hip)), shoulders = mid(P(L.shoulder), P(R.shoulder));
+  const trunkVec = sub(shoulders, pelvis);
+  if (len(trunkVec) < 1e-4) return null;
+  const up = { x: trunkVec.x / len(trunkVec), y: trunkVec.y / len(trunkVec) }, across = { x: -up.y, y: up.x };
+  const thighVec = sub(P(kneeIndex), P(hipIndex)), thighLength = len(thighVec);
+  if (!(thighLength >= MIN_LEG_HEIGHT / 2)) return null;
+  if (len(sub(P(L.hip), P(R.hip))) / thighLength > KNEE_SIDE_MAX_HIP) return null;
+  const ears = seen(pose[7], 0.5) && seen(pose[8], 0.5) ? mid(P(7), P(8)) : null;
+  return {
+    t, near, people,
+    thigh: Math.atan2(dot(thighVec, across), -dot(thighVec, up)),
+    nose: ears && seen(pose[0], 0.5) ? dot(sub(P(0), ears), across) / thighLength : NaN,
+    nearVisibility: knee.visibility ?? 1,
+  };
+}
+
+/** Splits a stretch where the walker turns (the nose points the other way), keeping walking pieces long enough. */
+function splitKneesAtTurns(rows: KneeFrame[]): KneeFrame[][] {
+  const pieces: KneeFrame[][] = [];
+  let current: KneeFrame[] = [], sign = 0;
+  for (const row of rows) {
+    const s = finite(row.nose) && Math.abs(row.nose) >= 0.03 ? Math.sign(row.nose) : sign;
+    if (sign && s && s !== sign && current.length) { pieces.push(current); current = []; }
+    if (s) sign = s;
+    current.push(row);
+  }
+  if (current.length) pieces.push(current);
+  return pieces.filter(p => p[p.length - 1].t - p[0].t >= MIN_STRETCH_S);
+}
+
+function analyzeSideFromKnees(people: Person[], aspect: number, durationMs: number): WalkVideoAnalysis {
+  const base = { view: "side" as const, evidence: null, durationMs, analysedSeconds: 0 };
+  const rows = people.map(p => (p.pose ? kneeFrame(p.t, p.pose, aspect, p.count) : null)).filter((r): r is KneeFrame => !!r);
+  const walking = stretches(rows).flatMap(splitKneesAtTurns);
+  if (!walking.length) return { ...base, reasons: ["legs_not_visible"] };
+  const intervals = walking.flatMap(s => s.slice(1).map((r, i) => r.t - s[i].t)).filter(dt => dt > 0);
+  const samplings = Math.max(1, Math.round(1 / Math.max(1e-3, percentile(intervals, 0.5) ?? 0.1) / STEP_SAMPLING_FPS));
+  let byStretch: WalkStepEvent[][] = [];
+  for (const stretch of walking) {
+    const facing = Math.sign(percentile(stretch.map(r => r.nose).filter(finite), 0.5) ?? 0);
+    if (!facing) continue;
+    // The near leg for this stretch (it changes sides at a turn): the one seen in most of its frames.
+    const near: 0 | 1 = stretch.filter(r => r.near === 0).length >= stretch.length / 2 ? 0 : 1;
+    const own = stretch.filter(r => r.near === near);
+    const found: WalkStepEvent[][] = [];
+    for (let phase = 0; phase < samplings; phase++) {
+      const rowsHere = own.filter((_, i) => i % samplings === phase);
+      if (rowsHere.length < 4) continue;
+      const swing = rowsHere.map(r => r.thigh * facing);
+      const middle = percentile(swing, 0.5) ?? 0;
+      // + when the left foot leads: the left thigh forward (its foot landing) or the right thigh back (the left landing).
+      const lead = swing.map(a => (a - middle) * (near === 0 ? 1 : -1));
+      found.push(stretchSteps(rowsHere, lead, (_r, value) => 2 * Math.sin(Math.min(Math.PI / 2, Math.abs(value)))));
+    }
+    if (found.length) byStretch.push(agreedSteps(found));
+  }
+  byStretch = keepRegularStretches(byStretch);
+  const events = joinStretches(byStretch);
+
+  const spanFrames = people.filter(p => walking.some(s => p.t >= s[0].t && p.t <= s[s.length - 1].t));
+  const analysed = walking.flat();
+  const coverage = analysed.length / Math.max(1, spanFrames.length);
+  const multi = spanFrames.filter(p => p.count > 1).length / Math.max(1, spanFrames.length);
+  const analysedSeconds = walking.reduce((sum, s) => sum + (s[s.length - 1].t - s[0].t), 0);
+  const reportedSampled = Math.max(SCORE_GATES.detectedFrames, Math.min(REPORTED_FRAMES_MAX, spanFrames.length));
+  const evidence: WalkEvidence = {
+    status: "completed",
+    analysis_method: "mediapipe_browser_body_centric_2d_v1",
+    camera_motion_handling: "body_centric_2d_browser",
+    coordinate_frame: "pelvis_centered_leg_normalized_2d",
+    quality: {
+      sampled_frames: reportedSampled,
+      detected_frames: Math.min(reportedSampled, Math.round(coverage * reportedSampled)),
+      tracking_coverage: round(Math.min(1, coverage), 3),
+      // What these steps are measured from (the hips and the near knee) was seen in every analysed frame.
+      full_body_visibility: 1,
+      distal_visibility: round(analysed.reduce((sum, r) => sum + r.nearVisibility, 0) / Math.max(1, analysed.length), 3),
+      multi_person_ratio: round(multi, 3),
+      background_motion_reliable_ratio: 0,
+    },
+    features: {
+      step_events: events.slice(0, reportedSampled),
+      left_foot_clearance_leg_ratio: null,
+      right_foot_clearance_leg_ratio: null,
+      foot_clearance_reliable: false,
+      left_swing_knee_flexion_deg: null,
+      right_swing_knee_flexion_deg: null,
+      trunk_lateral_excursion_deg: null,
+      trunk_measurement_reliable: false,
+    },
+    provenance: {
+      source_video_id: "",
+      pose_model: "pose_landmarker_lite.task",
+      analysis_fps: round(analysed.length / Math.max(0.1, analysedSeconds), 3),
+      processing_location: "patient_browser",
+      uses_3d_reconstruction: false,
+      frame_detection_mode: "video",
+      views: ["side"],
+      analysed_frames: analysed.length,
+      measured_from: "hips_knees",
+    },
+  };
+  const reasons = scoreGateReasons(evidence);
+  return { ...base, evidence: reasons.length ? null : evidence, reasons, analysedSeconds: round(analysedSeconds, 2), measuredFrom: "hips_knees" };
 }
 
 /** The Rehyn walking score's own reasons for not scoring, as the patient's reasons. */
@@ -583,14 +730,18 @@ export function scoreGateReasons(evidence: WalkEvidence): WalkVideoReason[] {
  * trunk sway; otherwise the one scorable video's own evidence; null when neither can be scored. `durationMs` is the
  * task's duration (the videos used, together), which every step time falls within.
  */
-export function combineWalkEvidence(front: WalkVideoAnalysis | null, side: WalkVideoAnalysis | null): { evidence: WalkEvidence; durationMs: number; views: WalkView[] } | null {
-  const f = front?.evidence ?? null, s = side?.evidence ?? null;
+export function combineWalkEvidence(front: WalkVideoAnalysis | null, side: WalkVideoAnalysis | null): { evidence: WalkEvidence; durationMs: number; views: WalkView[]; measuredFrom: WalkMeasure } | null {
+  const f = front?.evidence ?? null;
+  // A side video measured from the hips and knees (no feet) times the steps less reliably than a front video does:
+  // with both, the front video is scored; the side video alone is scored from its hips and knees.
+  const s = side?.evidence && !(f && side.evidence.provenance.measured_from === "hips_knees") ? side.evidence : null;
   // The walking's duration is the videos used.
   const durationMs = (f ? front!.durationMs : 0) + (s ? side!.durationMs : 0);
   if (s && f) {
     return {
       durationMs,
       views: ["side", "front"],
+      measuredFrom: "feet",
       evidence: {
         ...s,
         features: {
@@ -602,7 +753,7 @@ export function combineWalkEvidence(front: WalkVideoAnalysis | null, side: WalkV
       },
     };
   }
-  if (s) return { evidence: s, durationMs, views: ["side"] };
-  if (f) return { evidence: f, durationMs, views: ["front"] };
+  if (s) return { evidence: s, durationMs, views: ["side"], measuredFrom: s.provenance.measured_from };
+  if (f) return { evidence: f, durationMs, views: ["front"], measuredFrom: "feet" };
   return null;
 }
