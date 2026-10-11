@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { WalkEvidence, WalkVideoAnalysis } from "@/lib/assessment-engine/walk-video";
-import WalkingVideos, { SIDE_FEET_OUT, slotStatus, walkingHandoff, WALK_SLOTS, WALK_STEPS } from "./WalkingVideos";
+import WalkingVideos, { scoredWalkingHandoff, SIDE_FEET_OUT, slotStatus, walkingHandoff, WALK_SLOTS, WALK_STEPS } from "./WalkingVideos";
 
 const evidence = (steps: number, views: ("side" | "front")[]): WalkEvidence => ({
   status: "completed", analysis_method: "mediapipe_browser_body_centric_2d_v1", camera_motion_handling: "body_centric_2d_browser",
@@ -67,14 +67,29 @@ describe("WalkingVideos", () => {
     expect(walkingHandoff(null, null)).toBeNull();
   });
 
-  it("asks the patient to skip a side video without the feet, and scores the front video instead", () => {
-    const hipsKnees = (durationMs = 14000): WalkVideoAnalysis => {
-      const side = analysis("side", true, durationMs);
-      return { ...side, measuredFrom: "hips_knees", evidence: { ...side.evidence!, provenance: { ...side.evidence!.provenance, measured_from: "hips_knees" } } };
-    };
+  const hipsKnees = (durationMs = 14000): WalkVideoAnalysis => {
+    const side = analysis("side", true, durationMs);
+    return { ...side, measuredFrom: "hips_knees", evidence: { ...side.evidence!, provenance: { ...side.evidence!.provenance, measured_from: "hips_knees" } } };
+  };
+
+  it("sends the patient on from a side video without the feet, which still counts if it scores higher", async () => {
     expect(slotStatus({ state: "done", name: "s.mp4", analysis: hipsKnees() })).toBe(SIDE_FEET_OUT);
-    expect(SIDE_FEET_OUT).toContain("Skip it and go on to the front video");
-    // With a front video, the score comes from the front video alone.
+    expect(SIDE_FEET_OUT).toContain("Go on to the front video: your walking score will be the higher of the two");
+    // Unscored, the front video is chosen over the hips and knees.
     expect(walkingHandoff(analysis("front", true, 11000), hipsKnees())).toMatchObject({ views: ["front"], duration_ms: 11000, measured_from: "feet" });
+    const sideHigher = await scoredWalkingHandoff(analysis("front", true, 11000), hipsKnees(), async e => (e.provenance.measured_from === "hips_knees" ? 64 : 58));
+    expect(sideHigher).toMatchObject({ views: ["side"], duration_ms: 14000, measured_from: "hips_knees", view_scores: { front: 58, side: 64 } });
+  });
+
+  it("hands over whichever video (or both together) scores higher, with every score", async () => {
+    const front = analysis("front", true, 11000), side = analysis("side", true, 14000);
+    const scores = { front: 76, side: 54, both: 70 };
+    const score = async (e: WalkEvidence) => (e.provenance.views.length > 1 ? scores.both : e.provenance.views[0] === "front" ? scores.front : scores.side);
+    expect(await scoredWalkingHandoff(front, side, score)).toMatchObject({ views: ["front"], duration_ms: 11000, view_scores: { combined: 70, front: 76, side: 54 } });
+    scores.both = 80;
+    expect(await scoredWalkingHandoff(front, side, score)).toMatchObject({ views: ["side", "front"], duration_ms: 25000 });
+    // Not scored (offline): handed over as before, for the movement check to score.
+    expect(await scoredWalkingHandoff(front, side, async () => null)).toMatchObject({ views: ["side", "front"], view_scores: { combined: null, front: null, side: null } });
+    expect(await scoredWalkingHandoff(null, null, score)).toBeNull();
   });
 });

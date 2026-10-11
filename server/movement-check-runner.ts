@@ -68,6 +68,15 @@ const HOST_WALKING = `async function __rehynHostWalking(task, walking){
     walking_video_views:views,
     walking_measured_from:walking.measured_from === "hips_knees" ? "hips_knees" : "feet",
   };
+  // Each video's own walking score, when the host scored them to choose the higher (testing: in the saved results).
+  const viewScores = {};
+  if (walking.view_scores && typeof walking.view_scores === "object") {
+    for (const key of ["side", "front", "combined"]) {
+      const value = walking.view_scores[key];
+      if (value === null || (typeof value === "number" && Number.isFinite(value))) viewScores[key] = value;
+    }
+  }
+  if (Object.keys(viewScores).length) metrics.walking_view_scores = viewScores;
   const stepMetrics = { ...metrics };
   if (evidence) metrics.gait_2d_evidence = evidence;
   const perStepDuration = Math.round(durationMs / Math.max(1, task.steps.length));
@@ -94,6 +103,19 @@ const HOST_WALKING = `async function __rehynHostWalking(task, walking){
   return true;
 }
 `;
+/** Where the runner opens the camera and then loads its movement models, once its tasks are loaded. */
+const CAMERA_ANCHOR = 'startBtn.textContent = "Opening camera...";\n  const camOk = await setupCamera();';
+/**
+ * Walking alone (the walking test): the host measures the patient's uploaded videos, so the runner needs no camera or
+ * movement model and goes straight to the walking. Without this, a device without a camera (or a patient who declines
+ * it) would be stuck at "Try Camera Again" before the walking even starts.
+ */
+const WALKING_ONLY = `if (typeof window.__rehynHostDemos === "function" && LOCAL_PREVIEW_MODE && currentTaskIdx < tasks.length && tasks.slice(currentTaskIdx).every(task => task && task.id === "L6")) {
+    await Promise.allSettled([unlockPromise, firstVoicePromise]);
+    await startStep();
+    return;
+  }
+  ${CAMERA_ANCHOR}`;
 /** How long a task waits for the host's demonstration before starting anyway (it then tells the host, which closes it). */
 export const HOST_WAIT_MS = 600000;
 /** Walking waits longer: the patient may go and film their walk after its demonstration. */
@@ -137,7 +159,9 @@ export function prepareRunnerHtml(html: string, upstream = RUNNER_UPSTREAM): str
   const fixed = fixRunnerPage(html);
   const scripts = fixed.steady ? `${RUNNER_STEADY}\n${RUNNER_HOOK}` : RUNNER_HOOK;
   // Function replacers, so nothing in the page or the hook is read as a "$" replacement pattern.
-  return fixed.html
+  // Walking alone skips the camera (only if the page opens it as expected).
+  const page = fixed.html.split(CAMERA_ANCHOR).length === 2 ? fixed.html.replace(CAMERA_ANCHOR, () => WALKING_ONLY) : fixed.html;
+  return page
     .replace(API_ANCHOR, () => JSON.stringify(`${upstream}/api`))
     .replace(STEP_ANCHOR, () => `${HOST_WALKING}${STEP_WAIT}`)
     .split(POST_ANCHOR).join("postMessage(message,window.location.origin)")

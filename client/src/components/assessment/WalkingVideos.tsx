@@ -1,19 +1,20 @@
 // The movement check's walking (L6), in two steps, each after its own demonstration: the side video (if the patient
 // has the room), then the front video. Each is analysed on this device as soon as it is chosen (walk-video-file.ts);
-// the videos never leave it. With a usable video, the last step hands the walking measurements of both to the
-// movement check, which scores them; the patient can also skip walking for now.
+// the videos never leave it. With a usable video, the last step scores each video's walking measurements and hands
+// the higher-scoring ones to the movement check (walk-score.ts); the patient can also skip walking for now.
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleAlert, Film, LoaderCircle, RotateCcw, SkipForward } from "lucide-react";
 import { combineWalkEvidence, WALK_VIDEO_REASONS, type WalkEvidence, type WalkMeasure, type WalkVideoAnalysis, type WalkView } from "@/lib/assessment-engine/walk-video";
+import { bestWalkEvidence, type ScoreWalk, type WalkScores } from "@/lib/assessment-engine/walk-score";
 import { analyzeWalkVideoFile, WALK_FILE_ERRORS } from "@/lib/assessment-engine/walk-video-file";
 import "./demo-reel.css";
 import "./walking-videos.css";
 
-/** What the movement check gets: the measurements to score, or a skip. */
+/** What the movement check gets: the measurements to score (with each video's own score, when known), or a skip. */
 export type WalkingHandoff =
   | { skipped: true }
-  | { skipped: false; evidence: WalkEvidence | null; duration_ms: number; views: WalkView[]; measured_from: WalkMeasure };
+  | { skipped: false; evidence: WalkEvidence | null; duration_ms: number; views: WalkView[]; measured_from: WalkMeasure; view_scores?: WalkScores };
 
 type Slot =
   | { state: "empty" }
@@ -26,9 +27,12 @@ export const WALK_SLOTS: Record<WalkView, { title: string; when: string }> = {
   front: { title: "Front view", when: "Walking away from the phone and back toward it." },
 };
 
-/** A side video whose feet were out of the picture: the patient is asked to skip it for the front video. */
+/**
+ * A side video whose feet were out of the picture: measured from the hips and knees, which is less accurate, so the
+ * patient is sent on to the front video (the walking score is the higher of the two).
+ */
 export const SIDE_FEET_OUT =
-  "Your feet were out of the picture, so this side video can't give an accurate walking score. Skip it and go on to the front video: your walking score will come from that.";
+  "Your feet were out of the picture, so this side video can only be measured from your hips and knees, which is less accurate. Go on to the front video: your walking score will be the higher of the two.";
 
 /** Whether a slot holds a side video measured without the feet (from the hips and knees). */
 const feetOut = (slot: Slot) => slot.state === "done" && slot.analysis.view === "side" && slot.analysis.measuredFrom === "hips_knees";
@@ -50,10 +54,18 @@ export function slotStatus(slot: Slot): string {
   return analysis.reasons.map(reason => WALK_VIDEO_REASONS[reason]).join(" ");
 }
 
-/** What the movement check is handed for the chosen videos (null while none is usable). */
+/** What the movement check would be handed for the chosen videos without scoring them first (null while none is usable). */
 export function walkingHandoff(front: WalkVideoAnalysis | null, side: WalkVideoAnalysis | null): WalkingHandoff | null {
   const combined = combineWalkEvidence(front, side);
   return combined ? { skipped: false, evidence: combined.evidence, duration_ms: combined.durationMs, views: combined.views, measured_from: combined.measuredFrom } : null;
+}
+
+/** What the movement check is handed: the measurements of whichever video (or both together) scores higher. */
+export async function scoredWalkingHandoff(front: WalkVideoAnalysis | null, side: WalkVideoAnalysis | null, score?: ScoreWalk, signal?: AbortSignal): Promise<WalkingHandoff | null> {
+  const best = await bestWalkEvidence(front, side, score, signal);
+  if (!best) return null;
+  const { candidate } = best;
+  return { skipped: false, evidence: candidate.evidence, duration_ms: candidate.durationMs, views: candidate.views, measured_from: candidate.measuredFrom, view_scores: best.scores };
 }
 
 /** Each step's heading, what to choose, and its primary button. */
@@ -64,7 +76,7 @@ export const WALK_STEPS: Record<WalkView, { title: string; lead: string }> = {
   },
   front: {
     title: "Your front video",
-    lead: "Choose the video you filmed from the front: walking away from the phone, turning, and walking back toward it. With both videos, your walking score is more accurate.",
+    lead: "Choose the video you filmed from the front: walking away from the phone, turning, and walking back toward it. With both videos, your walking score is the higher of the two.",
   },
 };
 
@@ -73,18 +85,23 @@ export const WALK_STEPS: Record<WalkView, { title: string; lead: string }> = {
  * front video (then `onDone` with the measurements of both). Kept mounted across the steps, so a video chosen and
  * its check carry on while the next demonstration plays.
  */
-export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onExit, onVideoChosen }: {
+export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onExit, onVideoChosen, scoreWalk }: {
   step: WalkView; onNext(): void; onDone(handoff: WalkingHandoff): void; onWatchAgain(): void; onExit(): void;
   /** Each video the patient chooses (testing: saved with the check's videos). */
   onVideoChosen?(view: WalkView, file: File): void;
+  /** Scores one video's walking evidence (the Rehyn walking score by default). */
+  scoreWalk?: ScoreWalk;
 }) {
   const [slots, setSlots] = useState<Record<WalkView, Slot>>({ side: { state: "empty" }, front: { state: "empty" } });
   const inputs = { side: useRef<HTMLInputElement>(null), front: useRef<HTMLInputElement>(null) };
   const runs = useRef<Record<WalkView, AbortController | null>>({ side: null, front: null });
   // One video is analysed at a time (one movement model): a second choice waits for the first.
   const queue = useRef<Promise<unknown>>(Promise.resolve());
+  // Scoring the videos before handing over the higher-scoring one.
+  const [scoring, setScoring] = useState(false);
+  const scoringRun = useRef<AbortController | null>(null);
 
-  useEffect(() => () => { runs.current.side?.abort(); runs.current.front?.abort(); }, []);
+  useEffect(() => () => { runs.current.side?.abort(); runs.current.front?.abort(); scoringRun.current?.abort(); }, []);
 
   const choose = (view: WalkView, file: File | undefined) => {
     if (!file) return;
@@ -112,8 +129,23 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
   const busy = slots.side.state === "analysing" || slots.front.state === "analysing";
   const bothUsable = !!done("side")?.evidence && !!done("front")?.evidence;
   const sideChosen = slots.side.state !== "empty";
-  // A side video without the feet is skipped for the front video (which then gives the score).
+  // A side video without the feet: the patient is sent on to the front video.
   const sideFeetOut = feetOut(slots.side);
+
+  /** Scores the usable videos and hands over the higher-scoring one (as before, unscored, if scoring fails). */
+  const submit = async () => {
+    if (!handoff || scoring) return;
+    const controller = new AbortController();
+    scoringRun.current = controller;
+    setScoring(true);
+    let best: WalkingHandoff | null = null;
+    try { best = await scoredWalkingHandoff(done("front"), done("side"), scoreWalk, controller.signal); } catch { /* aborted, or as before */ }
+    if (controller.signal.aborted) return;
+    scoringRun.current = null;
+    setScoring(false);
+    onDone(best ?? handoff);
+  };
+  const skip = () => { scoringRun.current?.abort(); scoringRun.current = null; setScoring(false); onDone({ skipped: true }); };
 
   return (
     <section className="walking-videos" aria-labelledby="walking-videos-title">
@@ -126,7 +158,7 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
         <h1 id="walking-videos-title">{WALK_STEPS[step].title}</h1>
         <p className="walking-videos-lead">{WALK_STEPS[step].lead} Your whole body, feet included, needs to stay in the picture.</p>
         {/* The front step also shows how the side video went (still being checked, ready, or not usable). */}
-        {step === "front" && sideChosen && <p className="walking-videos-earlier"><b>Side video:</b> {sideFeetOut ? "skipped, as your feet were out of the picture. Your walking score will come from your front video." : slotStatus(slots.side)}</p>}
+        {step === "front" && sideChosen && <p className="walking-videos-earlier"><b>Side video:</b> {sideFeetOut ? "your feet were out of the picture, so it was measured from your hips and knees. Your walking score will be the higher of your two videos." : slotStatus(slots.side)}</p>}
         <div className="walking-videos-slots is-single">
           {([step] as const).map(view => {
             const slot = slots[view];
@@ -157,18 +189,19 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
         <p className="walking-videos-note">Your videos stay on this device. Only the walking measurements are used.</p>
       </div>
       <footer className="walking-videos-bottom">
-        <button type="button" className="demo-reel-btn demo-reel-quiet" onClick={() => onDone({ skipped: true })}><SkipForward size={17} aria-hidden="true" />Skip walking for now</button>
+        <button type="button" className="demo-reel-btn demo-reel-quiet" onClick={skip}><SkipForward size={17} aria-hidden="true" />Skip walking for now</button>
         {step === "side" ? (
           <div className="walking-videos-actions">
             {!sideChosen && <button type="button" className="demo-reel-btn demo-reel-secondary" onClick={onNext}>No room, or feet won't fit: skip</button>}
             {/* The side video keeps being checked while the front video's demonstration plays. */}
             <button type="button" className="demo-reel-btn demo-reel-primary" disabled={!sideChosen} onClick={onNext}>
-              {sideFeetOut ? "Skip it: go to the front video" : "Next: the front video"}<ArrowRight size={17} aria-hidden="true" />
+              Next: the front video<ArrowRight size={17} aria-hidden="true" />
             </button>
           </div>
         ) : (
-          <button type="button" className="demo-reel-btn demo-reel-primary" disabled={!handoff || busy} onClick={() => handoff && onDone(handoff)}>
-            {bothUsable ? "Get my walking score from both videos" : slots.front.state === "empty" && done("side")?.evidence && !sideFeetOut ? "Use the side video only" : "Get my walking score"}
+          <button type="button" className="demo-reel-btn demo-reel-primary" disabled={!handoff || busy || scoring} aria-busy={scoring || undefined} onClick={() => void submit()}>
+            {scoring ? <><LoaderCircle className="walking-spin" size={17} aria-hidden="true" />Scoring your walk…</>
+              : bothUsable ? "Get my walking score from both videos" : slots.front.state === "empty" && done("side")?.evidence ? "Use the side video only" : "Get my walking score"}
           </button>
         )}
       </footer>

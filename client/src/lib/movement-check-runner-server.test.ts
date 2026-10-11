@@ -38,7 +38,7 @@ describe("the runner page served from the companion", () => {
 });
 
 /** The prepared page in a sandbox, as a browser runs it: the hook while parsing, then the runner's module. */
-function runnerPage(search = "?host_demos=1", framed = true) {
+function runnerPage(search = "?host_demos=1", framed = true, source = PAGE) {
   const posted: { type: string; task_id?: string; task_index?: number; task_count?: number }[] = [];
   const listeners = new Set<(event: { source: unknown; origin: string; data: unknown }) => void>();
   const parent = { postMessage: (message: string, origin: string) => { expect(origin).toBe("https://companion.test"); posted.push(JSON.parse(message)); } };
@@ -48,7 +48,7 @@ function runnerPage(search = "?host_demos=1", framed = true) {
   context.window.parent = framed ? parent : context;
   context.window.addEventListener = (type: string, listener: any) => { if (type === "message") listeners.add(listener); };
   context.window.removeEventListener = (type: string, listener: any) => { if (type === "message") listeners.delete(listener); };
-  const html = prepareRunnerHtml(PAGE)!;
+  const html = prepareRunnerHtml(source)!;
   const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1]);
   const hook = scripts.find(script => script.includes("__rehynHostDemos = function"))!;
   const runner = scripts.find(script => script.includes("async function startStep"))!.replace("const API_BASE", "var API_BASE");
@@ -127,6 +127,30 @@ describe("the hook that waits for each task's demonstration", () => {
     await expect(step).resolves.toBe("started");
   });
 
+  it("goes straight to the walking, without the camera, when walking is all the check has left", async () => {
+    // The runner's start: its tasks are loaded, then it opens the camera (and the movement models) before the first task.
+    const setup = `async function beginAssessmentSetup(){
+  const unlockPromise = Promise.resolve(); const firstVoicePromise = Promise.resolve();
+  startBtn.textContent = "Opening camera...";
+  const camOk = await setupCamera();
+  if(!camOk) return "no camera";
+  return startStep();
+}
+`;
+    const source = PAGE.replace("async function startStep(){", () => `${setup}async function startStep(){`);
+    const start = (tasks: { id: string }[], search?: string) => {
+      const page = runnerPage(search, true, source);
+      const calls: string[] = [];
+      Object.assign(page.context, { tasks, currentTaskIdx: 0, LOCAL_PREVIEW_MODE: true, startBtn: {}, setupCamera: async () => { calls.push("camera"); return false; } });
+      page.context.startStep = async () => { calls.push("start"); };
+      return page.context.beginAssessmentSetup().then(() => calls);
+    };
+    expect(await start([{ id: "L6" }])).toEqual(["start"]);
+    // Any camera task, or the runner without the host, still opens the camera first.
+    expect(await start([{ id: "T1" }, { id: "L6" }])).toEqual(["camera"]);
+    expect(await start([{ id: "L6" }], "?")).toEqual(["camera"]);
+  });
+
   /** The runner at its walking task, in preview mode, with its celebrate-and-advance and finish recorded. */
   const walkingPage = (search?: string) => {
     const page = runnerPage(search);
@@ -144,7 +168,8 @@ describe("the hook that waits for each task's demonstration", () => {
     await Promise.resolve();
     expect(page.posted.at(-1)).toMatchObject({ type: "task_intro", task_id: "L6" });
     const evidence = { status: "completed", features: { step_events: [] }, provenance: { views: ["front"] } };
-    page.send({ type: "host_continue", task_id: "L6", walking: { skipped: false, evidence, duration_ms: 11167, views: ["front", "elsewhere"] } });
+    const view_scores = { front: 76, side: 54.1, combined: "high", elsewhere: 99 };
+    page.send({ type: "host_continue", task_id: "L6", walking: { skipped: false, evidence, duration_ms: 11167, views: ["front", "elsewhere"], view_scores } });
     await step;
     await new Promise(resolve => setTimeout(resolve, 0));
     // The runner's own walking capture never opened, and its task result is the uploaded walking's.
@@ -153,6 +178,8 @@ describe("the hook that waits for each task's demonstration", () => {
     const result = page.context.taskResults[0];
     expect(result).toMatchObject({ task_id: "L6", completed_steps: 1, total_steps: 1, duration_ms: 11167 });
     expect(result.metrics).toMatchObject({ walking_capture_mode: "uploaded_video", walking_video_analysis_status: "ready_for_backend_scoring", walking_video_views: ["front"] });
+    // Each video's own score (numbers only, known videos only) is kept with the result.
+    expect(result.metrics.walking_view_scores).toEqual({ side: 54.1, front: 76 });
     expect(result.metrics.gait_2d_evidence.provenance).toEqual({ views: ["front"], source_video_id: "local-preview-walking" });
     expect(result.steps[0].metrics.gait_2d_evidence).toBeUndefined();
     expect(page.context.walkingCaptureActive).toBe(true);
