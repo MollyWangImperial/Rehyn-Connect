@@ -65,7 +65,11 @@ export const WALK_STEPS: Record<WalkView, { title: string; lead: string }> = {
  * front video (then `onDone` with the measurements of both). Kept mounted across the steps, so a video chosen and
  * its check carry on while the next demonstration plays.
  */
-export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onExit }: { step: WalkView; onNext(): void; onDone(handoff: WalkingHandoff): void; onWatchAgain(): void; onExit(): void }) {
+export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onExit, onVideoChosen }: {
+  step: WalkView; onNext(): void; onDone(handoff: WalkingHandoff): void; onWatchAgain(): void; onExit(): void;
+  /** Each video the patient chooses (testing: saved with the check's videos). */
+  onVideoChosen?(view: WalkView, file: File): void;
+}) {
   const [slots, setSlots] = useState<Record<WalkView, Slot>>({ side: { state: "empty" }, front: { state: "empty" } });
   const inputs = { side: useRef<HTMLInputElement>(null), front: useRef<HTMLInputElement>(null) };
   const runs = useRef<Record<WalkView, AbortController | null>>({ side: null, front: null });
@@ -76,6 +80,7 @@ export default function WalkingVideos({ step, onNext, onDone, onWatchAgain, onEx
 
   const choose = (view: WalkView, file: File | undefined) => {
     if (!file) return;
+    onVideoChosen?.(view, file);
     runs.current[view]?.abort();
     const controller = new AbortController();
     runs.current[view] = controller;

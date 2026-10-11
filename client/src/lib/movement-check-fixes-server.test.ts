@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import vm from "node:vm";
-import { fixRunnerPage, measurablePosture, RUNNER_STEADY, STEADY_CONFIG, steadyRunnerDrawing, withoutPinchCoin } from "../../../server/movement-check-fixes";
+import { fixRunnerPage, hostTaskVideos, measurablePosture, RUNNER_STEADY, STEADY_CONFIG, steadyRunnerDrawing, withoutPinchCoin } from "../../../server/movement-check-fixes";
 import { prepareRunnerHtml } from "../../../server/movement-check-runner";
 
 /** The runner's drawOverlay and posture code as the Rehyn app serves them (only the lines the fixes rely on). */
@@ -77,6 +77,35 @@ describe("the runner fixes", () => {
     expect(html).toContain("r.hipScreenSpan/b.hipScreenSpan:1;");
     const other = POSTURE.replace("(r.arm_elevation||0)*.12", "r.arm_elevation*.12");
     expect(measurablePosture(other)).toBe(other);
+  });
+
+  it("hands each task's review video to the host page when asked (save_videos=1), nowhere else", () => {
+    const page = `const localReview={enabled:false,session:null,active:null,results:{},error:null};
+async function initializeLocalReview(){
+  if(!localReview.enabled)return;
+  await fetch("local-only");
+}
+async function saveLocalDebugBlob(recording,blob,duration,taskResult){
+  await fetch("local-only");
+}`;
+    const html = hostTaskVideos(page);
+    expect(html).toContain('enabled:new URLSearchParams(location.search).get("save_videos")==="1" && window.parent!==window');
+    expect(html).toContain('localReview.session={session_id:"host-"+Date.now()}');
+    expect(html).toContain('window.parent.postMessage({type:"task_review_video",task_id:recording.taskId,blob,evidence},window.location.origin)');
+    // Run it: the recording goes to the parent with its evidence, never to the Rehyn app's local-only folder.
+    const posted: unknown[] = [], fetched: string[] = [];
+    const context = vm.createContext({ URLSearchParams, location: { search: "?save_videos=1", origin: "https://companion.test" }, fetch: async (url: string) => { fetched.push(url); }, AFFECTED_SIDE: "right" }) as Record<string, any>;
+    context.window = { parent: { postMessage: (message: unknown, origin: string) => { expect(origin).toBe("https://companion.test"); posted.push(message); } }, location: context.location };
+    vm.runInContext(`${html.replace("const localReview", "var localReview")}\nthis.run = async () => { await initializeLocalReview(); return [localReview.enabled, localReview.session, await saveLocalDebugBlob({taskId:"T1",timeline:[1],geometry:[2]}, "BLOB", 1500, {task_id:"T1"})]; };`, context);
+    return context.run().then(([enabled, session, result]: [boolean, { session_id: string }, unknown]) => {
+      expect(enabled).toBe(true);
+      expect(session.session_id).toMatch(/^host-/);
+      expect(result).toEqual({ status: "sent_to_host" });
+      expect(posted).toEqual([{ type: "task_review_video", task_id: "T1", blob: "BLOB", evidence: { task_result: { task_id: "T1" }, side: "right", video_duration_ms: 1500, timeline: [1], geometry: [2], notes: expect.any(String) } }]);
+      expect(fetched).toEqual([]);
+      const other = "const x = 1;";
+      expect(hostTaskVideos(other)).toBe(other);
+    });
   });
 
   it("serves the steadier script with the page only when the drawing was steadied", () => {

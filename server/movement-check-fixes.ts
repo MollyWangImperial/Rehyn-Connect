@@ -435,8 +435,33 @@ export function measurablePosture(html: string): string {
   return POSTURE_FIXES.reduce((page, [anchor, next]) => page.replace(anchor, () => next), html);
 }
 
+/**
+ * Each task's review video for testing (asked for with save_videos=1 by the companion's movement check): the runner's
+ * own review recorder (the camera with the drawn skeleton and targets, and a panel of the step, scores and timing)
+ * records every task, and each finished recording goes to the host page with its evidence (the task's result, the
+ * step timeline and sampled geometry) instead of the Rehyn app's local-only debug folder. The host saves them.
+ */
+const TASK_VIDEO_FIXES: [string, string][] = [
+  ["const localReview={enabled:false,", "const localReview={enabled:new URLSearchParams(location.search).get(\"save_videos\")===\"1\" && window.parent!==window,"],
+  ["async function initializeLocalReview(){",
+    "async function initializeLocalReview(){\n"
+    + "  if(localReview.enabled){ localReview.session={session_id:\"host-\"+Date.now()}; localReview.results={}; localReview.error=null; return; }"],
+  ["async function saveLocalDebugBlob(recording,blob,duration,taskResult){",
+    "async function saveLocalDebugBlob(recording,blob,duration,taskResult){\n"
+    + "  {\n"
+    + "    const evidence={task_result:taskResult || {task_id:recording.taskId},side:AFFECTED_SIDE,video_duration_ms:duration,timeline:recording.timeline,geometry:recording.geometry,notes:recording.notes || 'Mirrored camera view with the drawn skeleton and targets; a panel with the step, scores and timing.'};\n"
+    + "    try{ window.parent.postMessage({type:\"task_review_video\",task_id:recording.taskId,blob,evidence},window.location.origin); }catch(error){ return {status:\"error\",error:String(error)}; }\n"
+    + "    return {status:\"sent_to_host\"};\n"
+    + "  }"],
+];
+
+export function hostTaskVideos(html: string): string {
+  if (!TASK_VIDEO_FIXES.every(([anchor]) => html.split(anchor).length === 2)) return html;
+  return TASK_VIDEO_FIXES.reduce((page, [anchor, next]) => page.replace(anchor, () => next), html);
+}
+
 /** All the runner fixes, each applied only when its anchors are as expected. */
 export function fixRunnerPage(html: string): { html: string; steady: boolean } {
   const steadied = steadyRunnerDrawing(html);
-  return { html: measurablePosture(withoutPinchCoin(steadied)), steady: steadied !== html };
+  return { html: hostTaskVideos(measurablePosture(withoutPinchCoin(steadied))), steady: steadied !== html };
 }

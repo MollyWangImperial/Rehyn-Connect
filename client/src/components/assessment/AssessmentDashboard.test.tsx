@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { AssessmentReport, StoredAssessment } from "@/lib/assessment";
 import { buildDashboard, standingFor } from "@/lib/assessment-dashboard";
-import AssessmentDashboard from "./AssessmentDashboard";
+import AssessmentDashboard, { videosLine } from "./AssessmentDashboard";
 
 const task = (task_id: string, domain: string, level: number | null, points = level === null ? null : level * 25) => ({ task_id, domain, level, points, task_label: task_id });
 /** A report as the Rehyn app returns it (function score: areas and tasks). */
@@ -56,6 +56,14 @@ describe("the results dashboard", () => {
   it("sets the next check-up 14 days on, with the movements furthest from done to work on", () => {
     const next = buildDashboard(report(), null, today)!.next;
     expect(next).toEqual({ dateLabel: "Saturday 24 October", days: 14, tryTo: ["Bring your thumb to your first finger", "Bring your hand to your mouth"] });
+  });
+
+  it("tells the tester where this check's videos went, with a way to choose the folder", () => {
+    expect(videosLine({ status: "saved", folder: "rehyn-assessment-videos" })).toContain("saved in your “rehyn-assessment-videos” folder, replacing the last check's");
+    expect(videosLine({ status: "needs_folder" })).toContain("for example on D:");
+    const html = renderToStaticMarkup(createElement(AssessmentDashboard, { dashboard: buildDashboard(report(), null, today)!, onAlira: () => {}, onHome: () => {}, videos: { state: { status: "needs_folder" }, onSave: () => {} } }));
+    expect(html).toContain("Save to a folder…");
+    expect(renderToStaticMarkup(createElement(AssessmentDashboard, { dashboard: buildDashboard(report(), null, today)!, onAlira: () => {}, onHome: () => {} }))).not.toContain("Save to a folder");
   });
 
   it("is not shown without a function score", () => {

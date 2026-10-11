@@ -14,7 +14,8 @@ import {
 import { affectedSideFrom, loadOnboardingAnswers } from "@/lib/alira-onboarding";
 import { startLearning } from "@/lib/alira-learning-client";
 import { adaptedStartRungs } from "@/lib/alira-learning-store";
-import { renderReviewControlsEnabled } from "@/lib/administrative-controls";
+import { administrativeControlsEnabled, renderReviewControlsEnabled } from "@/lib/administrative-controls";
+import { checkFiles, saveCheckFiles, type SaveResult } from "@/lib/assessment-videos";
 import type { AssessmentTaskId } from "@/lib/assessment-engine/types";
 import DemoReel, { DEMO_SPECS } from "@/components/assessment/DemoReel";
 import WalkingVideos, { type WalkingHandoff } from "@/components/assessment/WalkingVideos";
@@ -26,9 +27,11 @@ import "./assessment.css";
 const LOAD_TIMEOUT_MS = 25000;
 
 /** The review runner through this origin (server/movement-check-runner.ts), asked to wait for each demonstration. */
-export function companionRunnerUrl(direct: string, origin: string): string {
+export function companionRunnerUrl(direct: string, origin: string, { saveVideos = false } = {}): string {
   const query = new URL(direct).searchParams;
   query.set("host_demos", "1");
+  // Testing: the runner records each task's review video and hands it to this page (assessment-videos.ts).
+  if (saveVideos) query.set("save_videos", "1");
   return `${origin}/movement-check/runner?${query.toString()}`;
 }
 
@@ -61,7 +64,7 @@ export default function Assessment() {
   // Alira's learned start points are read once, as the check opens (after any warm-up and learning run).
   const { runnerUrl, directOrigin } = useMemo(() => {
     const direct = buildRunnerUrl(base, { affectedSide: affectedSideFrom(answers), answers, startRungs: learnedStartRungs(plan.startRung), guestReview: viaCompanion, returnTo: aliraPath });
-    return { runnerUrl: viaCompanion ? companionRunnerUrl(direct, window.location.origin) : direct, directOrigin: new URL(direct).origin };
+    return { runnerUrl: viaCompanion ? companionRunnerUrl(direct, window.location.origin, { saveVideos: administrativeControlsEnabled() }) : direct, directOrigin: new URL(direct).origin };
   }, [base, answers, plan, aliraPath, viaCompanion]);
   const runnerOrigin = useMemo(() => new URL(runnerUrl).origin, [runnerUrl]);
   // The task the runner is waiting on while its demonstration plays (null: none).
@@ -80,6 +83,24 @@ export default function Assessment() {
   // now, before this check's results replace it).
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const previousCheck = useRef(loadRememberedAssessment());
+  // Testing: this check's videos (each camera task's review video and evidence, walking's own videos) and results,
+  // saved to a folder chosen once (assessment-videos.ts), replaced by the next check's.
+  const taskVideos = useRef<{ taskId: string; blob: Blob; evidence?: unknown }[]>([]);
+  const walkingFiles = useRef<{ view: WalkStep; file: File }[]>([]);
+  const checkResults = useRef<unknown>(undefined);
+  const [videoSave, setVideoSave] = useState<SaveResult | { status: "saving" } | null>(null);
+  const saveVideos = async (choose: boolean) => {
+    const files = checkFiles(taskVideos.current, walkingFiles.current, checkResults.current);
+    setVideoSave({ status: "saving" });
+    setVideoSave(await saveCheckFiles(files, { choose }));
+  };
+  // Once the results are in, the videos go to the remembered folder by themselves (a first time needs a click).
+  useEffect(() => {
+    if (!dashboard || !administrativeControlsEnabled()) return;
+    // The last task's video arrives just after its celebration: give it a moment.
+    const timer = window.setTimeout(() => { void saveVideos(false); }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [dashboard]);
 
   useEffect(() => {
     if (loaded || result) return;
@@ -119,6 +140,7 @@ export default function Assessment() {
     }
     /** The runner shows its results: this page's dashboard takes over when the results carry a function score. */
     function showDashboard(assessment: unknown) {
+      checkResults.current = assessment;
       try {
         const next = assessment && typeof assessment === "object" ? buildDashboard(assessment as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date()) : null;
         if (next) setDashboard(next);
@@ -132,6 +154,12 @@ export default function Assessment() {
       if (!frame.current || event.source !== frame.current.contentWindow) return;
       const message = parseRunnerMessage(event.data);
       if (!message) return;
+      // Testing: a task's review video (a Blob, so sent as an object, not as text), kept for saving with the results.
+      if (message.type === "task_review_video") {
+        const { task_id: taskId, blob, evidence } = message as { task_id?: unknown; blob?: unknown; evidence?: unknown };
+        if (typeof taskId === "string" && blob instanceof Blob) taskVideos.current = [...taskVideos.current.filter(video => video.taskId !== taskId), { taskId, blob, evidence }];
+        return;
+      }
       switch (message.type) {
         case "ready":
           setLoaded(true);
@@ -196,11 +224,13 @@ export default function Assessment() {
         <DemoReel key={`${demo.taskId}-${demo.index}-${demo.walkView ?? ""}`} taskIds={[demo.taskId]} side={affectedSideFrom(answers)} autoAdvance progress={{ index: demo.index, count: demo.count }} walkView={demo.walkView}
           onDone={() => demoDone(demo)} onExit={() => navigate(aliraPath)} />
       </div>}
-      {dashboard && <AssessmentDashboard dashboard={dashboard} onAlira={() => navigate(aliraPath)} onHome={() => navigate("/")} />}
+      {dashboard && <AssessmentDashboard dashboard={dashboard} onAlira={() => navigate(aliraPath)} onHome={() => navigate("/")}
+        videos={administrativeControlsEnabled() ? { state: videoSave, onSave: () => void saveVideos(true) } : undefined} />}
       {/* Walking's videos, chosen and checked here; the runner scores their measurements. */}
       {/* Kept mounted (hidden) while the demonstration plays again, so the chosen videos and their checks carry on. */}
       {walking && !result && <div className="assessment-demo" hidden={!!demo}>
         <WalkingVideos step={walking.step} onNext={walkingNext} onDone={handoff => continueTask("L6", handoff)} onExit={() => navigate(aliraPath)}
+          onVideoChosen={(view, file) => { walkingFiles.current = [...walkingFiles.current.filter(item => item.view !== view), { view, file }]; }}
           onWatchAgain={() => setDemo({ taskId: "L6", index: walking.index, count: walking.count, walkView: walking.step })} />
       </div>}
       {!result && (

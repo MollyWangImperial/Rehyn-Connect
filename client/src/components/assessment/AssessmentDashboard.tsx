@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dashboard, DashboardArea, Standing } from "@/lib/assessment-dashboard";
 import { SCORING_NOTE } from "@/lib/assessment-dashboard";
+import type { SaveResult } from "@/lib/assessment-videos";
 import "./assessment-dashboard.css";
 
 const RING = 2 * Math.PI * 122, SMALL = 2 * Math.PI * 24;
@@ -53,7 +54,17 @@ function AreaRow({ area, delay }: { area: DashboardArea; delay: number }) {
   );
 }
 
-export default function AssessmentDashboard({ dashboard, onAlira, onHome }: { dashboard: Dashboard; onAlira(): void; onHome(): void }) {
+/** Testing: where this check's videos went (assessment-videos.ts). */
+export type DashboardVideos = { state: SaveResult | { status: "saving" } | null; onSave(): void };
+export function videosLine(state: DashboardVideos["state"]): string {
+  if (!state || state.status === "saving") return "Saving this check's task videos…";
+  if (state.status === "saved") return `This check's task videos are saved in your “${state.folder}” folder, replacing the last check's.`;
+  if (state.status === "downloaded") return "This check's task videos were downloaded.";
+  if (state.status === "error") return `The task videos could not be saved: ${state.message}`;
+  return "Save this check's task videos to a folder on this computer (for example on D:). Later checks then replace them there by themselves.";
+}
+
+export default function AssessmentDashboard({ dashboard, onAlira, onHome, videos }: { dashboard: Dashboard; onAlira(): void; onHome(): void; videos?: DashboardVideos }) {
   const shown = useCountUp(dashboard.total);
   const [howOpen, setHowOpen] = useState(false);
   const top = useRef<HTMLDivElement>(null);
@@ -148,6 +159,13 @@ export default function AssessmentDashboard({ dashboard, onAlira, onHome }: { da
           <button type="button" className="ad-how-toggle" aria-expanded={howOpen} onClick={() => setHowOpen(open => !open)}>How we scored this</button>
           {howOpen && <div className="ad-how-body">{SCORING_NOTE.map(line => <p key={line}>{line}</p>)}</div>}
         </div>
+        {videos && (
+          <div className="ad-videos" role="status">
+            <span className="ad-caps">Testing</span>
+            <span>{videosLine(videos.state)}</span>
+            {videos.state?.status !== "saving" && videos.state?.status !== "saved" && <button type="button" className="ad-how-toggle" onClick={videos.onSave}>Save to a folder…</button>}
+          </div>
+        )}
       </div>
     </div>
   );
