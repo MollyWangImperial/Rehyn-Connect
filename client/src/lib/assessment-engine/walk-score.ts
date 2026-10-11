@@ -28,16 +28,28 @@ export function walkCandidates(front: WalkVideoAnalysis | null, side: WalkVideoA
 /** How long scoring one video may take (the service can be waking up). */
 export const SCORE_TIMEOUT_MS = 60000;
 
+/** The Rehyn app's results for a walking-only check (the parts read here; the rest as the movement check's report). */
+export type WalkReport = { task_results?: { task_id?: string; metrics?: Record<string, unknown> & { gait_analysis?: { status?: string; score?: unknown } } }[]; metrics?: Record<string, unknown> };
+
+/** The walking score in a walking-only report, or null when it was not scored. */
+export function walkScoreOf(report: WalkReport | null): number | null {
+  const gait = report?.task_results?.find(row => row.task_id === "L6")?.metrics?.gait_analysis;
+  return gait?.status === "scored" && typeof gait.score === "number" && Number.isFinite(gait.score) ? gait.score : null;
+}
+
+/** The walking score the Rehyn app gives this evidence (see requestWalkReport). */
+export const scoreWalkEvidence: ScoreWalk = async (evidence, durationMs, signal) => walkScoreOf(await requestWalkReport(evidence, durationMs, {}, signal));
+
 /**
- * The walking score the Rehyn app gives this evidence: the movement check's own scoring request (review mode, walking
- * only), as the runner sends it, to the same service (the runner's RUNNER_UPSTREAM). Null when it cannot be scored or
- * the request fails.
+ * The Rehyn app's results for this walking evidence alone: the movement check's own scoring request (review mode,
+ * walking only), as the runner sends it, to the same service (the runner's RUNNER_UPSTREAM). `metrics` adds to the
+ * walking task's own (e.g. which videos it came from). Null when the request fails; throws only when cancelled.
  */
-export const scoreWalkEvidence: ScoreWalk = async (evidence, durationMs, signal) => {
+export async function requestWalkReport(evidence: WalkEvidence, durationMs: number, extra: Record<string, unknown> = {}, signal?: AbortSignal): Promise<WalkReport | null> {
   const metrics = {
     walking_capture_mode: "uploaded_video", walking_video_role: "gait_scoring_input", lower_limb_result_source: "walking_video_analysis",
     walking_video_analysis_status: "ready_for_backend_scoring", walking_video_accepted: true, walking_video_metadata_readable: true,
-    uploaded_video_duration_ms: durationMs,
+    uploaded_video_duration_ms: durationMs, ...extra,
   };
   const body = {
     task_results: [{
@@ -57,9 +69,8 @@ export const scoreWalkEvidence: ScoreWalk = async (evidence, durationMs, signal)
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: request.signal,
     });
     if (!response.ok) return null;
-    const data = await response.json() as { task_results?: { task_id?: string; metrics?: { gait_analysis?: { status?: string; score?: unknown } } }[] };
-    const gait = data.task_results?.find(row => row.task_id === "L6")?.metrics?.gait_analysis;
-    return gait?.status === "scored" && typeof gait.score === "number" && Number.isFinite(gait.score) ? gait.score : null;
+    const data = await response.json() as WalkReport;
+    return data && typeof data === "object" ? data : null;
   } catch (error) {
     if (signal?.aborted) throw error;
     return null;
@@ -67,7 +78,7 @@ export const scoreWalkEvidence: ScoreWalk = async (evidence, durationMs, signal)
     clearTimeout(timer);
     signal?.removeEventListener("abort", stop);
   }
-};
+}
 
 /** On a tie, the evidence with more measured (both videos, then the front video's steps). */
 const PREFERENCE: WalkChoice[] = ["combined", "front", "side"];

@@ -1,12 +1,14 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Assessment, { companionRunnerUrl } from "./Assessment";
+import Assessment, { companionRunnerUrl, walkingOnlyReport } from "./Assessment";
 import { ONBOARDING_STORAGE_KEY } from "@/lib/alira-onboarding";
 import { buildRunnerUrl } from "@/lib/assessment";
 
-vi.mock("wouter", () => ({ useLocation: () => ["/assessment", vi.fn()], useSearch: () => "onboarding=1" }));
+const route = vi.hoisted(() => ({ search: "onboarding=1" }));
+vi.mock("wouter", () => ({ useLocation: () => ["/assessment", vi.fn()], useSearch: () => route.search }));
 beforeEach(() => {
+  route.search = "onboarding=1";
   const values = new Map<string, string>();
   vi.stubGlobal("localStorage", { getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => values.set(key, value) });
@@ -32,6 +34,23 @@ describe("copied assessment host", () => {
     const html = renderToStaticMarkup(createElement(Assessment));
     expect(html).toContain('supported movement');
     expect(html).not.toContain('<iframe');
+  });
+});
+
+describe("the walking test (?only=L6)", () => {
+  it("opens straight on the side video's demonstration, without the movement check or its camera", () => {
+    route.search = "only=L6";
+    const html = renderToStaticMarkup(createElement(Assessment));
+    expect(html).not.toContain("<iframe");
+    expect(html).not.toContain("Opening your movement check");
+    expect(html).toContain("Watch first");
+  });
+
+  it("shows its results as the movement check's, saying which videos the walking score came from", () => {
+    const report = { task_results: [{ task_id: "L6", metrics: { gait_analysis: { status: "scored", score: 76 } } }], metrics: { function_score: {} } };
+    const checked = walkingOnlyReport(report, { skipped: false, evidence: null, duration_ms: 9000, views: ["front"], measured_from: "feet", view_scores: { front: 76, side: 54.1 } });
+    expect(checked.task_results![0].metrics).toEqual({ gait_analysis: { status: "scored", score: 76 }, walking_video_views: ["front"], walking_measured_from: "feet", walking_view_scores: { front: 76, side: 54.1 } });
+    expect(checked.metrics).toBe(report.metrics);
   });
 });
 

@@ -21,7 +21,8 @@ import { checkFiles, saveCheckFiles, type SaveResult } from "@/lib/assessment-vi
 import type { AssessmentTaskId } from "@/lib/assessment-engine/types";
 import DemoReel, { DEMO_SPECS } from "@/components/assessment/DemoReel";
 import WalkingVideos, { type WalkingHandoff } from "@/components/assessment/WalkingVideos";
-import type { WalkView as WalkStep } from "@/lib/assessment-engine/walk-video";
+import type { WalkEvidence, WalkView as WalkStep } from "@/lib/assessment-engine/walk-video";
+import { requestWalkReport, walkScoreOf, type WalkReport } from "@/lib/assessment-engine/walk-score";
 import AssessmentDashboard from "@/components/assessment/AssessmentDashboard";
 import { buildDashboard, saveCheckDashboard, type Dashboard } from "@/lib/assessment-dashboard";
 import "./assessment.css";
@@ -35,6 +36,15 @@ export function companionRunnerUrl(direct: string, origin: string, { saveVideos 
   // Testing: the runner records each task's review video and hands it to this page (assessment-videos.ts).
   if (saveVideos) query.set("save_videos", "1");
   return `${origin}/movement-check/runner?${query.toString()}`;
+}
+
+/**
+ * A walking-only results report as the movement check's: the walking task's metrics also say which videos the score
+ * came from (the dashboard's walking summary reads them).
+ */
+export function walkingOnlyReport(report: WalkReport, handoff: Extract<WalkingHandoff, { skipped: false }>): WalkReport {
+  const metrics = { walking_video_views: handoff.views, walking_measured_from: handoff.measured_from, ...(handoff.view_scores ? { walking_view_scores: handoff.view_scores } : {}) };
+  return { ...report, task_results: (report.task_results ?? []).map(row => (row.task_id === "L6" ? { ...row, metrics: { ...row.metrics, ...metrics } } : row)) };
 }
 
 /** The survey's start points with Alira's learned settings applied; the survey's alone if those can't be read. */
@@ -66,6 +76,9 @@ export default function Assessment() {
     const planned = assessmentPlanFrom(answers);
     return testOnly ? { ...planned, taskIds: onlyTasks, caregiverRoute: false } : planned;
   }, [answers, testOnly, onlyTasks]);
+  // The walking test (?only=L6) needs no movement check (no camera): its demonstrations and videos, scored here by
+  // the Rehyn walking score, then the results dashboard.
+  const walkingOnly = testOnly && plan.taskIds.length === 1 && plan.taskIds[0] === "L6";
   const [caregiverAcknowledged, setCaregiverAcknowledged] = useState(false);
   // The review runner (Render, or ?runner=review in development) comes through this origin with the demonstrations.
   const viaCompanion = renderReviewControlsEnabled() || (import.meta.env.DEV && query.get("runner") === "review");
@@ -77,7 +90,8 @@ export default function Assessment() {
   const runnerOrigin = useMemo(() => new URL(runnerUrl).origin, [runnerUrl]);
   // The task the runner is waiting on while its demonstration plays (null: none).
   // Walking shows its side-view demonstration, then later its front-view one (walkView).
-  const [demo, setDemo] = useState<{ taskId: AssessmentTaskId; index: number; count: number; walkView?: WalkStep } | null>(null);
+  const [demo, setDemo] = useState<{ taskId: AssessmentTaskId; index: number; count: number; walkView?: WalkStep } | null>(
+    walkingOnly ? { taskId: "L6", index: 0, count: 1, walkView: "side" } : null);
   // Walking: after each of its demonstrations the patient chooses that video here: the side video, then the front.
   const [walking, setWalking] = useState<{ index: number; count: number; step: WalkStep } | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -111,10 +125,38 @@ export default function Assessment() {
   }, [dashboard]);
 
   useEffect(() => {
-    if (loaded || result) return;
+    if (loaded || result || walkingOnly) return;
     const timer = setTimeout(() => setStalled(true), LOAD_TIMEOUT_MS);
     return () => clearTimeout(timer);
-  }, [loaded, result]);
+  }, [loaded, result, walkingOnly]);
+
+  // The walking test: each video's Rehyn results, kept as the walking step scores them (to choose the higher), so the
+  // chosen one's results become the dashboard without asking again.
+  const walkReports = useRef(new Map<WalkEvidence, WalkReport | null>());
+  const scoreWalkingOnly = async (evidence: WalkEvidence, durationMs: number, signal?: AbortSignal) => {
+    const report = await requestWalkReport(evidence, durationMs, {}, signal);
+    walkReports.current.set(evidence, report);
+    return walkScoreOf(report);
+  };
+  const [walkingOnlyState, setWalkingOnlyState] = useState<{ status: "scoring" } | { status: "failed"; handoff: Extract<WalkingHandoff, { skipped: false }> } | null>(null);
+  /** The walking test's videos are in: its results dashboard (nothing kept), or back to Alira when walking was skipped. */
+  const finishWalkingOnly = async (handoff: WalkingHandoff) => {
+    if (handoff.skipped || !handoff.evidence) { navigate(aliraPath); return; }
+    setWalking(null);
+    setWalkingOnlyState({ status: "scoring" });
+    const report = walkReports.current.get(handoff.evidence) ?? await requestWalkReport(handoff.evidence, handoff.duration_ms);
+    const checked = report ? walkingOnlyReport(report, handoff) : null;
+    let next: Dashboard | null = null;
+    try {
+      next = checked ? buildDashboard(checked as Parameters<typeof buildDashboard>[0], previousCheck.current, new Date(), { fillFrom: previousCheck.current }) : null;
+    } catch {
+      next = null;
+    }
+    if (!next) { setWalkingOnlyState({ status: "failed", handoff }); return; }
+    checkResults.current = checked;
+    setWalkingOnlyState(null);
+    setDashboard(next);
+  };
 
   /** The demonstration is over (watched, skipped or the patient left it): the runner starts the task. */
   const continueTask = (taskId: string, walkingHandoff?: WalkingHandoff) => {
@@ -245,11 +287,32 @@ export default function Assessment() {
       {/* Walking's videos, chosen and checked here; the runner scores their measurements. */}
       {/* Kept mounted (hidden) while the demonstration plays again, so the chosen videos and their checks carry on. */}
       {walking && !result && <div className="assessment-demo" hidden={!!demo}>
-        <WalkingVideos step={walking.step} onNext={walkingNext} onDone={handoff => continueTask("L6", handoff)} onExit={() => navigate(aliraPath)}
+        <WalkingVideos step={walking.step} onNext={walkingNext} onDone={handoff => (walkingOnly ? void finishWalkingOnly(handoff) : continueTask("L6", handoff))} onExit={() => navigate(aliraPath)}
+          scoreWalk={walkingOnly ? scoreWalkingOnly : undefined}
           onVideoChosen={(view, file) => { walkingFiles.current = [...walkingFiles.current.filter(item => item.view !== view), { view, file }]; }}
           onWatchAgain={() => setDemo({ taskId: "L6", index: walking.index, count: walking.count, walkView: walking.step })} />
       </div>}
-      {!result && (
+      {walkingOnlyState?.status === "scoring" && (
+        <div className="assessment-veil" role="status">
+          <LoaderCircle className="assessment-spinner" size={28} aria-hidden="true" />
+          <p>Getting your walking score…</p>
+        </div>
+      )}
+      {walkingOnlyState?.status === "failed" && (
+        <div className="assessment-veil is-solid" role="alert">
+          <h1>We couldn’t get your walking score just now</h1>
+          <p>Your videos were checked on this device. Try again, or go back and test again later.</p>
+          <div className="assessment-actions">
+            <button className="assessment-primary" onClick={() => void finishWalkingOnly(walkingOnlyState.handoff)}>
+              <RefreshCw size={17} aria-hidden="true" /> Try again
+            </button>
+            <button className="assessment-secondary" onClick={() => navigate(aliraPath)}>
+              <ArrowLeft size={17} aria-hidden="true" /> Back to Alira
+            </button>
+          </div>
+        </div>
+      )}
+      {!result && !walkingOnly && (
         <iframe
           ref={frame}
           className="assessment-runner"
@@ -265,14 +328,14 @@ export default function Assessment() {
         />
       )}
 
-      {!loaded && !result && !stalled && (
+      {!loaded && !result && !stalled && !walkingOnly && (
         <div className="assessment-veil" role="status">
           <LoaderCircle className="assessment-spinner" size={28} aria-hidden="true" />
           <p>Opening your movement check…</p>
         </div>
       )}
 
-      {!loaded && !result && stalled && (
+      {!loaded && !result && stalled && !walkingOnly && (
         <div className="assessment-veil is-solid" role="alert">
           <h1>The movement check is taking a while to open</h1>
           <p>
