@@ -96,8 +96,14 @@ describe("My community views", () => {
     expect(tagWith(html, "button", 'aria-pressed="true"', 'class="cm-stage-button is-on"')).toBe(true);
     for (const control of ["Take your seat", "Next speaker", "Leave quietly"]) expect(text).toContain(control);
     expect(tagWith(html, "a", 'class="cm-stage-button"', 'href="/community"')).toBe(true);
-    expect(text).toContain("Coming up TUE 6 Hand and arm circle");
-    expect(text).toContain("add the circle to your own calendar");
+    // Tuesday 6 October: today's get-together is Photo stories, with its own topic and scene; then a new one every two days.
+    expect(text).toContain("Sunday circle · today's get-together Photo stories");
+    expect(text).toContain("Today's topic Tell us about a photo you love.");
+    expect(tagWith(html, "section", 'class="cm-card cm-stage cm-stage-scene"', 'data-theme="photos"')).toBe(true);
+    expect(text).toContain("Coming up THU 8 Film night Thursday 8 October, 4 pm · Bring a film you love");
+    expect(text).toContain("SAT 10 Book club");
+    expect(text).toContain("A new get-together every two days, at 4 pm.");
+    expect(text).not.toMatch(/stretches|finding words|hand and arm/i);
   });
 
   it("opens a named group, with its challenge, the group list and suggestions", () => {

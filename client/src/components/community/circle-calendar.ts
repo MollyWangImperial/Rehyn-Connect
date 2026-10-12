@@ -1,13 +1,14 @@
-// "Add to calendar" for the circles coming up: the next meeting, put straight into the person's own
-// calendar (Google, Outlook, or a calendar file for Apple Calendar and the rest), repeating weekly,
-// with a reminder half an hour before. Only the circle's name and time go into the calendar.
+// "Add to calendar" for the circle's meetings coming up: one meeting, put straight into the person's own
+// calendar (Google, Outlook, or a calendar file for Apple Calendar and the rest), with a reminder half
+// an hour before. A weekly meeting repeats each week; the circle's events, which change every two days,
+// are each added on their own (`weekly: false`). Only the meeting's name and time go into the calendar.
 
-export type CircleMeeting = { id: string; name: string; detail: string; day: number; hour: number; minutes: number };
+export type CircleMeeting = { id: string; name: string; detail: string; minutes: number; day?: number; hour?: number; weekly?: boolean };
 
 const MINUTE = 60_000;
 
 /** The next time a weekly circle meets, from `now`. One that has already started today is next week's. */
-export function nextMeeting(meeting: Pick<CircleMeeting, "day" | "hour">, now = new Date()): Date {
+export function nextMeeting(meeting: { day: number; hour: number }, now = new Date()): Date {
   const start = new Date(now);
   start.setHours(meeting.hour, 0, 0, 0);
   let days = (meeting.day - start.getDay() + 7) % 7;
@@ -31,7 +32,8 @@ function about(meeting: CircleMeeting, origin: string) {
 /** A Google Calendar page with the circle filled in, ready to save. */
 export function googleCalendarUrl(meeting: CircleMeeting, start: Date, origin = ""): string {
   const end = new Date(start.getTime() + meeting.minutes * MINUTE);
-  const query = new URLSearchParams({ action: "TEMPLATE", text: meeting.name, dates: `${utc(start)}/${utc(end)}`, details: about(meeting, origin), recur: "RRULE:FREQ=WEEKLY" });
+  const query = new URLSearchParams({ action: "TEMPLATE", text: meeting.name, dates: `${utc(start)}/${utc(end)}`, details: about(meeting, origin) });
+  if (meeting.weekly !== false) query.set("recur", "RRULE:FREQ=WEEKLY");
   return `https://calendar.google.com/calendar/render?${query.toString()}`;
 }
 
@@ -59,7 +61,7 @@ export function circleIcs(meeting: CircleMeeting, start: Date, origin = "", now 
     `DTSTAMP:${utc(now)}`,
     `DTSTART:${utc(start)}`,
     `DTEND:${utc(end)}`,
-    "RRULE:FREQ=WEEKLY",
+    ...(meeting.weekly === false ? [] : ["RRULE:FREQ=WEEKLY"]),
     `SUMMARY:${icsText(meeting.name)}`,
     `DESCRIPTION:${icsText(about(meeting, origin))}`,
     "BEGIN:VALARM",

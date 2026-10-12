@@ -1,0 +1,205 @@
+/* The Sunday circle's scene, matching the day's event (CircleScene.tsx), and the circle drawn over it in light
+   colours. Everything here is decoration and moves gently; with reduced motion it stands still. */
+
+/* ---------------------------------------------------------------- the stage over a scene */
+.cm-stage.cm-stage-scene { border-color: transparent; background: #1A2238; color: #FFFFFF; box-shadow: 0 18px 44px rgba(20, 30, 50, .22); }
+.cm-stage-scene .cm-stage-rings { display: none; }
+.cm-stage-scene .cm-stage-live { color: rgba(255, 255, 255, .82); }
+.cm-stage-scene .cm-stage-live > span:nth-child(2) { color: #FFB59C; }
+.cm-stage-scene .cm-stage-head h2 { color: #FFFFFF; text-shadow: 0 2px 22px rgba(0, 0, 0, .45); }
+.cm-stage-scene .cm-stage-sub { color: rgba(255, 255, 255, .86); }
+.cm-stage-scene .cm-topic-text { color: #FFFFFF; text-shadow: 0 2px 18px rgba(0, 0, 0, .45); }
+.cm-stage-scene .cm-overline-gold { color: #FFD98A; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+.cm-stage-scene .cm-stage-event { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, .14); color: #FFFFFF; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(4px); }
+.cm-stage-scene .cm-stage-rule { background: rgba(255, 247, 228, .92); }
+.cm-stage-scene .cm-seat-ring { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55), 0 8px 20px rgba(0, 0, 0, .3); }
+.cm-stage-scene .cm-seat.is-speaking .cm-seat-ring { box-shadow: 0 0 0 3px var(--cm-gold), 0 0 26px rgba(255, 214, 120, .65); }
+.cm-stage-scene .cm-seat.is-next .cm-seat-ring { box-shadow: 0 0 0 2.5px #A8E6C4, 0 8px 20px rgba(0, 0, 0, .3); }
+.cm-stage-scene .cm-seat.is-empty .cm-seat-ring, .cm-stage-scene .cm-seat.is-away .cm-seat-ring { box-shadow: none; background: transparent; }
+.cm-stage-scene .cm-seat-name > b { color: #FFFFFF; text-shadow: 0 1px 10px rgba(0, 0, 0, .55); }
+.cm-stage-scene .cm-seat-name > span { color: rgba(255, 255, 255, .84); text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+.cm-stage-scene .cm-seat.is-speaking .cm-seat-status { color: var(--cm-gold); }
+.cm-stage-scene .cm-seat.is-next .cm-seat-status { color: #A8E6C4; }
+.cm-stage-scene .cm-seat.is-empty .cm-seat-name > b { color: var(--cm-gold); }
+.cm-stage-scene .cm-seat-away { border-color: rgba(255, 255, 255, .45); }
+.cm-stage-scene .cm-captions { background: rgba(10, 18, 24, .74); backdrop-filter: blur(8px); box-shadow: 0 12px 30px rgba(0, 0, 0, .3); }
+.cm-stage-scene .cm-turn-label { color: #FFFFFF; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+
+/* ---------------------------------------------------------------- the scene */
+.cm-scene { position: absolute; inset: 0; z-index: 0; overflow: hidden; border-radius: inherit; pointer-events: none; container-type: size; }
+/* A veil at the top and bottom, so the words over the scene stay easy to read. */
+.cm-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .42) 0%, rgba(0, 0, 0, .12) 34%, rgba(0, 0, 0, .06) 62%, rgba(0, 0, 0, .34) 100%); }
+.cm-scene > * { position: absolute; }
+
+/* Pieces that float up, fall, drift across or twinkle. Each has its own --x, --y, --d (delay), --t (duration),
+   --s (size), --sway and --spin; they start part-way through, so the scene is full from the first moment. */
+.cm-sc-rise { left: var(--x); bottom: -48px; animation: cm-sc-rise var(--t) linear calc(var(--d) * -1) infinite; }
+.cm-sc-fall { left: var(--x); top: -40px; animation: cm-sc-fall var(--t) linear calc(var(--d) * -1) infinite; }
+.cm-sc-drift { left: -280px; top: var(--y); animation: cm-sc-drift var(--t) linear calc(var(--d) * -1) infinite; }
+.cm-sc-twinkle { left: var(--x); top: var(--y); width: calc(5px * var(--s)); height: calc(5px * var(--s)); border-radius: 50%; background: #FFF6D5; box-shadow: 0 0 8px 2px rgba(255, 240, 190, .7); animation: cm-sc-twinkle var(--t) ease-in-out calc(var(--d) * -1) infinite alternate; }
+
+@keyframes cm-sc-rise {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(var(--s)); }
+  12% { opacity: .95; }
+  78% { opacity: .9; }
+  100% { opacity: 0; transform: translate(var(--sway), calc(-100cqh - 60px)) rotate(var(--spin)) scale(var(--s)); }
+}
+@keyframes cm-sc-fall {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(var(--s)); }
+  8% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sway), calc(100cqh + 60px)) rotate(var(--spin)) scale(var(--s)); }
+}
+@keyframes cm-sc-drift { from { transform: translateX(0) scale(var(--s)); } to { transform: translateX(calc(100cqw + 560px)) scale(var(--s)); } }
+@keyframes cm-sc-twinkle { from { opacity: .15; transform: scale(.6); } to { opacity: 1; transform: scale(1.15); } }
+@keyframes cm-sc-spin { to { transform: rotate(360deg); } }
+@keyframes cm-sc-glow { 0%, 100% { opacity: .78; transform: scale(.97); } 50% { opacity: 1; transform: scale(1.04); } }
+@keyframes cm-sc-sweep { 0%, 100% { transform: rotate(-18deg); } 50% { transform: rotate(18deg); } }
+
+/* Film night: a cinema, curtains swaying, marquee bulbs chasing, spotlights sweeping, popcorn popping up. */
+.cm-scene[data-theme="film"] { background: radial-gradient(120% 90% at 50% 120%, #8A2242 0%, #4A1236 42%, #170B26 100%); }
+.cm-sc-beam { bottom: -12%; width: 48%; height: 150%; background: linear-gradient(to top, rgba(255, 236, 170, .34), rgba(255, 236, 170, 0) 78%); clip-path: polygon(45% 100%, 55% 100%, 100% 0, 0 0); transform-origin: 50% 100%; mix-blend-mode: screen; animation: cm-sc-sweep 9s ease-in-out infinite; }
+.cm-sc-beam.is-a { left: 2%; }
+.cm-sc-beam.is-b { right: 2%; animation-delay: -4.5s; animation-direction: reverse; }
+.cm-sc-curtain { top: 0; bottom: 0; width: 10%; background: repeating-linear-gradient(90deg, #7E1526 0 12px, #B3283B 12px 22px, #64101D 22px 30px); box-shadow: inset -12px 0 26px rgba(0, 0, 0, .45); transform-origin: top; animation: cm-sc-curtain 7s ease-in-out infinite; }
+.cm-sc-curtain.is-left { left: 0; border-bottom-right-radius: 70% 16%; }
+.cm-sc-curtain.is-right { right: 0; border-bottom-left-radius: 70% 16%; transform: scaleX(-1); animation-delay: -3.5s; }
+@keyframes cm-sc-curtain { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.08); } }
+.cm-sc-curtain.is-right { animation-name: cm-sc-curtain-r; }
+@keyframes cm-sc-curtain-r { 0%, 100% { transform: scaleX(-1); } 50% { transform: scaleX(-1.08); } }
+.cm-sc-bulbs { top: 12px; left: 11%; right: 11%; height: 12px; background: radial-gradient(circle, #FFE7A3 0 3.2px, transparent 4.2px) 0 50% / 26px 12px repeat-x; filter: drop-shadow(0 0 6px #FFC94D); animation: cm-sc-blink 1.1s steps(2, jump-none) infinite; }
+.cm-sc-bulbs::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, #FFF6D8 0 3.2px, transparent 4.2px) 13px 50% / 26px 12px repeat-x; animation: cm-sc-blink 1.1s steps(2, jump-none) infinite reverse; }
+@keyframes cm-sc-blink { from { opacity: 1; } to { opacity: .2; } }
+.cm-sc-reel { top: 14%; right: 14%; width: 76px; height: 76px; fill: rgba(243, 217, 164, .22); stroke: rgba(243, 217, 164, .7); stroke-width: 3; animation: cm-sc-spin 10s linear infinite; }
+.cm-sc-reel-hole { fill: rgba(23, 11, 38, .85); stroke: none; }
+.cm-sc-filmstrip { left: -6%; right: -6%; bottom: 7%; height: 34px; background: linear-gradient(#0E0A12 0 7px, transparent 7px 27px, #0E0A12 27px), repeating-linear-gradient(90deg, rgba(255, 255, 255, .16) 0 46px, rgba(0, 0, 0, .7) 46px 52px); background-size: auto, 104px 100%; opacity: .45; transform: rotate(-3deg); animation: cm-sc-strip 10s linear infinite; }
+@keyframes cm-sc-strip { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 104px 0; } }
+.cm-sc-popcorn { width: 15px; height: 13px; border-radius: 46% 54% 52% 48%; background: radial-gradient(circle at 35% 35%, #FFFEF6, #F4D98E 72%); box-shadow: 5px -4px 0 -1px #FFF7DC, -4px -3px 0 -2px #FFF2C6; }
+
+/* Book club: a lamp-lit library, a shelf of books, pages fluttering up, dust glinting in the light. */
+.cm-scene[data-theme="books"] { background: radial-gradient(90% 70% at 12% 4%, rgba(255, 190, 110, .55), transparent 62%), linear-gradient(160deg, #3D2416 0%, #5C3420 46%, #1E3D3B 100%); }
+.cm-sc-lamp { top: -140px; left: -90px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 214, 140, .6), rgba(255, 214, 140, 0) 66%); animation: cm-sc-glow 4.6s ease-in-out infinite; }
+.cm-sc-shelf { left: 0; bottom: 0; width: 100%; height: 86px; opacity: .78; }
+.cm-sc-page { width: 22px; height: 28px; border-radius: 3px 8px 3px 3px; background: repeating-linear-gradient(180deg, #FFF8E6 0 5px, #E9DCC0 5px 6px); box-shadow: 0 4px 10px rgba(0, 0, 0, .25); }
+.cm-sc-mote { background: #FFE6A8; box-shadow: 0 0 6px 2px rgba(255, 220, 150, .6); }
+
+/* Football together: a floodlit stadium, the crowd's camera flashes, a ball bouncing across, confetti. */
+.cm-scene[data-theme="football"] { background: linear-gradient(180deg, #0A1530 0%, #14294D 44%, #1B5B35 60%, #1F7D3F 100%); }
+.cm-sc-flood { top: -6%; width: 44%; height: 120%; background: linear-gradient(to bottom, rgba(220, 238, 255, .4), rgba(220, 238, 255, 0) 70%); clip-path: polygon(0 0, 22% 0, 100% 100%, 40% 100%); mix-blend-mode: screen; animation: cm-sc-flood 3.4s ease-in-out infinite; }
+.cm-sc-flood.is-left { left: -2%; }
+.cm-sc-flood.is-right { right: -2%; transform: scaleX(-1); animation-delay: -1.7s; }
+@keyframes cm-sc-flood { 0%, 100% { opacity: .75; } 45% { opacity: 1; } 50% { opacity: .55; } 55% { opacity: 1; } }
+.cm-sc-crowd { left: 0; right: 0; top: 34%; height: 22%; background: radial-gradient(circle, rgba(255, 255, 255, .8) 0 1.2px, transparent 1.9px) 0 0 / 15px 11px, radial-gradient(circle, rgba(255, 214, 90, .8) 0 1.2px, transparent 1.9px) 7px 5px / 17px 13px; -webkit-mask: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask: linear-gradient(transparent, #000 30%, #000 70%, transparent); animation: cm-sc-crowd 1.8s steps(3, jump-none) infinite; }
+@keyframes cm-sc-crowd { 0% { opacity: .35; background-position: 0 0, 7px 5px; } 50% { opacity: .9; background-position: 4px 2px, 3px 8px; } 100% { opacity: .5; background-position: 8px 4px, 11px 2px; } }
+.cm-sc-pitch { left: -20%; right: -20%; bottom: -6%; height: 46%; background: repeating-linear-gradient(90deg, #22914A 0 80px, #1C7E3F 80px 160px); transform: perspective(520px) rotateX(52deg); transform-origin: bottom; }
+.cm-sc-pitch::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: rgba(255, 255, 255, .7); }
+.cm-sc-pitch i { position: absolute; top: 50%; left: 50%; width: 140px; height: 140px; border: 3px solid rgba(255, 255, 255, .7); border-radius: 50%; transform: translate(-50%, -50%); }
+.cm-sc-ball-x { bottom: 9%; left: -60px; animation: cm-sc-across 7.5s linear infinite; }
+@keyframes cm-sc-across { from { transform: translateX(0); } to { transform: translateX(calc(100cqw + 120px)); } }
+.cm-sc-ball-hop { display: block; animation: cm-sc-hop .75s cubic-bezier(.33, 0, .67, 1) infinite alternate; }
+@keyframes cm-sc-hop { from { transform: translateY(0); } to { transform: translateY(-120px); } }
+.cm-sc-ball { display: block; width: 40px; height: 40px; filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .35)); animation: cm-sc-spin 1.1s linear infinite; }
+.cm-sc-confetti { width: 8px; height: 14px; border-radius: 2px; background: var(--c, #FFD166); }
+
+/* Music memories: a record spinning, an equaliser dancing, notes floating up. */
+.cm-scene[data-theme="music"] { background: radial-gradient(70% 60% at 86% 30%, rgba(255, 92, 170, .5), transparent 62%), linear-gradient(135deg, #2A0F4F 0%, #4B157A 46%, #8E1F70 100%); }
+.cm-sc-vinyl { top: 10%; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, #F05A7E 0 13%, #FFD166 13.5% 14.5%, #F05A7E 15% 16%, #111 16.5% 17%, transparent 17.5%), repeating-radial-gradient(circle, #141414 0 2px, #232323 2px 4px); box-shadow: 0 14px 44px rgba(0, 0, 0, .5); animation: cm-sc-spin 3.6s linear infinite; }
+.cm-sc-vinyl i { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 20deg, transparent 0 20%, rgba(255, 255, 255, .16) 25%, transparent 32% 70%, rgba(255, 255, 255, .1) 75%, transparent 82%); }
+.cm-sc-eq { left: 6%; right: 6%; bottom: 0; height: 22%; display: flex; align-items: flex-end; gap: 6px; opacity: .8; }
+.cm-sc-eq i { flex: 1; height: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(to top, #FF5C8A, #FFB86B 70%, #FFE29A); transform-origin: bottom; animation: cm-sc-eq var(--t) ease-in-out calc(var(--d) * -1) infinite alternate; }
+@keyframes cm-sc-eq { from { transform: scaleY(.12); } to { transform: scaleY(1); } }
+.cm-sc-note { color: #FFFFFF; font: 700 30px/1 Georgia, serif; text-shadow: 0 0 14px rgba(255, 150, 220, .9); }
+
+/* Quiz night: neon question marks floating up, spotlights, a glowing grid and a buzzer. */
+.cm-scene[data-theme="quiz"] { background: radial-gradient(60% 50% at 50% 0%, rgba(80, 200, 255, .38), transparent 70%), linear-gradient(180deg, #0A1B3D 0%, #0F2E5C 55%, #0B5A6B 100%); }
+.cm-scene[data-theme="quiz"] .cm-sc-beam { background: linear-gradient(to top, rgba(120, 230, 255, .32), rgba(120, 230, 255, 0) 78%); }
+.cm-sc-grid { inset: 0; background: radial-gradient(circle, rgba(125, 249, 255, .3) 0 1.2px, transparent 1.8px) 0 0 / 26px 26px; -webkit-mask: radial-gradient(70% 60% at 50% 60%, #000, transparent); mask: radial-gradient(70% 60% at 50% 60%, #000, transparent); animation: cm-sc-glow 3.8s ease-in-out infinite; }
+.cm-sc-qmark { color: #7DF9FF; font: 700 40px/1 Georgia, serif; text-shadow: 0 0 10px #3CE3FF, 0 0 26px rgba(60, 227, 255, .8); }
+.cm-sc-qmark:nth-child(3n) { color: #FFD166; text-shadow: 0 0 10px #FFB703, 0 0 26px rgba(255, 183, 3, .7); }
+.cm-sc-buzzer { right: 7%; bottom: 9%; width: 66px; height: 66px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FF9A9A, #E0283C 58%, #8C0F1F); box-shadow: 0 0 0 9px rgba(224, 40, 60, .22), 0 0 44px rgba(224, 40, 60, .65); animation: cm-sc-buzz 2.4s ease-in-out infinite; }
+@keyframes cm-sc-buzz { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 9px rgba(224, 40, 60, .22), 0 0 44px rgba(224, 40, 60, .6); } 50% { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(224, 40, 60, .12), 0 0 60px rgba(224, 40, 60, .8); } }
+
+/* Travel tales: a sunset sky, clouds drifting by, a little plane flying its dotted route. */
+.cm-scene[data-theme="travel"] { background: linear-gradient(180deg, #1B3D78 0%, #3E6BB0 38%, #F08D6C 80%, #F7B267 100%); }
+.cm-sc-sun { right: 9%; bottom: 8%; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #FFF6CF 0 30%, #FFD36E 52%, rgba(255, 180, 90, 0) 72%); animation: cm-sc-glow 5s ease-in-out infinite; }
+.cm-sc-sun i { position: absolute; inset: -60px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 236, 170, .3) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, transparent 28%, #000 32%, transparent 70%); mask: radial-gradient(circle, transparent 28%, #000 32%, transparent 70%); animation: cm-sc-spin 40s linear infinite; }
+.cm-sc-cloud { width: 150px; height: 46px; border-radius: 46px; background: rgba(255, 255, 255, .9); box-shadow: 34px -18px 0 6px rgba(255, 255, 255, .9), 80px -6px 0 2px rgba(255, 255, 255, .86); filter: drop-shadow(0 8px 10px rgba(30, 50, 100, .18)); }
+.cm-sc-trail { inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cm-sc-trail-line { fill: none; stroke: rgba(255, 255, 255, .7); stroke-width: 3; stroke-dasharray: 2 14; stroke-linecap: round; animation: cm-sc-dash 3s linear infinite; }
+@keyframes cm-sc-dash { to { stroke-dashoffset: -32; } }
+.cm-sc-plane path:first-child { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .3)); }
+
+/* Bake and chat: a cake with its candle flickering, steam rising, sprinkles raining down. */
+.cm-scene[data-theme="bake"] { background: radial-gradient(80% 60% at 18% 0%, rgba(255, 214, 231, .5), transparent 62%), linear-gradient(150deg, #8E2453 0%, #C2416B 46%, #F08A5D 100%); }
+.cm-sc-polka { inset: 0; background: radial-gradient(circle, rgba(255, 255, 255, .15) 0 5px, transparent 6px) 0 0 / 46px 46px; animation: cm-sc-polka 24s linear infinite; }
+@keyframes cm-sc-polka { to { background-position: 46px 46px; } }
+.cm-sc-cake { right: 6%; bottom: 3%; width: 150px; height: 162px; filter: drop-shadow(0 10px 18px rgba(80, 10, 40, .35)); animation: cm-sc-bob 3.6s ease-in-out infinite; }
+@keyframes cm-sc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.cm-sc-flame { transform-origin: 60px 28px; animation: cm-sc-flicker .35s ease-in-out infinite alternate; }
+@keyframes cm-sc-flicker { from { transform: scale(.88, 1.06) rotate(-4deg); } to { transform: scale(1.05, .92) rotate(4deg); } }
+.cm-sc-steam { left: calc(78% + var(--x) * .12); bottom: 140px; width: 18px; height: 34px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 255, 255, .55), transparent 70%); filter: blur(2px); }
+.cm-sc-sprinkle { width: 5px; height: 15px; border-radius: 4px; background: var(--c, #FFD166); }
+
+/* Garden show-and-tell: sun rays turning, flowers swaying, butterflies fluttering by, pollen drifting up. */
+.cm-scene[data-theme="garden"] { background: radial-gradient(70% 60% at 8% 0%, rgba(255, 240, 170, .6), transparent 62%), linear-gradient(170deg, #1C5A38 0%, #2E7D45 46%, #57A84E 100%); }
+.cm-sc-sunrays { top: -260px; left: -260px; width: 620px; height: 620px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 245, 190, .32) 0 7deg, transparent 7deg 20deg); -webkit-mask: radial-gradient(circle, #000 0, transparent 70%); mask: radial-gradient(circle, #000 0, transparent 70%); animation: cm-sc-spin 60s linear infinite; }
+.cm-sc-flowers { left: 0; right: 0; bottom: -6px; height: 150px; }
+.cm-sc-flower { position: absolute; bottom: 0; left: var(--x); width: calc(44px * var(--s)); height: calc(110px * var(--s)); transform-origin: 50% 100%; animation: cm-sc-sway var(--t) ease-in-out calc(var(--d) * -1) infinite alternate; }
+.cm-sc-petal { fill: var(--c, #FF6B8B); }
+@keyframes cm-sc-sway { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+.cm-sc-butterfly-path { animation-timing-function: linear; }
+.cm-sc-butterfly { display: block; position: relative; width: 34px; height: 26px; animation: cm-sc-flit 2.2s ease-in-out infinite alternate; }
+@keyframes cm-sc-flit { from { transform: translateY(-14px) rotate(-8deg); } to { transform: translateY(16px) rotate(8deg); } }
+.cm-sc-butterfly i { position: absolute; top: 0; width: 17px; height: 24px; background: radial-gradient(circle at 60% 40%, #FFE29A 0 20%, #FF9F43 21% 60%, #C2410C 61%); border-radius: 60% 40% 50% 50%; transform-origin: 100% 50%; animation: cm-sc-flap .22s ease-in-out infinite alternate; }
+.cm-sc-butterfly i:last-child { left: 17px; transform-origin: 0 50%; border-radius: 40% 60% 50% 50%; }
+@keyframes cm-sc-flap { from { transform: scaleX(1); } to { transform: scaleX(.25); } }
+.cm-sc-pollen { width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle, #FFF6B0, #FFD23F 70%); box-shadow: 0 0 8px rgba(255, 230, 120, .8); }
+
+/* Comedy hour: a stage under a spotlight, curtains and a valance, laughter floating up. */
+.cm-scene[data-theme="comedy"] { background: radial-gradient(60% 55% at 50% 104%, rgba(255, 222, 120, .6), transparent 66%), linear-gradient(180deg, #4E0E1F 0%, #861C2C 46%, #C2552B 100%); }
+.cm-scene[data-theme="comedy"] .cm-sc-curtain { background: repeating-linear-gradient(90deg, #6E1022 0 12px, #A3213A 12px 22px, #560C1A 22px 30px); }
+.cm-sc-spot { left: 50%; bottom: -8%; width: 70%; height: 46%; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 238, 180, .55), rgba(255, 238, 180, 0) 70%); transform: translateX(-50%); animation: cm-sc-glow 3.2s ease-in-out infinite; }
+.cm-sc-valance { top: 0; left: 0; right: 0; height: 22px; background: radial-gradient(circle at 50% 0, #F2C14E 0 10px, transparent 11px) 0 8px / 24px 14px repeat-x, linear-gradient(#D69E2E, #D69E2E) top / 100% 9px no-repeat; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .35)); }
+.cm-sc-mic { left: 13%; bottom: 0; width: 46px; height: 150px; transform-origin: 50% 100%; animation: cm-sc-sway 4s ease-in-out infinite alternate; }
+.cm-sc-ha { color: #FFE066; font: 800 26px/1 "Instrument Serif", Georgia, serif; letter-spacing: .02em; text-shadow: 0 3px 0 rgba(120, 30, 20, .45), 0 0 16px rgba(255, 224, 102, .6); white-space: nowrap; }
+.cm-sc-ha:nth-child(2n) { color: #FFFFFF; }
+
+/* Photo stories: snapshots drifting by, a camera flash now and then, little glints. */
+.cm-scene[data-theme="photos"] { background: radial-gradient(70% 60% at 80% 10%, rgba(132, 220, 198, .35), transparent 62%), linear-gradient(160deg, #0D3A48 0%, #136274 50%, #1B8A8C 100%); }
+.cm-sc-polaroid-path { animation-name: cm-sc-drift; }
+.cm-sc-polaroid { display: block; width: 74px; height: 88px; padding: 7px 7px 20px; border-radius: 3px; background: #FFFDF7; box-shadow: 0 10px 22px rgba(0, 0, 0, .35); transform: rotate(var(--spin)); }
+.cm-sc-polaroid::before { content: ""; display: block; width: 100%; height: 100%; border-radius: 1px; background: var(--photo); }
+.cm-sc-flash { inset: 0; background: #FFFFFF; opacity: 0; animation: cm-sc-flash 7s ease-out infinite; }
+@keyframes cm-sc-flash { 0%, 90% { opacity: 0; } 91% { opacity: .32; } 100% { opacity: 0; } }
+.cm-sc-star { border-radius: 0; background: #FFFFFF; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); width: calc(10px * var(--s)); height: calc(10px * var(--s)); box-shadow: none; }
+
+/* ---------------------------------------------------------------- the feed's circle card */
+.cm-circle-card.has-scene { position: relative; overflow: hidden; isolation: isolate; }
+.cm-circle-card.has-scene > :not(.cm-scene) { position: relative; z-index: 1; }
+.cm-scene.is-mini .cm-sc-big, .cm-scene.is-mini .cm-sc-ball-x, .cm-scene.is-mini .cm-sc-trail { display: none; }
+.cm-scene.is-mini::after { background: linear-gradient(180deg, rgba(0, 0, 0, .3), rgba(0, 0, 0, .15) 50%, rgba(0, 0, 0, .4)); }
+
+/* "Coming up": each meeting's calendar page in its event's colour. */
+.cm-date-page[data-theme] > span { color: #FFFFFF; }
+.cm-date-page[data-theme="film"] > span { background: #8A2242; }
+.cm-date-page[data-theme="books"] > span { background: #8A5A2B; }
+.cm-date-page[data-theme="football"] > span { background: #1F7D3F; }
+.cm-date-page[data-theme="music"] > span { background: #8E1F70; }
+.cm-date-page[data-theme="quiz"] > span { background: #0F6E8C; }
+.cm-date-page[data-theme="travel"] > span { background: #D9734E; }
+.cm-date-page[data-theme="bake"] > span { background: #C2416B; }
+.cm-date-page[data-theme="garden"] > span { background: #2E7D45; }
+.cm-date-page[data-theme="comedy"] > span { background: #C2552B; }
+.cm-date-page[data-theme="photos"] > span { background: #136274; }
+
+@media (max-width: 760px) {
+  .cm-sc-vinyl { width: 220px; height: 220px; right: -90px; }
+  .cm-sc-cake { width: 110px; height: 120px; }
+  .cm-sc-curtain { width: 7%; }
+  .cm-sc-sun { width: 110px; height: 110px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-scene *, .cm-scene *::before, .cm-scene *::after { animation: none !important; }
+  .cm-sc-plane { display: none; }
+}

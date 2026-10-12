@@ -407,43 +407,23 @@ export const groupQuickReplies: { label: string; text: string; tone: QuickTone }
 /* ---------------------------------------------------------- Sunday circle */
 
 export type CircleSeat = PersonId | "alira" | "you";
+/**
+ * Who sits in the circle and how the teacup goes round. What the circle is about (its event: a film night, a
+ * book club, football together …), what everyone says and what comes up next are in circle-events.ts.
+ */
 export const circle = {
   /** The teacup moves on this often, unless it is with you. */
   everyMs: 3400,
-  topic: "What are you looking forward to this week?",
   /** Who speaks next. "you" is skipped until you have taken your seat. */
   order: ["alira", "margaret", "david", "priya", "tomasz", "you", "joan", "anne", "liwei", "samuel"] as CircleSeat[],
   /** Where each one sits: ten places round the circle, clockwise from the top. */
   seats: { alira: 0, david: 1, liwei: 2, tomasz: 3, priya: 4, you: 5, anne: 6, samuel: 7, margaret: 8, joan: 9 } as Record<CircleSeat, number>,
-  lines: {
-    alira: "Welcome, everyone. Let's go round. What are you looking forward to?",
-    margaret: "My granddaughter on Saturday. I am pouring the tea myself.",
-    david: "A longer walk with Biscuit. Maybe to the canal.",
-    priya: "Choir practice is back on Thursday!",
-    tomasz: "Honestly, just sleeping through the night.",
-    joan: "My sweet peas should flower any day now.",
-    anne: "Seeing my sister. She is driving up from Bath.",
-    liwei: "Making dumplings with my grandson.",
-    samuel: "Watching the football with my brother.",
-  } as Record<Exclude<CircleSeat, "you">, string>,
   /** Lines that send a little warmth floating up when they are said. */
   warmLines: ["margaret", "priya"] as CircleSeat[],
   hello: "Hello everyone. Glad to be here.",
-  /** Things to say about your week with one tap. You can also say it in your own words. */
-  shareChoices: ["Seeing my family.", "Getting outside for a bit.", "A good night's sleep."],
-  /**
-   * The circles coming up. Each meets every week on `day` (0 is Sunday) at `hour`, for `minutes`;
-   * "Add to calendar" puts the next one in the person's own calendar.
-   */
-  upcoming: [
-    { id: "hand", name: "Hand and arm circle", when: "Tuesday, 3 pm", detail: "Gentle stretches, together", day: 2, hour: 15, minutes: 45 },
-    { id: "words", name: "Finding words circle", when: "Thursday, 11 am", detail: "A slower pace, captions on", day: 4, hour: 11, minutes: 45 },
-    { id: "sunday", name: "Sunday circle", when: "Sunday, 4 pm", detail: "Hosted by Alira", day: 0, hour: 16, minutes: 60 },
-  ],
 };
 /** Every seat in the circle, the person's own included. */
 export const CIRCLE_SEATS = Object.keys(circle.seats).length;
-export const CIRCLE_IDS = circle.upcoming.map(item => item.id);
 
 /* ----------------------------------------------------------------- friends */
 

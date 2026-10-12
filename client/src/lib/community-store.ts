@@ -3,7 +3,6 @@ import {
   ALERT_IDS,
   BREAK_CHOICES,
   circle,
-  CIRCLE_IDS,
   communityAlerts,
   FEED_POST_IDS,
   FEELING_IDS,
@@ -54,6 +53,7 @@ import {
   type ThemeId,
 } from "@/content/community-samples";
 import { isDailyPostId } from "@/content/daily-questions";
+import { isCircleOccurrenceId } from "@/content/circle-events";
 
 // My community is a preview: the people in it are examples, and what a person does there stays
 // on this device. This file holds the address of each view, and the small record of what the
@@ -240,6 +240,7 @@ export type CommunityMemory = {
   waves: PersonId[];
   vote: string | null;
   seated: boolean;
+  /** Reminders asked for, for the circle's meetings coming up ("film-2026-10-14"). */
   reminders: string[];
   /** Suggested groups joined. */
   joined: SuggestedGroupId[];
@@ -279,7 +280,7 @@ export type CommunityMemory = {
   settings: CommunitySettings;
 };
 
-export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30, votes: 400, dailyDays: 14 } as const;
+export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30, votes: 400, dailyDays: 14, reminders: 20 } as const;
 
 /** A like or a dislike on a comment. */
 export type CommentVote = "like" | "dislike";
@@ -449,7 +450,7 @@ export function parseCommunityMemory(raw: string | null): CommunityMemory {
   memory.waves = strings(saved.waves, oneOf(PERSON_IDS));
   memory.vote = oneOf(POLL_OPTION_IDS)(saved.vote) ? saved.vote : null;
   memory.seated = saved.seated === true;
-  memory.reminders = strings(saved.reminders, oneOf(CIRCLE_IDS));
+  memory.reminders = strings(saved.reminders, isCircleOccurrenceId, LIMITS.reminders);
   memory.joined = strings(saved.joined, oneOf(SUGGESTED_GROUP_IDS));
   memory.read = strings(saved.read, oneOf(SAMPLE_GROUP_IDS));
 
@@ -617,7 +618,8 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
     leaveSeat: () => change(current => (current.seated ? { ...current, seated: false } : current)),
     /** True for a few seconds after the seat was taken, so the circle can welcome the person in. */
     justSeated: (now = Date.now()) => seatTakenAt > 0 && now - seatTakenAt < 4000,
-    toggleReminder: (id: string) => change(current => (CIRCLE_IDS.includes(id) ? { ...current, reminders: flip(current.reminders, id) } : current)),
+    /** A reminder for one of the circle's meetings coming up ("film-2026-10-14"). */
+    toggleReminder: (id: string) => change(current => (isCircleOccurrenceId(id) ? { ...current, reminders: flip(current.reminders, id).slice(-LIMITS.reminders) } : current)),
     toggleJoined: (id: SuggestedGroupId) => change(current => ({ ...current, joined: flip(current.joined, id) })),
     toggleChallenge: (groupId: string) => change(current => ({ ...current, challenges: flip(current.challenges, groupId) })),
     markRead: (id: string) => change(current => (oneOf(SAMPLE_GROUP_IDS)(id) && !current.read.includes(id) ? { ...current, read: [...current.read, id] } : current)),

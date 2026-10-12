@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "wouter";
-import { circle, CIRCLE_SEATS, feedPosts, feelings, friendSuggestions, isPersonId, lounge, members, PERSON_IDS, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SampleGroup, type SamplePost } from "@/content/community-samples";
+import { circleNow } from "@/content/circle-events";
+import { CIRCLE_SEATS, feedPosts, feelings, friendSuggestions, isPersonId, lounge, members, PERSON_IDS, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SampleGroup, type SamplePost } from "@/content/community-samples";
 import { dailyQuestion } from "@/content/daily-questions";
 import {
   canSee,
@@ -22,6 +23,7 @@ import {
   type OwnPost,
   type PostVisibility,
 } from "@/lib/community-store";
+import CircleScene from "./CircleScene";
 import { coverForTheme, lastLine, myGroups } from "./group-model";
 import { useVoiceNote, voiceSeconds } from "./hooks";
 import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, HeartPulseIcon, LockIcon, MicIcon, PhotoIcon, PlusIcon, PulseIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, ThumbDownIcon, UsersIcon } from "./icons";
@@ -498,12 +500,15 @@ function LoungeCard({ here }: { here: number }) {
 function CircleCard({ seated, memory }: { seated: boolean; memory: CommunityMemory }) {
   const titleId = useId();
   const taken = circleSeatsTaken(memory);
+  // Today's get-together, with a little of its scene behind the card.
+  const [today] = useState(() => circleNow());
   return (
-    <section className="cm-circle-card cm-rise-3" aria-labelledby={titleId}>
+    <section className="cm-circle-card has-scene cm-rise-3" aria-labelledby={titleId}>
+      <CircleScene theme={today.event.id} mini />
       <p className="cm-circle-card-over"><LiveDot /><span>Live now · Hosted by Alira</span></p>
       <div className="cm-circle-card-text">
-        <h3 id={titleId}>Sunday circle</h3>
-        <p>{circle.topic}</p>
+        <h3 id={titleId}>{`Sunday circle: ${today.event.name}`}</h3>
+        <p>{today.event.topic}</p>
       </div>
       <div className="cm-seat-meter">
         <span className="cm-seat-bar" role="progressbar" aria-label="Seats taken" aria-valuemin={0} aria-valuemax={CIRCLE_SEATS} aria-valuenow={taken} aria-valuetext={`${taken} of ${CIRCLE_SEATS} seats taken`}>

@@ -218,7 +218,7 @@ describe("loading what was saved", () => {
       waves: "tomasz",
       vote: "whisky",
       seated: "yes",
-      reminders: ["words", "midnight"],
+      reminders: ["film-2026-10-08", "words", "midnight-2026-10-08"],
       joined: ["knit", "garden"],
       read: ["garden", "knit"],
       challenges: ["walk", "mine-gone", "book"],
@@ -247,7 +247,7 @@ describe("loading what was saved", () => {
     expect(memory.waves).toEqual([]);
     expect(memory.vote).toBeNull();
     expect(memory.seated).toBe(false);
-    expect(memory.reminders).toEqual(["words"]);
+    expect(memory.reminders).toEqual(["film-2026-10-08"]);
     expect(memory.joined).toEqual(["knit"]);
     expect(memory.read).toEqual(["garden"]);
     expect(memory.started.map(group => group.id)).toEqual(["mine-one", "mine-four"]);
@@ -470,9 +470,10 @@ describe("what the person writes", () => {
     expect(store.justSeated(NOW)).toBe(false);
     store.takeSeat();
     expect(store.justSeated()).toBe(true);
-    store.toggleReminder("words");
+    store.toggleReminder("books-2026-10-10");
     store.toggleReminder("never");
-    expect(createCommunityStore(() => storage).load()).toMatchObject({ seated: true, reminders: ["words"] });
+    store.toggleReminder("words");
+    expect(createCommunityStore(() => storage).load()).toMatchObject({ seated: true, reminders: ["books-2026-10-10"] });
   });
 });
 
