@@ -65,16 +65,6 @@ function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
 /** A small count on a toolbar button. The button's own label says it in words. */
 const ToolBadge = ({ count }: { count: number }) => (count > 0 ? <span className="cm-tool-badge cm-pop" aria-hidden="true">{count}</span> : null);
 
-/** The line drawn faintly across the header: hills, or a pulse, rising out of the tab row. */
-function HeaderArt() {
-  return (
-    <svg className="cm-head-art" viewBox="0 0 1200 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">
-      <path d="M0 172H600L700 38 812 252 884 92 952 172H1200" vectorEffect="non-scaling-stroke" />
-      <path d="M560 172 700 38" vectorEffect="non-scaling-stroke" opacity=".5" />
-    </svg>
-  );
-}
-
 export type CommunityHeaderProps = {
   view: CommunityView;
   /** How many are in the lounge, for its tab and the line under the title. */
@@ -110,7 +100,6 @@ export default function CommunityHeader({ view, here, findOpen, alertsOpen, onFi
 
   return (
     <header className="cm-head">
-      <HeaderArt />
       <div className="cm-head-row">
         <div className="cm-head-titles">
           <h1 className="cm-title" tabIndex={-1} data-page-heading>My community</h1>

@@ -1,9 +1,11 @@
 import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "wouter";
 import { circle, CIRCLE_SEATS, feedPosts, feelings, friendSuggestions, isPersonId, lounge, members, PERSON_IDS, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SampleGroup, type SamplePost } from "@/content/community-samples";
+import { dailyQuestion } from "@/content/daily-questions";
 import {
   canSee,
   circleSeatsTaken,
+  commentKey,
   communityHref,
   communityStore,
   friendList,
@@ -22,7 +24,7 @@ import {
 } from "@/lib/community-store";
 import { coverForTheme, lastLine, myGroups } from "./group-model";
 import { useVoiceNote, voiceSeconds } from "./hooks";
-import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, LockIcon, MicIcon, PhotoIcon, PlusIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, UsersIcon } from "./icons";
+import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, HeartPulseIcon, LockIcon, MicIcon, PhotoIcon, PlusIcon, PulseIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, ThumbDownIcon, UsersIcon } from "./icons";
 import { Cover, Face, FriendButton, LiveDot, MemberFace, MyFace, ReactionButton, VoiceNote } from "./parts";
 import { postsAudience } from "./settings-model";
 
@@ -225,50 +227,135 @@ export function OwnPostCard({ post, name }: { post: OwnPost; name: string }) {
       <PostTags win={post.win} feeling={post.feeling} />
       {post.voice ? <VoiceNote words={post.text} label="your voice note" wordsClassName="cm-post-text" /> : post.text && <p className="cm-post-text">{post.text}</p>}
       {post.photo && <img className="cm-post-photo is-own" src={post.photo} alt="Your photo" />}
+      <CommentSection postId={post.id} label="your post" />
     </article>
   );
 }
 
-function Thread({ post, id }: { post: SamplePost; id: string }) {
+/* --------------------------------------------------------------- comments */
+
+/** An example comment's likes from other people (a small number of its own, the same every visit). */
+function sampleLikes(text: string): number {
+  let hash = 0;
+  for (const letter of text) hash = (hash * 31 + letter.charCodeAt(0)) >>> 0;
+  return 1 + (hash % 7);
+}
+
+/**
+ * Rehyn's like (a heart with the pulse of the Rehyn mark through it) and a dislike, under each comment. One
+ * of the two at a time; the same one again takes it back. `base` is the likes from other people.
+ */
+function CommentVotes({ voteKey, base, whose }: { voteKey: string; base: number; whose: string }) {
   const memory = useCommunity();
-  const replies = memory.replies[post.id] ?? [];
+  const mine = memory.commentVotes[voteKey] ?? null;
+  const counts = memory.settings.showHeartCounts;
+  const likes = base + (mine === "like" ? 1 : 0);
+  const dislikes = mine === "dislike" ? 1 : 0;
+  const said = (count: number, what: string) => (counts ? `, ${count} ${what}${count === 1 ? "" : "s"}` : "");
+  return (
+    <span className="cm-votes" role="group" aria-label={`Like or dislike ${whose} comment`}>
+      <button type="button" className={`cm-vote cm-vote-like ${mine === "like" ? "is-on" : ""}`} aria-pressed={mine === "like"}
+        aria-label={`Like ${whose} comment${said(likes, "like")}`} onClick={() => communityStore.voteComment(voteKey, "like")}>
+        <HeartPulseIcon size={19} on={mine === "like"} />{counts && likes > 0 && <span aria-hidden="true">{likes}</span>}
+      </button>
+      <button type="button" className={`cm-vote cm-vote-dislike ${mine === "dislike" ? "is-on" : ""}`} aria-pressed={mine === "dislike"}
+        aria-label={`Dislike ${whose} comment${said(dislikes, "dislike")}`} onClick={() => communityStore.voteComment(voteKey, "dislike")}>
+        <ThumbDownIcon size={17} on={mine === "dislike"} />{counts && dislikes > 0 && <span aria-hidden="true">{dislikes}</span>}
+      </button>
+    </span>
+  );
+}
+
+/** How many comments a long thread shows before "View all". */
+const SHOWN_COMMENTS = 2;
+
+/**
+ * A post's comments, always open under it (no "Comment" button to press first): the comments, each with a like
+ * and a dislike, the quick replies, and "Write a comment". A long thread shows its latest comments, with
+ * "View all" for the rest. `samples` are an example post's comments; the person's own come after them.
+ */
+function CommentSection({ postId, samples = [], label, quickReplies = [], emptyLine }: {
+  postId: string;
+  samples?: SamplePost["comments"];
+  /** Whose post it is, for a screen reader: "Margaret's post", "your post", "today's question". */
+  label: string;
+  quickReplies?: string[];
+  emptyLine?: string;
+}) {
+  const memory = useCommunity();
+  const replies = memory.replies[postId] ?? [];
   const [text, setText] = useState("");
   const [status, setStatus] = useState("");
-  const name = members[post.who].name;
+  const [all, setAll] = useState(false);
+  const listId = useId();
+  const items = [
+    ...samples.map((comment, index) => ({ comment, index })).filter(({ comment }) => canSee(memory, comment.who))
+      .map(({ comment, index }) => ({ id: `c${index}`, who: comment.who as PersonId | null, text: comment.text, base: sampleLikes(comment.text), mine: false })),
+    ...replies.map(reply => ({ id: reply.id, who: null, text: reply.text, base: 0, mine: true })),
+  ];
+  const tucked = all ? 0 : Math.max(0, items.length - SHOWN_COMMENTS);
   const reply = (words: string) => {
-    if (communityStore.addReply(post.id, { text: words })) { setText(""); setStatus("Reply added."); }
+    if (communityStore.addReply(postId, { text: words })) { setText(""); setStatus("Comment added."); }
   };
   return (
-    <div className="cm-thread" id={id}>
-      <ul className="cm-comments">
-        {post.comments.filter(comment => canSee(memory, comment.who)).map((comment, index) => (
-          <li key={index} className="cm-comment">
-            <Face who={comment.who} size={34} />
-            <p><strong>{people[comment.who].name}</strong> {comment.text}</p>
-          </li>
-        ))}
-        {replies.map(item => (
-          <li key={item.id} className="cm-comment is-mine cm-msg-in">
-            <MyFace size={34} />
-            <div>
-              <p><strong>You</strong> {item.text}</p>
-              <span className="cm-mine-foot"><button type="button" className="cm-text-button" onClick={() => communityStore.removeReply(post.id, item.id)}>Remove<span className="cm-sr"> your reply</span></button></span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className="cm-quick-row" role="group" aria-label={`Quick replies to ${name}`}>
-        {post.quickReplies.map(words => <button key={words} type="button" className="cm-quick cm-quick-mint" onClick={() => reply(words)}>{words}</button>)}
-      </div>
+    <div className="cm-thread">
+      {tucked > 0 && <button type="button" className="cm-view-all" aria-controls={listId} onClick={() => setAll(true)}>{`View all ${items.length} comments`}</button>}
+      {items.length > 0 ? (
+        <ul className="cm-comments" id={listId} aria-label={`Comments on ${label}`}>
+          {items.slice(tucked).map(item => {
+            const name = item.who ? people[item.who].name : "You";
+            return (
+              <li key={item.id} className={`cm-comment ${item.mine ? "is-mine cm-msg-in" : ""}`}>
+                {item.who ? <Face who={item.who} size={34} /> : <MyFace size={34} />}
+                <div className="cm-comment-body">
+                  <p><strong>{name}</strong> {item.text}</p>
+                  <span className="cm-comment-foot">
+                    <CommentVotes voteKey={commentKey(postId, item.id)} base={item.base} whose={item.who ? `${name}'s` : "your"} />
+                    {item.mine && <button type="button" className="cm-text-button" onClick={() => communityStore.removeReply(postId, item.id)}>Remove<span className="cm-sr"> your comment</span></button>}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : emptyLine ? <p className="cm-comments-empty">{emptyLine}</p> : null}
+      {quickReplies.length > 0 && (
+        <div className="cm-quick-row" role="group" aria-label={`Quick comments on ${label}`}>
+          {quickReplies.map(words => <button key={words} type="button" className="cm-quick cm-quick-mint" onClick={() => reply(words)}>{words}</button>)}
+        </div>
+      )}
       <form className="cm-reply" onSubmit={event => { event.preventDefault(); if (text.trim()) reply(text); }}>
+        <MyFace size={34} />
         <label className="cm-chat-field">
-          <span className="cm-sr">{`Write a reply to ${name}`}</span>
-          <input type="text" value={text} maxLength={400} placeholder="Write a reply" autoComplete="off" onChange={event => setText(event.target.value)} />
+          <span className="cm-sr">{`Write a comment on ${label}`}</span>
+          <input type="text" value={text} maxLength={400} placeholder="Write a comment" autoComplete="off" onChange={event => setText(event.target.value)} />
         </label>
-        <button type="submit" className="cm-round cm-round-send cm-round-small" aria-label="Send reply"><ArrowIcon size={20} /></button>
+        <button type="submit" className="cm-round cm-round-send cm-round-small" aria-label="Post comment"><ArrowIcon size={20} /></button>
       </form>
       <p className="cm-status" role="status">{status}</p>
     </div>
+  );
+}
+
+/**
+ * The Daily question, at the top of the feed: one question a day from Rehyn, the same for everyone, answered
+ * and talked about in the comments under it. It changes at midnight.
+ */
+function DailyQuestionCard() {
+  const [today] = useState(() => dailyQuestion());
+  const headingId = useId();
+  return (
+    <article className="cm-card cm-post cm-daily cm-rise" aria-labelledby={headingId}>
+      <header className="cm-post-head">
+        <span className="cm-daily-mark" aria-hidden="true"><PulseIcon size={24} /></span>
+        <div className="cm-post-who">
+          <p className="cm-daily-eyebrow">Daily question</p>
+          <p className="cm-post-meta">{`From Rehyn · ${today.dateLabel}`}</p>
+        </div>
+      </header>
+      <h3 className="cm-daily-question" id={headingId}>{today.question}</h3>
+      <CommentSection postId={today.id} label="today's question" emptyLine="Be the first to answer, then see what everyone else says." />
+    </article>
   );
 }
 
@@ -289,16 +376,13 @@ function ListenButton({ text, name }: { text: string; name: string }) {
 function SamplePostCard({ post, rise, onMore, acting }: { post: SamplePost; rise: string; onMore: OpenSafetyMenu; acting: boolean }) {
   const memory = useCommunity();
   const replies = memory.replies[post.id] ?? [];
-  const [open, setOpen] = useState(false);
   // Gentle mode covers a sad or upsetting post until it is shown, for this visit.
   const [uncovered, setUncovered] = useState(false);
   const headingId = useId();
-  const threadId = useId();
   const person = members[post.who];
   const group = post.group ? sampleGroups.find(item => item.id === post.group) : undefined;
   const comments = post.comments.filter(comment => canSee(memory, comment.who));
   const count = comments.length + replies.length;
-  const last = comments[comments.length - 1];
   const covered = !!post.gentle && memory.settings.gentleMode && !uncovered;
   const quiet = post.reactions.length === 0 && post.quickReplies.length === 0;
   return (
@@ -337,18 +421,10 @@ function SamplePostCard({ post, rise, onMore, acting }: { post: SamplePost; rise
           {!quiet && (
             <div className="cm-reactions">
               {post.reactions.map(item => <ReactionButton key={item.kind} postId={post.id} kind={item.kind} count={item.count} />)}
-              <button type="button" className="cm-comments-toggle" aria-expanded={open} aria-controls={threadId} onClick={() => setOpen(!open)}>
-                <ChatIcon /><span>{count}</span><span className="cm-sr"> comments</span>
-              </button>
+              <span className="cm-comment-count"><ChatIcon /><span>{`${count} ${count === 1 ? "comment" : "comments"}`}</span></span>
             </div>
           )}
-          {!open && post.peek && last && (
-            <div className="cm-comment cm-comment-peek">
-              <Face who={last.who} size={34} />
-              <p><strong>{people[last.who].name}</strong> {last.text}</p>
-            </div>
-          )}
-          {open && <Thread post={post} id={threadId} />}
+          <CommentSection postId={post.id} samples={post.comments} label={`${person.name}'s post`} quickReplies={post.quickReplies} />
         </>
       )}
     </article>
@@ -534,6 +610,7 @@ export default function FeedView({ name, here, onMore, openPostId = null }: { na
       <div className="cm-lane">
         <h2 className="cm-sr">Feed</h2>
         <PostComposer name={name} />
+        <DailyQuestionCard />
         {memory.posts.map(post => <OwnPostCard key={post.id} post={post} name={name} />)}
         {seen.map(({ post, state }) => {
           if (shown(state)) return <SamplePostCard key={post.id} post={post} onMore={onMore} acting={openPostId === post.id} rise={["cm-rise-2", "cm-rise-3", "cm-rise-4"][rise++] ?? "cm-rise-4"} />;

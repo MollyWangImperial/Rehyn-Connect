@@ -9,17 +9,15 @@ import { chatById, directChats, useChatVisit } from "./messages-model";
 import { Face } from "./parts";
 
 /**
- * The little Messages window at the bottom of each community page. It shows itself when a friend's
- * message is waiting, with who it is from and the start of it; opened, it is a small chat (or the
- * list of conversations), so a reply needs no trip to the Messages tab. It stays out of the way on
- * Messages itself, while a group is being started, and (until it is opened) during quiet time.
+ * The little Messages window floating at the bottom right of each community page, always there: with a
+ * friend's message waiting, who it is from and the start of it. Opened, it is a small chat (or the list
+ * of conversations), so a reply needs no trip to the Messages tab. It stays out of the way on Messages
+ * itself and while a group is being started; during quiet time it shows no count.
  */
 export default function MessagesDock({ space }: { space: CommunitySpace }) {
   const memory = useCommunity();
   const visit = useChatVisit();
   const [open, setOpen] = useState(false);
-  // Once opened in this visit, it stays, so it can be opened again after everything is read.
-  const [used, setUsed] = useState(false);
   const [chatId, setChatId] = useState<PersonId | null>(null);
   const bar = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -40,9 +38,10 @@ export default function MessagesDock({ space }: { space: CommunitySpace }) {
   // Whatever the window shows next, its heading takes the focus, so a keyboard carries on from there.
   useEffect(() => { if (open) window.requestAnimationFrame(() => heading.current?.focus()); }, [open, chatId]);
 
-  if (away || (!open && !used && (unread === 0 || alertsQuiet(memory.settings)))) return null;
+  if (away) return null;
+  const quiet = alertsQuiet(memory.settings);
 
-  const expand = () => { setChatId(waiting[0]?.id ?? null); setOpen(true); setUsed(true); };
+  const expand = () => { setChatId(waiting[0]?.id ?? null); setOpen(true); };
   const collapse = () => { setOpen(false); window.requestAnimationFrame(() => bar.current?.focus()); };
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => { if (event.key === "Escape") { event.preventDefault(); collapse(); } };
   const newest = waiting[0] ?? null;
@@ -53,8 +52,8 @@ export default function MessagesDock({ space }: { space: CommunitySpace }) {
       <button ref={bar} type="button" className="cm-dock-bar cm-rise" aria-expanded={false} aria-controls={panelId} onClick={expand}>
         <span className="cm-face-stack cm-dock-faces" aria-hidden="true">{faces.map(item => <Face key={item.id} who={item.id} size={34} />)}</span>
         <span className="cm-dock-text">
-          <span className="cm-dock-title"><b>Messages</b>{unread > 0 && <span className="cm-dock-count">{`${unread} unread`}</span>}</span>
-          <span className="cm-dock-snippet">{newest ? `${newest.name}: ${newest.snippet}` : "No new messages"}</span>
+          <span className="cm-dock-title"><b>Messages</b>{unread > 0 && !quiet && <span className="cm-dock-count">{`${unread} unread`}</span>}</span>
+          <span className="cm-dock-snippet">{quiet ? "Quiet time: your messages wait here" : newest ? `${newest.name}: ${newest.snippet}` : "No new messages"}</span>
         </span>
         <span className="cm-dock-chevron" aria-hidden="true"><ChevronUpIcon size={18} /></span>
       </button>

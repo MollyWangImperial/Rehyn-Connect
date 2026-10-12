@@ -15,6 +15,20 @@ function Icon({ size = 20, className, fill = "none", stroke = "currentColor", st
 }
 
 export const HeartIcon = (props: IconProps) => <Icon {...props}><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></Icon>;
+/** Rehyn's own "like": a heart with the pulse of the Rehyn mark through it, filled when it is on. */
+export const HeartPulseIcon = ({ on = false, ...props }: IconProps & { on?: boolean }) => (
+  <Icon {...props}>
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill={on ? "currentColor" : "none"} fillOpacity={on ? 0.2 : undefined} />
+    <path d="M7.4 12.2h2.1l1.2-2.4 1.9 4.4 1.2-2h2.8" strokeWidth={1.6} />
+  </Icon>
+);
+/** "Not for me": a thumb turned down, filled when it is on. */
+export const ThumbDownIcon = ({ on = false, ...props }: IconProps & { on?: boolean }) => (
+  <Icon {...props}>
+    <path d="M17 14V4h2.5A1.5 1.5 0 0 1 21 5.5v7a1.5 1.5 0 0 1-1.5 1.5z" fill={on ? "currentColor" : "none"} fillOpacity={on ? 0.2 : undefined} />
+    <path d="M17 14l-3.6 6.2a1.9 1.9 0 0 1-3.4-1.4l.8-3.8H5.5a2 2 0 0 1-2-2.4l1.3-6A2.4 2.4 0 0 1 7.2 4.7H17" fill={on ? "currentColor" : "none"} fillOpacity={on ? 0.2 : undefined} />
+  </Icon>
+);
 export const StarIcon = (props: IconProps) => <Icon {...props}><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z" /></Icon>;
 export const HandIcon = (props: IconProps) => <Icon {...props}><path d="M7 11V6a1.5 1.5 0 0 1 3 0v4m0-5.5a1.5 1.5 0 0 1 3 0V10m0-4a1.5 1.5 0 0 1 3 0v5m0-2.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14a1.5 1.5 0 0 1 2.5-1.6L7 13.5" /></Icon>;
 export const ChatIcon = (props: IconProps) => <Icon {...props}><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" /></Icon>;

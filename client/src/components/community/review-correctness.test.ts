@@ -136,13 +136,15 @@ describe("Messages, the Messages window and Friends", () => {
     expect(text).toContain("Change who can message you");
   });
 
-  it("shows the Messages window while a message waits, and leaves it away once everything is read", () => {
-    const dock = (space: "feed" | "messages") => render("/community", createElement(MessagesDock, { space }));
+  it("keeps the Messages window at the bottom right of each page: who wrote while a message waits, and still there once everything is read", () => {
+    const dock = (space: "feed" | "messages" | "start") => render("/community", createElement(MessagesDock, { space }));
     expect(dock("feed")).toContain("Messages 2 unread Margaret: I promised you one");
     expect(dock("messages")).toBe("");
+    expect(dock("start")).toBe("");
     store.markChatRead("margaret");
     store.markChatRead("david");
-    expect(dock("feed")).toBe("");
+    expect(dock("feed")).toContain("Messages No new messages");
+    expect(dock("feed")).not.toContain("unread");
   });
 
   it("Friends: each privacy choice shows what is chosen, and what it means", () => {

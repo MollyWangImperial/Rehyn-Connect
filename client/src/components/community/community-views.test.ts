@@ -30,7 +30,15 @@ describe("My community views", () => {
     expect(tagWith(html, "button", 'aria-label="Play Priya&#x27;s voice note, 12 seconds"')).toBe(true);
     expect(text).toContain("Words Sang the whole chorus");
     expect(tagWith(html, "button", 'class="cm-react cm-tone-love "', 'aria-pressed="false"')).toBe(true);
-    expect(tagWith(html, "button", 'aria-expanded="false"', 'class="cm-comments-toggle"')).toBe(true);
+    // Comments are open under every post, with "Write a comment" (no button to open them first), and the Daily question.
+    expect(html).not.toContain("cm-comments-toggle");
+    // Margaret's post shows its two latest comments, the rest behind "View all".
+    expect(text).toContain("David Save me one, Margaret.");
+    expect(text).not.toContain("Joan Left hand doing the picking!");
+    expect(text).toContain("View all 6 comments");
+    expect((html.match(/placeholder="Write a comment"/g) ?? []).length).toBeGreaterThanOrEqual(4);
+    expect(text).toContain("Daily question");
+    expect(text).toContain("From Rehyn");
     expect(text).toContain("Take your seat");
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=walk"')).toBe(true);

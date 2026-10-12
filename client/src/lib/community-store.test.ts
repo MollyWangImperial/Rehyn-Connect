@@ -12,6 +12,7 @@ import {
   clockLabel,
   cleanHiddenWord,
   COMMUNITY_KEY,
+  commentKey,
   communityHref,
   communityViewFromQuery,
   createCommunityStore,
@@ -59,6 +60,67 @@ function memoryStorage(initial?: string) {
 }
 const saved = (storage: ReturnType<typeof memoryStorage>) => JSON.parse(storage.values.get(COMMUNITY_KEY) ?? "null");
 const NOW = Date.UTC(2026, 9, 6, 10, 0);
+
+describe("comments under every post, and their likes", () => {
+  it("takes comments under the example posts, the person's own posts and the Daily question, and keeps them", () => {
+    const storage = memoryStorage();
+    const store = createCommunityStore(() => storage);
+    const post = store.addPost({ text: "Walked to the post box today." }, NOW)!;
+    expect(store.addReply(post.id, { text: "And back again!" }, NOW)).not.toBeNull();
+    expect(store.addReply("daily-2026-10-12", { text: "Que Sera, Sera" }, NOW)).not.toBeNull();
+    expect(store.addReply(feedPosts[1].id, { text: "Lovely!" }, NOW)).not.toBeNull();
+    expect(store.addReply("not-a-post", { text: "Hello" }, NOW)).toBeNull();
+    const again = createCommunityStore(() => storage).load();
+    expect(again.replies[post.id].map(reply => reply.text)).toEqual(["And back again!"]);
+    expect(again.replies["daily-2026-10-12"].map(reply => reply.text)).toEqual(["Que Sera, Sera"]);
+    expect(Object.keys(again.replies)).toHaveLength(3);
+  });
+
+  it("likes or dislikes a comment, one at a time, and the same choice again takes it back", () => {
+    const storage = memoryStorage();
+    const store = createCommunityStore(() => storage);
+    const key = commentKey("p-margaret", "c2");
+    store.voteComment(key, "like");
+    expect(store.load().commentVotes).toEqual({ [key]: "like" });
+    store.voteComment(key, "dislike");
+    expect(store.load().commentVotes).toEqual({ [key]: "dislike" });
+    expect(createCommunityStore(() => storage).load().commentVotes).toEqual({ [key]: "dislike" });
+    store.voteComment(key, "dislike");
+    expect(store.load().commentVotes).toEqual({});
+    store.voteComment("no slash", "like");
+    store.voteComment(commentKey("p-margaret", "c1"), "love" as never);
+    expect(store.load().commentVotes).toEqual({});
+  });
+
+  it("removes a post's comments and their likes with it, and a comment's like with the comment", () => {
+    const store = createCommunityStore(() => memoryStorage());
+    const post = store.addPost({ text: "Tea in the garden." }, NOW)!;
+    const reply = store.addReply(post.id, { text: "Lovely." }, NOW)!;
+    store.voteComment(commentKey(post.id, reply.id), "like");
+    const other = store.addReply(feedPosts[1].id, { text: "Well done!" }, NOW)!;
+    store.voteComment(commentKey(feedPosts[1].id, other.id), "like");
+    store.removePost(post.id);
+    expect(store.load().replies[post.id]).toBeUndefined();
+    expect(Object.keys(store.load().commentVotes)).toEqual([commentKey(feedPosts[1].id, other.id)]);
+    store.removeReply(feedPosts[1].id, other.id);
+    expect(store.load().commentVotes).toEqual({});
+  });
+
+  it("reads back only known comments and likes, and the Daily questions' answers for the latest days", () => {
+    const days = Array.from({ length: 20 }, (_, i) => `daily-2026-09-${String(i + 1).padStart(2, "0")}`);
+    const note = (id: string) => [{ id, text: "Hello", createdAt: NOW }];
+    const memory = parseCommunityMemory(JSON.stringify({
+      replies: { ...Object.fromEntries(days.map(day => [day, note("reply-a")])), "made-up": note("reply-b"), "p-margaret": note("reply-c") },
+      commentVotes: { "p-margaret/c1": "like", "p-joan/reply-x": "dislike", "bad key": "like", "p-anne/c0": "meh" },
+    }));
+    const daily = Object.keys(memory.replies).filter(key => key.startsWith("daily-")).sort();
+    expect(daily).toHaveLength(14);
+    expect(daily[0]).toBe("daily-2026-09-07");
+    expect(memory.replies["made-up"]).toBeUndefined();
+    expect(memory.replies["p-margaret"]).toHaveLength(1);
+    expect(memory.commentVotes).toEqual({ "p-margaret/c1": "like", "p-joan/reply-x": "dislike" });
+  });
+});
 
 describe("My community addresses", () => {
   it("reads each view from the query string and builds links back to it", () => {

@@ -53,6 +53,7 @@ import {
   type TextSize,
   type ThemeId,
 } from "@/content/community-samples";
+import { isDailyPostId } from "@/content/daily-questions";
 
 // My community is a preview: the people in it are examples, and what a person does there stays
 // on this device. This file holds the address of each view, and the small record of what the
@@ -248,7 +249,10 @@ export type CommunityMemory = {
   read: SampleGroupId[];
   started: StartedGroup[];
   posts: OwnPost[];
+  /** Comments the person wrote, under each post: the example posts, their own posts and the Daily questions. */
   replies: Record<string, OwnNote[]>;
+  /** The person's like or dislike on each comment, by `commentKey(postId, commentId)`. */
+  commentVotes: Record<string, CommentVote>;
   messages: Record<string, OwnNote[]>;
   /** Messages the person wrote to each friend, newest last. */
   direct: Record<string, OwnNote[]>;
@@ -275,11 +279,24 @@ export type CommunityMemory = {
   settings: CommunitySettings;
 };
 
-export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30 } as const;
+export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30, votes: 400, dailyDays: 14 } as const;
+
+/** A like or a dislike on a comment. */
+export type CommentVote = "like" | "dislike";
+/** A comment's key for its vote: the post, then the comment ("p-margaret/c2", "post-…/reply-…", "daily-2026-10-12/reply-…"). */
+export const commentKey = (postId: string, commentId: string) => `${postId}/${commentId}`;
+const isCommentKey = (value: unknown): value is string => {
+  if (typeof value !== "string") return false;
+  const [post, comment, extra] = value.split("/");
+  return extra === undefined && ID.test(post ?? "") && ID.test(comment ?? "");
+};
+/** Whether comments can be written under this post: an example post, one of the person's own, or a Daily question. */
+export const canComment = (memory: CommunityMemory, postId: string) =>
+  FEED_POST_IDS.includes(postId) || isDailyPostId(postId) || memory.posts.some(post => post.id === postId);
 
 export function blankCommunityMemory(): CommunityMemory {
   return {
-    reactions: [], hearts: [], friends: [], waves: [], vote: null, seated: false, reminders: [], joined: [], challenges: [], read: [], started: [], posts: [], replies: {}, messages: {},
+    reactions: [], hearts: [], friends: [], waves: [], vote: null, seated: false, reminders: [], joined: [], challenges: [], read: [], started: [], posts: [], replies: {}, commentVotes: {}, messages: {},
     direct: {}, chatsRead: [], chatsMuted: [],
     answers: {}, cancelled: [], sentAt: {}, blocks: {}, muted: {}, hiddenPosts: {}, reports: [], seenAlerts: [], settings: defaultCommunitySettings(),
   };
@@ -445,7 +462,6 @@ export function parseCommunityMemory(raw: string | null): CommunityMemory {
   const groupIds: string[] = [...SAMPLE_GROUP_IDS, ...SUGGESTED_GROUP_IDS, ...memory.started.map(group => group.id)];
   memory.challenges = strings(saved.challenges, (value): value is string => isId(value) && groupIds.includes(value));
   memory.messages = notesByKey(saved.messages, key => groupIds.includes(key));
-  memory.replies = notesByKey(saved.replies, key => FEED_POST_IDS.includes(key));
   memory.direct = notesByKey(saved.direct, key => (PERSON_IDS as string[]).includes(key));
   memory.chatsRead = strings(saved.chatsRead, oneOf(PERSON_IDS));
   memory.chatsMuted = strings(saved.chatsMuted, oneOf(PERSON_IDS));
@@ -456,6 +472,17 @@ export function parseCommunityMemory(raw: string | null): CommunityMemory {
       if (post && !memory.posts.some(other => other.id === post.id)) memory.posts.push(post);
     });
     memory.posts = memory.posts.slice(0, LIMITS.posts);
+  }
+  // Comments under the posts kept (after the person's own posts, which can have comments too). The Daily questions'
+  // answers are kept for the most recent days only.
+  memory.replies = notesByKey(saved.replies, key => canComment(memory, key));
+  Object.keys(memory.replies).filter(isDailyPostId).sort().reverse().slice(LIMITS.dailyDays).forEach(key => { delete memory.replies[key]; });
+  if (isObject(saved.commentVotes)) {
+    const votes = saved.commentVotes;
+    Object.keys(votes).forEach(key => {
+      const vote = votes[key];
+      if (isCommentKey(key) && (vote === "like" || vote === "dislike") && Object.keys(memory.commentVotes).length < LIMITS.votes) memory.commentVotes[key] = vote;
+    });
   }
 
   if (isObject(saved.answers)) {
@@ -627,10 +654,18 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
       change(current => ({ ...current, posts: [post, ...current.posts].slice(0, LIMITS.posts) }));
       return post;
     },
-    removePost: (id: string) => change(current => (current.posts.some(post => post.id === id) ? { ...current, posts: current.posts.filter(post => post.id !== id) } : current)),
+    /** Removing a post removes the comments under it, and the likes on them, too. */
+    removePost: (id: string) => change(current => {
+      if (!current.posts.some(post => post.id === id)) return current;
+      const replies = { ...current.replies };
+      delete replies[id];
+      const commentVotes = Object.fromEntries(Object.entries(current.commentVotes).filter(([key]) => !key.startsWith(`${id}/`)));
+      return { ...current, posts: current.posts.filter(post => post.id !== id), replies, commentVotes };
+    }),
 
+    /** A comment under a post: an example post, one of the person's own, or a Daily question. */
     addReply(postId: string, draft: NoteDraft, now = Date.now()): OwnNote | null {
-      if (!FEED_POST_IDS.includes(postId)) return null;
+      if (!canComment(load(), postId)) return null;
       const reply = note(draft, now, "reply");
       if (!reply) return null;
       change(current => ({ ...current, replies: { ...current.replies, [postId]: [...(current.replies[postId] ?? []), reply].slice(-LIMITS.notes) } }));
@@ -640,7 +675,23 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
       const kept = (current.replies[postId] ?? []).filter(reply => reply.id !== id);
       const replies = { ...current.replies };
       if (kept.length) replies[postId] = kept; else delete replies[postId];
-      return { ...current, replies };
+      const commentVotes = { ...current.commentVotes };
+      delete commentVotes[commentKey(postId, id)];
+      return { ...current, replies, commentVotes };
+    }),
+    /** Likes or dislikes a comment; the same choice again takes it back. */
+    voteComment: (key: string, vote: CommentVote) => change(current => {
+      if (!isCommentKey(key) || (vote !== "like" && vote !== "dislike")) return current;
+      const commentVotes = { ...current.commentVotes };
+      if (commentVotes[key] === vote) delete commentVotes[key];
+      else {
+        delete commentVotes[key];
+        commentVotes[key] = vote;
+        // At most LIMITS.votes are kept: the oldest go first.
+        const keys = Object.keys(commentVotes);
+        keys.slice(0, Math.max(0, keys.length - LIMITS.votes)).forEach(old => { delete commentVotes[old]; });
+      }
+      return { ...current, commentVotes };
     }),
 
     addMessage(groupId: string, draft: NoteDraft, now = Date.now()): OwnNote | null {
