@@ -31,6 +31,7 @@ import "./community-safety.css";
 import "./community-alerts.css";
 import "./community-messages.css";
 import "./community-circle.css";
+import "./community-daily.css";
 
 // My community: a feed where everybody posts, with the lounge, the Sunday circle, groups, messages
 // and friends as tabs beside it, and a toolbar to search, see alerts, friends, safety and settings.

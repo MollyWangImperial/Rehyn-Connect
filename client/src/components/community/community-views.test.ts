@@ -37,8 +37,13 @@ describe("My community views", () => {
     expect(text).not.toContain("Joan Left hand doing the picking!");
     expect(text).toContain("View all 6 comments");
     expect((html.match(/placeholder="Write a comment"/g) ?? []).length).toBeGreaterThanOrEqual(4);
-    expect(text).toContain("Daily question");
-    expect(text).toContain("From Rehyn");
+    // The Daily question as a live thread: today's question with its key phrase, the first answers, starters and the answer box.
+    expect(text).toContain("Daily question From Rehyn");
+    expect(html).toMatch(/class="dq-key"><span class="dq-key-text">[^<]+<\/span>/);
+    expect((html.match(/class="dq-row /g) ?? []).length).toBe(3);
+    expect(text).toContain("3 answered");
+    expect(text).toContain("Add yours in a few words, or start from one of these:");
+    expect(html).toContain('aria-label="Post your answer"');
     expect(text).toContain("Take your seat");
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=walk"')).toBe(true);

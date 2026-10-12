@@ -1,0 +1,145 @@
+/* The Daily question, "Live thread" (DailyQuestion.tsx), from the design file daily-question-live-thread.html. Colours
+   are the page's own --cm-* tokens. With reduced motion nothing moves; the content still changes. */
+
+.dq-card {
+  --dq-row: 44px;        /* one answer row */
+  --dq-row-gap: 12px;    /* between rows: a row and its gap is 56px */
+  --dq-ease: cubic-bezier(.2, .7, .2, 1);
+  --dq-spring: cubic-bezier(.3, 1.4, .5, 1);
+  display: flex; flex-direction: column; gap: 18px; padding: 24px;
+  border: 1px solid #EAD9B0; border-radius: 24px;
+  background: linear-gradient(180deg, var(--cm-gold-soft) 0%, var(--cm-card) 62%);
+  box-shadow: var(--cm-shadow);
+  animation: dq-rise .6s var(--dq-ease) both;
+}
+.dq-card p, .dq-card h3 { margin: 0; }
+
+.dq-head { display: flex; align-items: center; gap: 12px; }
+.dq-mark { position: relative; display: grid; flex-shrink: 0; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--cm-deep); color: var(--cm-gold); }
+/* A gold ring goes out from the mark, and its pulse line draws itself again and again. */
+.dq-mark::before { content: ""; position: absolute; inset: 0; border: 2px solid var(--cm-gold); border-radius: 50%; animation: dq-ring 2.8s ease-out infinite; }
+.dq-mark path { stroke-dasharray: 36; animation: dq-draw 2.8s ease-in-out infinite; }
+.dq-titles { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dq-eyebrow { width: fit-content; padding: 3px 10px; border-radius: 999px; background: var(--cm-gold); color: var(--cm-deep); font-size: 12.5px; font-weight: 800; letter-spacing: .06em; line-height: 1.5; text-transform: uppercase; }
+.dq-meta { color: var(--cm-muted); font-size: 14.5px; }
+
+.dq-count { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin-left: auto; }
+.dq-stack { display: inline-flex; align-items: center; }
+.dq-stack .cm-face { box-shadow: 0 0 0 2px #FBF6EA; animation: dq-pop .45s var(--dq-spring) backwards; }
+.dq-stack .cm-face + .cm-face { margin-left: -9px; }
+.dq-stack .cm-face:nth-child(1) { animation-delay: .30s; }
+.dq-stack .cm-face:nth-child(2) { animation-delay: .42s; }
+.dq-stack .cm-face:nth-child(3) { animation-delay: .54s; }
+.dq-count-text { display: flex; align-items: center; gap: 5px; color: var(--cm-green); font-size: 15.5px; font-weight: 700; }
+.dq-count-num { display: inline-block; }
+.dq-count-num.is-bumping { animation: dq-bump .5s ease both; }
+
+/* The question wipes in from the left, then its key phrase is underlined. */
+.dq-question { min-height: 40px; color: var(--cm-ink); font-family: var(--cm-serif); font-size: clamp(27px, 4.4vw, 34px); font-weight: 400; line-height: 1.15; }
+.dq-card.is-entering .dq-question { animation: dq-wipe 1.1s cubic-bezier(.3, .6, .2, 1) .2s both; }
+.dq-key { position: relative; display: inline-block; }
+.dq-key-text { position: relative; z-index: 1; }
+.dq-key::before { content: ""; position: absolute; right: -2px; bottom: 1px; left: -2px; height: 9px; border-radius: 6px; background: #EBD49B; transform-origin: left center; }
+.dq-card.is-entering .dq-key::before { animation: dq-grow .7s var(--dq-ease) 1.2s both; }
+
+/* The thread: a three-row window onto a belt that slides up one row as each answer comes in. */
+.dq-thread { display: flex; flex-direction: column; gap: 6px; padding-top: 16px; border-top: 1px solid var(--cm-line); }
+.dq-window { height: calc(var(--dq-row) * 3 + var(--dq-row-gap) * 2); overflow: hidden; }
+.dq-belt { display: flex; flex-direction: column; gap: var(--dq-row-gap); }
+.dq-belt.is-shifting { animation: dq-shift .7s var(--dq-ease) both; }
+.dq-list { display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; padding: 2px; }
+
+.dq-row { display: flex; flex-shrink: 0; align-items: center; gap: 10px; height: var(--dq-row); }
+.dq-card.is-entering .dq-row { animation: dq-rise .5s var(--dq-ease) backwards; }
+.dq-card.is-entering .dq-row:nth-child(1) { animation-delay: .40s; }
+.dq-card.is-entering .dq-row:nth-child(2) { animation-delay: .52s; }
+.dq-card.is-entering .dq-row:nth-child(3) { animation-delay: .64s; }
+.dq-row.is-new { animation: dq-arrive .7s var(--dq-ease) both; }
+.dq-row.is-new .dq-bubble { animation: dq-flash 1.8s ease both; }
+
+.dq-bubble { display: flex; align-items: center; gap: 8px; min-width: 0; height: 42px; padding: 0 16px; overflow: hidden; border-radius: 18px; background: var(--cm-bubble); color: var(--cm-ink); font-size: 16.5px; white-space: nowrap; }
+.dq-bubble-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* Every answer open ("See all"): each one wraps in full. */
+.dq-row.is-open { height: auto; min-height: var(--dq-row); align-items: flex-start; }
+.dq-row.is-open .dq-bubble { flex-wrap: wrap; height: auto; padding: 9px 16px; white-space: normal; }
+.dq-row.is-open .dq-bubble-text { overflow: visible; }
+.dq-tag { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 7px; border: 1px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; font-size: 14px; font-weight: 600; }
+.dq-tag-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(20, 54, 40, .15); }
+
+.dq-heart { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; height: 44px; margin-left: auto; padding: 0 13px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; color: var(--cm-ink); font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s, border-color .2s, color .2s, transform .15s; }
+.dq-heart:active { transform: scale(.92); }
+.dq-heart svg { fill: none; }
+.dq-heart[aria-pressed="true"] { border-color: var(--cm-rust); background: #FBE3DB; color: var(--cm-rust-dark); }
+.dq-heart[aria-pressed="true"] svg { fill: currentColor; animation: dq-pop .35s var(--dq-spring) both; }
+
+.dq-status { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.dq-typing { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--cm-muted); font-size: 15.5px; animation: dq-tick .35s ease both; }
+.dq-dots { display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 12px; border-radius: 999px; background: var(--cm-bubble); }
+.dq-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--cm-green); animation: dq-dots 1.2s ease-in-out infinite; }
+.dq-dots i:nth-child(2) { animation-delay: .15s; }
+.dq-dots i:nth-child(3) { animation-delay: .30s; }
+.dq-seeall { height: 44px; margin-left: auto; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--cm-green); font-size: 15.5px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.dq-seeall:hover { background: var(--cm-cream); }
+
+/* Writing an answer. */
+.dq-compose { display: flex; flex-direction: column; gap: 10px; }
+.dq-hint { color: var(--cm-muted); font-size: 15.5px; }
+.dq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.dq-chip { height: 44px; padding: 0 16px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; color: var(--cm-ink); font-size: 15.5px; font-weight: 600; cursor: pointer; }
+.dq-chip:hover { background: var(--cm-cream); }
+.dq-card.is-entering .dq-chip { animation: dq-pop .45s var(--dq-spring) backwards; }
+.dq-card.is-entering .dq-chip:nth-child(1) { animation-delay: .90s; }
+.dq-card.is-entering .dq-chip:nth-child(2) { animation-delay: .98s; }
+.dq-card.is-entering .dq-chip:nth-child(3) { animation-delay: 1.06s; }
+.dq-card.is-entering .dq-chip:nth-child(4) { animation-delay: 1.14s; }
+.dq-reply { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.dq-reply > .cm-face { flex-shrink: 0; }
+.dq-field { display: flex; flex: 1; min-width: 0; }
+.dq-input { width: 100%; min-width: 0; height: 52px; padding: 0 20px; border: 1.5px solid #E3DCCD; border-radius: 999px; background: #FFFFFF; color: var(--cm-ink); font-size: 16.5px; }
+.dq-input::placeholder { color: var(--cm-muted); opacity: 1; }
+.dq-send { display: grid; flex-shrink: 0; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 999px; background: var(--cm-green); color: #FFFFFF; cursor: pointer; transition: transform .15s, background .2s; }
+.dq-send:hover { background: #0F2C21; }
+.dq-send:active { transform: scale(.92); }
+/* Once there are words to send, the button pulses gently. */
+.dq-send.is-ready { animation: dq-nudge 1.4s ease-in-out infinite; }
+.dq-nudge { color: var(--cm-rust-dark); font-size: 15px; font-weight: 600; animation: dq-tick .3s ease both; }
+
+/* The person's own answer, pinned under the thread. */
+.dq-mine { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 20px; background: var(--cm-mint); animation: dq-rise .5s var(--dq-ease) both; }
+.dq-mine-face { position: relative; flex-shrink: 0; width: 44px; height: 44px; }
+.dq-mine-check { position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--cm-ok); color: #FFFFFF; box-shadow: 0 0 0 2px var(--cm-mint); animation: dq-pop .45s var(--dq-spring) .35s backwards; }
+.dq-mine-body { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.dq-mine-status { color: var(--cm-green); font-size: 14.5px; font-weight: 700; }
+.dq-mine-text { color: var(--cm-ink); font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; }
+.dq-remove { flex-shrink: 0; height: 44px; padding: 0 18px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; color: var(--cm-green); font-size: 15.5px; font-weight: 600; cursor: pointer; }
+.dq-remove:hover { background: var(--cm-cream); }
+
+.dq-card :is(button, input):focus-visible { outline: 3px solid var(--cm-green); outline-offset: 3px; }
+
+@keyframes dq-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dq-pop { 0% { opacity: 0; transform: scale(.4); } 70% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes dq-ring { 0% { opacity: .75; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.55); } }
+@keyframes dq-draw { 0% { stroke-dashoffset: 36; } 40%, 72% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -36; } }
+@keyframes dq-tick { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dq-bump { 0% { opacity: 0; transform: translateY(8px); } 60% { opacity: 1; transform: translateY(-3px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes dq-wipe { from { opacity: .3; clip-path: inset(0 100% -14px 0); } to { opacity: 1; clip-path: inset(0 -8px -14px 0); } }
+@keyframes dq-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes dq-shift { from { transform: translateY(0); } to { transform: translateY(calc((var(--dq-row) + var(--dq-row-gap)) * -1)); } }
+@keyframes dq-arrive { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes dq-flash { 0%, 35% { background-color: var(--cm-gold-soft); box-shadow: 0 0 0 2px var(--cm-gold); } 100% { background-color: var(--cm-bubble); box-shadow: 0 0 0 2px rgba(217, 186, 115, 0); } }
+@keyframes dq-dots { 0%, 60%, 100% { opacity: .45; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-5px); } }
+@keyframes dq-nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(217, 186, 115, .9); } 60% { box-shadow: 0 0 0 10px rgba(217, 186, 115, 0); } }
+
+@media (max-width: 560px) {
+  .dq-card { padding: 18px; }
+  .dq-stack, .dq-tag { display: none; }
+  .dq-bubble { padding: 0 13px; font-size: 15.5px; }
+  .dq-typing { font-size: 14.5px; }
+  .dq-typing-line { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dq-typing-more { display: none; }
+  .dq-seeall { padding: 0 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dq-card, .dq-card *, .dq-card *::before, .dq-card *::after { animation: none !important; transition: none !important; }
+}

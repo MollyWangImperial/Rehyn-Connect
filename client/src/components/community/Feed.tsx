@@ -2,7 +2,6 @@ import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react
 import { Link } from "wouter";
 import { circleNow } from "@/content/circle-events";
 import { CIRCLE_SEATS, feedPosts, feelings, friendSuggestions, isPersonId, lounge, members, PERSON_IDS, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SampleGroup, type SamplePost } from "@/content/community-samples";
-import { dailyQuestion } from "@/content/daily-questions";
 import {
   canSee,
   circleSeatsTaken,
@@ -24,9 +23,10 @@ import {
   type PostVisibility,
 } from "@/lib/community-store";
 import CircleScene from "./CircleScene";
+import DailyQuestionCard from "./DailyQuestion";
 import { coverForTheme, lastLine, myGroups } from "./group-model";
 import { useVoiceNote, voiceSeconds } from "./hooks";
-import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, HeartPulseIcon, LockIcon, MicIcon, PhotoIcon, PlusIcon, PulseIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, ThumbDownIcon, UsersIcon } from "./icons";
+import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, HeartPulseIcon, LockIcon, MicIcon, PhotoIcon, PlusIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, ThumbDownIcon, UsersIcon } from "./icons";
 import { Cover, Face, FriendButton, LiveDot, MemberFace, MyFace, ReactionButton, VoiceNote } from "./parts";
 import { postsAudience } from "./settings-model";
 
@@ -339,28 +339,6 @@ function CommentSection({ postId, samples = [], label, quickReplies = [], emptyL
   );
 }
 
-/**
- * The Daily question, at the top of the feed: one question a day from Rehyn, the same for everyone, answered
- * and talked about in the comments under it. It changes at midnight.
- */
-function DailyQuestionCard() {
-  const [today] = useState(() => dailyQuestion());
-  const headingId = useId();
-  return (
-    <article className="cm-card cm-post cm-daily cm-rise" aria-labelledby={headingId}>
-      <header className="cm-post-head">
-        <span className="cm-daily-mark" aria-hidden="true"><PulseIcon size={24} /></span>
-        <div className="cm-post-who">
-          <p className="cm-daily-eyebrow">Daily question</p>
-          <p className="cm-post-meta">{`From Rehyn · ${today.dateLabel}`}</p>
-        </div>
-      </header>
-      <h3 className="cm-daily-question" id={headingId}>{today.question}</h3>
-      <CommentSection postId={today.id} label="today's question" emptyLine="Be the first to answer, then see what everyone else says." />
-    </article>
-  );
-}
-
 /** "Read posts aloud" in Community settings adds this: the device's own voice reads the post. */
 function ListenButton({ text, name }: { text: string; name: string }) {
   const { playing, toggle } = useVoiceNote(text, voiceSeconds(text));
@@ -615,7 +593,7 @@ export default function FeedView({ name, here, onMore, openPostId = null }: { na
       <div className="cm-lane">
         <h2 className="cm-sr">Feed</h2>
         <PostComposer name={name} />
-        <DailyQuestionCard />
+        <DailyQuestionCard name={name} />
         {memory.posts.map(post => <OwnPostCard key={post.id} post={post} name={name} />)}
         {seen.map(({ post, state }) => {
           if (shown(state)) return <SamplePostCard key={post.id} post={post} onMore={onMore} acting={openPostId === post.id} rise={["cm-rise-2", "cm-rise-3", "cm-rise-4"][rise++] ?? "cm-rise-4"} />;
