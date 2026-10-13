@@ -1,6 +1,6 @@
-import { Fragment, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { SettingsContext, type OpenSettings } from "@/components/settings-context";
+import { pictureWords } from "@/content/community-pictures";
 import { people, settingsChoices } from "@/content/community-samples";
 import { communityHref, communityStore, communityViewFromQuery, friendList, friendsHref, hourLabel, LIMITS, useCommunity, viewHref, type CommunityMemory, type CommunitySettings } from "@/lib/community-store";
 import { profileInitial, useProfile } from "@/lib/profile";
@@ -8,6 +8,7 @@ import { myGroups } from "./group-model";
 import { useLater } from "./hooks";
 import { CheckIcon, ChevronDownIcon, CloseIcon, EyeIcon, LockIcon, MinusIcon, MoonIcon, NextIcon, PersonIcon, PlusIcon, ShieldIcon, SpeakerIcon, UsersIcon } from "./icons";
 import { Face, MyFace } from "./parts";
+import ProfileCard from "./ProfileCard";
 import {
   breakHint,
   breakNow,
@@ -25,10 +26,11 @@ import {
   type SettingsSection,
 } from "./settings-model";
 
-// F5: Community settings, with a live preview of the person's card. The settings sit in five
-// sections that open one at a time. Each change is kept on this device as it is made, takes effect
-// across My community straight away (the feed, the chats and the toolbar read the same settings)
-// and shows "Saved" for a moment.
+// F5: Community settings, with a live preview of the person's card. "Your profile" comes first: the
+// picture (Change picture opens "Choose your picture") and the name, town and words on the card,
+// kept with Save changes. The settings sit in five sections that open one at a time. Each change is
+// kept on this device as it is made, takes effect across My community straight away (the feed, the
+// chats and the toolbar read the same settings) and shows "Saved" for a moment.
 
 export type SettingsViewProps = {
   /** The person's first name. */
@@ -39,6 +41,8 @@ export type SettingsViewProps = {
    * the focus.
    */
   section?: SettingsSection | null;
+  /** Opens "Choose your picture" (outside the page, over everything), from the Change picture button. */
+  onChangePicture?: (opener: HTMLElement) => void;
 };
 
 /** Runs a change through the store. True when something changed, and so was saved. */
@@ -151,18 +155,6 @@ function Choice<T extends string>({ label, options, value, onPick, hint, note, s
       </div>
       {note && <div className="cm-set-note"><span className="cm-set-hint" id={noteId}>{note.text}</span>{note.action}</div>}
     </div>
-  );
-}
-
-/**
- * Opens the app's own Settings at "Your profile", where the town and the photo are kept. It stays
- * where it is (only its words change) once a town or photo is added, so the focus can come back to it.
- */
-function ProfileButton({ openSettings, children }: { openSettings: OpenSettings; children: string }) {
-  return (
-    <button type="button" className="cm-text-button cm-set-profile-button" aria-haspopup="dialog" onClick={event => openSettings(event.currentTarget, "profile")}>
-      {children}<span className="cm-sr"> in your profile</span>
-    </button>
   );
 }
 
@@ -327,19 +319,20 @@ function CardPreview({ name, settings, town, groups, friends, photo, initial }: 
   const taking = settings.requestsFrom !== "noOne";
   const friendsOnly = settings.messagesFrom === "friends";
   const noMessages = settings.messagesFrom === "noOne";
-  const look = settings.picture === "drawn" ? "Your drawn face" : settings.picture === "photo" && photo ? "Your photo" : `Your initial, ${initial}`;
+  const look = pictureWords(settings.picture, settings.look, initial, photo);
   return (
     <div className="cm-card cm-set-card">
       <span className="cm-set-cover" aria-hidden="true"><span className="cm-set-card-tag">Your card</span></span>
       <div className="cm-set-card-body">
         <span className="cm-set-card-face">
-          <MyFace key={settings.picture} size={84} picture={settings.picture} className="cm-pop" />
+          <MyFace key={`${settings.picture}:${JSON.stringify(settings.look)}:${photo}`} size={84} className="cm-pop" />
           {settings.showOnline && <span className="cm-set-online cm-pop" aria-hidden="true" />}
         </span>
         <p className="cm-sr">{`${look}${settings.showOnline ? ", with a green dot for online" : ""}.`}</p>
         <div className="cm-set-card-who">
           <p className="cm-set-card-name">{name}</p>
           <p className="cm-set-card-line">{cardLine(settings.showTown, town, groups, friends)}</p>
+          {settings.about && <p className="cm-set-card-about">{`“${settings.about}”`}</p>}
         </div>
         <p className="cm-set-card-buttons">
           <span className={`cm-set-pill ${taking ? "cm-set-pill-add" : "cm-set-pill-off"}`}>{taking ? "Add friend" : "Not taking requests"}</span>
@@ -370,11 +363,10 @@ function SamplePost({ memory }: { memory: CommunityMemory }) {
 
 /* ----------------------------------------------------------------- page */
 
-export default function SettingsView({ name, section = null }: SettingsViewProps) {
+export default function SettingsView({ name, section = null, onChangePicture }: SettingsViewProps) {
   const memory = useCommunity();
   const settings = memory.settings;
   const profile = useProfile();
-  const openSettings = useContext(SettingsContext);
   const later = useLater();
   const [, navigate] = useLocation();
   const search = useSearch();
@@ -431,16 +423,29 @@ export default function SettingsView({ name, section = null }: SettingsViewProps
   };
   const cardRef = (id: SettingsSection) => (card: HTMLDivElement | null) => { cards.current[id] = card; };
 
+  /** "Saved" for a moment: `kept` when the change reached the browser's storage; otherwise it lasts this visit. */
+  const flash = (kept: boolean) => {
+    const id = ++saves.current;
+    setSaved({ id, kept });
+    later(() => setSaved(current => (current?.id === id ? null : current)), 2000);
+  };
   const save: Save = change => {
     const before = communityStore.load();
     change();
     if (communityStore.load() === before) return false;
-    const id = ++saves.current;
-    // "Saved" only when the change reached the browser's storage; otherwise it lasts this visit.
-    setSaved({ id, kept: communityStore.lastSaveKept() });
-    later(() => setSaved(current => (current?.id === id ? null : current)), 2000);
+    flash(communityStore.lastSaveKept());
     return true;
   };
+
+  // A new picture is chosen in "Choose your picture", over the page: say it is saved here too.
+  const pictureKey = `${settings.picture}:${JSON.stringify(settings.look)}:${profile.photo.length}`;
+  const lastPicture = useRef(pictureKey);
+  useEffect(() => {
+    if (lastPicture.current === pictureKey) return;
+    lastPicture.current = pictureKey;
+    flash(communityStore.lastSaveKept());
+    // flash only reads refs and setters.
+  }, [pictureKey]);
   const update = (patch: Partial<CommunitySettings>) => save(() => communityStore.updateSettings(patch));
   const flip = (flag: Flag) => () => {
     const patch: Partial<CommunitySettings> = {};
@@ -455,32 +460,18 @@ export default function SettingsView({ name, section = null }: SettingsViewProps
         <div className="cm-set-head">
           <div className="cm-set-titles">
             <h2 className="cm-view-title" tabIndex={-1} data-view-heading>Community settings</h2>
-            <p className="cm-view-intro">Only for My community. Changes save as you go.</p>
+            <p className="cm-view-intro">Only for My community. The settings below save as you go.</p>
           </div>
           <p className="cm-set-saved-slot" role="status">
             {saved && <span key={saved.id} className="cm-set-saved"><CheckIcon size={18} strokeWidth={2.4} />{saved.kept ? "Saved" : "Saved for this visit"}</span>}
           </p>
         </div>
 
+        <ProfileCard onChangePicture={onChangePicture} onSaved={flash} />
+
         <Section {...sectionProps("appear")} title="How you appear" tone="rose" icon={<PersonIcon size={24} />}>
-          <SwitchRow
-            label="Show my town"
-            hint={townHint(town)}
-            on={settings.showTown}
-            onFlip={flip("showTown")}
-            extra={openSettings ? <ProfileButton openSettings={openSettings}>{town ? "Change your town" : "Add your town"}</ProfileButton> : null}
-          />
+          <SwitchRow label="Show my town" hint={townHint(town)} on={settings.showTown} onFlip={flip("showTown")} />
           <SwitchRow label="Show when I am online" hint="A green dot appears on your picture" on={settings.showOnline} onFlip={flip("showOnline")} />
-          <Choice
-            label="My picture"
-            options={settingsChoices.picture}
-            value={settings.picture}
-            onPick={picture => update({ picture })}
-            note={settings.picture === "photo" ? {
-              text: profile.photo ? "The photo from your profile." : "You haven't added a photo yet, so your initial shows.",
-              action: openSettings ? <ProfileButton openSettings={openSettings}>{profile.photo ? "Change your photo" : "Add a photo"}</ProfileButton> : null,
-            } : null}
-          />
         </Section>
 
         <Section {...sectionProps("friends")} title="Friends and messages" tone="blue" icon={<UsersIcon size={24} />}>

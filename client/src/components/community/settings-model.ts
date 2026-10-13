@@ -34,14 +34,13 @@ export function postsAudience(seenBy: PostsSeenBy): { label: string; summary: st
 /** The break on now: "none" once a break has ended, whatever was chosen. */
 export const breakNow = (settings: CommunitySettings, now = Date.now()): BreakChoice => (onBreak(settings, now) ? settings.breakChoice : "none");
 
-/** The line under each section's name, in parts: "Town shown", "online dot on", "drawn face". */
+/** The line under each section's name, in parts: "Town shown", "online dot on". */
 export function settingsSummaries(settings: CommunitySettings, town: string, now = Date.now()): Record<SettingsSection, string[]> {
   const until = onBreak(settings, now) && settings.breakUntil !== null ? settings.breakUntil : null;
   return {
     appear: [
       town ? (settings.showTown ? "Town shown" : "Town hidden") : "No town added",
       settings.showOnline ? "online dot on" : "online dot off",
-      labelOf(settingsChoices.picture, settings.picture).toLowerCase(),
     ],
     friends: [
       settings.requestsFrom === "noOne" ? "No new requests" : `Requests from ${labelOf(settingsChoices.requestsFrom, settings.requestsFrom).toLowerCase()}`,
@@ -93,8 +92,8 @@ export function cardLine(showTown: boolean, town: string, groups: number, friend
 export const cardNote = (messagesFrom: MessagesFrom): string =>
   `What other members would see when they tap your name.${messagesFrom === "friends" ? " Only friends could message you." : messagesFrom === "noOne" ? " No one could message you." : ""}`;
 
-/** What "Show my town" puts on the card, from the town in the person's profile. */
-export const townHint = (town: string): string => (town ? `Puts “${town}” under your name on your card` : "Your profile doesn't have a town yet.");
+/** What "Show my town" puts on the card, from the town in the person's profile (Your profile, above it). */
+export const townHint = (town: string): string => (town ? `Puts “${town}” under your name on your card` : "Add your town in Your profile, above.");
 
 /** A line of post text for "Sample post at this size", from someone the person still sees. */
 const sampleLines: { who: PersonId; text: string }[] = [

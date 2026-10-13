@@ -34,7 +34,8 @@
 .cm-set-icon-amber { background: #FBEBC2; color: #6B5108; }
 .cm-set-toggle-text { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; min-width: 0; }
 .cm-set-toggle-title { color: var(--cm-ink); font-size: 19px; font-weight: 700; line-height: 1.25; }
-.cm-set-summary { overflow: hidden; color: var(--cm-muted); font-size: 14.5px; font-weight: 400; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
+/* Positioned, so the commas a screen reader hears (cm-sr) are clipped with the line instead of widening a phone's page. */
+.cm-set-summary { position: relative; overflow: hidden; color: var(--cm-muted); font-size: 14.5px; font-weight: 400; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
 .cm-set-chev { display: flex; flex-shrink: 0; color: var(--cm-soft-ink); transition: transform .3s ease; }
 .cm-set-toggle[aria-expanded="true"] .cm-set-chev { transform: rotate(180deg); }
 

@@ -1,0 +1,129 @@
+/* My community: "Your profile" at the top of Community settings, and "Choose your picture" with its editors ("Make it
+   yours" for a portrait, "Make your own" for an illustrated face) and Take a photo. Classes start with cm-pic-.
+   Imported after community.css and community-settings.css. Motion stops with the shared reduced-motion rule. */
+
+/* ------------------------------------------------------------ Your profile */
+
+.cm-pic-profile { display: flex; flex-direction: column; gap: 14px; padding: 22px 26px 26px; }
+.cm-pic-profile-title { padding-left: 2px; color: var(--cm-rust-dark); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.cm-pic-profile-body { display: flex; flex-wrap: wrap; gap: 26px 36px; }
+
+.cm-pic-picture { display: flex; flex: 0 0 210px; flex-direction: column; align-items: center; gap: 14px; padding-top: 6px; }
+.cm-pic-avatar { display: block; width: 160px; height: 160px; border-radius: 999px; box-shadow: 0 0 0 4px var(--cm-card), 0 0 0 5px var(--cm-line); }
+.cm-pic-avatar .cm-face { display: flex; }
+.cm-pic-change { min-height: 52px; padding: 0 22px; font-size: 17px; }
+.cm-pic-picture-hint { color: var(--cm-muted); font-size: 14.5px; line-height: 1.4; text-align: center; }
+
+.cm-pic-form { display: flex; flex: 1 1 280px; flex-direction: column; gap: 16px; min-width: 0; }
+.cm-pic-field { display: flex; flex-direction: column; gap: 7px; }
+.cm-pic-field label { color: var(--cm-muted); font-size: 13.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.cm-pic-field :is(input, textarea) { width: 100%; padding: 0 16px; border: 1.5px solid #D8D1C4; border-radius: 14px; background: #FFFFFF; color: var(--cm-ink); font: 400 17.5px/1.4 "DM Sans", system-ui, sans-serif; }
+.cm-pic-field input { height: 52px; }
+.cm-pic-field textarea { min-height: 104px; padding: 13px 16px; line-height: 1.45; resize: vertical; }
+.cm-pic-field textarea::placeholder { color: var(--cm-placeholder); }
+.cm-pic-field :is(input, textarea):hover { border-color: #BDB5A5; }
+.cm-pic-field [aria-invalid="true"] { border-color: var(--cm-rust); }
+.cm-pic-field-hint { color: var(--cm-muted); font-size: 14px; line-height: 1.35; }
+.cm-pic-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.cm-pic-button { min-height: 52px; padding: 0 24px; font-size: 17px; }
+.cm-pic-button:disabled { opacity: .5; cursor: default; }
+
+/* The words about the person, on the card preview. */
+.cm-set-card-about { margin-top: 4px; color: var(--cm-soft-ink); font: italic 400 17px/1.35 var(--cm-serif); overflow-wrap: anywhere; }
+
+/* The person's monogram: their initial in the serif, on the colour they chose. */
+.cm-face-monogram { font-family: var(--cm-serif); font-weight: 400; }
+
+/* ------------------------------------------------------- Choose your picture */
+
+.cm-dialog.cm-pic-dialog { width: min(820px, calc(100vw - 32px)); gap: 16px; padding: 24px 32px 22px; border-radius: 28px; background: #FBFAF6; }
+.cm-pic-head { align-items: center; }
+.cm-pic-title { font-size: 40px; }
+
+/* Use a real photo: a dashed box, the photo (or a camera), a line about it, and the two ways to add one. */
+.cm-pic-upload { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; padding: 16px 22px; border: 2px dashed #B9C8B5; border-radius: 20px; background: #F4F6F0; }
+.cm-pic-upload-icon { display: flex; align-items: center; justify-content: center; flex: none; width: 64px; height: 64px; border-radius: 999px; background: #D5E0D2; color: var(--cm-green); }
+.cm-pic-upload-text { flex: 1 1 200px; min-width: 0; }
+.cm-pic-upload-text strong { color: var(--cm-ink); font-size: 19px; font-weight: 700; }
+.cm-pic-upload-text p { margin-top: 4px; color: var(--cm-muted); font-size: 15.5px; line-height: 1.4; }
+.cm-pic-upload-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+.cm-pic-upload-buttons .cm-pic-button { min-height: 48px; padding: 0 20px; font-size: 16.5px; }
+
+.cm-pic-divider { display: flex; align-items: center; gap: 14px; color: var(--cm-muted); font-size: 15px; }
+.cm-pic-divider::before, .cm-pic-divider::after { content: ""; flex: 1; height: 1px; background: var(--cm-line); }
+
+/* A style: its name and a word about it, then its pictures in circles. The one picked has a green ring. */
+.cm-pic-style { display: flex; flex-direction: column; gap: 8px; }
+.cm-pic-style-head { display: flex; align-items: center; gap: 10px; font: inherit; }
+.cm-pic-style-head > span:first-child { color: var(--cm-ink); font-size: 18.5px; font-weight: 700; }
+.cm-pic-tag { padding: 4px 10px; border-radius: 12px; background: #EFE8DC; color: var(--cm-muted); font-size: 13.5px; font-weight: 700; }
+.cm-pic-options { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+.cm-pic-option { display: flex; align-items: center; justify-content: center; flex: none; width: 68px; height: 68px; padding: 0; overflow: hidden; border: 1.5px solid transparent; border-radius: 999px; background: none; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.cm-pic-option:hover { transform: translateY(-2px); }
+.cm-pic-option > :is(svg, img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cm-pic-option[aria-pressed="true"] { box-shadow: 0 0 0 3px #FBFAF6, 0 0 0 6px var(--cm-green); }
+.cm-pic-mono { font: 400 36px/1 var(--cm-serif); }
+.cm-pic-photo { width: 64px; height: 64px; }
+.cm-pic-drawn { display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; }
+.cm-pic-more { min-height: 44px; margin-left: 2px; padding: 0 6px; border: 0; background: none; color: var(--cm-green); font-size: 15.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cm-pic-more:hover { color: var(--cm-ok); }
+
+.cm-pic-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--cm-line); }
+.cm-pic-note { color: var(--cm-muted); font-size: 15.5px; }
+.cm-pic-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+
+/* ---------------------------------------------------------------- editors */
+
+.cm-pic-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px 34px; }
+.cm-pic-preview { display: flex; flex: 0 0 230px; flex-direction: column; align-items: center; gap: 14px; }
+.cm-pic-big { display: block; width: 220px; height: 220px; overflow: hidden; border-radius: 999px; box-shadow: 0 0 0 4px #FBFAF6, 0 0 0 5px var(--cm-line); }
+.cm-pic-big svg, .cm-pic-small svg { display: block; width: 100%; height: 100%; }
+.cm-pic-sizes { display: flex; align-items: center; gap: 10px; color: var(--cm-muted); font-size: 14.5px; }
+.cm-pic-small { display: block; flex: none; overflow: hidden; border-radius: 999px; }
+.cm-pic-hint { color: var(--cm-muted); font-size: 15px; line-height: 1.4; text-align: center; }
+
+.cm-pic-controls { display: flex; flex: 1 1 300px; flex-direction: column; gap: 16px; min-width: 0; }
+.cm-pic-group { display: flex; flex-direction: column; gap: 8px; }
+.cm-pic-group-title { color: var(--cm-muted); font-size: 13.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.cm-pic-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.cm-pic-pair { display: flex; flex-wrap: wrap; gap: 16px 28px; }
+.cm-pic-chip { min-height: 44px; padding: 0 16px; border: 1.5px solid #C9C2B4; border-radius: 999px; background: #FBFAF6; color: var(--cm-ink); font-size: 15.5px; font-weight: 700; cursor: pointer; }
+.cm-pic-chip:hover { border-color: #A69F90; }
+.cm-pic-chip[aria-pressed="true"] { border-color: var(--cm-green); background: var(--cm-green); color: #F6F1E7; }
+.cm-pic-swatch { flex: none; width: 44px; height: 44px; padding: 0; border: 1.5px solid #C9C2B4; border-radius: 999px; cursor: pointer; }
+.cm-pic-swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px #FBFAF6, 0 0 0 6px var(--cm-green); }
+
+/* Take a photo: the camera in a circle, mirrored like a mirror; the photo taken shows in its place. */
+.cm-pic-camera { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 6px 0 4px; }
+.cm-pic-lens { position: relative; display: grid; place-items: center; width: 260px; height: 260px; overflow: hidden; border-radius: 999px; background: #1F2A26; color: rgba(255, 255, 255, .78); box-shadow: 0 0 0 4px #FBFAF6, 0 0 0 5px var(--cm-line); }
+.cm-pic-lens > :is(video, img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cm-pic-lens > video { transform: scaleX(-1); }
+.cm-pic-lens > video[hidden] { display: none; }
+.cm-pic-lens-note { display: flex; }
+
+/* ------------------------------------------------- comfort and small screens */
+
+.recovery-large-text :is(.cm-page, .cm-layer) :is(.cm-pic-field-hint, .cm-pic-picture-hint, .cm-pic-upload-text p, .cm-pic-hint, .cm-pic-note) { font-size: 16.5px; }
+
+@media (max-width: 620px) {
+  .cm-dialog.cm-pic-dialog { width: 100vw; padding: 20px 16px calc(18px + env(safe-area-inset-bottom)); border-radius: 26px 26px 0 0; }
+  .cm-pic-title { font-size: 32px; }
+  .cm-pic-options { gap: 12px 14px; }
+  .cm-pic-option { width: 62px; height: 62px; }
+  .cm-pic-mono { font-size: 33px; }
+  .cm-pic-preview { flex-basis: 100%; }
+  .cm-pic-big { width: 168px; height: 168px; }
+  .cm-pic-lens { width: 220px; height: 220px; }
+  .cm-pic-buttons { width: 100%; }
+  .cm-pic-buttons .cm-pic-button { flex: 1 1 0; }
+}
+
+@container cm (max-width: 560px) {
+  .cm-pic-profile { padding: 18px 16px 20px; }
+  .cm-pic-picture { flex-basis: 100%; }
+  .cm-pic-actions .cm-pic-button { flex: 1 1 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-pic-option:hover { transform: none; }
+}

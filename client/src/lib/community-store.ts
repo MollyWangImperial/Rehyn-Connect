@@ -54,6 +54,7 @@ import {
 } from "@/content/community-samples";
 import { isDailyPostId } from "@/content/daily-questions";
 import { isCircleOccurrenceId } from "@/content/circle-events";
+import { DEFAULT_PICTURE_LOOK, readPictureLook, type PictureLook } from "@/content/community-pictures";
 
 // My community is a preview: the people in it are examples, and what a person does there stays
 // on this device. This file holds the address of each view, and the small record of what the
@@ -196,6 +197,10 @@ export type CommunitySettings = {
   showTown: boolean;
   showOnline: boolean;
   picture: PictureChoice;
+  /** What was chosen for each kind of picture (the monogram's colour, the portrait, the emblem, the illustrated face). */
+  look: PictureLook;
+  /** A few words about the person, on their card ("Gardener, grandmother…"). */
+  about: string;
   /** Friends and messages, and who sees the person's own posts in the feed. */
   requestsFrom: RequestsFrom;
   messagesFrom: MessagesFrom;
@@ -218,7 +223,7 @@ export type CommunitySettings = {
 
 export function defaultCommunitySettings(): CommunitySettings {
   return {
-    showTown: true, showOnline: true, picture: "drawn",
+    showTown: true, showOnline: true, picture: "drawn", look: DEFAULT_PICTURE_LOOK, about: "",
     // Posts are for friends to begin with: the more private choice, until the person picks another.
     requestsFrom: "everyone", messagesFrom: "friends", postsSeenBy: "friends",
     gentleMode: true, showHeartCounts: true, hiddenWords: [...startHiddenWords],
@@ -280,7 +285,7 @@ export type CommunityMemory = {
   settings: CommunitySettings;
 };
 
-export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30, votes: 400, dailyDays: 14, reminders: 20 } as const;
+export const LIMITS = { posts: 40, notes: 60, started: 20, postText: 600, noteText: 400, photo: 400_000, reports: 40, reportNote: 400, hiddenWords: 20, hiddenWord: 30, votes: 400, dailyDays: 14, reminders: 20, about: 160 } as const;
 
 /** A like or a dislike on a comment. */
 export type CommentVote = "like" | "dislike";
@@ -424,6 +429,8 @@ function readSettings(value: unknown, base: CommunitySettings = defaultCommunity
     if (typeof flag === "boolean") settings[key] = flag;
   });
   if (oneOf(PICTURE_CHOICES)(value.picture)) settings.picture = value.picture;
+  if (isObject(value.look)) settings.look = readPictureLook(value.look, base.look);
+  if (typeof value.about === "string") settings.about = clip(value.about, LIMITS.about);
   if (oneOf(REQUESTS_FROM)(value.requestsFrom)) settings.requestsFrom = value.requestsFrom;
   if (oneOf(MESSAGES_FROM)(value.messagesFrom)) settings.messagesFrom = value.messagesFrom;
   if (oneOf(POSTS_SEEN_BY)(value.postsSeenBy)) settings.postsSeenBy = value.postsSeenBy;

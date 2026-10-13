@@ -13,6 +13,7 @@ import { BackIcon } from "@/components/community/icons";
 import LoungeView from "@/components/community/Lounge";
 import MessagesView from "@/components/community/Messages";
 import MessagesDock from "@/components/community/MessagesDock";
+import PictureDialog from "@/components/community/PictureDialog";
 import PostMenu from "@/components/community/PostMenu";
 import SafetyView from "@/components/community/SafetyView";
 import SettingsView from "@/components/community/SettingsView";
@@ -32,6 +33,7 @@ import "./community-alerts.css";
 import "./community-messages.css";
 import "./community-circle.css";
 import "./community-daily.css";
+import "./community-picture.css";
 
 // My community: a feed where everybody posts, with the lounge, the Sunday circle, groups, messages
 // and friends as tabs beside it, and a toolbar to search, see alerts, friends, safety and settings.
@@ -62,6 +64,8 @@ export default function Community() {
   const [findOpen, setFindOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [menu, setMenu] = useState<{ target: SafetyTarget; opener: HTMLElement; startAt?: "block" } | null>(null);
+  // "Choose your picture", opened from Community settings: the button that opened it, for the focus to return to.
+  const [pictureFrom, setPictureFrom] = useState<HTMLElement | null>(null);
   const page = useRef<HTMLDivElement>(null);
   const findButton = useRef<HTMLButtonElement>(null);
   const alertsButton = useRef<HTMLButtonElement>(null);
@@ -70,7 +74,7 @@ export default function Community() {
   const viewNow = useRef(view);
   viewNow.current = view;
   const friendsOpen = view.panel === "friends";
-  const overlayOpen = friendsOpen || findOpen || alertsOpen || menu !== null;
+  const overlayOpen = friendsOpen || findOpen || alertsOpen || menu !== null || pictureFrom !== null;
   const overlayWasOpen = useRef(overlayOpen);
   // Whether the drawer was opened during this visit, so closing it can step Back rather than add a page.
   const friendsOpenedHere = useRef(false);
@@ -109,8 +113,8 @@ export default function Community() {
     lastPanel.current = view.panel;
   }, [view.panel]);
 
-  // A new address (a link, or the browser's Back button) closes the panels and the sheet.
-  useEffect(() => { setFindOpen(false); setAlertsOpen(false); setMenu(null); }, [search]);
+  // A new address (a link, or the browser's Back button) closes the panels and the sheets.
+  useEffect(() => { setFindOpen(false); setAlertsOpen(false); setMenu(null); setPictureFrom(null); }, [search]);
 
   /** The heading of the view showing now: where the focus goes when what opened a dialog has gone. */
   const headingNow = useCallback(() => {
@@ -154,7 +158,7 @@ export default function Community() {
         {isOpen("groups") && <div className="cm-space" data-space="groups" hidden={view.space !== "groups"}><GroupsView active={view.space === "groups"} requested={view.group} /></div>}
         {isOpen("messages") && <div className="cm-space" data-space="messages" hidden={view.space !== "messages"}><MessagesView active={view.space === "messages"} chat={view.chat ?? null} onPersonMenu={openMenu} /></div>}
         {isOpen("friends") && <div className="cm-space" data-space="friends" hidden={view.space !== "friends"}><FriendsPage onPersonMenu={openMenu} /></div>}
-        {isOpen("settings") && <div className="cm-space" data-space="settings" hidden={view.space !== "settings"}><SettingsView name={name} section={view.section ?? null} /></div>}
+        {isOpen("settings") && <div className="cm-space" data-space="settings" hidden={view.space !== "settings"}><SettingsView name={name} section={view.section ?? null} onChangePicture={setPictureFrom} /></div>}
         {isOpen("safety") && <div className="cm-space" data-space="safety" hidden={view.space !== "safety"}><SafetyView name={name} warningSignsHref={fastCheckPath(location, search)} onPersonMenu={openMenu} /></div>}
         {isOpen("start") && (
           <div className="cm-space" data-space="start" hidden={view.space !== "start"}>
@@ -174,6 +178,7 @@ export default function Community() {
         {findOpen && <FindPanel onClose={() => setFindOpen(false)} anchor={findButton.current} over={placeOf(view)} fallbackFocus={headingNow} />}
         {alertsOpen && <AlertsPanel onClose={() => setAlertsOpen(false)} anchor={alertsButton.current} over={placeOf(view)} fallbackFocus={headingNow} />}
         {menu && <PostMenu target={menu.target} name={name} onClose={() => setMenu(null)} returnFocus={menu.opener} fallbackFocus={headingNow} startAt={menu.startAt} />}
+        {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={headingNow} />}
         <MessagesDock space={view.space} />
       </div>
     </RecoveryShell>

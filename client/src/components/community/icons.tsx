@@ -32,6 +32,7 @@ export const ThumbDownIcon = ({ on = false, ...props }: IconProps & { on?: boole
 export const StarIcon = (props: IconProps) => <Icon {...props}><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z" /></Icon>;
 export const HandIcon = (props: IconProps) => <Icon {...props}><path d="M7 11V6a1.5 1.5 0 0 1 3 0v4m0-5.5a1.5 1.5 0 0 1 3 0V10m0-4a1.5 1.5 0 0 1 3 0v5m0-2.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14a1.5 1.5 0 0 1 2.5-1.6L7 13.5" /></Icon>;
 export const ChatIcon = (props: IconProps) => <Icon {...props}><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z" /></Icon>;
+export const CameraIcon = (props: IconProps) => <Icon {...props}><path d="M4 7h3l2-3h6l2 3h3v12H4z" /><circle cx="12" cy="13" r="3.5" /></Icon>;
 export const PhotoIcon = (props: IconProps) => <Icon {...props}><rect x="3" y="5" width="18" height="14" rx="2.5" /><circle cx="8.5" cy="10" r="1.6" /><path d="m21 15-4.5-4.5L8 19" /></Icon>;
 export const MicIcon = (props: IconProps) => <Icon {...props}><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0" /><path d="M12 18v3" /></Icon>;
 export const SmileIcon = (props: IconProps) => <Icon {...props}><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5c2 2.2 5 2.2 7 0" /><path d="M9 9.5v.5M15 9.5v.5" /></Icon>;

@@ -19,7 +19,6 @@ vi.mock("@/lib/profile", async importOriginal => {
   return { ...actual, useProfile: () => state.profile ?? actual.DEFAULT_PROFILE };
 });
 
-import { SettingsContext } from "@/components/settings-context";
 import { blankCommunityMemory } from "@/lib/community-store";
 import { DEFAULT_PROFILE } from "@/lib/profile";
 import Community from "@/pages/Community";
@@ -35,8 +34,6 @@ afterEach(() => { state.memory = null; state.profile = null; });
 const clean = (html: string) => html.replace(/ data-loc="[^"]*"/g, "");
 const page = (path: string) => clean(renderToStaticMarkup(createElement(Router, { ssrPath: path, children: createElement(Community) })));
 const view = () => clean(renderToStaticMarkup(createElement(Router, { ssrPath: "/community?space=settings", children: createElement(SettingsView, { name: "Zak" }) })));
-/** The page inside the app, where the app's own Settings (with "Your profile") can be opened. */
-const viewInApp = () => clean(renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {}, children: createElement(Router, { ssrPath: "/community?space=settings", children: createElement(SettingsView, { name: "Zak" }) }) })));
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/\s+/g, " ");
 /** Every opening tag of this kind that carries all of the given attributes. */
 const tagsWith = (html: string, name: string, ...attributes: string[]) =>
@@ -56,7 +53,9 @@ describe("Community settings (F5)", () => {
     const html = page("/community?space=settings");
     const text = words(html);
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
-    expect(text).toContain("Only for My community. Changes save as you go.");
+    expect(text).toContain("Only for My community. The settings below save as you go.");
+    // Your profile comes first: the picture with Change picture, then the name, town and words on the card.
+    expect(text.indexOf("Your profile")).toBeLessThan(text.indexOf("How you appear"));
     const toggles = tagsWith(html, "button", 'class="cm-set-toggle"');
     expect(toggles).toHaveLength(5);
     expect(toggles.filter(tag => tag.includes('aria-expanded="true"'))).toHaveLength(1);
@@ -70,7 +69,7 @@ describe("Community settings (F5)", () => {
     });
     expect(tagWith(html, "button", 'class="cm-set-toggle"', 'aria-expanded="true"')).toBe(true);
     // The dots are shown; a screen reader hears commas.
-    expect(text).toContain("No town added · , online dot on · , drawn face");
+    expect(text).toContain("No town added · , online dot on");
     expect(text).toContain("Gentle mode on · , 2 hidden words");
     expect(text).toContain("Quiet from 9 pm to 8 am");
     expect(tagWith(html, "p", 'class="cm-set-saved-slot"', 'role="status"')).toBe(true);
@@ -81,8 +80,8 @@ describe("Community settings (F5)", () => {
     const switches = tagsWith(html, "button", 'role="switch"');
     expect(switches).toHaveLength(6);
     expect(switches.filter(tag => tag.includes('aria-checked="true"'))).toHaveLength(5);
-    for (const label of ["Drawn face", "Everyone", "Only friends", "Normal", "No break"]) expect(pressed(html, label)).toBe(true);
-    for (const label of ["My photo", "No one", "Bigger", "1 week"]) expect(pressed(html, label)).toBe(false);
+    for (const label of ["Everyone", "Only friends", "Normal", "No break"]) expect(pressed(html, label)).toBe(true);
+    for (const label of ["No one", "Bigger", "1 week"]) expect(pressed(html, label)).toBe(false);
     expect(tagWith(html, "button", 'aria-label="Stop hiding hospital"')).toBe(true);
     expect(tagWith(html, "button", 'aria-label="Stop hiding falls"')).toBe(true);
     expect(words(html)).toContain("Add “money”");
@@ -104,7 +103,7 @@ describe("Community settings (F5)", () => {
   it("keeps the words true to what happens on this device", () => {
     const text = words(view());
     expect(text).not.toContain("Bristol");
-    expect(text).toContain("Your profile doesn't have a town yet.");
+    expect(text).toContain("Add your town in Your profile, above.");
     expect(text).toContain("Your device's own voice reads them.");
     expect(text).not.toMatch(/Alira reads|her voice/);
     expect(text).toContain("During a break, the Alerts badge stays quiet. Nothing is deleted.");
@@ -180,34 +179,47 @@ describe("the live preview of the person's card", () => {
     expect(text).not.toContain("(friends only)");
     expect(text).not.toContain("Only friends could message you");
     expect(tagWith(html, "span", "cm-set-online")).toBe(false);
-    expect(html).toMatch(/<span class="cm-face cm-face-initial cm-pop"[^>]*>Z<\/span>/);
-    expect(pressed(html, "Initial")).toBe(true);
-    expect(text).toContain("Your initial, Z.");
+    // The monogram: the initial in the serif, on the colour chosen (peach to begin with).
+    expect(html).toMatch(/<span class="cm-face cm-face-initial cm-face-monogram cm-pop"[^>]*background-color:#F2D3C7;color:#6E3524[^>]*>Z<\/span>/);
+    expect(text).toContain("Your initial, Z, on peach.");
   });
 
-  it("says when My photo has no photo to show yet, and shows the profile photo once there is one", () => {
+  it("shows the profile photo once there is one, and the initial until then", () => {
     state.memory = withSettings({ picture: "photo" });
-    const text = words(view());
-    expect(text).toContain("You haven't added a photo yet, so your initial shows.");
-    expect(text).toContain("Your initial, Z, with a green dot for online.");
+    expect(words(view())).toContain("Your initial, Z, with a green dot for online.");
     state.profile = { ...DEFAULT_PROFILE, photo: "data:image/png;base64,iVBORw0KGgo=" };
     const html = view();
-    expect(words(html)).toContain("The photo from your profile.");
     expect(words(html)).toContain("Your photo, with a green dot for online.");
     expect(html).toContain('background-image:url(&quot;data:image/png;base64,iVBORw0KGgo=&quot;)');
   });
 
-  it("offers the person's profile for the town and photo, keeping the same button once they are added", () => {
-    expect(words(view())).not.toContain("Add your town");
-    state.memory = withSettings({ picture: "photo" });
-    const empty = viewInApp();
-    expect(tagsWith(empty, "button", 'class="cm-text-button cm-set-profile-button"', 'aria-haspopup="dialog"')).toHaveLength(2);
-    expect(words(empty)).toContain("Add your town in your profile");
-    expect(words(empty)).toContain("Add a photo in your profile");
-    state.profile = { ...DEFAULT_PROFILE, city: "Leeds", photo: "data:image/png;base64,iVBORw0KGgo=" };
-    const filled = words(viewInApp());
-    expect(filled).toContain("Change your town in your profile");
-    expect(filled).toContain("Change your photo in your profile");
+  it("draws a portrait, an emblem or an illustrated face the person chose", () => {
+    state.memory = withSettings({ picture: "portrait" });
+    const portrait = view();
+    expect(words(portrait)).toContain("Your portrait, with a green dot for online.");
+    expect(portrait).toContain("background-image:url(&quot;data:image/svg+xml,");
+    state.memory = withSettings({ picture: "emblem", look: { ...blankCommunityMemory().settings.look, emblem: "tea" } });
+    expect(words(view())).toContain("Your emblem: a cup of tea, with a green dot for online.");
+    state.memory = withSettings({ picture: "illustrated" });
+    expect(words(view())).toContain("Your illustrated picture, with a green dot for online.");
+  });
+
+  it("starts with Your profile: the picture, Change picture, and the name, town and words people see", () => {
+    state.profile = { ...DEFAULT_PROFILE, city: "Leeds" };
+    state.memory = withSettings({ about: "Gardener and proud grandad." });
+    const html = view();
+    const text = words(html);
+    expect(tagWith(html, "section", 'class="cm-card cm-pic-profile"')).toBe(true);
+    expect(tagWith(html, "button", 'class="cm-btn cm-btn-green cm-pic-change"', 'aria-haspopup="dialog"')).toBe(true);
+    expect(text).toContain("Change picture");
+    expect(text).toContain("Your drawn face.");
+    expect(tagWith(html, "input", 'value="Zak"', 'autoComplete="nickname"')).toBe(true);
+    expect(tagWith(html, "input", 'value="Leeds"', 'autoComplete="address-level2"')).toBe(true);
+    expect(html).toMatch(/<textarea[^>]*maxLength="160"[^>]*>Gardener and proud grandad\.<\/textarea>/);
+    expect(text).toContain("The name you go by. Alira uses it too.");
+    expect(text).toContain("Cancel Save changes");
+    // The card shows the words, as others would see them.
+    expect(text).toContain("Leeds · In 4 groups · 3 friends “Gardener and proud grandad.”");
   });
 
   it("counts friends and groups as they change", () => {

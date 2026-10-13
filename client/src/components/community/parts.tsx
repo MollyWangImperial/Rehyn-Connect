@@ -1,5 +1,6 @@
 import { useId, useRef, useState, type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Link, useSearch } from "wouter";
+import { artUrl, monogramTone, pictureArt, type PictureLook } from "@/content/community-pictures";
 import { isPersonId, members, myDrawnFace, people, reactionLabels, type GroupCover, type GroupMessage, type MemberId, type PersonId, type PictureChoice, type QuickTone, type ReactionKind } from "@/content/community-samples";
 import { communityStore, communityViewFromQuery, friendsHref, placeOf, preparePostPhoto, relationship, useCommunity, type NoteDraft, type OwnNote } from "@/lib/community-store";
 import { profileInitial, useProfile } from "@/lib/profile";
@@ -23,16 +24,21 @@ export function MemberFace({ who, size = 40, className = "", style }: { who: Mem
 }
 
 /**
- * The person using the app, as they chose in Community settings ("My picture"): the drawn face,
- * their own photo (their initial until they add one), or their initial. `picture` previews a choice.
+ * The person using the app, as they chose in Community settings ("Change picture"): their photo (their initial on
+ * the monogram's colour until they add one), a monogram, a portrait, an emblem, an illustrated face they made, or
+ * the drawn face the preview starts with. `picture` and `look` preview a choice.
  */
-export function MyFace({ size = 40, className = "", style, picture }: { size?: number; className?: string; style?: CSSProperties; picture?: PictureChoice }) {
+export function MyFace({ size = 40, className = "", style, picture, look }: { size?: number; className?: string; style?: CSSProperties; picture?: PictureChoice; look?: PictureLook }) {
   const profile = useProfile();
-  const chosen = useCommunity().settings.picture;
-  const look = picture ?? chosen;
-  if (look === "drawn") return <span className={`cm-face ${className}`} style={{ width: size, height: size, backgroundColor: myDrawnFace.tint, backgroundImage: `url("${myDrawnFace.face}")`, ...style }} aria-hidden="true" />;
-  if (look === "photo" && profile.photo) return <span className={`cm-face ${className}`} style={{ width: size, height: size, backgroundImage: `url("${profile.photo}")`, ...style }} aria-hidden="true" />;
-  return <span className={`cm-face cm-face-initial ${className}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.42), ...style }} aria-hidden="true">{profileInitial(profile)}</span>;
+  const settings = useCommunity().settings;
+  const kind = picture ?? settings.picture;
+  const chosen = look ?? settings.look;
+  if (kind === "drawn") return <span className={`cm-face ${className}`} style={{ width: size, height: size, backgroundColor: myDrawnFace.tint, backgroundImage: `url("${myDrawnFace.face}")`, ...style }} aria-hidden="true" />;
+  if (kind === "photo" && profile.photo) return <span className={`cm-face ${className}`} style={{ width: size, height: size, backgroundImage: `url("${profile.photo}")`, ...style }} aria-hidden="true" />;
+  const art = pictureArt(kind, chosen);
+  if (art) return <span className={`cm-face ${className}`} style={{ width: size, height: size, backgroundImage: `url("${artUrl(art)}")`, ...style }} aria-hidden="true" />;
+  const tone = monogramTone(chosen.monogram);
+  return <span className={`cm-face cm-face-initial cm-face-monogram ${className}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.48), backgroundColor: tone.bg, color: tone.ink, ...style }} aria-hidden="true">{profileInitial(profile)}</span>;
 }
 
 /** A group's cover: its drawing, or its colour with a letter or a sign. */

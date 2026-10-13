@@ -46,6 +46,7 @@ import {
   viewHref,
 } from "./community-store";
 import { communityAlerts, feedPosts, inviteFriends, sampleGroups } from "@/content/community-samples";
+import { DEFAULT_PICTURE_LOOK } from "@/content/community-pictures";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -682,10 +683,31 @@ describe("alerts", () => {
 describe("community settings", () => {
   it("starts with the designed defaults", () => {
     expect(blankCommunityMemory().settings).toEqual({
-      showTown: true, showOnline: true, picture: "drawn", requestsFrom: "everyone", messagesFrom: "friends", postsSeenBy: "friends",
+      showTown: true, showOnline: true, picture: "drawn", look: DEFAULT_PICTURE_LOOK, about: "", requestsFrom: "everyone", messagesFrom: "friends", postsSeenBy: "friends",
       gentleMode: true, showHeartCounts: true, hiddenWords: ["hospital", "falls"], readAloud: false, writeOutVoiceNotes: true,
       textSize: "normal", quietFrom: 21, quietUntil: 8, breakChoice: "none", breakUntil: null,
     });
+  });
+
+  it("keeps the picture chosen with its look, and the words about the person, checking each", () => {
+    const storage = memoryStorage();
+    const store = createCommunityStore(() => storage);
+    const portrait = { hair: "black", hairStyle: "cropped", skin: "deep", top: "teal", bg: "peach", glasses: true } as const;
+    store.updateSettings({ picture: "portrait", look: { ...DEFAULT_PICTURE_LOOK, portrait }, about: "  Gardener,   grandmother   and proud owner of tomatoes. " });
+    const kept = createCommunityStore(() => storage).load().settings;
+    expect(kept.picture).toBe("portrait");
+    expect(kept.look.portrait).toEqual(portrait);
+    expect(kept.about).toBe("Gardener, grandmother and proud owner of tomatoes.");
+    // Anything not allowed keeps what was there, field by field; the words are cut at 160 characters.
+    store.updateSettings({ picture: "selfie" as never, look: { ...kept.look, monogram: "neon" as never, emblem: "cup", portrait: { ...portrait, skin: "blue" as never } } as never, about: "x".repeat(400) });
+    const checked = createCommunityStore(() => storage).load().settings;
+    expect(checked.picture).toBe("portrait");
+    expect(checked.look).toEqual({ ...DEFAULT_PICTURE_LOOK, portrait });
+    expect(checked.about).toHaveLength(160);
+    for (const picture of ["photo", "initial", "emblem", "illustrated", "drawn"] as const) {
+      store.updateSettings({ picture });
+      expect(createCommunityStore(() => storage).load().settings.picture).toBe(picture);
+    }
   });
 
   it("checks every change and remembers it", () => {

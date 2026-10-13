@@ -561,7 +561,8 @@ export const ALERT_IDS: AlertId[] = communityAlerts.map(alert => alert.id);
 
 /* --------------------------------------------------------------- settings */
 
-export type PictureChoice = "drawn" | "photo" | "initial";
+/** The picture the person shows: their photo, a monogram, a portrait, an emblem, an illustrated face or the drawn face. */
+export { PICTURE_CHOICES, type PictureChoice } from "./community-pictures";
 export type RequestsFrom = "everyone" | "friendsOfFriends" | "noOne";
 export type MessagesFrom = "friends" | "friendsAndGroups" | "noOne";
 export type PostsSeenBy = "everyone" | "friends" | "onlyMe";
@@ -570,7 +571,6 @@ export type BreakChoice = "none" | "day" | "week";
 
 /** The choices on the Community settings page, in the order they are shown. */
 export const settingsChoices = {
-  picture: [{ id: "drawn", label: "Drawn face" }, { id: "photo", label: "My photo" }, { id: "initial", label: "Initial" }] as { id: PictureChoice; label: string }[],
   requestsFrom: [{ id: "everyone", label: "Everyone" }, { id: "friendsOfFriends", label: "Friends of friends" }, { id: "noOne", label: "No one" }] as { id: RequestsFrom; label: string }[],
   messagesFrom: [{ id: "friends", label: "Only friends" }, { id: "friendsAndGroups", label: "Friends and my groups" }, { id: "noOne", label: "No one" }] as { id: MessagesFrom; label: string }[],
   /** Who sees the person's own posts in the feed. */
@@ -581,7 +581,6 @@ export const settingsChoices = {
   quietFrom: [19, 20, 21, 22, 23],
   breakFor: [{ id: "none", label: "No break" }, { id: "day", label: "1 day" }, { id: "week", label: "1 week" }] as { id: BreakChoice; label: string }[],
 };
-export const PICTURE_CHOICES: PictureChoice[] = settingsChoices.picture.map(choice => choice.id);
 export const REQUESTS_FROM: RequestsFrom[] = settingsChoices.requestsFrom.map(choice => choice.id);
 export const MESSAGES_FROM: MessagesFrom[] = settingsChoices.messagesFrom.map(choice => choice.id);
 export const POSTS_SEEN_BY: PostsSeenBy[] = settingsChoices.postsSeenBy.map(choice => choice.id);

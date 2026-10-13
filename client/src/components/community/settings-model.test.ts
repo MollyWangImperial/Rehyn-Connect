@@ -26,7 +26,7 @@ const settings = (patch: Partial<CommunitySettings> = {}): CommunitySettings => 
 describe("Community settings: the line under each section", () => {
   it("sums up the settings as they start", () => {
     expect(settingsSummaries(settings(), "", NOW)).toEqual({
-      appear: ["No town added", "online dot on", "drawn face"],
+      appear: ["No town added", "online dot on"],
       friends: ["Requests from everyone", "messages from friends only", "posts for friends"],
       see: ["Gentle mode on", "2 hidden words"],
       read: ["Read aloud off", "normal text"],
@@ -40,7 +40,7 @@ describe("Community settings: the line under each section", () => {
       gentleMode: false, hiddenWords: ["money"], readAloud: true, textSize: "bigger", quietFrom: 23, breakChoice: "week", breakUntil: NOW + 7 * DAY,
     });
     expect(settingsSummaries(changed, "Leeds", NOW)).toEqual({
-      appear: ["Town hidden", "online dot off", "initial"],
+      appear: ["Town hidden", "online dot off"],
       friends: ["No new requests", "messages from friends and groups", "posts for everyone"],
       see: ["Gentle mode off", "1 hidden word"],
       read: ["Read aloud on", "bigger text"],
@@ -107,7 +107,7 @@ describe("Community settings: the card preview", () => {
   });
 
   it("never invents a town, and keeps the card hypothetical", () => {
-    expect(townHint("")).toBe("Your profile doesn't have a town yet.");
+    expect(townHint("")).toBe("Add your town in Your profile, above.");
     expect(townHint("Leeds")).toBe("Puts “Leeds” under your name on your card");
     expect(townHint("")).not.toContain("Bristol");
     expect(cardNote("friends")).toBe("What other members would see when they tap your name. Only friends could message you.");
