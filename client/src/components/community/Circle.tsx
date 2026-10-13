@@ -46,7 +46,7 @@ const nameOf = (who: CircleSeat) => (who === "alira" ? "Alira" : who === "you" ?
 const isPerson = (who: CircleSeat): who is PersonId => who !== "alira" && who !== "you";
 const COUNT_WORDS = ["No one", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 /** "Nine", for "Nine of us here". */
-const countWord = (count: number) => COUNT_WORDS[count] ?? String(count);
+export const countWord = (count: number) => COUNT_WORDS[count] ?? String(count);
 
 /** "Wednesday 14 October, 4 pm". */
 const whenLabel = (date: Date) => `${date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}, ${date.getHours() % 12 || 12} ${date.getHours() < 12 ? "am" : "pm"}`;

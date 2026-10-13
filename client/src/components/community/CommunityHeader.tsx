@@ -16,6 +16,7 @@ import {
   type CommunitySpace,
   type CommunityView,
 } from "@/lib/community-store";
+import CircleTab from "./CirclePeek";
 import { myGroups } from "./group-model";
 import { BellIcon, SearchIcon, ShieldIcon, SlidersIcon, UsersIcon } from "./icons";
 import { unreadMessages } from "./messages-model";
@@ -27,7 +28,7 @@ const TabBadge = ({ count, what }: { count: number; what: string }) => (count > 
 /**
  * The tab row on every view: the feed, the lounge, the Sunday circle, groups, messages and friends.
  * Settings and Safety leave every tab unpressed. A tab for the view already showing doesn't add it
- * to Back again.
+ * to Back again. The Sunday circle's tab opens a live peek of the circle on hover (CirclePeek).
  */
 function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
   const search = useSearch();
@@ -46,9 +47,7 @@ function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
       <Link {...tab("lounge")}>
         <LiveDot /><span>The lounge</span>{" "}<span className="cm-tab-note cm-tab-note-rust">{here} here</span>
       </Link>
-      <Link {...tab("circle")}>
-        <span>Sunday circle</span>{" "}<span className="cm-tab-note cm-tab-note-gold">Live now</span>
-      </Link>
+      <CircleTab {...tab("circle")} active={space === "circle"} />
       <Link {...tab("groups")}>
         <span>Groups</span>
         {space !== "groups" && <TabBadge count={unread} what="unread" />}

@@ -1,14 +1,14 @@
 .medal-category,.selected-medal-card,.journey-next-medal {
-  --medal:#96573b; --medal-paper:#fffdf7; --medal-accent:#f2d0af; --medal-warm:#f3c165; --medal-wash:#fff3e2;
+  --medal:#a84a1d; --medal-paper:#fffdf9; --medal-accent:#fccda3; --medal-warm:#ffc255; --medal-wash:#fff4e0;
 }
 .medal-category.milestones,.selected-medal-card[data-medal-tone="milestones"] {
-  --medal:#39735c; --medal-accent:#bddcc9; --medal-warm:#ebce7e; --medal-wash:#eef6ed;
+  --medal:#118356; --medal-accent:#d7e49e; --medal-warm:#f5d072; --medal-wash:#fdfae4;
 }
 .medal-category.courage,.selected-medal-card[data-medal-tone="courage"] {
-  --medal:#887021; --medal-accent:#e5d99b; --medal-warm:#f1cc72; --medal-wash:#fbf6df;
+  --medal:#8d6e00; --medal-accent:#f9db77; --medal-warm:#fbce65; --medal-wash:#fef7de;
 }
 .medal-category.everyday,.selected-medal-card[data-medal-tone="everyday"] {
-  --medal:#9d6049; --medal-accent:#eac4b1; --medal-warm:#ebc86e; --medal-wash:#fcf0e7;
+  --medal:#af542f; --medal-accent:#f4c0a9; --medal-warm:#f6cb60; --medal-wash:#fff0e0;
 }
 .medal-artwork { display:block; width:76%; height:76%; overflow:visible; }
 .medal-art-accent { fill:var(--medal-accent); }
@@ -17,21 +17,21 @@
 .journey-page .medal-symbol,.journey-page .selected-medal-symbol,.journey-page .medal-sun {
   position:relative; isolation:isolate; flex-shrink:0; color:var(--medal);
   border:2px solid color-mix(in srgb,var(--medal) 35%,white);
-  background:radial-gradient(circle at 34% 24%,#fffefa 10%,var(--medal-wash) 78%);
-  box-shadow:inset 0 0 0 4px #ffffff80,0 4px 9px #6548270a;
+  background:radial-gradient(circle at 34% 24%,#fffefb 10%,var(--medal-wash) 78%);
+  box-shadow:inset 0 0 0 4px #ffffff80,0 4px 9px #6943170a;
 }
 .journey-page .medal-category button { min-height:146px; padding:13px 7px 11px; }
 .journey-page .medal-symbol { width:64px; height:64px; margin-bottom:10px; }
-.journey-page .medal-category button.is-in-progress { color:#46554b; background:#fffefa; }
-.journey-page .medal-category button.is-waiting { color:#687269; background:#fbfbf7; }
+.journey-page .medal-category button.is-in-progress { color:#205034; background:#fffefb; }
+.journey-page .medal-category button.is-waiting { color:#4c6754; background:#fcfbf6; }
 .journey-page .medal-category button.is-waiting .medal-symbol { border-style:dashed; }
-.journey-page .medal-category button > small { color:#66746a; }
-.journey-page .medal-category button.is-earned > small { color:#43745f; }
+.journey-page .medal-category button > small { color:#4a6855; }
+.journey-page .medal-category button.is-earned > small { color:#248156; }
 .journey-page .medal-category button > em { margin-top:8px; height:5px; }
 .journey-page .medal-category button:focus-visible { outline:2px solid var(--medal); outline-offset:4px; }
 .medal-earned-mark {
   position:absolute; right:-2px; bottom:0; display:grid; place-items:center; width:18px; height:18px;
-  color:#fffdf6; background:var(--medal); border:2px solid #fffefa; border-radius:50%;
+  color:#fffdf8; background:var(--medal); border:2px solid #fffefb; border-radius:50%;
 }
 
 /* Keep progress truthful: only the already-filled portion gets a passing glint. */

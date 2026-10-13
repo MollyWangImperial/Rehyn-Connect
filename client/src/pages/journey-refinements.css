@@ -1,16 +1,31 @@
+/* The Journey look ("Sunrise"): emerald on warm gold, so the journey feels bright. The page and its top bar take
+   the warm background; the sidebar stays as on every page. Alira's face is drawn in the same emerald and gold. */
+.recovery-shell.journey-shell { background-color:#faf6ea; color:#1f382b; }
+.journey-shell .recovery-topbar { border-bottom-color:rgba(0,88,54,.065); background:#fbf7eb; }
+.journey-shell .recovery-date { color:#4a6756; }
+.journey-shell :is(.recovery-utility,.recovery-profile) { border-color:#fcefb9; color:#004f34; box-shadow:0 3px 10px rgba(0,62,35,.035); }
+.journey-shell .recovery-utility:hover { border-color:#5be1a6; background:#faf5ea; }
+.journey-shell .recovery-utility.is-on { color:#fff; border-color:#006945; background:#006945; }
+.journey-shell .recovery-profile { color:#195a3a; background:#fff2bc; }
+.journey-page :focus-visible { outline-color:#00a87f !important; }
+.journey-page .alira-avatar-image > circle:first-of-type { fill:#f9ecb6; }
+.journey-page .alira-avatar-image > circle:nth-of-type(2) { fill:#006945; }
+@media (max-width:620px) { .journey-shell .recovery-topbar { background:rgba(252,248,236,.96); } }
+
 .journey-page .journey-heading { min-height:80px; align-items:center; margin-bottom:20px; }
-.journey-page .journey-heading h1 { margin:0; }
+.journey-page .journey-heading h1 { margin:0; color:#043d27; }
+.journey-page .journey-heading h1 span { color:#d45517; }
 .journey-page .journey-path-card { overflow:clip; }
 .journey-page .journey-path-card h2 { margin-top:0; }
 
 /* Week 3 remains the current week when another week is selected for review. */
 .journey-week.is-current::after {
   content:""; position:absolute; inset:-7px; border:2px solid transparent;
-  border-top-color:#b87554; border-right-color:#b8755440; border-radius:50%;
+  border-top-color:#cc6835; border-right-color:#cc683540; border-radius:50%;
   pointer-events:none; animation:journey-current-orbit 4.5s linear infinite;
 }
-.journey-page .journey-week.is-selected:not(.is-current) { outline:2px solid #3c7d61; outline-offset:3px; }
-.journey-page .journey-week:focus-visible { outline:2px solid #2f705a; outline-offset:8px; }
+.journey-page .journey-week.is-selected:not(.is-current) { outline:2px solid #0d8b58; outline-offset:3px; }
+.journey-page .journey-week:focus-visible { outline:2px solid #007f55; outline-offset:8px; }
 
 .journey-page .journey-stat-row article { min-height:72px; }
 .journey-page .journey-card-heading > button { flex-shrink:0; white-space:nowrap; }
@@ -19,20 +34,20 @@
 .journey-page .journey-next-medal > button svg { flex-shrink:0; }
 
 .journey-page .journey-win-list article > span {
-  --win-phase:0s; position:relative; color:#ad712f; background:#fbefdc;
+  --win-phase:0s; position:relative; color:#be6600; background:#fff0d1;
   animation:journey-win-twinkle 6s var(--win-phase) ease-in-out infinite;
 }
 .journey-page .journey-win-list article:nth-child(2) > span { --win-phase:-2s; }
 .journey-page .journey-win-list article:nth-child(3) > span { --win-phase:-4s; }
 .journey-win-list article > span::after {
-  content:""; position:absolute; inset:-3px; border:1px solid #d0a461; border-radius:50%;
+  content:""; position:absolute; inset:-3px; border:1px solid #e0a54e; border-radius:50%;
   opacity:0; pointer-events:none; animation:journey-win-glow 6s var(--win-phase) ease-out infinite;
 }
 .journey-page .journey-win-list article:hover > span { animation:journey-win-twinkle 1.2s ease-in-out; }
 .journey-alira-avatar { position:relative; z-index:1; width:48px; height:48px; margin-bottom:16px; }
 .journey-alira-avatar .alira-avatar-image { animation:journey-alira-breathe 4.8s ease-in-out infinite; }
 .journey-alira-avatar::before {
-  content:""; position:absolute; inset:-3px; border:1px solid #bfdfcc; border-radius:50%;
+  content:""; position:absolute; inset:-3px; border:1px solid #e2e495; border-radius:50%;
   pointer-events:none; animation:journey-alira-halo 4.8s ease-out infinite;
 }
 
@@ -66,12 +81,12 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .journey-page *,.journey-page *::before,.journey-page *::after { animation:none !important; transition:none !important; }
-  .journey-week.is-current::after { border-color:#b8755455; }
+  .journey-week.is-current::after { border-color:#cc683555; }
   .journey-alira-avatar::before { opacity:.3; }
 }
 
 /* Locked until the first movement check has scores and Alira has designed the plan. */
-.journey-locked { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:12px; max-width:640px; padding:30px 32px; border:1px solid #e0e7df; border-radius:21px; background:linear-gradient(105deg,#e3efe8 0%,#dfece6 60%,#dae7e0 100%); animation:page-rise .22s cubic-bezier(.23,1,.32,1); }
+.journey-locked { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:12px; max-width:640px; padding:30px 32px; border:1px solid #f9ecb7; border-radius:21px; background:linear-gradient(105deg,#fff3c1 0%,#fdf0ba 60%,#f8ebb5 100%); animation:page-rise .22s cubic-bezier(.23,1,.32,1); }
 
 /* Returning to a Journey view shows its sections immediately. Interaction feedback
    (recording, a new saved page, calendar selection and live progress) still has motion. */
@@ -80,12 +95,12 @@
 .journey-page[data-entrance="seen"] .dp-cell.is-today:not(.is-kept):not(.is-pop) { animation:dp-today 3.2s ease-in-out infinite; }
 .jp[data-entrance="seen"] :is(.jp-line-a,.jp-line-b,.jp-fade-a,.jp-fade-b,.jp-rise-a,.jp-rise-b,.jp-flash-a,.jp-flash-b,.jp-check-a,.jp-check-b) { animation:none; }
 .jp[data-entrance="seen"] :is(.jp-latest-a,.jp-latest-b) { animation:jp-breathe 2.2s ease-in-out infinite; }
-.journey-locked::after { content:""; position:absolute; top:-140px; right:-100px; width:310px; height:310px; border:1px solid #7da69733; border-radius:50%; box-shadow:0 0 0 30px #7da69712; pointer-events:none; }
+.journey-locked::after { content:""; position:absolute; top:-140px; right:-100px; width:310px; height:310px; border:1px solid #5cbe9233; border-radius:50%; box-shadow:0 0 0 30px #5cbe9212; pointer-events:none; }
 .journey-locked > * { position:relative; z-index:1; }
-.journey-locked-icon { display:grid; place-items:center; width:46px; height:46px; border-radius:14px; color:#2f5a45; background:#fffefa; box-shadow:0 4px 12px #2a3f3014; }
-.journey-locked .recovery-overline { color:#577367; font-size:10px; }
-.journey-locked h2 { margin:0; color:#233c31; font:600 30px/1.1 "Newsreader",Georgia,serif; letter-spacing:-.5px; }
-.journey-locked p { margin:0; color:#4f6359; font-size:15px; line-height:1.6; }
-.journey-locked .recovery-primary-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; width:auto; min-width:220px; margin-top:8px; padding:0 22px; background:#285b49; font-size:14px; }
+.journey-locked-icon { display:grid; place-items:center; width:46px; height:46px; border-radius:14px; color:#006941; background:#fffefb; box-shadow:0 4px 12px #13442914; }
+.journey-locked .recovery-overline { color:#2f694e; font-size:10px; }
+.journey-locked h2 { margin:0; color:#084129; font:600 30px/1.1 "Newsreader",Georgia,serif; letter-spacing:-.5px; }
+.journey-locked p { margin:0; color:#2e5c44; font-size:15px; line-height:1.6; }
+.journey-locked .recovery-primary-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; width:auto; min-width:220px; margin-top:8px; padding:0 22px; background:#006945; font-size:14px; }
 .journey-locked-demo { margin-top:4px; padding:0; border:0; background:transparent; color:#8a5a00; font-size:12px; font-weight:700; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 @media (max-width:620px) { .journey-locked { padding:22px 18px; } .journey-locked h2 { font-size:26px; } }

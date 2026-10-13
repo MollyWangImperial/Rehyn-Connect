@@ -27,6 +27,7 @@
   --cm-rust: #B5522E;
   --cm-rust-dark: #8F3520;
   --cm-live: #C8553A;
+  --cm-night: #1A2238;
   --cm-placeholder: #5E6A64;
   --cm-shadow: 0 10px 30px rgba(20, 54, 40, .06);
   --cm-serif: "Instrument Serif", Georgia, serif;
@@ -50,8 +51,8 @@
 /* ---------------------------------------------------------------- heading */
 
 /* The header: a deep green band with the title, how many friends, groups and people in the lounge
-   there are, the toolbar and the tabs, and a faint line drawn across it like hills, or a pulse. */
-.cm-head { position: relative; display: grid; gap: 24px; margin-bottom: 22px; padding: 28px 32px 24px; overflow: hidden; border-radius: 28px; background: var(--cm-deep); color: #FFFFFF; box-shadow: 0 18px 40px rgba(20, 54, 40, .16); }
+   there are, the toolbar and the tabs. Nothing clips it, so the Sunday circle's peek can open below it. */
+.cm-head { position: relative; display: grid; gap: 24px; margin-bottom: 22px; padding: 28px 32px 24px; border-radius: 28px; background: var(--cm-deep); color: #FFFFFF; box-shadow: 0 18px 40px rgba(20, 54, 40, .16); }
 .cm-head-row { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 20px; flex-wrap: wrap; }
 .cm-head-titles { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .cm-title { font: 400 48px/1.05 var(--cm-serif); letter-spacing: -0.01em; color: var(--cm-ink); }
@@ -85,6 +86,38 @@
 .cm-tab-note-gold { color: #E2C47E; }
 .cm-tab.is-active .cm-tab-note-rust { color: var(--cm-rust-dark); }
 .cm-tab.is-active .cm-tab-note-gold { color: var(--cm-gold-ink); }
+
+/* The Sunday circle's live peek (CirclePeek): hovering its tab, or reaching it with the keyboard, opens a night-blue
+   card under it with today's get-together, who holds the teacup and what they're saying, who's there, and a way to
+   take your seat. A short delay stops it flashing as the pointer passes; Escape closes it (.is-closed). Not on small
+   screens, where the tabs slide sideways and there is no hover. */
+.cm-tab-wrap { position: relative; display: inline-flex; }
+.cm-peek { position: absolute; top: calc(100% + 12px); left: var(--cm-peek-shift, 0px); z-index: 30; display: flex; flex-direction: column; gap: 14px; width: 388px; max-width: calc(100vw - 48px); padding: 22px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 24px; background: var(--cm-night); color: #FFFFFF; box-shadow: 0 24px 60px rgba(13, 18, 34, .42); white-space: normal; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s; }
+/* An invisible bridge, so the pointer can travel from the tab into the card, and a notch pointing at the tab. */
+.cm-peek::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+.cm-peek::after { content: ""; position: absolute; top: -8px; left: calc(38px - var(--cm-peek-shift, 0px)); width: 14px; height: 14px; border-top: 1px solid rgba(255, 255, 255, .14); border-left: 1px solid rgba(255, 255, 255, .14); border-radius: 3px 0 0 0; background: var(--cm-night); transform: rotate(45deg); }
+.cm-tab-wrap:has(:focus-visible) .cm-peek { opacity: 1; visibility: visible; transform: none; transition-delay: .12s; }
+@media (hover: hover) {
+  .cm-tab-wrap:hover .cm-peek { opacity: 1; visibility: visible; transform: none; transition-delay: .12s; }
+  .cm-tab-wrap:hover .cm-tab { border-color: rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .1); }
+}
+.cm-tab-wrap.is-closed .cm-peek { opacity: 0; visibility: hidden; transform: translateY(-6px); transition-delay: 0s; }
+.cm-peek-status { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, .82); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.cm-peek-live { color: #FFB59C; }
+.cm-peek-title { font: 400 36px/1.05 var(--cm-serif); letter-spacing: -.01em; color: #FFFFFF; }
+.cm-peek-speaker { display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 18px; background: rgba(255, 255, 255, .08); }
+.cm-peek-face { position: relative; flex-shrink: 0; width: 52px; height: 52px; }
+.cm-peek-face > .cm-face { display: block; box-shadow: 0 0 0 3px var(--cm-gold); }
+.cm-peek-cup { position: absolute; right: -6px; bottom: -6px; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px; background: var(--cm-gold); color: var(--cm-deep); box-shadow: 0 0 0 2px var(--cm-night); }
+.cm-peek-said { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cm-peek-who { display: flex; align-items: baseline; gap: 8px; font-size: 14.5px; font-weight: 700; }
+.cm-peek-who span { color: var(--cm-gold); font-size: 12.5px; }
+.cm-peek-caption { font: 400 22px/1.25 var(--cm-serif); color: #FFFFFF; }
+.cm-peek-seats { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, .86); font-size: 14.5px; line-height: 1.4; }
+.cm-peek-stack { display: flex; align-items: center; flex-shrink: 0; }
+.cm-peek-stack > .cm-face { box-shadow: 0 0 0 2px var(--cm-night); }
+.cm-peek-stack > .cm-face + .cm-face { margin-left: -8px; }
+.cm-peek-empty { display: block; width: 36px; height: 36px; margin-left: 6px; border: 2px dashed var(--cm-gold); border-radius: 999px; }
 
 .cm-badge { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; background: var(--cm-rust); color: #FFFFFF; font-size: 13px; font-weight: 700; }
 
@@ -536,6 +569,8 @@
   .cm-tabs { flex-wrap: nowrap; gap: 8px; margin: 0 -16px; padding: 2px 16px 4px; overflow-x: auto; scrollbar-width: none; }
   .cm-tabs::-webkit-scrollbar { display: none; }
   .cm-tab { flex-shrink: 0; height: 44px; padding: 0 14px; gap: 7px; font-size: 15px; }
+  .cm-tab-wrap { flex-shrink: 0; }
+  .cm-peek { display: none; }
   .cm-side-card, .cm-composer { padding: 16px; }
   .cm-page { --cm-post: 18px; }
 }

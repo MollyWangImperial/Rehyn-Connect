@@ -120,10 +120,10 @@ export default function JourneyProgress({ animateEntrance = true, reveal = false
       const d = (t % 1800) / 1800;
       for (const el of live(aliraRefs.current.ring)) el.style.transform = `rotate(${(((t / 2600) * 360) % 360).toFixed(1)}deg)`;
       for (const el of live(aliraRefs.current.disc)) {
-        el.style.boxShadow = `0 0 ${(22 * s).toFixed(1)}px ${(5 * s).toFixed(1)}px rgba(188,211,198,${(0.6 * s).toFixed(2)})`;
+        el.style.boxShadow = `0 0 ${(22 * s).toFixed(1)}px ${(5 * s).toFixed(1)}px rgba(179,232,200,${(0.6 * s).toFixed(2)})`;
         el.style.transform = `scale(${(1 + 0.06 * s).toFixed(3)})`;
       }
-      for (const el of live(aliraRefs.current.dot)) el.style.boxShadow = `0 0 0 ${(9 * d).toFixed(1)}px rgba(233,162,126,${(0.65 * (1 - d)).toFixed(2)})`;
+      for (const el of live(aliraRefs.current.dot)) el.style.boxShadow = `0 0 0 ${(9 * d).toFixed(1)}px rgba(255,149,107,${(0.65 * (1 - d)).toFixed(2)})`;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);

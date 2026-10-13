@@ -51,6 +51,21 @@ describe("My community views", () => {
     expect(text).toContain("4 unread");
   });
 
+  it("opens a live peek of the Sunday circle from its tab, but not in the circle itself", () => {
+    const html = page("/community");
+    const text = words(html);
+    // The tab names today's get-together for a screen reader; the peek shows who has the teacup, who's there, and a seat.
+    const circleTab = (html.match(/<a\b[^>]*>/g) ?? []).find(tag => tag.includes('href="/community?space=circle"') && tag.includes('class="cm-tab "'));
+    const described = circleTab?.match(/aria-describedby="([^"]+)"/)?.[1];
+    expect(described).toBeTruthy();
+    expect(html).toContain(`<p class="cm-peek-title" id="${described}">Photo stories</p>`);
+    expect(text).toContain("Live · Hosted by Alira Photo stories");
+    expect(text).toMatch(/[A-Z][a-z]+ Speaking “[^”]+”/);
+    expect(text).toContain("Nine of us here. One seat is yours.");
+    expect(tagWith(html, "a", 'class="cm-btn cm-btn-gold cm-btn-wide"', 'href="/community?space=circle"')).toBe(true);
+    expect(page("/community?space=circle")).not.toContain("cm-peek");
+  });
+
   it("shows who can see your own posts, and never says only you can see what you share", () => {
     // A post the person made: its line says who sees it (Friends, until the setting is changed).
     const post = createCommunityStore(() => null).addPost({ text: "Walked to the post box today." });

@@ -35,7 +35,7 @@ export default function Journey() {
   if (!journeyUnlocked(assessment)) {
     const waitingForPlan = reason === "plan";
     return (
-      <RecoveryShell active="Journey" dateLabel={todayLabel()} onboarding={!assessment}>
+      <RecoveryShell active="Journey" dateLabel={todayLabel()} className="journey-shell" onboarding={!assessment}>
         <div className="recovery-page journey-page" data-entrance={animateEntrance ? "first" : "seen"}>
           <section className="recovery-page-heading journey-heading"><div><h1>My journey<span>.</span></h1></div></section>
           <section className="journey-locked" aria-labelledby="journey-locked-title">
@@ -54,7 +54,7 @@ export default function Journey() {
   }
 
   return (
-    <RecoveryShell active="Journey" dateLabel={tab === "Journal" && journalDate ? journalDate : todayLabel()}>
+    <RecoveryShell active="Journey" dateLabel={tab === "Journal" && journalDate ? journalDate : todayLabel()} className="journey-shell">
       <div className="recovery-page journey-page" data-entrance={animateEntrance ? "first" : "seen"}>
         <section className="recovery-page-heading journey-heading">
           <div>
