@@ -6,15 +6,15 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import FastCheck from "./pages/FastCheck";
-import MyTime from "./pages/MyTime";
 import Community from "./pages/Community";
 import Library from "./pages/Library";
 import CareTeam from "./pages/CareTeam";
 import { SettingsProvider } from "./components/AccountSettings";
 import "./pages/recovery-pages.css";
 
-// Rehyn: Connect is the community release: no Alira chat, movement check, exercises or Journey.
-// Their old addresses lead home rather than to a missing page.
+// Rehyn: Connect is the community release: no Alira chat, movement check, exercises, Journey or
+// My Time. Their old addresses lead home (My Time's reading moved to the Library) rather than to a
+// missing page.
 const RETIRED_PATHS = ["/welcome", "/journey", "/alira", "/warm-up", "/assessment", "/assessment/native", "/exercise/:id"];
 
 function Router() {
@@ -22,8 +22,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       {RETIRED_PATHS.map(path => <Route key={path} path={path}><Redirect to="/" replace /></Route>)}
+      <Route path={"/my-time"}><Redirect to="/library" replace /></Route>
       <Route path={"/fast-check"} component={FastCheck} />
-      <Route path={"/my-time"} component={MyTime} />
       <Route path={"/community"} component={Community} />
       {/* The Library: /library, /library/:section, /library/:group/:condition (nested routing inside the page). */}
       <Route path={"/library"} nest component={Library} />

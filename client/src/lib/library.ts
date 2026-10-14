@@ -76,7 +76,7 @@ export function storiesFor(condition: LibraryCondition): LibraryStory[] {
 export const sectionStories = (sectionId: string) => libraryStories.filter(story => story.sectionId === sectionId);
 export const groupStories = (groupId: string) => libraryStories.filter(story => story.groupId === groupId);
 
-/** Whether a piece has words to read yet: its own, or a checked answer from Learn in My Time. */
+/** Whether a piece has words to read yet: a checked answer from content/my-time-learn.ts. */
 export const isReadable = (item: LibraryItem) => Boolean(item.learnId && learnArticle(item));
 
 export function sectionCounts(section: LibrarySection) {

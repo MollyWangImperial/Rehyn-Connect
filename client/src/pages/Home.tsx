@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, CalendarHeart, Coffee, Heart, Users } from "lucide-react";
+import { ArrowRight, BookOpen, CalendarHeart, Coffee, Users } from "lucide-react";
 import RecoveryShell from "@/components/RecoveryShell";
 import { circleNow } from "@/content/circle-events";
 import { lounge } from "@/content/community-samples";
-import { myTimeActivities, myTimeHref, suggestedActivity } from "@/lib/my-time";
 import { profileName, useProfile } from "@/lib/profile";
 import { todayLabel } from "./Welcome";
 import "./home-hub.css";
@@ -12,14 +11,12 @@ import "./home-hub.css";
 const greetingFor = (hour: number) => hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 const timeOf = (date: Date) => date.toLocaleTimeString("en-GB", { hour: "numeric", minute: date.getMinutes() ? "2-digit" : undefined, hour12: true }).replace(" ", "");
 
-// The home page of Rehyn: Connect: what is happening in the community today, with the Library and
-// My Time a tap away. Nothing here is a plan or a score.
+// The home page of Rehyn: Connect: what is happening in the community today, with the Library a
+// tap away. Nothing here is a plan or a score.
 export default function Home() {
   const [now] = useState(() => new Date());
   const name = profileName(useProfile());
   const circle = circleNow(now);
-  const suggestion = suggestedActivity(now);
-  const activity = myTimeActivities.find(item => item.id === suggestion.id);
   const circleIsToday = circle.start.toDateString() === now.toDateString();
 
   return (
@@ -64,14 +61,6 @@ export default function Home() {
             <span>Understand your condition, with trusted links and the stories of people who’ve been there.</span>
             <em>Open the Library <ArrowRight size={16} aria-hidden="true" /></em>
           </Link>
-
-          {activity && <Link href={myTimeHref("play", activity.id)} className="home-hub-card">
-            <span className="home-hub-icon"><Heart size={22} aria-hidden="true" /></span>
-            <span className="home-hub-kicker">My Time</span>
-            <strong>{activity.label}</strong>
-            <span>{suggestion.line}</span>
-            <em>Take a few minutes <ArrowRight size={16} aria-hidden="true" /></em>
-          </Link>}
         </div>
       </div>
     </RecoveryShell>

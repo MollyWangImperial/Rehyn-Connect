@@ -7,8 +7,8 @@
 //   /library/stories, /library/stories/li-wei, /library/letters/two-years-ahead
 //
 // IMPORTANT: the titles of articles, videos and podcasts are placeholders until each one is written
-// and clinically checked. A piece with a `learnId` opens the checked answer from Learn in My Time
-// (content/my-time-learn.ts); any other piece shows an honest "coming soon" with trusted links.
+// and clinically checked. A piece with a `learnId` opens a checked answer (content/my-time-learn.ts);
+// any other piece shows an honest "coming soon" with trusted links.
 // Only the conditions with `content` have a full page; the rest say their page is still being written.
 // The stories and letters are composites written for Rehyn. The people in them are not real.
 // Sentences are kept short because Alira reads them aloud one at a time.
@@ -25,7 +25,7 @@ export type LibraryItem = {
   minutes?: number;
   /** A few words after the time: "neuro-physiotherapist", "with a diagram". */
   extra?: string;
-  /** The checked answer from Learn in My Time that this piece opens. */
+  /** The checked answer (content/my-time-learn.ts) that this piece opens. */
   learnId?: string;
   isNew?: boolean;
   /** Words people search with that are not in the title. */
@@ -187,7 +187,7 @@ const ischaemicStroke: LibraryCondition = {
       }),
       article("types", "TIA, ischaemic, haemorrhagic: the difference", 3, { blurb: "Three words the ward used that nobody explained. A two-minute picture of each.", extra: "With a diagram", keywords: ["mini-stroke", "bleed"] }),
       article("scans", "The scans and tests you had", 4, { blurb: "CT, MRI, carotid ultrasound, the heart monitor. What each one was looking for and how to ask for your results.", keywords: ["ct", "mri", "ultrasound", "results"] }),
-      article("heavy-side", "Why does one side feel heavier?", 3, { blurb: "The short answer from Learn in My Time about a hand and arm that won't do as they are told.", learnId: "hand", keywords: ["weakness", "heavy", "arm", "leg"] }),
+      article("heavy-side", "Why does one side feel heavier?", 3, { blurb: "The short answer about a hand and arm that won't do as they are told.", learnId: "hand", keywords: ["weakness", "heavy", "arm", "leg"] }),
     ],
     recover: [
       { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 6, extra: "neuro-physiotherapist", learnId: "rewiring", keywords: ["neuroplasticity", "rewire"] },

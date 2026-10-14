@@ -35,8 +35,8 @@ export function StoriesPage() {
       <div className="lib-grid lib-grid-3">{shown.map(story => <StoryCard key={story.id} story={story} />)}</div>
       <span className="lib-film-note">{STORIES_NOTE}</span>
       <div className="lib-own-story">
-        <span>More stories about life after a stroke, from survivors and carers, are in My Time.</span>
-        <Link href="~/my-time?section=stories" className="lib-pill-link is-coral">Stories in My Time<ArrowIcon /></Link>
+        <span>Have a story of your own? Share it with people who understand, in My community.</span>
+        <Link href="~/community" className="lib-pill-link is-coral">Go to My community<ArrowIcon /></Link>
       </div>
     </div>
   </div>;

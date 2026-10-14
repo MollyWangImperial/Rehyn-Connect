@@ -11,7 +11,6 @@ import {
   BookOpen,
   ChevronRight,
   CircleHelp,
-  Heart,
   Home as HomeIcon,
   Plus,
   ShieldCheck,
@@ -20,7 +19,7 @@ import {
 } from "lucide-react";
 import { CARE_TEAM_PATH, useCareTeamWaiting } from "@/lib/care-team";
 
-type ViewName = "Home" | "My Time" | "Library" | "My Community" | "Care Team";
+type ViewName = "Home" | "Library" | "My Community" | "Care Team";
 
 type RecoveryShellProps = {
   active: ViewName;
@@ -31,24 +30,26 @@ type RecoveryShellProps = {
 
 const navigation: { label: ViewName; href: string; icon: typeof HomeIcon }[] = [
   { label: "Home", href: "/", icon: HomeIcon },
-  { label: "My Time", href: "/my-time", icon: Heart },
   { label: "Library", href: "/library", icon: BookOpen },
   { label: "My Community", href: "/community", icon: Users },
 ];
-// The mobile bar's names, where the full names would not fit six across.
-const mobileLabel: Partial<Record<ViewName, string>> = { "My Time": "My time", "My Community": "Community", "Care Team": "Care team" };
+// The mobile bar's names, where the full names would not fit five across.
+const mobileLabel: Partial<Record<ViewName, string>> = { "My Community": "Community", "Care Team": "Care team" };
 const navLabel = (label: ViewName) => label === "My Community" ? "My community" : label;
 
 export default function RecoveryShell({ active, children, dateLabel = "THURSDAY, 24 SEPTEMBER", className = "" }: RecoveryShellProps) {
-  const [location, go] = useLocation();
+  const [, navigate] = useLocation();
   const search = useSearch();
+  // The shell also wraps nested routes (the Library lives under /library), so its own links are
+  // absolute: "~" leaves any nested base, and the way back from Warning signs is the real path.
+  const go = (href: string) => navigate(`~${href}`);
   const { largeText, strongContrast } = useDisplayPrefs();
   const setLargeText = (on: boolean) => setDisplayPrefs({ largeText: on });
   const setStrongContrast = (on: boolean) => setDisplayPrefs({ strongContrast: on });
   const openSettings = useSettings();
   const profile = useProfile();
   const careTeamBadge = useCareTeamWaiting();
-  const openFastCheck = () => go(fastCheckPath(location, search));
+  const openFastCheck = () => go(fastCheckPath(window.location.pathname, search));
 
   return (
     <div className={`recovery-shell ${largeText ? "recovery-large-text" : ""} ${strongContrast ? "recovery-strong-contrast" : ""} ${className}`}>

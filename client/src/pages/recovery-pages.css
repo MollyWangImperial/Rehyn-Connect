@@ -1,4 +1,4 @@
-/* Shared pages: Journey, Alira, and My Time */
+/* The app shell (sidebar, top bar, phone menu) and styles shared between pages */
 .recovery-shell { min-height: 100vh; display: flex; background: #f7f6f2; color: #24362f; }
 .recovery-sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; width: 236px; padding: 30px 17px 22px; display: flex; flex-direction: column; color: #f1f5ee; background: linear-gradient(175deg, #1c453b 0%, #183d34 72%, #15372f 100%); box-shadow: 8px 0 34px rgba(22,54,45,.055); }
 .recovery-brand { min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 12px; border: 0; color: inherit; background: transparent; text-align: left; }

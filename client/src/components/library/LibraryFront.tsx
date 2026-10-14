@@ -165,7 +165,7 @@ function ShortLists() {
     <div className="lib-answers">
       <div>
         <h2 className="lib-h2">Three-minute answers</h2>
-        <p className="lib-sub">The same short, friendly format as “Learn” in My Time, now across every condition.</p>
+        <p className="lib-sub">Short, friendly answers you can read or listen to in about three minutes.</p>
       </div>
       <ul className="lib-grid lib-grid-2" role="list">
         {answers.map(place => <li key={itemKey(place)}>

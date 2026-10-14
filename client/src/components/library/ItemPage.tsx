@@ -7,8 +7,8 @@ import { libraryStore } from "@/lib/library-store";
 import { BackIcon, ChevronIcon, Crumbs, ExternalIcon, KindBadge, SoonTag, SourceCard } from "./parts";
 import { ListenBar, useNarration, type Block } from "./Reading";
 
-// One piece on a condition page. A piece linked to Learn in My Time shows that checked answer,
-// for reading or listening; anything not written yet says so and offers trusted sources instead.
+// One piece on a condition page. A piece linked to a checked answer (content/my-time-learn.ts)
+// shows it, for reading or listening; anything not written yet says so and offers trusted sources instead.
 
 const WAITING: Record<string, string> = {
   article: "This article is coming soon.",
@@ -57,7 +57,7 @@ function LearnAnswer({ article }: { article: LearnArticle }) {
       <ul>
         {article.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}<ExternalIcon size={12} /><span className="lib-sr"> (opens in a new tab)</span></a></li>)}
       </ul>
-      <p>Checked {LEARN_CHECKED}. General information only. This answer also lives in <Link href={`~/my-time?section=learn&read=${encodeURIComponent(article.id)}`}>Learn, in My Time</Link>.</p>
+      <p>Checked {LEARN_CHECKED}. General information only.</p>
     </section>
   </article>;
 }
@@ -88,7 +88,7 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
       </header>
 
       {learn ? <>
-        {notYet && <p className="lib-item-note">{WAITING[item.kind]} Until then, here is the checked written answer from Learn in My Time.</p>}
+        {notYet && <p className="lib-item-note">{WAITING[item.kind]} Until then, here is the checked written answer.</p>}
         <LearnAnswer article={learn} />
       </> : <section className="lib-soon-panel" aria-labelledby="lib-item-soon">
         <h2 id="lib-item-soon" className="lib-h2">{WAITING[item.kind]}</h2>

@@ -80,7 +80,7 @@ function labelOf(props: Record<string, unknown>): string {
 }
 
 const hrefOf = (link: Seen) => String(link.props.href ?? link.props.to ?? "");
-const APP_PATHS = ["/", "/fast-check", "/my-time", "/library", "/community", "/care-team"];
+const APP_PATHS = ["/", "/fast-check", "/library", "/community", "/care-team"];
 
 /** Why a link would not land where it says, or null when it does. */
 function problemWith(href: string, groups: string[]): string | null {

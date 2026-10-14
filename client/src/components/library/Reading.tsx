@@ -3,7 +3,7 @@ import { splitSentences, useReadAloud, type ReadAloud } from "@/lib/alira-read-a
 import { AliraMark, PauseIcon, PlayIcon } from "./parts";
 
 // Reading a long piece aloud in the Library (an answer, a story, a letter): a listen bar, and the
-// sentence Alira is reading lit on the page, the same way Learn in My Time does it.
+// sentence Alira is reading lit on the page.
 
 export type Block = { key: string; text: string };
 export type Narration = { lines: string[]; starts: Record<string, number> };

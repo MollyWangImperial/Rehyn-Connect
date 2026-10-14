@@ -1,4 +1,5 @@
-// "Learn" in My Time: short, plain answers to the questions people ask after a stroke.
+// Short, plain answers to the questions people ask after a stroke, opened from Library topics
+// (content/library.ts `learnId`). They began as "Learn" in My Time, hence the file name.
 //
 // Every figure and piece of advice here was checked against the pages listed under each article's
 // `sources` on 6 October 2026. When you edit an article, check the wording against its sources
