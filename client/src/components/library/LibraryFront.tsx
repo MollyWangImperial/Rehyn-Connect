@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { Link } from "wouter";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearch } from "wouter";
 import { libraryLetters, librarySections, LIBRARY_NOTE, MOST_READ, POPULAR, STORIES_NOTE, THREE_MINUTE_ANSWERS, type LibraryLetter } from "@/content/library";
 import {
   conditionByKey,
@@ -181,7 +181,10 @@ function ShortLists() {
 
 export default function LibraryFront() {
   const state = useLibraryState();
-  const [query, setQuery] = useState("");
+  // A search can arrive in the address (/library?q=tired), from "Look up a topic" in the left panel.
+  const asked = new URLSearchParams(useSearch()).get("q") ?? "";
+  const [query, setQuery] = useState(asked);
+  useEffect(() => { if (asked) setQuery(asked); }, [asked]);
   const hits = useMemo(() => searchLibrary(query), [query]);
   const results = useRef<HTMLDivElement>(null);
   const searching = query.trim().length > 0;

@@ -6,6 +6,7 @@ import { SettingsContext } from "@/components/settings-context";
 import { communityAlerts, FRIENDS_TABS, type FriendsTab } from "@/content/community-samples";
 import { blankCommunityMemory, communityHref, communityViewFromQuery, defaultCommunitySettings, viewHref, type CommunityMemory, type CommunityPlace, type SafetyTarget } from "@/lib/community-store";
 import { fastCheckReturnPath } from "@/lib/fast-check";
+import SiteTabs from "@/components/SiteTabs";
 import Community from "@/pages/Community";
 import AlertsPanel from "./AlertsPanel";
 import { findInCommunity } from "./alerts-helpers";
@@ -323,10 +324,13 @@ describe("problems found in review stay fixed", () => {
     const safety = draw(createElement(Community), "/community?space=safety").links;
     expect(replaces(safety, "/community?space=safety")).not.toContain(false);
     expect(replaces(safety, "/community?space=settings")).toEqual([false]);
-    const feed = draw(createElement(Community), "/community").links;
-    expect(replaces(feed, "/community").length).toBeGreaterThan(0);
-    expect(replaces(feed, "/community")).not.toContain(false);
-    expect(replaces(feed, "/community?space=lounge")).not.toContain(true);
+    // The spaces' tabs are at the top of every page (SiteTabs); their links start with "~".
+    const feed = draw(createElement(SiteTabs), "/community").links;
+    expect(replaces(feed, "~/community")).toEqual([true]);
+    expect(replaces(feed, "~/community?space=lounge")).toEqual([false]);
+    const lounge = draw(createElement(SiteTabs), "/community?space=lounge").links;
+    expect(replaces(lounge, "~/community?space=lounge")).toEqual([true]);
+    expect(replaces(lounge, "~/community")).toEqual([false]);
 
     // Alerts: the circle alert while on the circle, and Quiet time's Change while on Settings.
     const circle: CommunityPlace = { space: "circle", group: null };

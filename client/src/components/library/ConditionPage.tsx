@@ -46,9 +46,9 @@ import {
 } from "./parts";
 
 // One condition's page, built from its data. Every condition with content has the same parts
-// (Understand, Recover, Live well, Watch & listen, Trusted sources, Stories, Ask your doctor);
-// `storyLayout` decides where the stories sit:
-//   "woven"   a story band between Understand and Recover (B), a companion in the side rail
+// (Understand, Explore, Live well, Watch & listen, Trusted sources, Stories, Ask your doctor; Explore
+// is "recover" in the data, and some conditions name it differently); `storyLayout` decides where the stories sit:
+//   "woven"   a story band between Understand and Explore (B), a companion in the side rail
 //             matched to the reader's week (C), and a prompt on the topic people worry about (D)
 //   "opening" the story opens the page with a "skip to the facts" link (A), a letter closes it (E)
 // A condition without content yet says so plainly and points to trusted sources.
@@ -169,7 +169,7 @@ function SectionHead({ id, title, note, story, action }: { id: string; title: st
 // ------------------------------------------------------------------------------------------------
 // The story placements.
 
-/** B: a dark band between Understand and Recover. */
+/** B: a dark band between Understand and Explore. */
 function PauseBand({ pause }: { pause: NonNullable<ConditionContent["pause"]> }) {
   const story = findStory(pause.storyId);
   if (!story) return null;

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { GameId } from "@/content/community-samples";
+import { BattleshipsPicture } from "./BattleshipsArt";
 import type { Piece, PieceKind } from "./chess-rules";
 
 // The drawings for the group games: the chess pieces (original drawings from the design boards,
@@ -65,5 +66,7 @@ export function GamePicture({ game }: { game: GameId }) {
       return <span className="cm-gp-domino"><span><i /><i /></span><span><i /></span></span>;
     case "mahjong":
       return <span className="cm-gp-glyph" style={{ color: "#8F3520" }} lang="zh">中</span>;
+    case "battleships":
+      return <BattleshipsPicture />;
   }
 }

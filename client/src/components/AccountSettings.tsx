@@ -1,18 +1,21 @@
-import { useContext, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronRight, FileText, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import { ChevronRight, FileText, HeartPulse, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
 import { DATA_SECTIONS } from "@/content/data-permissions";
 import { PRIVACY_INTRO, PRIVACY_SECTIONS, TERMS_INTRO, TERMS_SECTIONS, type LegalSection } from "@/content/legal-content";
+import { AgreementLine, HealthConsentPanel } from "./HealthConsent";
 import { ProfileInformation } from "./ProfileInformation";
 import { SettingsContext, type OpenSettings, type SettingsView } from "./settings-context";
 import "./account-settings.css";
 
 export type { SettingsView } from "./settings-context";
+// The health information consent has its own entry, apart from the Privacy Notice and the Terms of Use.
 const sections = [
   { id: "profile", label: "Your profile", icon: UserRound },
   { id: "privacy", label: "Privacy Notice", icon: ShieldCheck },
-  { id: "data", label: "Data and permissions", icon: SlidersHorizontal },
   { id: "terms", label: "Terms of Use", icon: FileText },
+  { id: "health", label: "Health information consent", icon: HeartPulse },
+  { id: "data", label: "Data and permissions", icon: SlidersHorizontal },
 ] as const;
 
 export function useSettings() {
@@ -39,14 +42,17 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<SettingsView>("profile");
+  const [focus, setFocus] = useState<string | undefined>();
   const opener = useRef<HTMLElement | null>(null);
   const title = sections.find(section => section.id === view)!.label;
 
-  const openSettings: OpenSettings = (source, nextView = "profile") => {
+  const openSettings: OpenSettings = (source, nextView = "profile", nextFocus) => {
     opener.current = source;
     setView(nextView);
+    setFocus(nextFocus);
     setOpen(true);
   };
+  const show = (next: SettingsView, nextFocus?: string) => { setView(next); setFocus(nextFocus); };
 
   return (
     <SettingsContext.Provider value={openSettings}>
@@ -63,7 +69,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             <div className="account-settings-layout">
               <nav className="account-settings-nav" aria-label="Settings sections">
                 {sections.map(({ id, label, icon: Icon }) => (
-                  <button key={id} aria-pressed={view === id} aria-controls="account-settings-panel" onClick={() => setView(id)}>
+                  <button key={id} aria-pressed={view === id} aria-controls="account-settings-panel" onClick={() => show(id)}>
                     <Icon size={19} aria-hidden="true" /><span>{label}</span><ChevronRight size={15} aria-hidden="true" />
                   </button>
                 ))}
@@ -71,9 +77,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
               <section key={view} id="account-settings-panel" className="account-settings-panel" aria-labelledby="account-settings-panel-title" tabIndex={0}>
                 <h2 id="account-settings-panel-title">{title}</h2>
                 {view === "profile" ? <ProfileInformation /> : view === "privacy" ? (
-                  <SettingsDocument intro={PRIVACY_INTRO} sections={PRIVACY_SECTIONS} />
+                  <><AgreementLine document="privacy" /><SettingsDocument intro={PRIVACY_INTRO} sections={PRIVACY_SECTIONS} focus={focus} /></>
                 ) : view === "terms" ? (
-                  <SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} />
+                  <><AgreementLine document="terms" /><SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} focus={focus} /></>
+                ) : view === "health" ? (
+                  <HealthConsentPanel onReadPrivacy={() => show("privacy", "4.")} />
                 ) : (
                   <SettingsDocument intro="How your information is used and the permissions Rehyn asks for." sections={DATA_SECTIONS} />
                 )}
@@ -86,8 +94,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function SettingsDocument({ intro, sections }: { intro: string; sections: LegalSection[] }) {
+function SettingsDocument({ intro, sections, focus }: { intro: string; sections: LegalSection[]; focus?: string }) {
   const headings = useRef<(HTMLHeadingElement | null)[]>([]);
+  // Opened at a section ("How we use your information" is section 4 of the Privacy Notice).
+  useEffect(() => {
+    if (!focus) return;
+    const heading = headings.current[sections.findIndex(section => section.title.startsWith(focus))];
+    heading?.scrollIntoView({ block: "start" });
+    heading?.focus({ preventScroll: true });
+  }, [focus, sections]);
   return (
     <article className="settings-document">
       <p className="settings-document-intro">{intro}</p>

@@ -1,0 +1,220 @@
+/* My community: Battleships in a private group (cm-bs-), its tile in "Start a game" (cm-gp-sea) and
+   its small sea on the game strip (cm-mini-sea). The colours follow the Rehyn Battleships designs,
+   in the app's own greens and golds: a deep green board, pale sea squares, cream boxwood ships,
+   white pegs for a miss and ember pegs for a hit. Imported by the components that use it. */
+
+.cm-bs, .cm-gp-sea, .cm-mini-sea { --cm-bs-sea: var(--cm-mint); --cm-bs-sea-2: #D8E7DD; --cm-bs-brass: #B8913F; --cm-bs-peg: #FFFDF8; --cm-bs-peg-edge: #B9B1A0; }
+
+/* ------------------------------------------------------------------ the page */
+
+.cm-bs { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.cm-bs-main { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 18px 22px 20px; scroll-margin-top: 84px; }
+.cm-bs-head { display: flex; align-items: center; gap: 12px; }
+.cm-bs-back { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; color: var(--cm-ink); }
+.cm-bs-back:hover { background: var(--cm-bubble); color: var(--cm-ink); }
+.cm-bs-titles { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.cm-bs-titles h2 { color: var(--cm-ink); font: 400 32px/1.05 var(--cm-serif); }
+.cm-bs-titles h2:focus-visible { outline-offset: 4px; }
+.cm-bs-clock { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--cm-mint); color: var(--cm-green); font-size: 13.5px; font-weight: 700; }
+
+/* The status line: whose turn it is and what just happened. */
+.cm-bs-status { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 10px 16px; border-radius: 16px; background: #F1EBDD; color: var(--cm-ink); transition: background .3s ease, color .3s ease; }
+.cm-bs-status.is-you { background: var(--cm-deep); color: #FFFFFF; }
+.cm-bs-status.is-hit { background: #FBE3DB; color: var(--cm-rust-dark); }
+.cm-bs-status.is-over { background: var(--cm-gold-soft); color: var(--cm-gold-ink); }
+.cm-bs-status .cm-face { flex-shrink: 0; }
+.cm-bs-status-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cm-bs-status-text b { display: flex; align-items: center; gap: 8px; font-size: 17.5px; line-height: 1.25; }
+.cm-bs-status-text > span { font-size: 14.5px; line-height: 1.35; opacity: .92; }
+.cm-bs-status-text .cm-typing-dots i { background: currentColor; }
+
+/* ------------------------------------------------------------------ the boards */
+
+.cm-bs-stage { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.cm-bs-board-title { color: var(--cm-muted); font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.cm-bs-frame { display: grid; grid-template-columns: 20px minmax(0, 1fr); grid-template-rows: 20px auto; gap: 4px; }
+.cm-bs-cols { grid-column: 2; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); padding: 0 10px; }
+.cm-bs-rows { grid-row: 2; display: grid; grid-template-rows: repeat(10, minmax(0, 1fr)); padding: 10px 0; }
+.cm-bs-cols span, .cm-bs-rows span { display: grid; place-items: center; color: #8A938E; font-size: 12.5px; font-weight: 700; }
+.cm-bs-sea { grid-column: 2; grid-row: 2; padding: 10px; border-radius: 22px; background: var(--cm-green-2); box-shadow: 0 14px 30px rgba(20, 54, 40, .18); }
+.cm-bs-inner { position: relative; aspect-ratio: 1; user-select: none; -webkit-user-select: none; }
+.cm-bs-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); grid-template-rows: repeat(10, minmax(0, 1fr)); }
+.cm-bs-tile { position: relative; display: block; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; background: transparent; -webkit-tap-highlight-color: transparent; }
+.cm-bs-tile::before { content: ""; position: absolute; inset: 2px; border-radius: 7px; background: var(--cm-bs-sea); transition: background .2s ease; }
+.cm-bs-tile.is-alt::before { background: var(--cm-bs-sea-2); }
+button.cm-bs-tile { cursor: default; }
+button.cm-bs-tile.is-open { cursor: crosshair; }
+/* The brass sight, over the keyboard's square, and the square under a mouse (not a finger: a tap would leave it behind). */
+button.cm-bs-tile.is-open:focus-visible::after { content: ""; position: absolute; inset: 6%; background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23B8913F' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M8 30V8h22M70 8h22v22M92 70v22H70M30 92H8V70'/%3E%3Ccircle cx='50' cy='50' r='14' stroke-width='4'/%3E%3Cpath d='M50 26v10M50 64v10M26 50h10M64 50h10' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+@media (hover: hover) {
+  button.cm-bs-tile.is-open:hover::before { background: #C6DDCE; }
+  button.cm-bs-tile.is-open:hover::after { content: ""; position: absolute; inset: 6%; background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23B8913F' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M8 30V8h22M70 8h22v22M92 70v22H70M30 92H8V70'/%3E%3Ccircle cx='50' cy='50' r='14' stroke-width='4'/%3E%3Cpath d='M50 26v10M50 64v10M26 50h10M64 50h10' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+}
+button.cm-bs-tile:focus-visible { z-index: 1; outline-offset: -2px; }
+.cm-bs-tile.is-last::before { box-shadow: inset 0 0 0 2.5px var(--cm-bs-brass); }
+button.cm-bs-tile:disabled { cursor: default; }
+
+.cm-bs-ships, .cm-bs-marks { position: absolute; inset: 0; pointer-events: none; }
+.cm-bs-marks { z-index: 2; }
+.cm-bs-ship { position: absolute; display: block; margin: 0; padding: 0; border: 0; background: none; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .18)); transition: left .3s cubic-bezier(.22, .9, .24, 1), top .3s cubic-bezier(.22, .9, .24, 1); }
+.cm-bs-art { display: block; width: 100%; height: 100%; overflow: visible; }
+.cm-bs-ship-art { display: block; width: 100%; height: 100%; }
+/* While placing, a ship is a button: drag it to move it, tap it to turn it. */
+button.cm-bs-ship { z-index: 1; border-radius: 999px; pointer-events: auto; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+button.cm-bs-ship:focus-visible { outline-offset: 1px; }
+button.cm-bs-ship.is-dragging { z-index: 3; cursor: grabbing; filter: drop-shadow(0 12px 12px rgba(0, 0, 0, .28)); transition: none; }
+button.cm-bs-ship.is-dragging .cm-bs-ship-art { transform: scale(1.04); }
+button.cm-bs-ship.is-bad { opacity: .6; }
+button.cm-bs-ship.is-bad .cm-bs-art { filter: sepia(1) saturate(3) hue-rotate(-30deg); }
+.cm-bs-ship-art.is-shaking { animation: cm-bs-shake .32s; }
+@keyframes cm-bs-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.cm-bs-landing { position: absolute; border: 2.5px dashed rgba(255, 255, 255, .95); border-radius: 12px; background: rgba(46, 125, 91, .2); pointer-events: none; }
+.cm-bs-landing.is-bad { border-color: var(--cm-live); background: rgba(200, 85, 58, .18); }
+.cm-bs-ship.is-mine.is-sunk { opacity: .5; filter: grayscale(.6); }
+.cm-bs-ship.is-ghost { opacity: .38; filter: none; }
+.cm-bs-rise { animation: cm-bs-rise .7s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes cm-bs-rise { from { opacity: 0; transform: translateY(10%) scale(.92); } }
+
+/* Pegs: white for a miss, ember for a hit, with a ripple as they land. */
+.cm-bs-mark { position: absolute; display: grid; place-items: center; width: 10%; height: 10%; }
+.cm-bs-mark i { position: relative; width: 34%; height: 34%; border-radius: 999px; }
+.cm-bs-mark.is-miss i { background: radial-gradient(circle at 35% 30%, #FFFFFF, var(--cm-bs-peg) 45%, var(--cm-bs-peg-edge)); box-shadow: 0 1px 2px rgba(0, 0, 0, .25); }
+.cm-bs-mark.is-hit i { width: 42%; height: 42%; background: radial-gradient(circle at 35% 30%, #F2A487, var(--cm-live) 50%, var(--cm-rust-dark)); box-shadow: 0 0 0 3px rgba(200, 85, 58, .22), 0 2px 3px rgba(0, 0, 0, .3); }
+.cm-bs-mark.is-scorched::before { content: ""; position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(circle, rgba(60, 25, 10, .42), rgba(60, 25, 10, 0) 70%); }
+.cm-bs-mark.is-new i { animation: cm-bs-drop .35s cubic-bezier(.3, 1.5, .5, 1); }
+.cm-bs-mark.is-new::after { content: ""; position: absolute; inset: 15%; border: 2px solid var(--cm-bs-peg); border-radius: 50%; opacity: 0; animation: cm-bs-ripple .9s ease-out; }
+.cm-bs-mark.is-new.is-hit::after { border: 3px solid var(--cm-live); }
+@keyframes cm-bs-drop { from { opacity: 0; transform: scale(2.2); } }
+@keyframes cm-bs-ripple { 0% { opacity: 1; transform: scale(.5); } 100% { opacity: 0; transform: scale(2.4); } }
+
+/* Where the other player is aiming, on the person's own waters. */
+.cm-bs-aim { position: absolute; z-index: 3; width: 10%; height: 10%; color: var(--cm-gold); pointer-events: none; animation: cm-bs-aim .45s cubic-bezier(.3, .8, .3, 1) both; }
+.cm-bs-aim svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35)); }
+@keyframes cm-bs-aim { from { opacity: 0; transform: scale(1.8); } to { opacity: 1; transform: scale(1); } }
+
+/* "Hit!", "Miss" and "Cruiser sunk!", for a moment over the sea. */
+.cm-bs-flash { position: absolute; top: 52%; left: 50%; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 150px; padding: 14px 26px; border-radius: 22px; background: #FFFFFF; color: var(--cm-ink); text-align: center; box-shadow: 0 18px 40px -12px rgba(20, 54, 40, .45); transform: translate(-50%, -50%); pointer-events: none; animation: cm-bs-flash 1.5s ease-out both; }
+.cm-bs-flash b { font: 400 36px/1.05 var(--cm-serif); }
+.cm-bs-flash.is-hit b { color: var(--cm-rust-dark); }
+.cm-bs-flash span { color: var(--cm-muted); font-size: 14px; font-weight: 600; }
+@keyframes cm-bs-flash { 0% { opacity: 0; translate: 0 8px; } 15% { opacity: 1; translate: 0 0; } 80% { opacity: 1; } 100% { opacity: 0; translate: 0 -6px; } }
+
+/* The winner screen, over the sea, which shows every ship by now. */
+.cm-bs-over { position: absolute; inset: 22px 0 0 0; z-index: 5; display: grid; place-items: center; padding: 16px; border-radius: 22px; background: rgba(251, 248, 242, .42); }
+.cm-bs-over-card { display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(400px, 100%); padding: 22px 22px 20px; border-radius: 24px; background: #FFFFFF; text-align: center; box-shadow: 0 30px 60px -20px rgba(20, 54, 40, .5); }
+.cm-bs-over-card h3 { color: var(--cm-ink); font: 400 40px/1.05 var(--cm-serif); }
+.cm-bs-over-card > p { color: var(--cm-soft-ink); font-size: 15.5px; line-height: 1.4; }
+.cm-bs-over-card > p.cm-bs-over-count { color: var(--cm-muted); font-size: 14px; }
+.cm-bs-over-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin-top: 8px; }
+.cm-bs-over-actions .cm-bs-btn { flex: 1 1 auto; white-space: nowrap; }
+
+.cm-bs-rule { color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
+.cm-bs-tracker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px 14px; border-radius: 16px; background: var(--cm-bubble); }
+.cm-bs-tship { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; }
+.cm-bs-tship-art { display: block; height: 12px; flex-shrink: 0; }
+.cm-bs-tship.is-sunk { color: var(--cm-muted); text-decoration: line-through; }
+
+.cm-bs-toast { position: absolute; bottom: 24px; left: 50%; z-index: 6; display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(460px, calc(100% - 32px)); padding: 14px 20px; border-radius: 18px; background: var(--cm-deep); color: #FFFFFF; font-size: 16px; font-weight: 600; line-height: 1.4; box-shadow: 0 20px 40px rgba(20, 54, 40, .35); transform: translateX(-50%); animation: cm-bs-toast .3s ease-out; }
+.cm-bs-toast .cm-face { flex-shrink: 0; box-shadow: 0 0 0 2px var(--cm-gold); }
+@keyframes cm-bs-toast { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+
+/* ------------------------------------------------------------------ the side */
+
+.cm-bs-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cm-bs-players { display: flex; flex-direction: column; padding: 6px 18px; }
+.cm-bs-player { display: flex; align-items: center; gap: 14px; min-height: 70px; }
+.cm-bs-player + .cm-bs-player { border-top: 1px solid #F0EADF; }
+.cm-bs-player > .cm-face { flex-shrink: 0; }
+.cm-bs-who { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.cm-bs-who b { font-size: 17px; }
+.cm-bs-who > span { color: var(--cm-muted); font-size: 14px; font-weight: 600; }
+.cm-bs-who > span.is-go { color: var(--cm-ok); }
+.cm-bs-who > span.is-busy { color: var(--cm-rust); }
+.cm-bs-afloat { flex-shrink: 0; padding: 5px 11px; border-radius: 999px; background: var(--cm-mint); color: var(--cm-green); font-size: 13px; font-weight: 700; }
+.cm-bs-glow { animation: cm-bs-glow 1.6s ease-in-out infinite; }
+@keyframes cm-bs-glow { 0%, 100% { box-shadow: 0 0 0 3px var(--cm-gold), 0 0 0 6px rgba(217, 186, 115, 0); } 50% { box-shadow: 0 0 0 3px var(--cm-gold), 0 0 0 12px rgba(217, 186, 115, .35); } }
+
+.cm-bs-setup { display: flex; flex-direction: column; gap: 12px; padding: 18px; }
+.cm-bs-setup > p { color: var(--cm-soft-ink); font-size: 15px; line-height: 1.45; }
+.cm-bs-setting { display: flex; align-items: center; gap: 16px; min-height: 62px; padding: 6px 0; border-top: 1px solid #F0EADF; border-bottom: 1px solid #F0EADF; }
+.cm-bs-setting > span { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+.cm-bs-setting b { font-size: 16px; font-weight: 600; }
+.cm-bs-setting > span > span { color: var(--cm-muted); font-size: 13.5px; line-height: 1.35; }
+.cm-bs-buttons { display: flex; gap: 10px; }
+.cm-bs-btn { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 18px; border: 0; border-radius: 16px; font-size: 16.5px; font-weight: 700; text-align: center; cursor: pointer; }
+.cm-bs-btn.is-primary { background: var(--cm-deep); color: #FFFFFF; }
+.cm-bs-btn.is-primary:hover { background: #0F2C21; color: #FFFFFF; }
+.cm-bs-btn.is-quiet { border: 1.5px solid var(--cm-chip-line); background: var(--cm-card); color: var(--cm-ink); }
+.cm-bs-btn.is-quiet:hover { background: var(--cm-bubble); color: var(--cm-ink); }
+.cm-bs-btn.is-warn { background: var(--cm-rust); color: #FFFFFF; }
+.cm-bs-btn.is-warn:hover { background: #A04626; color: #FFFFFF; }
+
+.cm-bs-mine { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 18px; }
+.cm-bs-mine-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+.cm-bs-mine-head > span { color: var(--cm-muted); font-size: 13.5px; }
+.cm-bs-mine .cm-bs-board { width: 100%; max-width: 360px; margin: 0 auto; }
+.cm-bs-frame.is-small { grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: 16px auto; gap: 3px; }
+.cm-bs-frame.is-small .cm-bs-cols { padding: 0 6px; }
+.cm-bs-frame.is-small .cm-bs-rows { padding: 6px 0; }
+.cm-bs-frame.is-small :is(.cm-bs-cols, .cm-bs-rows) span { font-size: 10.5px; }
+.cm-bs-frame.is-small .cm-bs-sea { padding: 6px; border-radius: 16px; }
+.cm-bs-frame.is-small .cm-bs-tile::before { inset: 1.5px; border-radius: 4px; }
+
+.cm-bs-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.cm-bs-actions button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 74px; border: 1.5px solid var(--cm-chip-line); border-radius: 18px; background: var(--cm-card); color: var(--cm-ink); font-size: 14.5px; font-weight: 700; cursor: pointer; }
+.cm-bs-actions button:hover { border-color: #BDB5A5; }
+.cm-bs-confirm { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 18px; background: #FBE3DB; color: var(--cm-rust-dark); }
+.cm-bs-confirm p { font-size: 15.5px; font-weight: 600; line-height: 1.4; }
+
+/* ------------------------------------------------- start a game, and the strip */
+
+/* A corner of the sea, 13px squares: a battleship across four of them, a hit on it and a miss. */
+.cm-gp-sea { position: relative; display: block; width: 84px; height: 46px; border-radius: 12px; background: var(--cm-green-2); box-shadow: 0 6px 12px -6px rgba(20, 54, 40, .5); }
+.cm-gp-sea::before { content: ""; position: absolute; inset: 4px; border-radius: 8px; background: repeating-conic-gradient(var(--cm-bs-sea) 0 25%, var(--cm-bs-sea-2) 0 50%) 0 0 / 26px 26px; }
+.cm-gp-sea-ship { position: absolute; top: 17px; left: 17px; width: 52px; height: 13px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .2)); }
+.cm-gp-sea i { position: absolute; border-radius: 999px; }
+.cm-gp-sea i.is-hit { top: 17.5px; left: 43.5px; width: 12px; height: 12px; background: radial-gradient(circle at 35% 30%, #F2A487, var(--cm-live) 50%, var(--cm-rust-dark)); box-shadow: 0 0 0 2px rgba(200, 85, 58, .25); }
+.cm-gp-sea i.is-miss { top: 32.5px; left: 71.5px; width: 8px; height: 8px; background: radial-gradient(circle at 35% 30%, #FFFFFF, var(--cm-bs-peg) 45%, var(--cm-bs-peg-edge)); box-shadow: 0 1px 2px rgba(0, 0, 0, .25); }
+
+.cm-mini-sea { display: grid; flex-shrink: 0; grid-template-columns: repeat(10, 7px); grid-template-rows: repeat(10, 7px); gap: 1px; padding: 4px; border-radius: 10px; background: var(--cm-green-2); box-shadow: 0 0 0 3px var(--cm-gold); }
+.cm-mini-sea > span { border-radius: 2px; background: var(--cm-bs-sea); }
+.cm-mini-sea > span.is-alt { background: var(--cm-bs-sea-2); }
+.cm-mini-sea > span.is-ship { background: #E3CA95; }
+.cm-mini-sea > span.is-miss { background: radial-gradient(circle, #FFFFFF 0 26%, #9E9584 30% 42%, var(--cm-bs-sea) 48%); }
+.cm-mini-sea > span.is-hit { background: radial-gradient(circle, var(--cm-live) 0 48%, var(--cm-bs-sea) 56%); }
+.cm-mini-sea > span.is-sunk { background: #2F6A54; }
+.cm-bs-badge { display: block; width: 16px; height: 16px; color: var(--cm-gold); }
+.cm-bs-tile-icon { display: block; width: 26px; height: 26px; color: var(--cm-green); }
+
+/* ------------------------------------------------------------------ smaller */
+
+@container cm (max-width: 1000px) {
+  .cm-bs { grid-template-columns: minmax(0, 1fr); }
+  .cm-bs-main, .cm-bs-side { width: 100%; max-width: 640px; }
+}
+
+@container cm (max-width: 640px) {
+  .cm-bs-main { padding: 14px 12px; }
+  .cm-bs-titles h2 { font-size: 26px; }
+  .cm-bs-status { flex-wrap: wrap; }
+}
+
+/* On a phone the sea takes the whole card, so every square is as big as it can be. */
+@container cm (max-width: 480px) {
+  .cm-bs-main { padding: 12px 6px 14px; }
+  .cm-bs-head, .cm-bs-status, .cm-bs-board-title, .cm-bs-rule, .cm-bs-tracker { margin: 0 6px; }
+  .cm-bs-clock { height: 32px; padding: 0 10px; font-size: 12.5px; }
+  .cm-bs-frame { grid-template-columns: 14px minmax(0, 1fr); grid-template-rows: 14px auto; gap: 2px; }
+  .cm-bs-cols { padding: 0 5px; }
+  .cm-bs-rows { padding: 5px 0; }
+  .cm-bs-cols span, .cm-bs-rows span { font-size: 10.5px; }
+  .cm-bs-sea { padding: 5px; border-radius: 16px; }
+  .cm-bs-tile::before { inset: 1.5px; border-radius: 5px; }
+  .cm-bs-flash b { font-size: 28px; }
+  .cm-bs-over-card h3 { font-size: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-bs-ship, .cm-bs-tile::before, .cm-bs-status { transition: none; }
+  .cm-bs-mark.is-new i, .cm-bs-mark.is-new::after, .cm-bs-rise, .cm-bs-ship-art.is-shaking, .cm-bs-flash, .cm-bs-aim, .cm-bs-glow, .cm-bs-toast { animation: none; }
+}

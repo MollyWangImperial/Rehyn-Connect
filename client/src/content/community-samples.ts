@@ -297,8 +297,9 @@ export const CONDITION_GROUP_IDS = conditionGroups.map(group => group.id) as Con
 /* ------------------------------------------------------------------- games */
 
 /** Traditional games only, each with the number of players it needs. Games are for private groups. */
-export type GameId = "chess" | "draughts" | "xiangqi" | "go" | "backgammon" | "ludo" | "dominoes" | "mahjong";
+export type GameId = "chess" | "draughts" | "xiangqi" | "go" | "backgammon" | "ludo" | "dominoes" | "mahjong" | "battleships";
 export type GameInfo = { id: GameId; name: string; min: number; max: number; time: string; tint: string };
+/** In the order "Start a game" shows them. */
 export const GAMES: GameInfo[] = [
   { id: "chess", name: "Chess", min: 2, max: 2, time: "about 30 min", tint: "#E5EEE7" },
   { id: "draughts", name: "Draughts", min: 2, max: 2, time: "about 15 min", tint: "#FBE3DB" },
@@ -308,6 +309,7 @@ export const GAMES: GameInfo[] = [
   { id: "ludo", name: "Ludo", min: 2, max: 4, time: "about 25 min", tint: "#E9E2F4" },
   { id: "dominoes", name: "Dominoes", min: 2, max: 4, time: "about 15 min", tint: "#F6EEDB" },
   { id: "mahjong", name: "Mahjong", min: 4, max: 4, time: "about 45 min", tint: "#E5EEE7" },
+  { id: "battleships", name: "Battleships", min: 2, max: 2, time: "about 20 min", tint: "#DCE8EE" },
 ];
 export const GAME_IDS: GameId[] = GAMES.map(game => game.id);
 export const gameInfo = (id: GameId): GameInfo => GAMES.find(game => game.id === id) ?? GAMES[0];

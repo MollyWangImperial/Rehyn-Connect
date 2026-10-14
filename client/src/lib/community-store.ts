@@ -65,6 +65,7 @@ import {
 import { isDailyPostId } from "@/content/daily-questions";
 import { isCircleOccurrenceId } from "@/content/circle-events";
 import { DEFAULT_PICTURE_LOOK, readPictureLook, type PictureLook } from "@/content/community-pictures";
+import { readBattleshipsSave, type BattleshipsSave } from "@/components/community/games/battleships-rules";
 
 // My community is a preview: the people in it are examples, and what a person does there stays
 // on this device. This file holds the address of each view, and the small record of what the
@@ -287,6 +288,8 @@ export type CommunityMemory = {
   games: GroupGame[];
   /** The moves of each chess game the person plays, as codes ("e2e4"), by game. */
   chess: Record<string, string[]>;
+  /** Each Battleships game the person plays, by game: both fleets, the shots so far and the choices made. */
+  battleships: Record<string, BattleshipsSave>;
   /** Example games the person asked to be reminded about ("music-ludo"). */
   gameReminders: string[];
   /** Groups whose weekly challenge the person has joined in with. */
@@ -342,7 +345,7 @@ export const canComment = (memory: CommunityMemory, postId: string) =>
 
 export function blankCommunityMemory(): CommunityMemory {
   return {
-    reactions: [], hearts: [], friends: [], waves: [], vote: null, seated: false, reminders: [], joined: [], conditions: [], games: [], chess: {}, gameReminders: [], challenges: [], read: [], started: [], posts: [], replies: {}, commentVotes: {}, messages: {},
+    reactions: [], hearts: [], friends: [], waves: [], vote: null, seated: false, reminders: [], joined: [], conditions: [], games: [], chess: {}, battleships: {}, gameReminders: [], challenges: [], read: [], started: [], posts: [], replies: {}, commentVotes: {}, messages: {},
     direct: {}, chatsRead: [], chatsMuted: [],
     answers: {}, cancelled: [], sentAt: {}, blocks: {}, muted: {}, hiddenPosts: {}, reports: [], seenAlerts: [], settings: defaultCommunitySettings(),
   };
@@ -580,6 +583,16 @@ export function parseCommunityMemory(raw: string | null): CommunityMemory {
     Object.keys(chess).forEach(key => {
       const codes = chess[key];
       if (chessGames.includes(key) && Array.isArray(codes)) memory.chess[key] = codes.filter((code): code is string => typeof code === "string" && CHESS_CODE.test(code)).slice(0, LIMITS.chessMoves);
+    });
+  }
+  // Battleships games are kept only for the person's own games, and only when both fleets are whole
+  // and legal. Records saved before Battleships existed simply have none.
+  const battleshipGames = memory.games.filter(game => game.type === "battleships").map(game => game.id);
+  if (isObject(saved.battleships)) {
+    const kept = saved.battleships;
+    Object.keys(kept).forEach(key => {
+      const game = battleshipGames.includes(key) ? readBattleshipsSave(kept[key]) : null;
+      if (game) memory.battleships[key] = game;
     });
   }
   memory.gameReminders = strings(saved.gameReminders, oneOf(sampleGames.map(game => game.id)));
@@ -822,6 +835,15 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
       if (!known || JSON.stringify(current.chess[gameId] ?? null) === JSON.stringify(kept)) return current;
       return { ...current, chess: { ...current.chess, [gameId]: kept } };
     }),
+    /**
+     * Keeps a Battleships game the person plays (their ships, the other player's ships and every shot),
+     * so "Finish later" carries on from the same place. A game that isn't whole and legal isn't kept.
+     */
+    saveBattleships: (gameId: string, game: BattleshipsSave) => change(current => {
+      const kept = current.games.some(item => item.id === gameId && item.type === "battleships") ? readBattleshipsSave(game) : null;
+      if (!kept || JSON.stringify(current.battleships[gameId] ?? null) === JSON.stringify(kept)) return current;
+      return { ...current, battleships: { ...current.battleships, [gameId]: kept } };
+    }),
     /** "Remind me" for a game coming up in one of the example groups. */
     toggleGameReminder: (gameId: string) => change(current => (sampleGames.some(game => game.id === gameId) ? { ...current, gameReminders: flip(current.gameReminders, gameId) } : current)),
     setGroupHello: (groupId: string, hello: string | null) => change(current => ({
@@ -837,11 +859,12 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
       if (!current.started.some(group => group.id === groupId)) return current;
       const messages = { ...current.messages };
       delete messages[groupId];
-      // Its games go too, with their moves.
+      // Its games go too, with their moves and shots.
       const gone = current.games.filter(game => game.groupId === groupId).map(game => game.id);
       const chess = { ...current.chess };
-      gone.forEach(id => { delete chess[id]; });
-      return { ...current, started: current.started.filter(group => group.id !== groupId), challenges: current.challenges.filter(id => id !== groupId), messages, games: current.games.filter(game => !gone.includes(game.id)), chess };
+      const battleships = { ...current.battleships };
+      gone.forEach(id => { delete chess[id]; delete battleships[id]; });
+      return { ...current, started: current.started.filter(group => group.id !== groupId), challenges: current.challenges.filter(id => id !== groupId), messages, games: current.games.filter(game => !gone.includes(game.id)), chess, battleships };
     }),
 
     addPost(draft: PostDraft, now = Date.now()): OwnPost | null {

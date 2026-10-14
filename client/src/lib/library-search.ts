@@ -8,7 +8,7 @@ import { allConditions, allItems, conditionHref, contentTitle, itemHref, itemMet
 export type SearchHit = {
   kind: "condition" | "item";
   title: string;
-  /** "Brain & nervous system · Stroke", or "Ischaemic stroke · Recover · Video · 6 min". */
+  /** "Brain & nervous system · Stroke", or "Ischaemic stroke · Explore · Video · 6 min". */
   where: string;
   href: string;
   score: number;

@@ -47,6 +47,7 @@ import {
 } from "./community-store";
 import { communityAlerts, feedPosts, inviteFriends, sampleGroups } from "@/content/community-samples";
 import { DEFAULT_PICTURE_LOOK } from "@/content/community-pictures";
+import { battleOf, withShot, type BattleshipsSave } from "@/components/community/games/battleships-rules";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -904,5 +905,84 @@ describe("messages and the Friends tab", () => {
     expect(shortWhen(at, at + 20_000)).toBe("Now");
     expect(shortWhen(at, new Date(2026, 9, 11, 9, 0).getTime())).toBe("Yesterday");
     expect(shortWhen(at, new Date(2026, 9, 13, 9, 0).getTime())).toBe("Sat");
+  });
+});
+
+describe("Battleships in a private group", () => {
+  // The person's ships down the right-hand side, the other player's along the top rows.
+  const ready: BattleshipsSave = {
+    fleet: [
+      { id: "carrier", d: "v", r: 0, c: 9 }, { id: "battleship", d: "v", r: 5, c: 9 }, { id: "cruiser", d: "v", r: 0, c: 7 },
+      { id: "submarine", d: "v", r: 4, c: 7 }, { id: "destroyer", d: "v", r: 8, c: 7 },
+    ],
+    theirs: [
+      { id: "carrier", d: "h", r: 0, c: 0 }, { id: "battleship", d: "h", r: 1, c: 0 }, { id: "cruiser", d: "h", r: 2, c: 0 },
+      { id: "submarine", d: "h", r: 3, c: 0 }, { id: "destroyer", d: "h", r: 4, c: 0 },
+    ],
+    ready: true, extra: true, first: "you", shots: [], gaveUp: null,
+  };
+  const played = [[40, "you"], [41, "you"], [99, "you"], [9, "them"]] as const;
+  const inPlay = played.reduce((save, [square, side]) => withShot(save, side, square)!, ready);
+
+  it("can be started only in a private group the person is in, with one other player", () => {
+    const store = createCommunityStore(() => memoryStorage());
+    expect(store.startGame({ groupId: "walk", type: "battleships", players: ["david"] }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "tuesday-tea", type: "battleships", players: ["joan"] }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "garden", type: "battleships", players: ["margaret", "joan"] }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "garden", type: "battleships", players: [] }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "garden", type: "battleships", players: ["margaret"] }, NOW)).toMatchObject({ groupId: "garden", type: "battleships", players: ["margaret"], state: "lobby" });
+  });
+
+  it("keeps the ships and every shot, and reads them back the same", () => {
+    const storage = memoryStorage();
+    const store = createCommunityStore(() => storage);
+    const game = store.startGame({ groupId: "garden", type: "battleships", players: ["margaret"] }, NOW)!;
+    store.saveBattleships(game.id, inPlay);
+    expect(saved(storage).battleships[game.id].shots).toEqual(played.map(([at, by]) => ({ by, at })));
+    const again = createCommunityStore(() => storage).load();
+    expect(again.battleships[game.id]).toEqual(inPlay);
+    // The hits are worked out again from the ships, so they always match.
+    expect(battleOf(again.battleships[game.id]).shots.map(shot => shot.sunk)).toEqual([null, "destroyer", null, null]);
+    // Only Battleships games the person started keep ships.
+    store.saveBattleships("garden-chess", inPlay);
+    store.saveBattleships("game-nowhere", inPlay);
+    expect(Object.keys(store.load().battleships)).toEqual([game.id]);
+  });
+
+  it("reads records saved before Battleships, and drops broken or stray games without losing the rest", () => {
+    const chess = { id: "game-old", groupId: "garden", type: "chess", players: ["margaret"], watch: true, state: "playing", createdAt: NOW };
+    const before = parseCommunityMemory(JSON.stringify({ games: [chess], chess: { "game-old": ["e2e4"] } }));
+    expect(before.battleships).toEqual({});
+    expect(before.games.map(game => game.id)).toEqual(["game-old"]);
+    expect(before.chess).toEqual({ "game-old": ["e2e4"] });
+    const sea = (id: string) => ({ ...chess, id, type: "battleships" });
+    const memory = parseCommunityMemory(JSON.stringify({
+      games: [chess, sea("game-a"), sea("game-b"), sea("game-c")],
+      chess: { "game-old": ["e2e4"] },
+      battleships: {
+        "game-a": inPlay,
+        // Ships off the board, and shots out of turn.
+        "game-b": { ...inPlay, fleet: inPlay.fleet.map(ship => ({ ...ship, r: 8 })) },
+        "game-c": { ...inPlay, shots: [{ by: "them", at: 3 }, { by: "you", at: 40 }] },
+        // A chess game, and a game that isn't there.
+        "game-old": inPlay,
+        "game-gone": inPlay,
+      },
+    }));
+    expect(Object.keys(memory.battleships)).toEqual(["game-a", "game-c"]);
+    expect(memory.battleships["game-a"]).toEqual(inPlay);
+    expect(memory.battleships["game-c"].shots).toEqual([]);
+    expect(memory.chess).toEqual({ "game-old": ["e2e4"] });
+  });
+
+  it("forgets a group's games, ships and all, when the group is closed", () => {
+    const store = createCommunityStore(() => memoryStorage());
+    const group = store.startGroup({ name: "Sea dogs", theme: "games", friends: ["anne"] }, NOW);
+    const game = store.startGame({ groupId: group.id, type: "battleships", players: ["anne"] }, NOW)!;
+    store.saveBattleships(game.id, inPlay);
+    expect(store.load().battleships[game.id]).toEqual(inPlay);
+    store.closeGroup(group.id);
+    expect(store.load().battleships).toEqual({});
+    expect(store.load().games).toEqual([]);
   });
 });

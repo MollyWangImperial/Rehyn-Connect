@@ -24,6 +24,7 @@ import {
   type ThemeId,
 } from "@/content/community-samples";
 import { communityStore, gamesAllowed, inCondition, isBlocked, listNames, type CommunityMemory, type GroupGame, type StartedGroup } from "@/lib/community-store";
+import type { BattleshipsSave } from "./games/battleships-rules";
 
 // The groups model. Every list of groups the page shows comes from here, and the privacy rule is
 // kept here, once: a private group is seen only by the people in it. It never appears for anyone
@@ -158,11 +159,20 @@ export type GameModel = {
   state: "lobby" | "playing" | "scheduled" | "finished";
   /** Chess only: the moves played so far, as codes. */
   moves: string[];
+  /** Battleships only: the ships and shots so far, once the person has opened the game. */
+  battle: BattleshipsSave | null;
   when: string;
   watchers: PersonId[];
   /** Started on this device, rather than an example. */
   own: GroupGame | null;
 };
+
+/**
+ * Whether a game opens on its own page in this preview: chess, to play or watch, and the person's
+ * own Battleships games. The other games are coming soon.
+ */
+export const gameOpens = (game: GameModel): boolean =>
+  game.state === "playing" && (game.type === "chess" || (game.type === "battleships" && game.own !== null));
 
 /**
  * Games in the groups the person is in, newest first: the ones they started, then the examples.
@@ -172,11 +182,11 @@ export function myGames(memory: CommunityMemory, groupId?: string): GameModel[] 
   const groups = myGroups(memory).map(group => group.id);
   const own = memory.games.map((game): GameModel => ({
     id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: true,
-    state: game.state, moves: memory.chess[game.id] ?? [], when: "", watchers: [], own: game,
+    state: game.state, moves: memory.chess[game.id] ?? [], battle: memory.battleships[game.id] ?? null, when: "", watchers: [], own: game,
   }));
   const examples = sampleGames.map((game): GameModel => ({
     id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: game.withYou,
-    state: game.state, moves: game.withYou ? memory.chess[game.id] ?? game.moves : game.moves, when: game.when,
+    state: game.state, moves: game.withYou ? memory.chess[game.id] ?? game.moves : game.moves, battle: null, when: game.when,
     watchers: game.watchers.filter(who => !isBlocked(memory, who)), own: null,
   }));
   return [...own, ...examples].filter(game => groups.includes(game.groupId) && (groupId === undefined || game.groupId === groupId) && game.players.every(who => !isBlocked(memory, who)));

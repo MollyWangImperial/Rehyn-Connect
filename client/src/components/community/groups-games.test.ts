@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
-import { conditionGroups, CONDITION_IDS, sampleGames, suggestedGroups } from "@/content/community-samples";
+import { conditionGroups, CONDITION_IDS, GAMES, sampleGames, suggestedGroups } from "@/content/community-samples";
 import { blankCommunityMemory, communityHref, communityViewFromQuery, createCommunityStore, gamesAllowed, groupVisibility, parseCommunityMemory, type CommunityMemory } from "@/lib/community-store";
 import { findInCommunity } from "./alerts-helpers";
 import { replay } from "./games/chess-rules";
@@ -32,6 +32,18 @@ const render = (path: string, element: ReturnType<typeof createElement>) => {
   return renderToStaticMarkup(createElement(Router, { ssrPath: path, children: element }));
 };
 const hiddenGroups = conditionGroups.filter(group => group.visibility === "private");
+/** The markup of the element that starts at `at`, through its own closing tag. */
+function element(html: string, at: number, tag = "div"): string {
+  if (at < 0) return "";
+  const tags = new RegExp(`<${tag}[\\s>]|</${tag}>`, "g");
+  tags.lastIndex = at;
+  let depth = 0;
+  for (let match = tags.exec(html); match; match = tags.exec(html)) {
+    depth += match[0].startsWith("</") ? -1 : 1;
+    if (depth === 0) return html.slice(at, match.index + match[0].length);
+  }
+  return html.slice(at);
+}
 
 describe("private groups never show to non-members", () => {
   it("guard: the examples include private groups the person is not in", () => {
@@ -145,6 +157,41 @@ describe("games disabled in public groups", () => {
     const garden = render("/community?space=groups&group=garden", createElement(GroupsView, { active: false, requested: "garden" }));
     expect(garden).toMatch(/<button[^>]*class="cm-strip-start cm-nudge"[^>]*aria-disabled="false"/);
     expect(words(garden)).toContain("Margaret and Joan · chess");
+  });
+
+  it("shows the nine games six at a time in an area that scrolls, Battleships last, with Next below it", () => {
+    expect(GAMES.map(game => game.name)).toEqual(["Chess", "Draughts", "Chinese chess", "Go", "Backgammon", "Ludo", "Dominoes", "Mahjong", "Battleships"]);
+    const html = render("/community?space=groups&group=garden&game=new", createElement(GroupsView, { active: false, requested: "garden" }));
+    const area = element(html, html.lastIndexOf("<div", html.indexOf('class="cm-gs-area"')));
+    // The tiles are a labelled group inside the scrolling area, in order.
+    expect(area).toContain('role="group" aria-label="Games"');
+    expect([...area.matchAll(/data-game="([a-z]+)"/g)].map(match => match[1])).toEqual(GAMES.map(game => game.id));
+    expect(area).toMatch(/aria-pressed="true"[^>]*data-autofocus="true"/);
+    // A hint that there are more below, and "Next" outside the area, after it.
+    expect(words(html)).toContain("Scroll for more games");
+    expect(area).not.toContain("cm-gs-next");
+    expect(html.indexOf('class="cm-gs-next"')).toBeGreaterThan(html.indexOf(area) + area.length);
+    expect(words(html)).toContain("Next: choose who plays Chess");
+  });
+
+  it("starts Battleships only in a private group, and opens it once everyone has said yes", () => {
+    expect(store.startGame({ groupId: "walk", type: "battleships", players: ["david"] }, NOW)).toBeNull();
+    const game = store.startGame({ groupId: "garden", type: "battleships", players: ["margaret"] }, NOW)!;
+    const href = communityHref("groups", "garden", { game: game.id });
+    // Still waiting for a yes: the group page, not the game.
+    expect(render(href, createElement(GroupsView, { active: false, requested: "garden" }))).not.toContain("cm-bs-main");
+    store.setGameState(game.id, "playing");
+    const page = words(render(href, createElement(GroupsView, { active: false, requested: "garden" })));
+    expect(page).toContain("You vs Margaret");
+    expect(page).toContain("Place your ships");
+    expect(page).toContain("No clock");
+    expect(page).toContain("Extra shot after a hit");
+    // The group page and "Games in your groups" lead to it, to play.
+    const group = render("/community?space=groups&group=garden", createElement(GroupsView, { active: false, requested: "garden" }));
+    expect(words(group)).toContain("You vs Margaret · Battleships");
+    expect(group).toContain(`href="${href.replace(/&/g, "&amp;")}"`);
+    const card = words(render("/community?space=groups", createElement(GroupsView, { active: false, requested: null })));
+    expect(card).toContain("Battleships · Margaret Place your ships Play");
   });
 
   it("switches the games switch off and greys it out when Start a group is set to Public", () => {

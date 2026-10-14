@@ -21,7 +21,7 @@ export type ItemPlace = ConditionPlace & { item: LibraryItem; type: ContentType 
 
 export const CONTENT_TYPES: ContentType[] = ["understand", "recover", "liveWell", "watch"];
 export const contentTitle = (type: ContentType, condition?: LibraryCondition) =>
-  type === "understand" ? "Understand" : type === "recover" ? condition?.content?.recoverTitle ?? "Recover" : type === "liveWell" ? "Live well" : "Watch & listen";
+  type === "understand" ? "Understand" : type === "recover" ? condition?.content?.recoverTitle ?? "Explore" : type === "liveWell" ? "Live well" : "Watch & listen";
 
 export const sectionHref = (section: Pick<LibrarySection, "id">) => `/${section.id}`;
 export const conditionHref = (groupId: string, conditionId: string) => `/${groupId}/${conditionId}`;

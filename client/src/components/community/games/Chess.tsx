@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "wouter";
 import { people, watcherPhrases, type PersonId } from "@/content/community-samples";
 import { communityHref, communityStore, isBlocked, listNames, useCommunity } from "@/lib/community-store";
@@ -6,9 +7,12 @@ import type { GameModel, GroupModel } from "../group-model";
 import { useLater } from "../hooks";
 import { BackIcon, ClockIcon, EyeIcon, HandIcon, LockIcon, PauseCircleIcon, PlusIcon, SpeakerIcon } from "../icons";
 import { Face, MyFace, toneClass } from "../parts";
+import { canPickUp } from "./chess-drag";
+import { useChessDrag } from "./chess-drag-hook";
 import { capturedPieces, colOf, gameStatus, legalMoves, moveCode, moveWords, PIECE_NAMES, playMove, replay, replyMove, rowOf, squareName, type ChessMove, type PieceKind } from "./chess-rules";
 import { ChessPiece } from "./pieces";
 import "@/pages/community-games.css";
+import "@/pages/community-chess-drag.css";
 
 const nameOf = (who: PersonId) => people[who].name;
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -29,9 +33,10 @@ const UndoIcon = () => (
 );
 
 /**
- * Chess in a private group, with no clock. The person plays white: tap a piece to see where it can
- * go, then tap a square. The other player answers after a moment (in this preview, a legal move
- * that takes a piece when it can). A game the person is only watching can't be touched.
+ * Chess in a private group, with no clock. The person plays white: press on a piece and drag it to
+ * its square (chess-drag-hook.ts), or tap the piece to see where it can go, then tap a square. The
+ * other player answers after a moment (in this preview, a legal move that takes a piece when it
+ * can). A game the person is only watching can't be touched.
  */
 export default function ChessGame({ game, group }: { game: GameModel; group: GroupModel }) {
   const memory = useCommunity();
@@ -57,7 +62,10 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
   const status = gameStatus(position);
   const over = status !== "playing";
   const yourTurn = playing && position.turn === "w" && !thinking && !over;
-  const targets = selected === null ? [] : legalMoves(position, selected);
+  // A piece held by the pointer shows its moves while it is held; otherwise the tapped one does.
+  const { held, boardProps, handRef, skipClick } = useChessDrag({ position, canMove: yourTurn, onMove: makeMove, onTap: tap });
+  const lifted = held && !held.back ? held.from : selected;
+  const targets = lifted === null ? [] : legalMoves(position, lifted);
   const last = history[history.length - 1]?.move ?? null;
 
   // Opening a game brings the board into view, and the focus to its heading.
@@ -90,20 +98,22 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
     }, 1600);
   }
 
-  const tap = (square: number) => {
+  /** Every move the person makes, tapped, dragged or chosen with the keyboard, is made here. */
+  function makeMove(move: ChessMove) {
+    const next = [...codes, moveCode(move)];
+    if (speak) say(`You: ${moveWords(move)}`);
+    setSelected(null);
+    setCodes(next);
+    if (gameStatus(playMove(position, move)) === "playing") answer(next);
+  }
+
+  function tap(square: number) {
     if (!yourTurn) return;
     const move = targets.find(item => item.to === square);
-    if (selected !== null && move) {
-      const next = [...codes, moveCode(move)];
-      if (speak) say(`You: ${moveWords(move)}`);
-      setSelected(null);
-      setCodes(next);
-      if (gameStatus(playMove(position, move)) === "playing") answer(next);
-      return;
-    }
+    if (selected !== null && move) { makeMove(move); return; }
     const piece = position.board[square];
     setSelected(piece && piece[0] === "w" && selected !== square ? square : null);
-  };
+  }
 
   const askUndo = () => {
     if (thinking) { showToast(`Wait until ${nameOf(opponent)} has moved.`, "you"); return; }
@@ -135,7 +145,9 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
   const statusText = over
     ? status === "checkmate" ? (winner === "You" ? "Checkmate! You won" : `Checkmate. ${winner} won`) : status === "stalemate" ? "Stalemate: it's a draw" : "It's a draw"
     : !playing ? `${position.turn === "w" ? white : black} is thinking` : thinking || position.turn === "b" ? `${nameOf(opponent)} is thinking` : "Your move";
-  const hint = over ? "Good game!" : !playing ? `${listNames(watchers.map(nameOf))} ${watchers.length === 1 ? "is" : "are"} watching` : thinking ? "Take your time, there is no clock" : selected !== null ? `Now tap where your ${PIECE_NAMES[position.board[selected]![1] as PieceKind]} should go` : "Tap one of your white pieces";
+  const hint = over ? "Good game!" : !playing ? `${listNames(watchers.map(nameOf))} ${watchers.length === 1 ? "is" : "are"} watching` : thinking ? "Take your time, there is no clock"
+    : held && !held.back ? `Let go where your ${PIECE_NAMES[held.piece[1] as PieceKind]} should go`
+    : selected !== null ? `Now tap where your ${PIECE_NAMES[position.board[selected]![1] as PieceKind]} should go` : "Drag one of your white pieces, or tap it";
   const inTurn = yourTurn || over;
 
   const rows: { n: number; white: string; black: string }[] = [];
@@ -149,17 +161,20 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
     const target: ChessMove | undefined = targets.find(move => move.to === index);
     const name = squareName(index);
     const label = `${name}, ${piece ? `${piece[0] === "w" ? "white" : "black"} ${PIECE_NAMES[piece[1] as PieceKind]}` : "empty"}${target ? `, ${target.captured ? "take it" : "move here"}` : ""}`;
+    // While a piece is held: the square it came from (its piece left faint) and the one under the pointer.
+    const from = held?.from === index;
+    const under = !!held && !held.back && held.over === index;
     return (
       <button
         key={index}
         type="button"
-        className={`cm-sq ${light ? "is-light" : "is-dark"} ${isLast ? "is-last" : ""} ${selected === index ? "is-selected" : ""}`}
+        className={`cm-sq ${light ? "is-light" : "is-dark"} ${isLast ? "is-last" : ""} ${lifted === index ? "is-selected" : ""} ${yourTurn && canPickUp(position, index) ? "is-own" : ""} ${from ? "is-from" : ""} ${under ? "is-over" : ""}`}
         aria-label={label}
         aria-pressed={selected === index ? true : undefined}
         disabled={!playing}
-        onClick={() => tap(index)}
+        onClick={event => { if (!skipClick(event)) tap(index); }}
       >
-        {piece && <ChessPiece piece={piece} className={`${selected === index ? "is-lifted" : ""} ${last?.to === index ? "cm-drop" : ""}`} />}
+        {piece && <ChessPiece piece={piece} className={`${from ? "is-ghost" : selected === index ? "is-lifted" : ""} ${last?.to === index ? "cm-drop" : ""}`} />}
         {target && hints && (target.captured ? <span className="cm-sq-take cm-pop" aria-hidden="true" /> : <span className="cm-sq-dot cm-pop" aria-hidden="true" />)}
       </button>
     );
@@ -180,9 +195,18 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
         <div className="cm-chess-frame">
           <div className="cm-chess-ranks" aria-hidden="true">{[8, 7, 6, 5, 4, 3, 2, 1].map(rank => <span key={rank}>{rank}</span>)}</div>
           <div className="cm-chess-boardwrap">
-            <div className="cm-chess-board" role="group" aria-label="Chess board, white at the bottom">
+            <div {...boardProps} className={`cm-chess-board ${held?.touch && !held.back ? "is-touch" : ""}`} role="group" aria-label="Chess board, white at the bottom">
               {position.board.map((_, index) => square(index))}
             </div>
+            {/* The piece in hand, over everything and the size it is on the board. It follows the pointer. */}
+            {held && createPortal(
+              <div className="cm-layer">
+                <div ref={handRef} className={`cm-chess-drag ${big ? "is-big" : ""} ${held.back ? "is-back" : ""}`} style={{ width: held.size, height: held.size }} aria-hidden="true">
+                  <ChessPiece piece={held.piece} />
+                </div>
+              </div>,
+              document.body,
+            )}
             <div className="cm-chess-files" aria-hidden="true">{FILES.map(file => <span key={file}>{file}</span>)}</div>
           </div>
         </div>

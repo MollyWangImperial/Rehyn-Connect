@@ -158,7 +158,7 @@ export default function Community() {
   const textSize = memory.settings.textSize === "normal" ? "" : `cm-text-${memory.settings.textSize}`;
 
   return (
-    <RecoveryShell active="My Community" dateLabel={todayLabel()} className="cm-shell">
+    <RecoveryShell active="My Community" dateLabel={todayLabel()} className="cm-shell" loungeHere={here}>
       <div ref={page} className={`recovery-page cm-page cm-view-${view.space} ${textSize}`}>
         {view.space !== "start" && (
           <CommunityHeader

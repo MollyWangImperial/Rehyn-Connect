@@ -1,0 +1,62 @@
+/* Agreeing to use Rehyn: Connect: the Join page (join-), and the health information consent in
+   Settings (consent-). */
+
+.consent-link { min-height: 36px; padding: 0; border: 0; background: none; color: #285b49; font: inherit; font-size: 14.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.consent-link:hover { color: #183d34; }
+.consent-state { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14.5px; font-weight: 650; }
+.consent-state.is-on { color: #205345; }
+.consent-state.is-off { color: #7a4f0d; }
+.consent-agreement { margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: #e8eee9; }
+
+/* ------------------------------------------------------------------- Settings */
+
+.consent-panel { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.consent-panel-intro { margin: 0; color: #596a62; font-size: 15px; }
+.consent-quote { margin: 0; padding: 16px 18px; border-left: 4px solid #285b49; border-radius: 0 14px 14px 0; background: #f4f1ea; color: #24362f; font-size: 16px; line-height: 1.55; }
+.consent-state-block { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; padding-top: 6px; border-top: 1px solid #e4e8df; }
+.consent-check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; cursor: pointer; }
+.consent-check input, .join-box-row input { flex: none; width: 24px; height: 24px; margin: 0; accent-color: #285b49; cursor: pointer; }
+.consent-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.consent-confirm { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: 14px; background: #fbf1dc; color: #5c3d0a; }
+.consent-confirm p { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.consent-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: #173d2f; color: #fffefa; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.consent-button[aria-disabled="true"] { background: #a9b5ae; cursor: not-allowed; }
+.consent-button.is-outline { border: 1.5px solid #c9a39a; background: #fffefa; color: #a84232; }
+.consent-button.is-danger { background: #a84232; }
+.consent-button.is-quiet { border: 1px solid #e4e8df; background: #fffefa; color: #24362f; }
+
+/* ------------------------------------------------------------------ Join page */
+
+.join-page { min-height: 100vh; display: flex; justify-content: center; padding: clamp(20px, 5vh, 56px) 16px 48px; background: #f4f2ec; color: #24362f; font-family: "DM Sans", system-ui, sans-serif; }
+.join-page *, .join-page *::before, .join-page *::after { box-sizing: border-box; }
+.join-card { width: min(720px, 100%); display: flex; flex-direction: column; gap: 16px; }
+.join-brand { display: flex; align-items: center; gap: 10px; margin: 0; color: #183d34; font: 800 20px/1 "Manrope", sans-serif; letter-spacing: -.6px; }
+.join-brand em { color: #b5522e; font-style: normal; }
+.join-brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #183d34; color: #eff5ec; }
+.join-title { margin: 10px 0 0; color: #183d34; font: 400 clamp(38px, 6vw, 52px)/1.05 "Instrument Serif", Georgia, serif; }
+.join-lede { margin: 0; color: #4f6158; font-size: 17px; line-height: 1.5; }
+.join-problem { padding: 14px 16px; border: 1px solid #e3b2a8; border-radius: 14px; background: #fbe9e5; color: #7d3327; font-weight: 650; }
+.join-problem:focus-visible { outline: 3px solid #a84232; outline-offset: 2px; }
+.join-form { display: flex; flex-direction: column; gap: 18px; }
+.join-field { display: flex; flex-direction: column; gap: 6px; padding: 18px; border: 1px solid #e4e8df; border-radius: 20px; background: #fffefa; }
+.join-field label { font-size: 16px; font-weight: 700; }
+.join-hint { margin: 0; color: #596a62; font-size: 14px; }
+.join-field input { min-height: 48px; padding: 0 14px; border: 1px solid #cfd8cf; border-radius: 12px; background: #fff; color: #24362f; font: inherit; font-size: 16.5px; }
+.join-field input:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
+.join-field.is-missing, .join-box.is-missing { border-color: #d48a7c; box-shadow: 0 0 0 1px #d48a7c; }
+.join-consents { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; border: 0; }
+.join-consents legend { margin-bottom: 10px; padding: 0; font-size: 16px; font-weight: 700; }
+.join-box { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 18px 20px; border: 1px solid #e4e8df; border-radius: 20px; background: #fffefa; transition: border-color .16s ease, background .16s ease; }
+.join-box.is-on { border-color: #9fc4ad; background: #f4f9f5; }
+.join-box-title { margin: 0; color: #183d34; font: 400 26px/1.15 "Instrument Serif", Georgia, serif; }
+.join-box-row { display: flex; align-items: flex-start; gap: 12px; }
+.join-box-row input { margin-top: 2px; }
+.join-box-row label { font-size: 16px; line-height: 1.5; cursor: pointer; }
+.join-box-note { margin: 0 0 0 36px; color: #596a62; font-size: 14px; }
+.join-box .consent-link { margin-left: 36px; }
+.join-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 54px; padding: 0 26px; border: 0; border-radius: 999px; background: #173d2f; color: #fffefa; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
+.join-submit.is-waiting { background: #8e9c94; }
+.join-submit:focus-visible { outline: 3px solid #285b49; outline-offset: 3px; }
+.join-safety { margin: 0; color: #596a62; font-size: 14px; line-height: 1.5; }
+.join-safety a { color: #285b49; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .join-box { transition: none; } }

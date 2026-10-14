@@ -10,67 +10,15 @@ import {
   leadsHere,
   pendingRequestCount,
   placeOf,
-  unreadCount,
   unseenAlertCount,
   useCommunity,
-  type CommunitySpace,
   type CommunityView,
 } from "@/lib/community-store";
-import { pokerNightOn, secondsToTables, usePokerNight } from "@/lib/poker-night";
-import CircleTab from "./CirclePeek";
-import { SuitGlyph } from "./games/PokerParts";
 import { myGroups } from "./group-model";
 import { BellIcon, SearchIcon, ShieldIcon, SlidersIcon, UsersIcon } from "./icons";
-import { unreadMessages } from "./messages-model";
-import { LiveDot } from "./parts";
 
-/** A count on a tab. The tab's own words say it too, for a screen reader. */
-const TabBadge = ({ count, what }: { count: number; what: string }) => (count > 0 ? <span className="cm-badge"><span aria-hidden="true">{count}</span><span className="cm-sr">{`, ${count} ${what}`}</span></span> : null);
-
-/**
- * The tab row on every view: the feed, the lounge, the Sunday circle, poker night (Fridays only),
- * groups, messages and friends.
- * Settings and Safety leave every tab unpressed. A tab for the view already showing doesn't add it
- * to Back again. The Sunday circle's tab opens a live peek of the circle on hover (CirclePeek).
- */
-function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
-  const search = useSearch();
-  const memory = useCommunity();
-  const unread = unreadCount(memory);
-  const messages = unreadMessages(memory);
-  // The Poker night tab is there on Fridays only (and while its page is open).
-  const pokerOn = pokerNightOn(usePokerNight());
-  const tab = (target: CommunitySpace) => ({
-    href: communityHref(target),
-    replace: leadsHere(communityHref(target), search),
-    className: `cm-tab ${space === target ? "is-active" : ""}`,
-    "aria-current": space === target ? ("page" as const) : undefined,
-  });
-  return (
-    <nav className="cm-tabs" aria-label="Community spaces">
-      <Link {...tab("feed")}>Feed</Link>
-      <Link {...tab("lounge")}>
-        <LiveDot /><span>The lounge</span>{" "}<span className="cm-tab-note cm-tab-note-rust">{here} here</span>
-      </Link>
-      <CircleTab {...tab("circle")} active={space === "circle"} />
-      {(pokerOn || space === "poker") && (
-        <Link {...tab("poker")}>
-          <SuitGlyph suit="s" size={16} colour="currentColor" className="pk-tab-suit" /><span>Poker night</span>{" "}
-          <span className="cm-tab-note cm-tab-note-gold">{secondsToTables(new Date()) > 0 ? "7 pm" : "Live"}</span>
-        </Link>
-      )}
-      <Link {...tab("groups")}>
-        <span>Groups</span>
-        {space !== "groups" && <TabBadge count={unread} what="unread" />}
-      </Link>
-      <Link {...tab("messages")}>
-        <span>Messages</span>
-        <TabBadge count={messages} what="unread" />
-      </Link>
-      <Link {...tab("friends")}>Friends</Link>
-    </nav>
-  );
-}
+// The spaces' tabs (Feed, The lounge, Sunday circle, Groups, Messages, Friends) are at the top right
+// of every page now, in the shell (components/SiteTabs.tsx).
 
 /** A small count on a toolbar button. The button's own label says it in words. */
 const ToolBadge = ({ count }: { count: number }) => (count > 0 ? <span className="cm-tool-badge cm-pop" aria-hidden="true">{count}</span> : null);
@@ -89,9 +37,9 @@ export type CommunityHeaderProps = {
 
 /**
  * The community header: a deep green band with "My community", how many friends, groups and people
- * in the lounge there are, a toolbar of labelled buttons (Search, Alerts, Friends, Safety, Settings)
- * and the tab row. Search and Alerts open panels on this page; Friends opens the drawer over the
- * current view; Safety and Settings are pages of their own. Each one that opens a page is a link.
+ * in the lounge there are, and a toolbar of labelled buttons (Search, Alerts, Friends, Safety,
+ * Settings). Search and Alerts open panels on this page; Friends opens the drawer over the current
+ * view; Safety and Settings are pages of their own. Each one that opens a page is a link.
  */
 export default function CommunityHeader({ view, here, findOpen, alertsOpen, onFind, onAlerts, findButton, alertsButton }: CommunityHeaderProps) {
   const memory = useCommunity();
@@ -133,7 +81,6 @@ export default function CommunityHeader({ view, here, findOpen, alertsOpen, onFi
           </Link>
         </div>
       </div>
-      <SpaceTabs space={view.space} here={here} />
     </header>
   );
 }

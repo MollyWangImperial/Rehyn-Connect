@@ -19,12 +19,11 @@ const tagWith = (html: string, name: string, ...attributes: string[]) =>
   (html.match(new RegExp(`<${name}\\b[^>]*>`, "g")) ?? []).some(tag => attributes.every(attribute => tag.includes(attribute)));
 
 describe("My community views", () => {
-  it("opens on the feed, with the preview note, the tabs and the side cards", () => {
+  it("opens on the feed, with the preview note and the side cards (the tabs are in the shell's top bar)", () => {
     const html = page("/community");
     const text = words(html);
     expect(text).toContain("My community");
-    expect(tagWith(html, "a", 'href="/community"', 'class="cm-tab is-active"', 'aria-current="page"')).toBe(true);
-    for (const space of ["lounge", "circle", "groups"]) expect(tagWith(html, "a", `href="/community?space=${space}"`, 'class="cm-tab "')).toBe(true);
+    expect(html).not.toContain("cm-tab");
     expect(text).toContain("What's new with you, Zak?");
     for (const name of ["Margaret", "Tomasz", "Priya", "Joan"]) expect(text).toContain(name);
     expect(tagWith(html, "button", 'aria-label="Play Priya&#x27;s voice note, 12 seconds"')).toBe(true);
@@ -48,22 +47,6 @@ describe("My community views", () => {
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=walk"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=start"')).toBe(true);
-    expect(text).toContain("4 unread");
-  });
-
-  it("opens a live peek of the Sunday circle from its tab, but not in the circle itself", () => {
-    const html = page("/community");
-    const text = words(html);
-    // The tab names today's get-together for a screen reader; the peek shows who has the teacup, who's there, and a seat.
-    const circleTab = (html.match(/<a\b[^>]*>/g) ?? []).find(tag => tag.includes('href="/community?space=circle"') && tag.includes('class="cm-tab "'));
-    const described = circleTab?.match(/aria-describedby="([^"]+)"/)?.[1];
-    expect(described).toBeTruthy();
-    expect(html).toContain(`<p class="cm-peek-title" id="${described}">Photo stories</p>`);
-    expect(text).toContain("Live · Hosted by Alira Photo stories");
-    expect(text).toMatch(/[A-Z][a-z]+ Speaking “[^”]+”/);
-    expect(text).toContain("Nine of us here. One seat is yours.");
-    expect(tagWith(html, "a", 'class="cm-btn cm-btn-gold cm-btn-wide"', 'href="/community?space=circle"')).toBe(true);
-    expect(page("/community?space=circle")).not.toContain("cm-peek");
   });
 
   it("shows who can see your own posts, and never says only you can see what you share", () => {
@@ -84,7 +67,6 @@ describe("My community views", () => {
   it("shows the lounge with its people, Alira's starter, quick replies, house rules and the tea-break poll", () => {
     const html = page("/community?space=lounge");
     const text = words(html);
-    expect(tagWith(html, "a", 'href="/community?space=lounge"', 'aria-current="page"')).toBe(true);
     expect(text).toContain("14 people here now");
     expect(text).toContain("Today's conversation starter from Alira What are you looking forward to this week?");
     expect(text).toContain("It does get lighter, promise.");
@@ -176,7 +158,6 @@ describe("My community views", () => {
   it("opens Friends as a tab, with requests, friends, privacy, blocked people and the safety centre", () => {
     const html = page("/community?space=friends");
     const text = words(html);
-    expect(tagWith(html, "a", 'href="/community?space=friends"', 'class="cm-tab is-active"', 'aria-current="page"')).toBe(true);
     expect(text).toContain("Friend requests 2 waiting");
     expect(text).toContain("Joan Whitby In Garden gang with you");
     expect(text).toContain("Accept Joan's request");
@@ -212,17 +193,15 @@ describe("My community views", () => {
 });
 
 describe("the community header and toolbar", () => {
-  it("shows the deep green header with its counts, five labelled tools and six tabs, each connected to its place", () => {
+  it("shows the deep green header with its counts and five labelled tools, each connected to its place", () => {
     const html = page("/community");
     const text = words(html);
     expect(tagWith(html, "header", 'class="cm-head"')).toBe(true);
     expect(text).toContain("My community 3 friends · 4 groups · 14 people in the lounge now");
     for (const label of ["Search", "Alerts", "Friends", "Safety", "Settings"]) expect(text).toContain(label);
     expect(tagWith(html, "button", 'aria-label="Search people or groups"', 'aria-haspopup="dialog"', 'aria-expanded="false"')).toBe(true);
-    for (const space of ["lounge", "circle", "groups", "messages", "friends"]) expect(tagWith(html, "a", `href="/community?space=${space}"`, 'class="cm-tab "')).toBe(true);
-    expect(text).toContain("The lounge 14 here");
-    expect(text).toContain("Sunday circle Live now");
-    expect(text).toContain("Messages 2 , 2 unread");
+    // The spaces' tabs are at the top right of every page now (SiteTabs, in the shell: recovery-shell.test.ts).
+    expect(html).not.toContain('class="cm-tabs"');
     expect(tagWith(html, "button", 'aria-label="Alerts, 4 new"', 'aria-expanded="false"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?panel=friends"', 'aria-label="Friends and requests, 2 waiting"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=safety"', 'aria-label="Safety"')).toBe(true);
@@ -264,12 +243,10 @@ describe("the feed with friends, safety and settings", () => {
 });
 
 describe("the toolbar's pages", () => {
-  it("opens Community settings as a page of its own, with no tab pressed", () => {
+  it("opens Community settings as a page of its own", () => {
     const html = page("/community?space=settings");
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
     expect(tagWith(html, "a", 'href="/community?space=settings"', 'class="cm-tool is-on"', 'aria-current="page"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community"', 'class="cm-tab "')).toBe(true);
-    expect(html).not.toContain('class="cm-tab is-active"');
     expect(html).toMatch(/<div class="cm-space" data-space="settings">/);
     expect(html).not.toMatch(/data-space="feed"/);
   });

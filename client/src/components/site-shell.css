@@ -1,0 +1,154 @@
+/* The page shell: the top bar (logo, tabs, larger text, contrast, profile), the profile panel down
+   the left and the page beside it. Below 1180px the panel slides in from the left instead. */
+
+.recovery-shell.site-shell { display: block; min-height: 100vh; background: #f4f2ec; }
+.site-shell *, .site-shell *::before, .site-shell *::after { box-sizing: border-box; }
+
+/* ------------------------------------------------------------------ top bar */
+
+/* The community's colours, for the Sunday circle's live peek that opens under its tab. */
+.site-top {
+  --cm-ink: #1B2A24; --cm-muted: #5E6A64; --cm-card: #FFFFFF; --cm-line: #ECE6DA; --cm-bubble: #F4F0E7;
+  --cm-deep: #143628; --cm-green: #173D2F; --cm-ok: #2E7D5B; --cm-mint: #E5EEE7; --cm-gold: #D9BA73;
+  --cm-gold-soft: #F6EEDB; --cm-gold-ink: #7A5C22; --cm-rust: #B5522E; --cm-night: #1A2238;
+  --cm-serif: "Instrument Serif", Georgia, serif;
+  position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px 18px; min-height: 76px;
+  padding: 8px clamp(16px, 2.4vw, 32px); border-bottom: 1px solid #e3e7dd; background: #f8f7f3;
+  font-family: "DM Sans", system-ui, sans-serif; color: #1B2A24;
+}
+.site-top :where(p) { margin: 0; }
+.site-top-start { display: flex; flex: none; align-items: center; gap: 10px; }
+.site-menu { display: none; }
+.site-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 6px; border: 0; border-radius: 14px; background: transparent; color: #183d34; cursor: pointer; }
+.site-brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #183d34; color: #eff5ec; box-shadow: 0 3px 12px rgba(16, 44, 36, .18); }
+.site-brand-name { font: 800 20px/1 "Manrope", sans-serif; letter-spacing: -.7px; white-space: nowrap; }
+.site-brand-name em { color: #b5522e; font-style: normal; }
+
+/* The tabs fit on one row on a wide screen, so the Sunday circle's peek can open below the bar.
+   On a narrower one they scroll sideways and the peek stays shut. */
+.site-tabs { display: flex; flex: 0 1 auto; align-items: stretch; gap: 2px; min-width: 0; margin-left: auto; padding: 8px 2px 2px; }
+.site-tab { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 66px; min-height: 58px; padding: 6px 10px; border-radius: 16px; color: #42544b; font-size: 12.5px; font-weight: 650; line-height: 1.1; white-space: nowrap; text-decoration: none; transition: background .16s ease, color .16s ease; }
+.site-tab:hover { background: #ebf0ea; color: #173d2f; }
+.site-tab.is-active { background: #e2ece4; color: #173d2f; box-shadow: inset 0 0 0 1px #cbded0; }
+.site-tab:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
+.site-tab-icon { position: relative; display: grid; place-items: center; height: 22px; }
+.site-tab-count, .site-tab-new, .site-tab-live { position: absolute; top: -9px; left: calc(100% - 6px); display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px; border-radius: 999px; font: 800 10px/1 "Manrope", sans-serif; white-space: nowrap; }
+.site-tab-count { min-width: 18px; justify-content: center; background: #c9452f; color: #fffefa; }
+.site-tab-new { background: #183d34; color: #fffefa; font-size: 8.5px; letter-spacing: .7px; text-transform: uppercase; }
+.site-tab-live { background: #183d34; color: #fffefa; }
+.site-tab-live i { width: 6px; height: 6px; border-radius: 50%; background: #e0704f; }
+.site-tab-live.is-gold { background: #d9ba73; color: #173d2f; }
+.site-tab-dot { position: absolute; top: -1px; right: -4px; width: 9px; height: 9px; border: 2px solid #f8f7f3; border-radius: 50%; background: #2e7d5b; }
+/* The Sunday circle's tab is wrapped for its peek, which opens under the bar. */
+.site-tabs .cm-tab-wrap { flex: none; }
+
+.site-top-tools { display: flex; flex: none; align-items: center; gap: 8px; }
+
+/* ------------------------------------------------------------- body and panel */
+
+.site-body { display: grid; grid-template-columns: 284px minmax(0, 1fr); align-items: start; gap: 24px; max-width: 1680px; margin: 0 auto; padding: 22px clamp(16px, 2.4vw, 32px) 56px; }
+.site-main { min-width: 0; }
+.site-main > .recovery-page { max-width: none; margin: 0; padding: 0 0 32px; }
+/* The panel scrolls on its own when it is taller than the window; its scrollbar shows on hover. */
+.site-panel { position: sticky; top: 98px; max-height: calc(100vh - 112px); overflow-y: auto; scrollbar-width: none; font-family: "DM Sans", system-ui, sans-serif; color: #1B2A24; }
+.site-panel::-webkit-scrollbar { width: 0; }
+.site-panel:hover, .site-panel:focus-within { scrollbar-width: thin; }
+.site-panel:hover::-webkit-scrollbar, .site-panel:focus-within::-webkit-scrollbar { width: 6px; }
+.site-panel-inner { display: flex; flex-direction: column; gap: 14px; padding: 2px 2px 12px; }
+.site-panel :where(p, ul) { margin: 0; }
+.site-panel :where(ul) { padding: 0; list-style: none; }
+.site-panel a { text-decoration: none; }
+.site-panel :focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
+
+.site-card { padding: 16px; border: 1px solid #e4e8df; border-radius: 22px; background: #fffefa; box-shadow: 0 10px 30px rgba(20, 54, 40, .05); }
+.site-date { margin-bottom: 12px; color: #65736b; font: 700 10px "Manrope", sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
+.site-me-row { display: flex; align-items: center; gap: 12px; }
+.site-me-face { display: grid; flex: none; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: #285b49; color: #fffefa; font: 800 19px "Manrope", sans-serif; }
+.site-me-face img { width: 100%; height: 100%; object-fit: cover; }
+.site-me-words { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.site-me-words b { overflow: hidden; max-width: 100%; color: #1B2A24; font-size: 16.5px; text-overflow: ellipsis; white-space: nowrap; }
+.site-me-link { min-height: 28px; padding: 0; border: 0; background: transparent; color: #4f6158; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.site-rows { display: flex; flex-direction: column; gap: 2px; margin-top: 12px !important; }
+.site-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 6px 8px; border: 0; border-radius: 14px; background: transparent; color: #1B2A24; font: inherit; font-size: 14.5px; font-weight: 650; text-align: left; cursor: pointer; }
+.site-row:hover { background: #f1f3ee; color: #1B2A24; }
+.site-row.is-active { background: #e2ece4; }
+.site-row-icon { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 11px; }
+.site-row-icon.is-rose { background: #fbe3db; color: #a84232; }
+.site-row-icon.is-sun { background: #fbf0dc; color: #8a5a12; }
+.site-row-icon.is-mint { background: #e5eee7; color: #205345; }
+.site-row-icon.is-green { background: #183d34; color: #eff5ec; }
+.site-row-label { flex: 1; min-width: 0; }
+.site-row-note { display: inline-flex; align-items: center; gap: 4px; color: #5e6a64; font-size: 13px; font-weight: 600; }
+.site-row-note svg { transition: transform .16s ease; }
+.site-row-note svg.is-open { transform: rotate(90deg); }
+.site-row-badge { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: #183d34; color: #fffefa; font: 800 11.5px "Manrope", sans-serif; }
+.site-saved { margin: 2px 6px 6px 54px; color: #5e6a64; font-size: 13.5px; line-height: 1.4; }
+.site-saved ul { display: flex; flex-direction: column; gap: 2px; }
+.site-saved a { display: flex; align-items: center; min-height: 36px; color: #285b49; font-weight: 650; }
+
+.site-library { border-color: #d6e4d9; background: #eef4ef; }
+.site-library-head { display: flex; align-items: center; gap: 10px; }
+.site-library-head > span:last-child { display: flex; flex-direction: column; }
+.site-library-head b { color: #183d34; font-size: 15.5px; }
+.site-library-head > span:last-child > span { color: #5e6a64; font-size: 12.5px; }
+.site-library-icon { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #183d34; color: #eff5ec; }
+.site-library-search { display: flex; align-items: center; gap: 8px; height: 44px; margin-top: 12px; padding: 0 14px; border: 1px solid #d6e4d9; border-radius: 999px; background: #fffefa; color: #5e6a64; }
+.site-library-search:focus-within { outline: 3px solid #285b49; outline-offset: 2px; }
+.site-library-search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: #1B2A24; font: inherit; font-size: 14px; }
+.site-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.site-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #d6e4d9; border-radius: 999px; background: #fffefa; color: #1B2A24; font-size: 12.5px; font-weight: 650; }
+.site-chip:hover { border-color: #9fc0aa; color: #183d34; }
+.site-caption { margin: 14px 0 6px !important; color: #2e7d5b; font: 800 10.5px "Manrope", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; }
+.site-reads { display: flex; flex-direction: column; gap: 6px; }
+.site-read { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; background: #fffefa; color: #1B2A24; }
+.site-read:hover { box-shadow: inset 0 0 0 1px #c9dccf; color: #1B2A24; }
+.site-read b { font-size: 13.5px; line-height: 1.3; }
+.site-read span { color: #5e6a64; font-size: 12px; }
+.site-library-open { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; margin-top: 12px; border-radius: 999px; background: #183d34; color: #fffefa; font-size: 14px; font-weight: 700; }
+.site-library-open:hover { background: #24503f; color: #fffefa; }
+
+.site-groups, .site-staff { padding: 0 4px; }
+.site-groups > .site-caption, .site-staff > .site-caption { margin-top: 4px !important; color: #5e6a64; }
+.site-groups ul { display: flex; flex-direction: column; gap: 2px; }
+.site-group { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 4px 8px; border-radius: 14px; color: #1B2A24; font-size: 14px; font-weight: 600; }
+.site-group:hover { background: #ebeee8; color: #1B2A24; }
+.site-group-tile { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e5eee7; color: #205345; font: 800 11px "Manrope", sans-serif; }
+.site-group.is-more { color: #285b49; }
+.site-group.is-more .site-group-tile { border: 1.5px dashed #9fb3a7; background: transparent; color: #285b49; }
+.site-group-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-group-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #2e7d5b; }
+.site-staff { display: flex; flex-direction: column; gap: 6px; }
+.site-staff .account-reset-controls { align-self: flex-start; }
+
+.site-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; padding: 4px 8px 8px; color: #5e6a64; font-size: 12.5px; }
+.site-foot a, .site-foot button { min-height: 32px; padding: 0; border: 0; background: none; color: #285b49; font: inherit; font-weight: 650; cursor: pointer; }
+.site-foot a:hover, .site-foot button:hover { text-decoration: underline; }
+
+.recovery-strong-contrast .site-top, .recovery-strong-contrast .site-card { border-color: #7da08c; }
+
+/* --------------------------------------------------------- smaller screens */
+
+@media (max-width: 1179px) {
+  .site-tabs { overflow-x: auto; scrollbar-width: none; }
+  .site-tabs::-webkit-scrollbar { display: none; }
+  .site-tabs .cm-peek { display: none; }
+  .site-menu { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #e3e7dd; border-radius: 14px; background: rgba(255, 255, 255, .8); color: #285b49; cursor: pointer; }
+  .site-body { grid-template-columns: minmax(0, 1fr); }
+  .site-panel { position: fixed; z-index: 60; top: 0; bottom: 0; left: 0; width: min(320px, 88vw); max-height: none; padding: 16px 14px; background: #f4f2ec; box-shadow: 18px 0 40px rgba(20, 54, 40, .18); transform: translateX(-105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+  .site-panel.is-open { transform: none; visibility: visible; transition: transform .22s ease; }
+  .site-scrim { position: fixed; z-index: 55; inset: 0; border: 0; background: rgba(16, 32, 26, .35); }
+}
+@media (max-width: 860px) {
+  .site-top { flex-wrap: wrap; padding-bottom: 4px; }
+  .site-top-tools { margin-left: auto; }
+  .site-tabs { order: 3; width: 100%; margin: 0 -6px; padding-top: 10px; }
+  .site-tab { min-width: 74px; }
+  .site-body { padding-top: 16px; }
+}
+@media (max-width: 420px) {
+  .site-brand-name em { display: none; }
+  .site-top-tools .recovery-utility, .site-top-tools .recovery-profile { width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-panel, .site-panel.is-open, .site-tab, .site-row-note svg { transition: none; }
+}

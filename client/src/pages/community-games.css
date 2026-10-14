@@ -50,8 +50,21 @@ a.cm-game-row.is-yours:hover { background: #F1E5C9; }
 .cm-dialog-sheet.cm-gs-sheet { width: min(760px, calc(100vw - 32px)); }
 .cm-gs-eyebrow { display: flex; align-items: center; gap: 8px; color: var(--cm-gold-ink); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .cm-gs-step { display: flex; flex-direction: column; gap: 16px; }
-.cm-gs-games { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.cm-gs-game { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px; min-height: 132px; padding: 14px; border: 2.5px solid transparent; border-radius: 20px; color: var(--cm-ink); text-align: left; cursor: pointer; transition: transform .2s ease; }
+/* The games: six at a time in an area that scrolls down to the rest. Its height is set from the
+   tiles (six, and the top of the next row); on a short screen it gives way, so "Next" stays in view. */
+.cm-gs-step-pick { flex: 0 1 auto; min-height: 0; }
+.cm-gs-scroll { position: relative; display: flex; flex: 0 1 auto; flex-direction: column; min-height: 0; margin: -7px; }
+.cm-gs-area { position: relative; flex: 0 1 auto; min-height: 0; max-height: 330px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.cm-gs-games { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(132px, auto); gap: 12px; padding: 7px; }
+.cm-gs-game { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px; min-height: 132px; padding: 14px; border: 2.5px solid transparent; border-radius: 20px; color: var(--cm-ink); text-align: left; cursor: pointer; transition: transform .2s ease; scroll-margin: 34px 0 52px; }
+/* A soft fade where there is more to see, above or below. */
+.cm-gs-scroll::before, .cm-gs-scroll::after { content: ""; position: absolute; left: 0; right: var(--cm-gs-bar, 0px); z-index: 1; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.cm-gs-scroll::before { top: 0; height: 26px; background: linear-gradient(#FBF8F2, rgba(251, 248, 242, 0)); }
+.cm-gs-scroll::after { bottom: 0; height: 46px; background: linear-gradient(rgba(251, 248, 242, 0), rgba(251, 248, 242, .92) 62%, #FBF8F2); }
+.cm-gs-scroll.is-above::before, .cm-gs-scroll.is-below::after { opacity: 1; }
+.cm-gs-more { position: absolute; bottom: 6px; left: calc(50% - var(--cm-gs-bar, 0px) / 2); z-index: 2; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; background: var(--cm-deep); color: #FFFFFF; font-size: 13.5px; font-weight: 700; white-space: nowrap; box-shadow: 0 6px 16px rgba(20, 54, 40, .22); transform: translateX(-50%); cursor: pointer; animation: cm-gs-more 2.4s ease-in-out infinite; }
+.cm-gs-more::before { content: ""; position: absolute; inset: -6px; }
+@keyframes cm-gs-more { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 3px); } }
 .cm-gs-game:hover { transform: translateY(-2px); }
 .cm-gs-game.is-on { border-color: var(--cm-deep); }
 .cm-gs-picture { display: flex; align-items: center; height: 46px; }

@@ -41,7 +41,7 @@ export type ContentType = "understand" | "recover" | "liveWell" | "watch";
 export type ConditionContent = {
   understand: LibraryItem[];
   recover: LibraryItem[];
-  /** "Recover" on most pages; "Treat & manage" where that fits better. */
+  /** The second tab's name: "Explore" on most pages; "Treat & manage" where that fits better. */
   recoverTitle?: string;
   liveWell: LibraryItem[];
   watch: LibraryItem[];
@@ -50,7 +50,7 @@ export type ConditionContent = {
   stories: string[];
   askDoctor: string[];
   related: { groupId: string; conditionId: string; label?: string }[];
-  /** Placement B: a dark band between Understand and Recover. */
+  /** Placement B: a dark band between Understand and Explore. */
   pause?: { storyId: string; chapter: string; quote: string; cta: string };
   /** Placement C: a companion in the side rail, at the point the reader says they have reached. */
   companion?: { storyId: string };

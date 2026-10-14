@@ -1,107 +1,86 @@
-import { type ReactNode } from "react";
-import { useLocation, useSearch } from "wouter";
-import { fastCheckPath } from "@/lib/fast-check";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLocation } from "wouter";
+import { Menu, Plus, Sun, X } from "lucide-react";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
 import { setDisplayPrefs, useDisplayPrefs } from "@/lib/display-prefs";
-import { SettingsButton, useSettings } from "./AccountSettings";
-import AccountResetControls from "./AccountResetControls";
-import { administrativeControlsEnabled } from "@/lib/administrative-controls";
+import { useSettings } from "./AccountSettings";
+import { useMediaQuery } from "./community/hooks";
 import HeartRateMark from "./HeartRateMark";
-import {
-  BookOpen,
-  ChevronRight,
-  CircleHelp,
-  Home as HomeIcon,
-  Plus,
-  ShieldCheck,
-  Sun,
-  Users,
-} from "lucide-react";
-import { CARE_TEAM_PATH, useCareTeamWaiting } from "@/lib/care-team";
+import ProfilePanel from "./ProfilePanel";
+import SiteTabs from "./SiteTabs";
+import "./site-shell.css";
 
-type ViewName = "Home" | "Library" | "My Community" | "Care Team";
+type ViewName = "Library" | "My Community" | "Care Team";
 
 type RecoveryShellProps = {
   active: ViewName;
   children: ReactNode;
   dateLabel?: string;
   className?: string;
+  /** How many are in the lounge now, for its tab (My community keeps it live). */
+  loungeHere?: number;
 };
 
-const navigation: { label: ViewName; href: string; icon: typeof HomeIcon }[] = [
-  { label: "Home", href: "/", icon: HomeIcon },
-  { label: "Library", href: "/library", icon: BookOpen },
-  { label: "My Community", href: "/community", icon: Users },
-];
-// The mobile bar's names, where the full names would not fit five across.
-const mobileLabel: Partial<Record<ViewName, string>> = { "My Community": "Community", "Care Team": "Care team" };
-const navLabel = (label: ViewName) => label === "My Community" ? "My community" : label;
+/** Below this width the profile panel leaves the page and slides in from the left instead. */
+const NARROW = "(max-width: 1179px)";
 
-export default function RecoveryShell({ active, children, dateLabel = "THURSDAY, 24 SEPTEMBER", className = "" }: RecoveryShellProps) {
+/**
+ * Every page: a top bar with the logo on the left and the tabs, larger text, stronger contrast and
+ * your profile on the right; your profile panel down the left (ProfilePanel); the page itself.
+ * The Feed is the home page. The shell also wraps nested routes (the Library lives under /library),
+ * so all its links are absolute ("~").
+ */
+export default function RecoveryShell({ active, children, dateLabel = "THURSDAY, 24 SEPTEMBER", className = "", loungeHere }: RecoveryShellProps) {
   const [, navigate] = useLocation();
-  const search = useSearch();
-  // The shell also wraps nested routes (the Library lives under /library), so its own links are
-  // absolute: "~" leaves any nested base, and the way back from Warning signs is the real path.
-  const go = (href: string) => navigate(`~${href}`);
   const { largeText, strongContrast } = useDisplayPrefs();
   const setLargeText = (on: boolean) => setDisplayPrefs({ largeText: on });
   const setStrongContrast = (on: boolean) => setDisplayPrefs({ strongContrast: on });
   const openSettings = useSettings();
   const profile = useProfile();
-  const careTeamBadge = useCareTeamWaiting();
-  const openFastCheck = () => go(fastCheckPath(window.location.pathname, search));
+  const narrow = useMediaQuery(NARROW);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLElement>(null);
+  const drawer = narrow && panelOpen;
+
+  // The slide-in panel: Escape closes it, and the focus goes into it and back to the menu button.
+  useEffect(() => {
+    if (!drawer) return;
+    panel.current?.querySelector<HTMLElement>("a, button, input")?.focus();
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setPanelOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawer]);
+  const closePanel = () => { if (!drawer) return; setPanelOpen(false); menuButton.current?.focus(); };
+  useEffect(() => { if (!narrow) setPanelOpen(false); }, [narrow]);
 
   return (
-    <div className={`recovery-shell ${largeText ? "recovery-large-text" : ""} ${strongContrast ? "recovery-strong-contrast" : ""} ${className}`}>
-      <aside className="recovery-sidebar" aria-label="Main navigation">
-        <button className="recovery-brand" onClick={() => go("/")} aria-label="Go to home">
-          <span className="recovery-brand-mark"><HeartRateMark size={25} /></span>
-          <span className="recovery-brand-name" aria-label="Rehyn: Connect">Rehyn:<em>Connect</em></span>
-        </button>
-        <div className="recovery-nav-caption">YOUR SPACE</div>
-        <nav className="recovery-nav">
-          {navigation.map(({ label, href, icon: Icon }) => (
-            <button key={label} className={`recovery-nav-link ${active === label ? "is-active" : ""}`} onClick={() => go(href)} aria-current={active === label ? "page" : undefined}>
-              <Icon size={21} strokeWidth={2.1} />
-              <span>{navLabel(label)}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="recovery-nav-caption recovery-nav-caption-staff">CARE TEAM</div>
-        <nav className="recovery-nav" aria-label="Care team">
-          <button className={`recovery-nav-link ${active === "Care Team" ? "is-active" : ""}`} onClick={() => go(CARE_TEAM_PATH)} aria-current={active === "Care Team" ? "page" : undefined}>
-            <ShieldCheck size={21} strokeWidth={2.1} />
-            <span>Care team</span>
-            {careTeamBadge > 0 && <b className="recovery-nav-badge" aria-label={`${careTeamBadge} waiting for review`}>{careTeamBadge}</b>}
+    <div className={`recovery-shell site-shell ${largeText ? "recovery-large-text" : ""} ${strongContrast ? "recovery-strong-contrast" : ""} ${drawer ? "has-drawer" : ""} ${className}`}>
+      <header className="site-top">
+        <div className="site-top-start">
+          <button ref={menuButton} type="button" className="site-menu" aria-label={panelOpen ? "Close your panel" : "Open your panel"} aria-expanded={drawer} aria-controls="site-panel" onClick={() => setPanelOpen(!panelOpen)}>
+            {drawer ? <X size={20} /> : <Menu size={20} />}
           </button>
-        </nav>
-        <div className="recovery-sidebar-bottom"><button className="recovery-warning-link" onClick={openFastCheck}>
-          <CircleHelp size={19} /><span>Warning signs</span><ChevronRight size={16} />
-        </button><SettingsButton /></div>
-      </aside>
-
-      <main className="recovery-main">
-        <header className="recovery-topbar">
-          <div className="settings-mobile-brand-group"><SettingsButton mobile /><button className="recovery-mobile-brand" onClick={() => go("/")} aria-label="Rehyn: Connect home"><span><HeartRateMark size={19} /></span><b>Rehyn: Connect</b></button></div>
-          <div className="recovery-date">{dateLabel}</div>
-          <div className="recovery-top-actions">
-            {administrativeControlsEnabled() && active === "Home" && <AccountResetControls />}
-            <button className={`recovery-utility ${largeText ? "is-on" : ""}`} onClick={() => setLargeText(!largeText)} aria-label={largeText ? "Use standard text" : "Use larger text"} title="Larger text"><b>A</b><Plus size={11} /></button>
-            <button className={`recovery-utility ${strongContrast ? "is-on" : ""}`} onClick={() => setStrongContrast(!strongContrast)} aria-label="Toggle stronger contrast" title="Stronger contrast"><Sun size={18} /></button>
-            <button className="recovery-profile" aria-label={`${profileName(profile)}'s profile`} aria-haspopup="dialog" onClick={event => openSettings(event.currentTarget)}>{profile.photo ? <img src={profile.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : profileInitial(profile)}</button>
-          </div>
-        </header>
-        {children}
-      </main>
-
-      <nav className="recovery-mobile-nav" aria-label="Mobile navigation" style={{ gridTemplateColumns: `repeat(${navigation.length + 2}, minmax(0, 1fr))` }}>
-        {[...navigation, { label: "Care Team" as const, href: CARE_TEAM_PATH, icon: ShieldCheck }].map(({ label, href, icon: Icon }) => (
-          <button key={label} className={active === label ? "is-active" : ""} onClick={() => go(href)} aria-current={active === label ? "page" : undefined}>
-            <span className="recovery-mobile-icon"><Icon size={20} /></span><span>{mobileLabel[label] ?? label}</span>
+          <button type="button" className="site-brand" onClick={() => navigate("~/community")} aria-label="Rehyn: Connect, go to the Feed">
+            <span className="site-brand-mark"><HeartRateMark size={22} /></span>
+            <span className="site-brand-name">Rehyn<em>: Connect</em></span>
           </button>
-        ))}
-        <button className="recovery-help-mobile" onClick={openFastCheck}><CircleHelp size={20} /><span>Help</span></button>
-      </nav>
+        </div>
+        <SiteTabs here={loungeHere} />
+        <div className="site-top-tools">
+          <button className={`recovery-utility ${largeText ? "is-on" : ""}`} onClick={() => setLargeText(!largeText)} aria-label={largeText ? "Use standard text" : "Use larger text"} title="Larger text"><b>A</b><Plus size={11} /></button>
+          <button className={`recovery-utility ${strongContrast ? "is-on" : ""}`} onClick={() => setStrongContrast(!strongContrast)} aria-label="Toggle stronger contrast" title="Stronger contrast"><Sun size={18} /></button>
+          <button className="recovery-profile" aria-label={`${profileName(profile)}'s profile`} aria-haspopup="dialog" onClick={event => openSettings(event.currentTarget)}>{profile.photo ? <img src={profile.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : profileInitial(profile)}</button>
+        </div>
+      </header>
+
+      <div className="site-body">
+        {drawer && <button type="button" className="site-scrim" aria-label="Close your panel" tabIndex={-1} onClick={closePanel} />}
+        <aside ref={panel} id="site-panel" className={`site-panel ${drawer ? "is-open" : ""}`} aria-label="Your panel" inert={narrow && !panelOpen ? true : undefined}>
+          <ProfilePanel dateLabel={dateLabel} careTeam={active === "Care Team"} onNavigate={closePanel} />
+        </aside>
+        <main className="site-main">{children}</main>
+      </div>
     </div>
   );
 }

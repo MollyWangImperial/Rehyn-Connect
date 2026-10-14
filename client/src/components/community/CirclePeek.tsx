@@ -37,8 +37,8 @@ function PeekedTab({ link, children }: { link: TabLink; children: ReactNode }) {
   const open = () => {
     setNow(Date.now());
     setClosed(false);
-    // Near the header's right edge, the card moves left to stay inside it; its notch still points at the tab.
-    const box = wrap.current, peek = card.current, head = box?.closest<HTMLElement>(".cm-head");
+    // Near the bar's right edge, the card moves left to stay inside it; its notch still points at the tab.
+    const box = wrap.current, peek = card.current, head = box?.closest<HTMLElement>(".cm-head, .site-top");
     if (!box || !peek || !head) return;
     const edge = head.getBoundingClientRect().right - (parseFloat(getComputedStyle(head).paddingRight) || 0);
     setShift(Math.min(0, Math.round(edge - box.getBoundingClientRect().left - peek.offsetWidth)));
@@ -90,14 +90,18 @@ function PeekedTab({ link, children }: { link: TabLink; children: ReactNode }) {
           </span>
           <span>{seated ? <>{countWord(present)} of us now.<br />Your seat is kept.</> : <>{countWord(present)} of us here.<br />One seat is yours.</>}</span>
         </div>
-        <Link className="cm-btn cm-btn-gold cm-btn-wide" href={communityHref("circle")} onClick={() => communityStore.takeSeat()}>{seated ? "Go to your seat" : "Take your seat"}</Link>
+        {/* "~": the tab sits in the top bar, which the Library's nested pages draw too. */}
+        <Link className="cm-btn cm-btn-gold cm-btn-wide" href={`~${communityHref("circle")}`} onClick={() => communityStore.takeSeat()}>{seated ? "Go to your seat" : "Take your seat"}</Link>
       </div>
     </div>
   );
 }
 
-/** The Sunday circle's tab. On the other views it has the live peek; in the circle itself it is a plain tab. */
-export default function CircleTab({ active, ...link }: TabLink & { active: boolean }) {
-  const label = <><span>Sunday circle</span>{" "}<span className="cm-tab-note cm-tab-note-gold">Live now</span></>;
+/**
+ * The Sunday circle's tab. On the other views it has the live peek; in the circle itself it is a plain tab.
+ * `children` replaces its words (the top bar draws an icon above them).
+ */
+export default function CircleTab({ active, children, ...link }: TabLink & { active: boolean; children?: ReactNode }) {
+  const label = children ?? <><span>Sunday circle</span>{" "}<span className="cm-tab-note cm-tab-note-gold">Live now</span></>;
   return active ? <Link {...link}>{label}</Link> : <PeekedTab link={link}>{label}</PeekedTab>;
 }

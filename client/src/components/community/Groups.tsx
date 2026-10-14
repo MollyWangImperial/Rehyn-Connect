@@ -2,11 +2,14 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { conditions, groupQuickReplies, inviteFriends, people, suggestedGroups, type ConditionId, type GroupMessage, type GroupVisibility, type PersonId, type JoinableGroupId } from "@/content/community-samples";
 import { canSee, communityHref, communityStore, communityViewFromQuery, inCondition, isBlocked, listNames, useCommunity, type CommunityMemory, type NoteDraft, type OwnNote } from "@/lib/community-store";
+import BattleshipsGame from "./games/Battleships";
+import { MiniSea, Reticle } from "./games/BattleshipsArt";
+import { battleshipsProgress } from "./games/battleships-rules";
 import ChessGame from "./games/Chess";
 import { replay } from "./games/chess-rules";
 import { ChessPiece, GamesIcon } from "./games/pieces";
 import StartGameSheet from "./games/StartGameSheet";
-import { conditionOf, homeCondition, lastLine, myGames, myGroups, visibleSubgroups, type GameModel, type GroupModel, type SubgroupCard } from "./group-model";
+import { conditionOf, gameOpens, homeCondition, lastLine, myGames, myGroups, visibleSubgroups, type GameModel, type GroupModel, type SubgroupCard } from "./group-model";
 import { useBursts, usePinnedToEnd } from "./hooks";
 import { CheckIcon, ChevronDownIcon, ClockIcon, EyeIcon, GlobeIcon, HeartIcon, LockIcon, NextIcon, PlusIcon, PulseIcon, UsersIcon } from "./icons";
 import { ChatInput, Cover, Face, FloatingHearts, LiveDot, MyFace, MyMessage, TheirMessage, toneClass, TypingRow } from "./parts";
@@ -41,6 +44,16 @@ export function PrivacyPill({ visibility, className = "" }: { visibility: GroupV
 
 /** Whose turn it is in a chess game the person plays (always white). */
 const yourMove = (game: GameModel) => replay(game.moves).position.turn === "w";
+/** A game the person plays and can open now: their chess games and their own Battleships games. */
+const playsNow = (game: GameModel) => game.withYou && gameOpens(game);
+/** Where one of the person's own games has got to, in a few words, and whether it is their go. */
+function progressOf(game: GameModel): { text: string; yours: boolean } {
+  const who = nameOf(game.players[0]);
+  if (game.type === "battleships") return battleshipsProgress(game.battle, who);
+  return yourMove(game) ? { text: "Your move", yours: true } : { text: `${who} is thinking`, yours: false };
+}
+/** "Your move" becomes "your move" in the middle of a sentence; a name keeps its capital. */
+const midSentence = (text: string, name: string) => (text.startsWith(name) ? text : `${text.charAt(0).toLowerCase()}${text.slice(1)}`);
 
 /** "Games in your groups": games the person plays, games they can watch, and games coming up. */
 function GamesCard({ memory }: { memory: CommunityMemory }) {
@@ -54,14 +67,17 @@ function GamesCard({ memory }: { memory: CommunityMemory }) {
       <ul className="cm-games-list">
         {games.map(game => {
           const href = communityHref("groups", game.groupId, { game: game.id });
-          if (game.withYou && game.type === "chess" && game.state === "playing") {
-            const mine = yourMove(game);
+          if (playsNow(game)) {
+            const { text, yours } = progressOf(game);
             return (
               <li key={game.id}>
                 <Link className="cm-game-row is-yours" href={href}>
-                  <span className="cm-game-face"><Face who={game.players[0]} size={44} /><span className="cm-game-badge" aria-hidden="true"><ChessPiece piece="wN" size={16} /></span></span>
-                  <span className="cm-group-text"><b>{`Chess · ${nameOf(game.players[0])}`}</b><span className={mine ? "is-go" : ""}>{mine ? "Your move" : `${nameOf(game.players[0])} is thinking`}</span></span>
-                  <span className={`cm-game-play ${mine ? "cm-nudge" : ""}`}>Play</span>
+                  <span className="cm-game-face">
+                    <Face who={game.players[0]} size={44} />
+                    <span className="cm-game-badge" aria-hidden="true">{game.type === "battleships" ? <Reticle className="cm-bs-badge" /> : <ChessPiece piece="wN" size={16} />}</span>
+                  </span>
+                  <span className="cm-group-text"><b>{`${game.name} · ${nameOf(game.players[0])}`}</b><span className={yours ? "is-go" : ""}>{text}</span></span>
+                  <span className={`cm-game-play ${yours ? "cm-nudge" : ""}`}>Play</span>
                 </Link>
               </li>
             );
@@ -79,13 +95,13 @@ function GamesCard({ memory }: { memory: CommunityMemory }) {
           const watching = !game.withYou;
           return (
             <li key={game.id}>
-              <Link className="cm-game-row" href={game.type === "chess" && game.state === "playing" ? href : communityHref("groups", game.groupId)}>
-                <span className="cm-game-tile"><ChessPiece piece="bP" size={26} /></span>
+              <Link className="cm-game-row" href={gameOpens(game) ? href : communityHref("groups", game.groupId)}>
+                <span className="cm-game-tile">{game.type === "battleships" ? <Reticle className="cm-bs-tile-icon" /> : <ChessPiece piece="bP" size={26} />}</span>
                 <span className="cm-group-text">
                   <b>{watching ? `${listNames(game.players.map(nameOf))}` : `${game.name} with ${listNames(game.players.map(nameOf))}`}</b>
                   <span>{`${game.name} · ${groupName(game.groupId)}`}{game.own?.state === "lobby" ? " · waiting" : ""}</span>
                 </span>
-                <span className="cm-game-link">{watching ? "Watch" : game.type === "chess" ? "Play" : "Open"}</span>
+                <span className="cm-game-link">{watching ? "Watch" : game.type === "chess" || game.type === "battleships" ? "Play" : "Open"}</span>
               </Link>
             </li>
           );
@@ -297,7 +313,8 @@ function MiniBoard({ moves }: { moves: string[] }) {
 function GameStrip({ group, games, onStart }: { group: GroupModel; games: GameModel[]; onStart: () => void }) {
   const noteId = useId();
   const live = games.find(game => game.state === "playing" && game.own) ?? games.find(game => game.state === "playing" && !game.withYou) ?? games.find(game => game.state === "playing") ?? games.find(game => game.state === "lobby") ?? games.find(game => game.state === "scheduled");
-  const yours = games.find(game => game !== live && game.withYou && game.type === "chess" && game.state === "playing");
+  // Another game the person is playing here gets a line of its own under the strip.
+  const yours = games.find(game => game !== live && playsNow(game));
   let body;
   if (!group.games) {
     body = (
@@ -325,6 +342,19 @@ function GameStrip({ group, games, onStart }: { group: GroupModel; games: GameMo
         <Link className="cm-strip-watch" href={communityHref("groups", group.id, { game: live.id })}><EyeIcon size={18} strokeWidth={2} />{live.withYou ? "Play" : "Watch"}</Link>
       </>
     );
+  } else if (live && live.type === "battleships" && gameOpens(live)) {
+    const shots = live.battle?.ready ? live.battle.shots.filter(shot => shot.by === "you").length : 0;
+    body = (
+      <>
+        <MiniSea save={live.battle} />
+        <div className="cm-strip-text">
+          <p className="cm-overline cm-overline-gold"><LiveDot />Game on in this group</p>
+          <p className="cm-strip-title">{`You vs ${nameOf(live.players[0])} · Battleships`}</p>
+          <p>{shots ? `${progressOf(live).text} · ${shots} ${shots === 1 ? "shot" : "shots"} fired` : progressOf(live).text}</p>
+        </div>
+        <Link className="cm-strip-watch" href={communityHref("groups", group.id, { game: live.id })}><EyeIcon size={18} strokeWidth={2} />Play</Link>
+      </>
+    );
   } else if (live) {
     const who = listNames(live.players.map(nameOf));
     body = (
@@ -333,7 +363,7 @@ function GameStrip({ group, games, onStart }: { group: GroupModel; games: GameMo
         <div className="cm-strip-text">
           <p className="cm-overline cm-overline-gold">{live.state === "scheduled" ? live.when : live.state === "lobby" ? "Invites sent" : "Game on in this group"}</p>
           <p className="cm-strip-title">{live.state === "scheduled" ? `${live.name} · ${live.players.length} going` : `${live.name} with ${who}`}</p>
-          <p>{live.state === "scheduled" ? `${nameOf(live.players[0])} set it up. ${listNames(live.players.slice(1).map(nameOf))} said yes.` : live.state === "lobby" ? `Waiting for ${who} to say yes.` : "Only chess can be played in this preview. The others are coming soon."}</p>
+          <p>{live.state === "scheduled" ? `${nameOf(live.players[0])} set it up. ${listNames(live.players.slice(1).map(nameOf))} said yes.` : live.state === "lobby" ? `Waiting for ${who} to say yes.` : "Only chess and Battleships can be played in this preview. The others are coming soon."}</p>
         </div>
       </>
     );
@@ -344,7 +374,7 @@ function GameStrip({ group, games, onStart }: { group: GroupModel; games: GameMo
         <div className="cm-strip-text">
           <p className="cm-overline cm-overline-gold">Games in this group</p>
           <p className="cm-strip-title">No game on yet</p>
-          <p>Chess, draughts, Go, Ludo and other classics. No clock.</p>
+          <p>Chess, draughts, Go, Battleships and other classics. No clock.</p>
         </div>
       </>
     );
@@ -359,8 +389,8 @@ function GameStrip({ group, games, onStart }: { group: GroupModel; games: GameMo
       </div>
       {yours && (
         <Link className="cm-strip-yours" href={communityHref("groups", group.id, { game: yours.id })}>
-          <ChessPiece piece="wN" size={20} />
-          <span>{`Your chess game with ${nameOf(yours.players[0])}: ${yourMove(yours) ? "your move" : `${nameOf(yours.players[0])} is thinking`}`}</span>
+          {yours.type === "battleships" ? <Reticle className="cm-bs-tile-icon" /> : <ChessPiece piece="wN" size={20} />}
+          <span>{`Your ${yours.type === "chess" ? "chess" : yours.name} game with ${nameOf(yours.players[0])}: ${midSentence(progressOf(yours).text, nameOf(yours.players[0]))}`}</span>
           <NextIcon size={16} />
         </Link>
       )}
@@ -604,7 +634,7 @@ function GroupPage({ active, requested, sheetAsked }: { active: boolean; request
           onClose={closeSheet}
           onPlay={game => {
             setSheet(false);
-            navigate(game.type === "chess" ? communityHref("groups", selected.id, { game: game.id }) : communityHref("groups", selected.id), { replace: sheetAsked });
+            navigate(game.type === "chess" || game.type === "battleships" ? communityHref("groups", selected.id, { game: game.id }) : communityHref("groups", selected.id), { replace: sheetAsked });
           }}
         />
       )}
@@ -621,7 +651,7 @@ export default function GroupsView({ active, requested }: { active: boolean; req
   const view = communityViewFromQuery(useSearch());
   if (!requested) return <ConditionGroups chosen={view.cond ?? null} />;
   const group = myGroups(memory).find(item => item.id === requested);
-  const game = group && view.game ? myGames(memory, group.id).find(item => item.id === view.game && item.type === "chess" && item.state === "playing") : undefined;
-  if (group && game) return <ChessGame key={game.id} game={game} group={group} />;
+  const game = group && view.game ? myGames(memory, group.id).find(item => item.id === view.game && gameOpens(item)) : undefined;
+  if (group && game) return game.type === "battleships" ? <BattleshipsGame key={game.id} game={game} group={group} /> : <ChessGame key={game.id} game={game} group={group} />;
   return <GroupPage active={active} requested={requested} sheetAsked={view.game === "new"} />;
 }
