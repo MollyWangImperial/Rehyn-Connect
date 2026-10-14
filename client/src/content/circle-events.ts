@@ -4,7 +4,10 @@
 // the teacup goes round, the answers the person can give with one tap, and its own lively scene behind the circle
 // (CircleScene, by its `id`). They are examples, like everyone in My community.
 
-import type { CircleSeat } from "./community-samples";
+import type { Gathering } from "@/lib/circle-gatherings";
+import type { HostStanding } from "@/lib/circle-host";
+import type { VoteChoice } from "@/lib/circle-vote";
+import type { CircleSeat, PersonId } from "./community-samples";
 
 export type CircleTheme = "film" | "books" | "football" | "music" | "quiz" | "travel" | "bake" | "garden" | "comedy" | "photos";
 
@@ -250,4 +253,184 @@ export function isCircleOccurrenceId(value: unknown): value is string {
   if (typeof value !== "string") return false;
   const match = /^([a-z]+)-(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   return !!match && (CIRCLE_EVENT_IDS as string[]).includes(match[1]);
+}
+
+/* -------------------------------------------------- events members host, between Alira's */
+
+// Members can host their own get-togethers between Alira's (circle-gatherings.ts has the rules on who
+// sees them). These are examples, placed a few days from today so the preview always has some ahead.
+
+/** A time a number of days from `now`, at a given hour and minute, on this device. */
+const daysOn = (now: Date, days: number, hour: number, minute = 0) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, hour, minute).getTime();
+
+type SampleGathering = Omit<Gathering, "start"> & { days: number; hour: number; minute?: number };
+
+const memberSamples: SampleGathering[] = [
+  {
+    id: "m-priya-late", name: "Late lounge: games and chat", detail: "Word games, music and whatever's on your mind. Cameras optional",
+    days: 2, hour: 20, minutes: 90, format: "open", repeats: "once", host: { kind: "member", who: "priya", age: 29 }, access: "public", invited: [], bringFriend: false,
+    audience: ["under35"], communities: ["everyone"], seats: 20, going: 5, faces: ["tomasz", "anne"],
+  },
+  {
+    id: "a-carers", name: "Carers' coffee morning", detail: "For partners, children and friends who care for someone. Bring a cuppa",
+    days: 3, hour: 10, minutes: 60, format: "teacup", repeats: "weekly", host: { kind: "alira" }, access: "public", invited: [], bringFriend: false,
+    audience: ["carers"], communities: ["everyone"], seats: 20, going: 7, faces: ["joan", "liwei"],
+  },
+  {
+    id: "m-david-film", name: "Film club: pick November's film", detail: "Bring a film you'd watch twice",
+    days: 3, hour: 19, minutes: 60, format: "open", repeats: "monthly", host: { kind: "member", who: "david" }, access: "friends",
+    invited: ["you", "margaret", "tomasz", "joan", "anne", "samuel"], bringFriend: false,
+    audience: ["all"], communities: ["stroke"], seats: 8, going: 4, faces: ["margaret", "tomasz"],
+  },
+  {
+    // Friends only, and the person isn't one of the friends Priya picked: it never shows for them.
+    id: "m-priya-birthday", name: "Priya's birthday quiz", detail: "Silly questions and cake",
+    days: 4, hour: 19, minutes: 60, format: "game", repeats: "once", host: { kind: "member", who: "priya", age: 29 }, access: "friends",
+    invited: ["margaret", "samuel"], bringFriend: false, audience: ["all"], communities: ["everyone"], seats: 8, going: 2, faces: ["margaret", "samuel"],
+  },
+  {
+    id: "m-liwei-walk", name: "Walk and talk, wherever you are", detail: "Pop your earphones in and walk, roll or sit outside while we chat",
+    days: 4, hour: 18, minutes: 30, format: "voice", repeats: "weekly", host: { kind: "member", who: "liwei" }, access: "public", invited: [], bringFriend: false,
+    audience: ["all"], communities: ["parkinsons", "stroke"], seats: 12, going: 3, faces: ["samuel"],
+  },
+  {
+    id: "m-anne-work", name: "Back to work: how did you do it?", detail: "Lunchtime. Phased returns, telling your boss, the tiring days",
+    days: 5, hour: 12, minute: 30, minutes: 30, format: "teacup", repeats: "weekly", host: { kind: "member", who: "anne" }, access: "public", invited: [], bringFriend: false,
+    audience: ["35to60"], communities: ["everyone"], seats: 12, going: 6, faces: ["tomasz", "david"],
+  },
+  {
+    id: "m-samuel-cook", name: "One-handed cooking swap", detail: "Tips, gadgets and recipes that work with one good hand",
+    days: 6, hour: 11, minutes: 45, format: "open", repeats: "fortnightly", host: { kind: "member", who: "samuel" }, access: "invite", invited: [], bringFriend: false,
+    audience: ["all"], communities: ["stroke", "brain"], seats: 8, going: 4, faces: ["joan", "priya"],
+  },
+  {
+    id: "a-newly", name: "Newly diagnosed? Ask us anything", detail: "People a year or two ahead of you answer the questions you haven't asked yet",
+    days: 7, hour: 19, minute: 30, minutes: 60, format: "teacup", repeats: "once", host: { kind: "alira", with: "samuel" }, access: "public", invited: [], bringFriend: false,
+    audience: ["newly"], communities: ["ms"], seats: 20, going: 2, faces: ["samuel"],
+  },
+  // The person's own: one on now (it repeats every week), and one later.
+  {
+    id: "y-crossword", name: "Crossword club", detail: "Bring a clue that's stumped you, or one you're proud of solving",
+    days: 0, hour: -1, minutes: 60, format: "open", repeats: "weekly", host: { kind: "member", who: "you" }, access: "friends",
+    invited: ["margaret", "david", "anne", "joan"], bringFriend: true, audience: ["over60"], communities: ["stroke"], seats: 8, going: 3, faces: ["margaret", "david", "anne"],
+  },
+  {
+    id: "y-grandparents", name: "Grandparents' hour: games to play one-handed", detail: "Card games, dominoes and word games you can play with the grandchildren",
+    days: 10, hour: 11, minutes: 60, format: "teacup", repeats: "once", host: { kind: "member", who: "you" }, access: "public", invited: [], bringFriend: false,
+    audience: ["all"], communities: ["everyone"], seats: 20, going: 9, faces: ["joan", "samuel", "priya"],
+  },
+  // One the person went to, for "Past".
+  {
+    id: "m-joan-garden", name: "Windowsill growers", detail: "Seedlings, cuttings and what's flowering",
+    days: -3, hour: 15, minutes: 45, format: "teacup", repeats: "once", host: { kind: "member", who: "joan" }, access: "public", invited: [], bringFriend: false,
+    audience: ["over60"], communities: ["everyone"], seats: 12, going: 8, faces: ["margaret", "anne"],
+  },
+];
+
+/** The events the person is going to when the preview starts. Friends-only invitations wait for an answer. */
+export const SAMPLE_GOING = ["m-anne-work", "m-joan-garden"];
+/** Members with a sample "Hosts …" line, for co-hosting. */
+export const SAMPLE_HOSTS: Partial<Record<PersonId, string>> = { margaret: "Hosts Crossword club with you", david: "Hosts Film club", anne: "Hosts Back to work", priya: "Hosts Late lounge" };
+
+const HALF_HOUR = 30 * 60_000;
+
+/**
+ * Every event for Coming up and My events: Alira's every-two-days get-togethers (as `circleComingUp` gives them),
+ * Alira's other ones, and the ones members host. The person's own circle that is on now began on the last half hour.
+ */
+export function sampleGatherings(now = new Date()): Gathering[] {
+  const going = [12, 14, 9, 11];
+  const faces: PersonId[][] = [["margaret", "joan", "samuel"], ["margaret", "david", "priya"], ["margaret", "joan"], ["david", "liwei"]];
+  const alira: Gathering[] = circleComingUp(now, 4).map((item, index) => ({
+    id: item.id, name: item.event.name, detail: item.event.detail, start: item.start.getTime(), minutes: CIRCLE_MINUTES, format: "teacup", repeats: "once",
+    host: { kind: "alira" }, access: "public", invited: [], bringFriend: false, audience: ["all"], communities: ["everyone"], seats: 20,
+    going: going[index], faces: faces[index], theme: item.event.id,
+  }));
+  const members: Gathering[] = memberSamples.map(({ days, hour, minute, ...event }) => ({
+    ...event, start: hour < 0 ? Math.floor(now.getTime() / HALF_HOUR) * HALF_HOUR : daysOn(now, days, hour, minute ?? 0),
+  }));
+  return [...alira, ...members];
+}
+
+/* ------------------------------------------- member circles on now, with the vote to remove */
+
+/** Someone in a member circle who isn't one of the example people: Rob, who keeps talking over. */
+export type CircleGuestId = "rob";
+export const circleGuests: Record<CircleGuestId, { name: string; initial: string; tint: string; ink: string; about: string }> = {
+  rob: { name: "Rob", initial: "R", tint: "#E8D9F3", ink: "#4A2D6E", about: "Joined 12 min ago · his 2nd circle" },
+};
+export type RoomSeat = PersonId | "alira" | "you" | CircleGuestId;
+export type MemberRoomId = "work" | "crossword";
+
+export type MemberRoom = {
+  id: MemberRoomId;
+  /** Its event in Coming up and My events. */
+  eventId: string;
+  name: string;
+  /** "Member circle · Monday lunchtime". */
+  label: string;
+  question: string;
+  host: PersonId | "you";
+  /** The seats, the host first and Alira (helping) beside them. The teacup goes round in this order. */
+  seats: RoomSeat[];
+  freeSeats: number;
+  /** What each one says when the teacup reaches them. */
+  lines: Partial<Record<RoomSeat, string>>;
+  /** Rob speaking over whoever holds the teacup. */
+  over: string[];
+  /** Rob's words when the circle is asked about him. */
+  reply: string;
+  /** How the others would vote if asked about Rob. About anyone else, they'd say no. */
+  ballots: Partial<Record<RoomSeat, VoteChoice>>;
+};
+
+export const MEMBER_ROOMS: Record<MemberRoomId, MemberRoom> = {
+  work: {
+    id: "work", eventId: "m-anne-work", name: "Back to work: how did you do it?", label: "Member circle · lunchtime",
+    question: "What did you tell your boss first?", host: "anne",
+    seats: ["anne", "alira", "tomasz", "david", "rob", "priya", "samuel", "joan", "you"], freeSeats: 3,
+    lines: {
+      anne: "Welcome everyone. What did you tell your boss first?",
+      tomasz: "I asked for mornings only for the first month. My manager said yes before I'd finished the sentence.",
+      david: "That I'd need the lift, not the stairs. Felt silly saying it. Wasn't.",
+      rob: "I just told them I'd be back when I'm back.",
+      priya: "I wrote it down first. Saying it out loud was easier with notes.",
+      samuel: "That some days I'd be slower, and that was the stroke, not me.",
+      joan: "I'd retired already. But I told my old boss I missed the tea.",
+    },
+    over: ["Honestly, you should all just quit. I did.", "Bosses never listen anyway.", "Can we get to me now?"],
+    reply: "Sorry, I didn't realise how it worked. I'll wait for the teacup.",
+    ballots: { anne: "yes", tomasz: "yes", david: "no", priya: "yes", samuel: "pass", joan: "yes" },
+  },
+  crossword: {
+    id: "crossword", eventId: "y-crossword", name: "Crossword club", label: "Member circle · your friends",
+    question: "Which clue has stumped you this week?", host: "you",
+    seats: ["you", "alira", "margaret", "david", "anne", "rob", "joan"], freeSeats: 1,
+    lines: {
+      alira: "Welcome to crossword club. Bring a clue that's stumped you, or one you're proud of solving.",
+      margaret: "Seven letters, 'a hot drink in a circle'. I've been stuck since breakfast.",
+      david: "I do the quick one with Biscuit on my knee. He's no help at all.",
+      anne: "I've started doing them left-handed. Slow, but I get there.",
+      rob: "I only came for the biscuits, honestly.",
+      joan: "My husband and I did the Sunday one together for forty years.",
+    },
+    over: ["Just look the answers up, it's quicker.", "This is boring. Can we do something else?", "Come on, hurry up."],
+    reply: "Sorry. I came with Joan and didn't know the rules. I'll wait my turn.",
+    ballots: { margaret: "yes", david: "yes", anne: "no", joan: "yes" },
+  },
+};
+export const MEMBER_ROOM_IDS = Object.keys(MEMBER_ROOMS) as MemberRoomId[];
+
+/**
+ * The person's host standing in the preview. A settled member (41 days, seven circles, no reports) can host; with
+ * `?host=new` on the address they are three days in and have stayed for one circle, to see the "not quite yet" page.
+ * Their last post on this device counts as being active.
+ */
+export function sampleHostStanding(now: number, isNew: boolean, lastPost: number | null): HostStanding {
+  const DAY = 86_400_000;
+  const sample = isNew ? now - DAY : now - 2 * DAY;
+  const lastActive = lastPost !== null && lastPost > sample ? { at: lastPost, what: "posted" } : { at: sample, what: "posted" };
+  return isNew
+    ? { memberSince: now - 3 * DAY, circleMinutes: [25, 6], lastActive, upheld: [], votedOut: [], wellAttended: 0 }
+    : { memberSince: now - 41 * DAY, circleMinutes: [60, 45, 30, 22, 60, 15, 40], lastActive, upheld: [], votedOut: [], wellAttended: 1 };
 }

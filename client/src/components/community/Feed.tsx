@@ -554,7 +554,8 @@ function GroupsCard({ memory }: { memory: CommunityMemory }) {
             </Link>
           </li>
         )}
-        {sampleGroups.slice(0, newest ? 3 : 4).map(group => {
+        {/* Only the person's own groups, from the groups model: a private group they aren't in never shows. */}
+        {sampleGroups.filter(group => myGroups(memory).some(item => item.id === group.id)).slice(0, newest ? 3 : 4).map(group => {
           const unread = (memory.read as string[]).includes(group.id) ? 0 : group.unread;
           return (
             <li key={group.id}>

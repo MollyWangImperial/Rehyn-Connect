@@ -252,7 +252,8 @@ describe("loading what was saved", () => {
     expect(memory.joined).toEqual(["knit"]);
     expect(memory.read).toEqual(["garden"]);
     expect(memory.started.map(group => group.id)).toEqual(["mine-one", "mine-four"]);
-    expect(memory.started[0]).toEqual({ id: "mine-one", name: "Tea and cake", theme: "chatting", friends: ["joan"], open: true, createdAt: NOW, hello: "Who has news?" });
+    // Saved before conditions and privacy: it sits in Stroke, and "anyone can ask to join" became public (so no games).
+    expect(memory.started[0]).toEqual({ id: "mine-one", name: "Tea and cake", theme: "chatting", friends: ["joan"], createdAt: NOW, hello: "Who has news?", conditionId: "stroke", visibility: "public", games: false });
     expect(memory.started[1].hello).toBeNull();
     expect(memory.challenges).toEqual(["walk", "book"]);
     expect(memory.posts).toEqual([
@@ -398,7 +399,7 @@ describe("groups", () => {
     const storage = memoryStorage();
     const store = createCommunityStore(() => storage);
     const group = store.startGroup({ name: "  Green   fingers  ", theme: "gardening", friends: ["margaret", "tomasz" as never, "joan"], open: true }, NOW);
-    expect(group).toMatchObject({ name: "Green fingers", theme: "gardening", friends: ["margaret", "joan"], open: true, createdAt: NOW, hello: null });
+    expect(group).toMatchObject({ name: "Green fingers", theme: "gardening", friends: ["margaret", "joan"], visibility: "public", games: false, conditionId: "stroke", createdAt: NOW, hello: null });
     expect(group.id).toMatch(/^mine-[a-z0-9-]+$/);
     expect(communityViewFromQuery(communityHref("groups", group.id).split("?")[1]).group).toBe(group.id);
 

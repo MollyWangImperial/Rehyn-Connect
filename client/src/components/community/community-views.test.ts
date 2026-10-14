@@ -196,15 +196,15 @@ describe("My community views", () => {
     expect(page("/community?space=groups&group=mine-gone")).toMatch(/<h2[^>]*id="cm-group-title"[^>]*>Garden gang<\/h2>/);
   });
 
-  it("starts a group in three steps, with a way back to the feed", () => {
+  it("starts a group inside a condition, private by default, with a way back to the groups", () => {
     const html = page("/community?space=start");
     const text = words(html);
-    expect(tagWith(html, "a", 'class="cm-back"', 'href="/community"')).toBe(true);
+    expect(tagWith(html, "a", 'class="cm-back"', 'href="/community?space=groups"')).toBe(true);
     expect(html).toMatch(/<h1[^>]*data-view-heading[^>]*>Start a group<\/h1>/);
-    expect((html.match(/type="radio"/g) ?? []).length).toBe(10);
+    // Six conditions, eight themes, and private or public.
+    expect((html.match(/type="radio"/g) ?? []).length).toBe(16);
     expect((html.match(/type="checkbox"/g) ?? []).length).toBe(6);
-    expect(text).toContain("Start the group");
-    expect(text).toContain("Lovely idea, Zak.");
+    expect(text).toContain("Default");
     expect(text).toContain("You and 2 friends");
     expect(html).not.toContain("cm-tabs");
     expect(html).not.toContain("cm-tools");

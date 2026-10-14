@@ -2,6 +2,8 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { dailyQuestion, type DailyAnswer } from "@/content/daily-questions";
 import { people } from "@/content/community-samples";
 import { canSee, commentKey, communityStore, useCommunity } from "@/lib/community-store";
+import { pokerNightOn, usePokerNight } from "@/lib/poker-night";
+import PokerFridayCard from "./games/PokerFridayCard";
 import { Face, MyFace } from "./parts";
 
 // The Daily question at the top of the feed, as the "Live thread" design (option B): one question a day from Rehyn,
@@ -10,6 +12,7 @@ import { Face, MyFace } from "./parts";
 // box, and the person's own answer pinned beneath with Remove. The answers are the example people's (this is a
 // preview): they come in once, and after that the window goes round today's answers without inventing new ones.
 // Everything stands still with reduced motion; the content still changes. Styles: community-daily.css.
+// On Fridays (poker night) the card is the poker invitation instead: games/PokerFridayCard.tsx.
 
 /** One step: someone is writing, then (the next step) their answer comes in. */
 const STEP_MS = 2200;
@@ -48,7 +51,13 @@ function AnswerRow({ answer, voteKey, fresh = false, wrap = false }: { answer: D
 /** A place on the moving belt: which answer, and a key of its own (the same answer comes round again). */
 type Slot = { index: number; key: number };
 
+/** Rehyn's daily card: the Daily question, or on poker night (Fridays) the poker invitation instead. */
 export default function DailyQuestionCard({ name }: { name: string }) {
+  const poker = usePokerNight();
+  return pokerNightOn(poker) ? <PokerFridayCard /> : <DailyQuestionThread name={name} />;
+}
+
+function DailyQuestionThread({ name }: { name: string }) {
   const memory = useCommunity();
   const [today] = useState(() => dailyQuestion());
   // Answers from people the person has blocked or hidden are left out, as everywhere in My community.

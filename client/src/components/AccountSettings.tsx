@@ -1,14 +1,8 @@
 import { useContext, useRef, useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronRight, Dumbbell, FileText, MessagesSquare, Sparkles, Sprout, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
-import { useLocation } from "wouter";
+import { ChevronRight, FileText, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
 import { DATA_SECTIONS } from "@/content/data-permissions";
 import { PRIVACY_INTRO, PRIVACY_SECTIONS, TERMS_INTRO, TERMS_SECTIONS, type LegalSection } from "@/content/legal-content";
-import { ExerciseLabPanel } from "./ExerciseLab";
-import { MollyProgressPanel } from "./MollyProgress";
-import { HowItWorksPanel } from "./HowItWorks";
-import { AliraLearningPanel } from "./AliraLearning";
-import { AliraLearningConsent } from "./AliraLearningConsent";
 import { ProfileInformation } from "./ProfileInformation";
 import { SettingsContext, type OpenSettings, type SettingsView } from "./settings-context";
 import "./account-settings.css";
@@ -16,10 +10,6 @@ import "./account-settings.css";
 export type { SettingsView } from "./settings-context";
 const sections = [
   { id: "profile", label: "Your profile", icon: UserRound },
-  { id: "exercise", label: "Exercise engine (for Molly only)", icon: Dumbbell },
-  { id: "molly", label: "For Zak: Molly's Progress", title: "Molly's Progress", icon: Sprout },
-  { id: "howitworks", label: "For Zak: How Alira works", title: "Questions about Alira", icon: MessagesSquare },
-  { id: "learning", label: "Alira's Learning", icon: Sparkles },
   { id: "privacy", label: "Privacy Notice", icon: ShieldCheck },
   { id: "data", label: "Data and permissions", icon: SlidersHorizontal },
   { id: "terms", label: "Terms of Use", icon: FileText },
@@ -31,7 +21,7 @@ export function useSettings() {
   return openSettings;
 }
 
-/** For pages that can also render on their own (Alira, in tests): null outside SettingsProvider. */
+/** For pages that can also render on their own (in tests): null outside SettingsProvider. */
 export function useOptionalSettings(): OpenSettings | null {
   return useContext(SettingsContext);
 }
@@ -50,9 +40,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<SettingsView>("profile");
   const opener = useRef<HTMLElement | null>(null);
-  const [, navigate] = useLocation();
-  const section = sections.find(section => section.id === view)!;
-  const title = "title" in section ? section.title : section.label;
+  const title = sections.find(section => section.id === view)!.label;
 
   const openSettings: OpenSettings = (source, nextView = "profile") => {
     opener.current = source;
@@ -80,25 +68,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                   </button>
                 ))}
               </nav>
-              <section key={view} id="account-settings-panel" className={`account-settings-panel${view === "molly" || view === "howitworks" || view === "learning" ? " account-settings-panel-chat" : ""}`} aria-labelledby="account-settings-panel-title" tabIndex={0}>
+              <section key={view} id="account-settings-panel" className="account-settings-panel" aria-labelledby="account-settings-panel-title" tabIndex={0}>
                 <h2 id="account-settings-panel-title">{title}</h2>
-                {view === "profile" ? <ProfileInformation /> : view === "exercise" ? (
-                  <ExerciseLabPanel onLaunch={path => { setOpen(false); navigate(path); }} />
-                ) : view === "molly" ? (
-                  <MollyProgressPanel onOpenExercises={() => setView("exercise")} />
-                ) : view === "howitworks" ? (
-                  <HowItWorksPanel />
-                ) : view === "learning" ? (
-                  <AliraLearningPanel onOpenData={() => setView("data")} />
-                ) : view === "privacy" ? (
+                {view === "profile" ? <ProfileInformation /> : view === "privacy" ? (
                   <SettingsDocument intro={PRIVACY_INTRO} sections={PRIVACY_SECTIONS} />
                 ) : view === "terms" ? (
                   <SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} />
                 ) : (
-                  <>
-                    <AliraLearningConsent />
-                    <SettingsDocument intro="How your information is used and the permissions Rehyn asks for." sections={DATA_SECTIONS} />
-                  </>
+                  <SettingsDocument intro="How your information is used and the permissions Rehyn asks for." sections={DATA_SECTIONS} />
                 )}
               </section>
             </div>

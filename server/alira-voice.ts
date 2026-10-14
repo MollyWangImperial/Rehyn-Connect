@@ -4,10 +4,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseEnv } from "node:util";
-import { aliraVoicePhrases } from "../client/src/lib/alira-voice-phrases";
 import { ALIRA_VOICE } from "../shared/alira-voice";
 
-const phrases = new Map(Object.entries(aliraVoicePhrases));
+// Alira's fixed chat lines went with the Alira page; read aloud speaks through createAliraSpeaker.
+const phrases = new Map<string, string>();
 // One voice for every line: the same ID, model and delivery settings each time.
 const voiceSettings = ALIRA_VOICE.settings;
 export type VoiceConfig = { apiKey: string; voiceId: string; modelId: string };

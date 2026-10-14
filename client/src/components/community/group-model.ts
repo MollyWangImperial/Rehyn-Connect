@@ -1,23 +1,41 @@
 import {
+  conditionGroups,
+  conditions,
+  gameInfo,
+  groupEvents,
   groupThemes,
+  people,
+  sampleGames,
   sampleGroups,
   startedGroupChallenge,
+  startThemes,
   suggestedGroups,
+  type Condition,
+  type ConditionId,
+  type GameId,
+  type GroupActivity,
   type GroupCover,
   type GroupMessage,
+  type GroupVisibility,
   type PersonId,
   type SampleGroup,
   type SampleGroupId,
-  type SuggestedGroupId,
+  type StartThemeId,
   type ThemeId,
 } from "@/content/community-samples";
-import { communityStore, type CommunityMemory, type StartedGroup } from "@/lib/community-store";
+import { communityStore, gamesAllowed, inCondition, isBlocked, listNames, type CommunityMemory, type GroupGame, type StartedGroup } from "@/lib/community-store";
+
+// The groups model. Every list of groups the page shows comes from here, and the privacy rule is
+// kept here, once: a private group is seen only by the people in it. It never appears for anyone
+// else in a list, a search, a count or a suggestion. Games are only for private groups.
 
 /** The cover a started group wears: its theme's drawing, or its colour and sign. */
-export function coverForTheme(theme: ThemeId): GroupCover {
-  const look = groupThemes.find(item => item.id === theme) ?? groupThemes[groupThemes.length - 1];
-  return look.image ? { image: look.image, tint: look.tint, ink: look.ink } : { tint: look.tint, ink: look.ink, icon: look.id };
+export function coverForTheme(theme: StartThemeId): GroupCover {
+  const look = [...startThemes, ...groupThemes].find(item => item.id === theme) ?? groupThemes[groupThemes.length - 1];
+  return look.image ? { image: look.image, tint: look.tint, ink: look.ink } : { tint: look.tint, ink: look.ink, icon: look.id as ThemeId };
 }
+
+export const conditionOf = (id: ConditionId): Condition => conditions.find(item => item.id === id) ?? conditions[0];
 
 /** One group as My groups shows it, whether it is an example, joined, or started by the person. */
 export type GroupModel = {
@@ -40,6 +58,16 @@ export type GroupModel = {
   unread: number;
   active: boolean;
   started: StartedGroup | null;
+  /** The condition group it sits in, and who can see it. */
+  conditionId: ConditionId;
+  visibility: GroupVisibility;
+  members: number;
+  /** Whether games can be started in it: private groups only. */
+  games: boolean;
+  /** The line on its card and in the list: a game on now, something coming up, or the last thing said. */
+  activity: GroupActivity;
+  /** Something that happened in it today, shown in its chat ("Margaret started chess with Joan"). */
+  event: string | null;
 };
 
 function fromSample(group: SampleGroup, kind: "sample" | "joined", memory: CommunityMemory, since: number): GroupModel {
@@ -48,27 +76,110 @@ function fromSample(group: SampleGroup, kind: "sample" | "joined", memory: Commu
     meta: `${group.members} members`, online: group.online, faces: group.faces, challenge: group.challenge,
     messages: group.messages, incoming: group.incoming,
     unread: memory.read.includes(group.id as SampleGroupId) ? 0 : group.unread, active: group.active, started: null,
+    conditionId: group.conditionId, visibility: group.visibility, members: group.members + (kind === "joined" ? 1 : 0),
+    games: gamesAllowed(memory, group.id), activity: group.activity, event: groupEvents[group.id] ?? null,
   };
 }
 
-function fromStarted(group: StartedGroup): GroupModel {
-  const look = groupThemes.find(item => item.id === group.theme) ?? groupThemes[0];
+function fromStarted(group: StartedGroup, memory: CommunityMemory): GroupModel {
+  const look = [...startThemes, ...groupThemes].find(item => item.id === group.theme) ?? groupThemes[0];
+  const friends = group.friends.filter(who => !isBlocked(memory, who));
   return {
     id: group.id, name: group.name, kind: "started", cover: coverForTheme(group.theme),
     about: `A little corner for ${look.label.toLowerCase()}, started by you.`, lastAt: group.createdAt,
     tint: look.tint, ink: look.ink,
-    meta: `Started by you · ${group.open ? "anyone can ask to join" : "invite only"}`, online: 0, faces: group.friends,
+    meta: "Started by you", online: 0, faces: group.friends,
     challenge: { text: startedGroupChallenge, done: 0, total: 1 }, messages: [], incoming: null, unread: 0, active: false, started: group,
+    conditionId: group.conditionId, visibility: group.visibility, members: friends.length + 1, games: gamesAllowed(memory, group.id),
+    activity: { text: group.hello ? `You: ${group.hello}` : friends.length ? `With ${listNames(friends.map(who => people[who].name))}` : "Just you for now", kind: "chat" },
+    event: null,
   };
 }
 
 /**
  * The person's groups: the ones they started (newest first), the examples, then any they joined.
- * `since` is when the page opened: the examples' last messages are dated back from it.
+ * `since` is when the page opened: the examples' last messages are dated back from it. These are
+ * all groups the person is in, so a private group they are not in can never be among them.
  */
 export function myGroups(memory: CommunityMemory, since = communityStore.visitStart): GroupModel[] {
-  const joined = suggestedGroups.filter(group => memory.joined.includes(group.id as SuggestedGroupId));
-  return [...memory.started.map(fromStarted), ...sampleGroups.map(group => fromSample(group, "sample", memory, since)), ...joined.map(group => fromSample(group, "joined", memory, since))];
+  const joined = [...suggestedGroups, ...conditionGroups].filter(group => (memory.joined as string[]).includes(group.id) && group.visibility === "public");
+  return [...memory.started.map(group => fromStarted(group, memory)), ...sampleGroups.map(group => fromSample(group, "sample", memory, since)), ...joined.map(group => fromSample(group, "joined", memory, since))];
+}
+
+/** A subgroup's card in "Inside {condition}". */
+export type SubgroupCard = {
+  id: string;
+  name: string;
+  cover: GroupCover;
+  visibility: GroupVisibility;
+  members: number;
+  faces: PersonId[];
+  activity: GroupActivity;
+  /** The person is in it (it opens), or it is public and can be joined. */
+  member: boolean;
+  /** One the person started, or an example group of theirs: it can't be left from here. */
+  own: boolean;
+};
+
+/**
+ * The subgroups the person can see inside a condition: every group they are in, then the public
+ * ones they could join. Private groups they are not in are left out, whatever else is asked.
+ */
+export function visibleSubgroups(memory: CommunityMemory, conditionId: ConditionId): SubgroupCard[] {
+  // The person's private groups come first: those are the ones nobody else can find.
+  const mine = myGroups(memory).filter(group => group.conditionId === conditionId).sort((a, b) => Number(b.visibility === "private") - Number(a.visibility === "private")).map((group): SubgroupCard => ({
+    id: group.id, name: group.name, cover: group.cover, visibility: group.visibility, members: group.members,
+    faces: group.faces.filter(who => !isBlocked(memory, who)), activity: group.activity, member: true, own: group.kind !== "joined",
+  }));
+  const others = [...suggestedGroups, ...conditionGroups]
+    .filter(group => group.conditionId === conditionId && group.visibility === "public" && !mine.some(item => item.id === group.id))
+    .map((group): SubgroupCard => ({
+      id: group.id, name: group.name, cover: group.cover, visibility: "public", members: group.members,
+      faces: group.faces.filter(who => !isBlocked(memory, who)), activity: group.activity, member: false, own: false,
+    }));
+  return [...mine, ...others];
+}
+
+/** How many subgroups the person can see inside a condition. Private groups they are not in don't count. */
+export const visibleSubgroupCount = (memory: CommunityMemory, conditionId: ConditionId): number => visibleSubgroups(memory, conditionId).length;
+
+/** The condition the Groups tab opens on: the first one the person is in. */
+export const homeCondition = (memory: CommunityMemory): ConditionId => conditions.find(item => inCondition(memory, item.id))?.id ?? "stroke";
+
+/** A game in one of the person's groups, as the group page, the game strip and "Games in your groups" show it. */
+export type GameModel = {
+  id: string;
+  groupId: string;
+  type: GameId;
+  name: string;
+  /** Everyone playing apart from the person. */
+  players: PersonId[];
+  withYou: boolean;
+  state: "lobby" | "playing" | "scheduled" | "finished";
+  /** Chess only: the moves played so far, as codes. */
+  moves: string[];
+  when: string;
+  watchers: PersonId[];
+  /** Started on this device, rather than an example. */
+  own: GroupGame | null;
+};
+
+/**
+ * Games in the groups the person is in, newest first: the ones they started, then the examples.
+ * Games with someone they have blocked are left out.
+ */
+export function myGames(memory: CommunityMemory, groupId?: string): GameModel[] {
+  const groups = myGroups(memory).map(group => group.id);
+  const own = memory.games.map((game): GameModel => ({
+    id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: true,
+    state: game.state, moves: memory.chess[game.id] ?? [], when: "", watchers: [], own: game,
+  }));
+  const examples = sampleGames.map((game): GameModel => ({
+    id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: game.withYou,
+    state: game.state, moves: game.withYou ? memory.chess[game.id] ?? game.moves : game.moves, when: game.when,
+    watchers: game.watchers.filter(who => !isBlocked(memory, who)), own: null,
+  }));
+  return [...own, ...examples].filter(game => groups.includes(game.groupId) && (groupId === undefined || game.groupId === groupId) && game.players.every(who => !isBlocked(memory, who)));
 }
 
 /**

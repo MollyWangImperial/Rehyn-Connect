@@ -2,8 +2,9 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useSearch } from "wouter";
 import { members, reportReasons, type ReportReason } from "@/content/community-samples";
 import { communityHref, communityStore, communityViewFromQuery, isBlocked, isMuted, leadsHere, LIMITS, useCommunity, type SafetyTarget } from "@/lib/community-store";
+import { countWord, loungeReportReasons, type LoungeReportReason } from "@/lib/lounge-moderation";
 import CommunityDialog from "./dialog";
-import { BackIcon, BandageIcon, BlockIcon, ChatIcon, CheckIcon, CloseIcon, CoinsIcon, EllipsisCircleIcon, EyeOffIcon, FlagIcon, FrownIcon, MaskIcon, NextIcon, ShieldIcon } from "./icons";
+import { BackIcon, BandageIcon, BlockIcon, ChatIcon, CheckIcon, CloseIcon, CoinsIcon, EllipsisCircleIcon, EyeOffIcon, FlagIcon, FrownIcon, LockIcon, MaskIcon, NextIcon, ShieldIcon } from "./icons";
 import { MemberFace } from "./parts";
 import { aboutLine, blockingFacts, fileReport, personWords, quoteFor, reasonOf, type ReportOutcome } from "./safety-model";
 
@@ -219,7 +220,6 @@ export function SafetySheetSteps({ target, name, titleId, onClose, start }: { ta
           {/* Opened on the Safety page itself, it only closes the sheet: Back isn't given the same page twice. */}
           <Link className="cm-sa-wide cm-sa-outline" href={communityHref("safety")} replace={leadsHere(communityHref("safety"), search)} onClick={onClose}>See my reports</Link>
         </div>
-        <Link className="cm-sa-alira" href="/alira" onClick={onClose}>Feeling shaken? Talk it through with Alira</Link>
       </>
     );
   } else if (step === "block") {
@@ -315,6 +315,68 @@ function nearOpener(target: SafetyTarget): HTMLElement | null {
   const title = target.postId ? `${name}'s post` : name;
   const row = all(".cm-page .cm-sa-person").find(item => item.querySelector("b")?.textContent === title) ?? all(".cm-page .cm-sa-person").find(item => item.querySelector("b")?.textContent === name);
   return row?.querySelector<HTMLElement>("button") ?? null;
+}
+
+/**
+ * The lounge's report sheet, opened by Report under a lounge post: one reason, a privacy note, and
+ * whether to block the writer too. The report goes to the care team (lib/lounge-moderation.ts); the
+ * writer never learns who reported them.
+ */
+export function LoungeReportSheet({ name, excerpt, threshold, canBlock, onSend, onClose, returnFocus, fallbackFocus }: {
+  /** The writer's name ("Rob"). */
+  name: string;
+  /** A short quote of the post. */
+  excerpt: string;
+  /** How many members' reports take a post down. */
+  threshold: number;
+  /** Whether "Also block" can be offered (not for someone already blocked). */
+  canBlock: boolean;
+  onSend: (reason: LoungeReportReason, alsoBlock: boolean) => void;
+  onClose: () => void;
+  returnFocus: HTMLElement | null;
+  fallbackFocus: () => HTMLElement | null | undefined;
+}) {
+  const titleId = useId();
+  const hintId = useId();
+  const [reason, setReason] = useState<LoungeReportReason | null>(null);
+  const [alsoBlock, setAlsoBlock] = useState(false);
+  const [needReason, setNeedReason] = useState(false);
+  const send = () => {
+    if (!reason) { setNeedReason(true); return; }
+    onSend(reason, canBlock && alsoBlock);
+  };
+  return (
+    <CommunityDialog kind="sheet" labelledBy={titleId} onClose={onClose} returnFocus={returnFocus} fallbackFocus={fallbackFocus} className="cm-ls-report">
+      <div className="cm-ls-report-head">
+        <div>
+          <h2 id={titleId} className="cm-ls-report-title">{`Report ${name}'s post`}</h2>
+          <p id={hintId}>Tell us what's wrong. This stays between you and the care team.</p>
+        </div>
+        <button type="button" className="cm-dialog-close" aria-label="Close" onClick={onClose}><CloseIcon size={20} /></button>
+      </div>
+      <p className="cm-ls-report-quote">{`“${excerpt}”`}</p>
+      <fieldset className="cm-ls-reasons" aria-describedby={needReason && !reason ? `${hintId}-need` : undefined}>
+        <legend>Why are you reporting it?</legend>
+        {loungeReportReasons.map(item => (
+          <label key={item.id} className={`cm-ls-reason ${reason === item.id ? "is-on" : ""}`}>
+            <input type="radio" name={`${titleId}-reason`} value={item.id} checked={reason === item.id} onChange={() => { setReason(item.id); setNeedReason(false); }} />
+            <span>{item.label}</span>
+          </label>
+        ))}
+      </fieldset>
+      <p className="cm-ls-report-private"><LockIcon size={16} /><span>{`Reports are private: ${name} won't know it was you. The care team sees every report. If ${countWord(threshold)} member${threshold === 1 ? "" : "s"} report the same post, it's removed automatically.`}</span></p>
+      <p id={`${hintId}-need`} className="cm-sa-need" role="status">{needReason && !reason ? "Choose a reason, then press Send report." : ""}</p>
+      <div className="cm-ls-report-foot">
+        {canBlock ? (
+          <label className="cm-ls-report-block"><input type="checkbox" checked={alsoBlock} onChange={event => setAlsoBlock(event.target.checked)} /><span>{`Also block ${name}`}</span></label>
+        ) : <span />}
+        <div className="cm-ls-report-buttons">
+          <button type="button" className="cm-btn cm-btn-small cm-btn-quiet" onClick={onClose}>Cancel</button>
+          <button type="button" className="cm-btn cm-btn-small cm-ls-danger" aria-disabled={!reason || undefined} onClick={send}>Send report</button>
+        </div>
+      </div>
+    </CommunityDialog>
+  );
 }
 
 export default function PostMenu({ target, name, onClose, returnFocus, fallbackFocus, startAt }: PostMenuProps) {

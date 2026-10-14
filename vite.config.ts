@@ -5,15 +5,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-import { createAliraAgentRouter } from "./server/alira-agent";
 import { createAliraSpeaker, createAliraVoiceRouter } from "./server/alira-voice";
-import { createExerciseDebugRouter } from "./server/exercise-debug";
-import { createAliraSpeakRouter, createExerciseVoiceRouter, createFastCheckVoiceRouter } from "./server/exercise-voice";
-import { createMollyProgressRouter } from "./server/molly-progress";
-import { createAliraChannelRouter } from "./server/alira-channel";
-import { createAliraLearningRouter } from "./server/alira-learning";
-import { createAdminAlertsRouter } from "./server/admin-alerts";
-import { createMovementCheckRunnerRouter } from "./server/movement-check-runner";
+import { createAliraSpeakRouter } from "./server/alira-speak";
+import { createLoungePhotoCheckRouter } from "./server/lounge-photo-check";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -221,80 +215,23 @@ const aliraVoicePlugin: Plugin = {
     server.middlewares.use("/api/alira/voice", createAliraVoiceRouter({ root: PROJECT_ROOT }));
   },
 };
-const aliraAgentPlugin: Plugin = {
-  name: "alira-agent",
+// Read aloud (Library, My Time) in Alira's voice.
+const aliraSpeakPlugin: Plugin = {
+  name: "alira-speak",
   configureServer(server) {
-    server.middlewares.use("/api/alira/agent", createAliraAgentRouter({ root: PROJECT_ROOT }));
+    server.middlewares.use("/api/alira/speak", createAliraSpeakRouter(createAliraSpeaker({ root: PROJECT_ROOT })));
   },
   configurePreviewServer(server) {
-    server.middlewares.use("/api/alira/agent", createAliraAgentRouter({ root: PROJECT_ROOT }));
+    server.middlewares.use("/api/alira/speak", createAliraSpeakRouter(createAliraSpeaker({ root: PROJECT_ROOT })));
   },
 };
-// The exercises and the FAST check speak in Alira's one voice, like the Alira page.
-const exerciseDebugPlugin: Plugin = {
-  name: "local-exercise-debug-videos",
-  configureServer(server) {
-    const speakAlira = createAliraSpeaker({ root: PROJECT_ROOT });
-    server.middlewares.use("/api/exercise-debug", createExerciseDebugRouter({ root: PROJECT_ROOT }));
-    server.middlewares.use("/api/exercise-voice", createExerciseVoiceRouter(undefined, speakAlira));
-    server.middlewares.use("/api/tts/generate", createFastCheckVoiceRouter(speakAlira));
-    server.middlewares.use("/api/alira/speak", createAliraSpeakRouter(speakAlira));
-  },
-  configurePreviewServer(server) {
-    const speakAlira = createAliraSpeaker({ root: PROJECT_ROOT });
-    server.middlewares.use("/api/exercise-debug", createExerciseDebugRouter({ root: PROJECT_ROOT }));
-    server.middlewares.use("/api/exercise-voice", createExerciseVoiceRouter(undefined, speakAlira));
-    server.middlewares.use("/api/tts/generate", createFastCheckVoiceRouter(speakAlira));
-    server.middlewares.use("/api/alira/speak", createAliraSpeakRouter(speakAlira));
-  },
+// The lounge's automatic photo check (Claude vision).
+const loungePhotoCheckPlugin: Plugin = {
+  name: "lounge-photo-check",
+  configureServer(server) { server.middlewares.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: PROJECT_ROOT })); },
+  configurePreviewServer(server) { server.middlewares.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: PROJECT_ROOT })); },
 };
-const aliraChannelPlugin: Plugin = {
-  name: "alira-channel",
-  configureServer(server) {
-    server.middlewares.use("/api/alira/channel", createAliraChannelRouter({ root: PROJECT_ROOT }));
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use("/api/alira/channel", createAliraChannelRouter({ root: PROJECT_ROOT }));
-  },
-};
-const mollyProgressPlugin: Plugin = {
-  name: "molly-progress",
-  configureServer(server) {
-    server.middlewares.use("/api/molly-progress", createMollyProgressRouter({ root: PROJECT_ROOT }));
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use("/api/molly-progress", createMollyProgressRouter({ root: PROJECT_ROOT }));
-  },
-};
-const aliraLearningPlugin: Plugin = {
-  name: "alira-learning",
-  configureServer(server) {
-    server.middlewares.use("/api/alira/learning", createAliraLearningRouter({ root: PROJECT_ROOT }));
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use("/api/alira/learning", createAliraLearningRouter({ root: PROJECT_ROOT }));
-  },
-};
-const adminAlertsPlugin: Plugin = {
-  name: "admin-alerts",
-  configureServer(server) {
-    server.middlewares.use("/api/admin-alerts", createAdminAlertsRouter({ root: PROJECT_ROOT }));
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use("/api/admin-alerts", createAdminAlertsRouter({ root: PROJECT_ROOT }));
-  },
-};
-// The movement check's original runner from this origin, so each task's demonstration can come first.
-const movementCheckRunnerPlugin: Plugin = {
-  name: "movement-check-runner",
-  configureServer(server) {
-    server.middlewares.use("/movement-check/runner", createMovementCheckRunnerRouter());
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use("/movement-check/runner", createMovementCheckRunnerRouter());
-  },
-};
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraAgentPlugin, exerciseDebugPlugin, mollyProgressPlugin, aliraChannelPlugin, aliraLearningPlugin, adminAlertsPlugin, movementCheckRunnerPlugin];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraSpeakPlugin, loungePhotoCheckPlugin];
 
 export default defineConfig({
   plugins,

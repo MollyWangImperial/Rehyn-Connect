@@ -31,7 +31,7 @@ const sheet = (target: SafetyTarget, start?: SheetStart, path = "/community") =>
 const margaret: SafetyTarget = { who: "margaret", postId: "p-margaret" };
 
 describe("the Safety page", () => {
-  it("shows Gary blocked, what can be done, and links to Friends, Settings, Warning signs and Alira", () => {
+  it("shows Gary blocked, what can be done, and links to Friends, Settings and Warning signs", () => {
     const html = render("/community?space=safety", createElement(Community));
     const text = words(html);
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Safety<\/h2>/);
@@ -43,7 +43,8 @@ describe("the Safety page", () => {
     expect(tagWith(html, "a", 'href="/community?space=safety&amp;panel=friends&amp;tab=blocked"', 'class="cm-sa-link"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=settings&amp;section=see"', 'class="cm-card cm-sa-settings"')).toBe(true);
     expect(html).toMatch(/<a[^>]*href="\/fast-check\?returnTo=[^"]*"[^>]*>See Warning signs<\/a>/);
-    expect(html).toMatch(/<a[^>]*href="\/alira"[^>]*>Talk it through with Alira<\/a>/);
+    expect(text).toContain("Samaritans are there to talk, day and night, on 116 123");
+    expect(html).not.toContain('href="/alira"');
     for (const item of ["What you can do", "Hide someone's posts", "Block someone", "Report a post"]) expect(text).toContain(item);
     expect(text).toContain("Press More options on any post");
     expect(promises(words(safetyPage(blankCommunityMemory())))).toEqual([]);
@@ -176,7 +177,7 @@ describe("the hide, block or report sheet", () => {
     expect(text).not.toContain("This post is hidden for you.");
     expect(text).toContain("Back to the feed");
     expect(html).toMatch(/<a[^>]*href="\/community\?space=safety"[^>]*>See my reports<\/a>/);
-    expect(html).toMatch(/<a[^>]*href="\/alira"[^>]*>Feeling shaken\? Talk it through with Alira<\/a>/);
+    expect(html).not.toContain('href="/alira"');
   });
 
   it("says Done rather than Back to the feed when it opened somewhere else", () => {

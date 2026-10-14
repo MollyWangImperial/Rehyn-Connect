@@ -16,7 +16,9 @@ import {
   type CommunitySpace,
   type CommunityView,
 } from "@/lib/community-store";
+import { pokerNightOn, secondsToTables, usePokerNight } from "@/lib/poker-night";
 import CircleTab from "./CirclePeek";
+import { SuitGlyph } from "./games/PokerParts";
 import { myGroups } from "./group-model";
 import { BellIcon, SearchIcon, ShieldIcon, SlidersIcon, UsersIcon } from "./icons";
 import { unreadMessages } from "./messages-model";
@@ -26,7 +28,8 @@ import { LiveDot } from "./parts";
 const TabBadge = ({ count, what }: { count: number; what: string }) => (count > 0 ? <span className="cm-badge"><span aria-hidden="true">{count}</span><span className="cm-sr">{`, ${count} ${what}`}</span></span> : null);
 
 /**
- * The tab row on every view: the feed, the lounge, the Sunday circle, groups, messages and friends.
+ * The tab row on every view: the feed, the lounge, the Sunday circle, poker night (Fridays only),
+ * groups, messages and friends.
  * Settings and Safety leave every tab unpressed. A tab for the view already showing doesn't add it
  * to Back again. The Sunday circle's tab opens a live peek of the circle on hover (CirclePeek).
  */
@@ -35,6 +38,8 @@ function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
   const memory = useCommunity();
   const unread = unreadCount(memory);
   const messages = unreadMessages(memory);
+  // The Poker night tab is there on Fridays only (and while its page is open).
+  const pokerOn = pokerNightOn(usePokerNight());
   const tab = (target: CommunitySpace) => ({
     href: communityHref(target),
     replace: leadsHere(communityHref(target), search),
@@ -48,6 +53,12 @@ function SpaceTabs({ space, here }: { space: CommunitySpace; here: number }) {
         <LiveDot /><span>The lounge</span>{" "}<span className="cm-tab-note cm-tab-note-rust">{here} here</span>
       </Link>
       <CircleTab {...tab("circle")} active={space === "circle"} />
+      {(pokerOn || space === "poker") && (
+        <Link {...tab("poker")}>
+          <SuitGlyph suit="s" size={16} colour="currentColor" className="pk-tab-suit" /><span>Poker night</span>{" "}
+          <span className="cm-tab-note cm-tab-note-gold">{secondsToTables(new Date()) > 0 ? "7 pm" : "Live"}</span>
+        </Link>
+      )}
       <Link {...tab("groups")}>
         <span>Groups</span>
         {space !== "groups" && <TabBadge count={unread} what="unread" />}

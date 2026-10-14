@@ -1,10 +1,22 @@
 import { useEffect, useId, useReducer, useRef, useState, type FormEvent } from "react";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { TypedChatText } from "@/components/TypedChatText";
-import { CIRCLE_MINUTES, circleComingUp, circleNow, eventInAddress, type CircleEvent, type CircleOccurrence } from "@/content/circle-events";
-import { circle, people, type CircleSeat, type PersonId } from "@/content/community-samples";
-import { canSee, communityHref, communityStore, isBlocked, useCommunity } from "@/lib/community-store";
+import { CIRCLE_MINUTES, circleComingUp, circleNow, eventInAddress, MEMBER_ROOMS, SAMPLE_GOING, sampleGatherings, sampleHostStanding, type CircleEvent, type CircleOccurrence, type MemberRoomId } from "@/content/circle-events";
+import { circle, people, PERSON_IDS, type CircleSeat, type PersonId } from "@/content/community-samples";
+import { draftFrom, useCircleEvents, type EventDraft } from "@/lib/circle-events-store";
+import { comingUpFor, hostedBy, NO_FILTERS } from "@/lib/circle-gatherings";
+import { hostEligibility } from "@/lib/circle-host";
+import { mergeGatherings, myEvents } from "@/lib/circle-listing";
+import { canSee, communityHref, communityStore, friendList, isBlocked, useCommunity } from "@/lib/community-store";
 import { calendarPage, downloadIcs, googleCalendarUrl, openCalendar, outlookCalendarUrl, type CircleMeeting } from "./circle-calendar";
+import ComingUpView, { type LiveSummary } from "./circle/ComingUp";
+import CreateEventView from "./circle/CreateEvent";
+import LiveNow from "./circle/LiveNow";
+import MemberCircle from "./circle/MemberCircle";
+import MyEventsView from "./circle/MyEvents";
+import NotEligibleView from "./circle/NotEligible";
+import { circleHref, circlePlaceFrom, type CirclePlace, type CircleTab } from "./circle/shared";
+import "./circle/circle-events.css";
 import CircleScene from "./CircleScene";
 import { useBursts, useLater, usePinnedToEnd } from "./hooks";
 import { CalendarIcon, CheckIcon, CupIcon, DownloadIcon, HeartIcon, NextIcon, PauseIcon, PlayIcon, PlusIcon, PulseIcon } from "./icons";
@@ -55,7 +67,7 @@ const whenLabel = (date: Date) => `${date.toLocaleDateString("en-GB", { weekday:
  * "Coming up": the next get-togethers (a new event every two days), each on a little calendar page in its event's
  * colour, with a reminder for the person's own calendar.
  */
-function ComingUp({ upcoming }: { upcoming: CircleOccurrence[] }) {
+function ComingUp({ upcoming, onSeeAll }: { upcoming: CircleOccurrence[]; onSeeAll: () => void }) {
   const reminders = useCommunity().reminders;
   const titleId = useId();
   return (
@@ -89,6 +101,7 @@ function ComingUp({ upcoming }: { upcoming: CircleOccurrence[] }) {
         })}
       </ul>
       <p className="cm-card-note">A new get-together every two days, at 4 pm. Press Remind me, then add it to your own calendar: it reminds you half an hour before.</p>
+      <button type="button" className="cm-text-button" onClick={onSeeAll}>See everything coming up, members' events too</button>
     </section>
   );
 }
@@ -100,7 +113,7 @@ function ComingUp({ upcoming }: { upcoming: CircleOccurrence[] }) {
  * person has blocked is out of sight: their chair stands empty. Nobody blocked or hidden holds the teacup, and what
  * they said isn't shown.
  */
-export default function CircleView({ active, name }: { active: boolean; name: string }) {
+function LiveCircle({ active, name, heading, onSeeAll }: { active: boolean; name: string; heading: boolean; onSeeAll: () => void }) {
   const memory = useCommunity();
   const seated = memory.seated;
   // Today's event (or the one asked for: `?event=film`), and the ones coming up, as they are when the circle opens.
@@ -178,7 +191,7 @@ export default function CircleView({ active, name }: { active: boolean; name: st
           <div className="cm-stage-titles">
             <p className="cm-stage-live"><LiveDot /><span>Live</span><span aria-hidden="true">·</span><span>Hosted by Alira</span></p>
             <p className="cm-stage-event">Sunday circle · today's get-together</p>
-            <h2 id="cm-circle-title" tabIndex={-1} data-view-heading>{event.name}</h2>
+            <h2 id="cm-circle-title" tabIndex={-1} data-view-heading={heading ? "" : undefined}>{event.name}</h2>
             <p className="cm-stage-sub">{seated ? `${countWord(present)} of us now. Welcome, ${name}.` : `${countWord(present)} of us here. One seat is yours.`}</p>
           </div>
           <div className="cm-topic">
@@ -280,8 +293,111 @@ export default function CircleView({ active, name }: { active: boolean; name: st
             ))}
           </ol>
         </section>
-        <ComingUp upcoming={upcoming} />
+        <ComingUp upcoming={upcoming} onSeeAll={onSeeAll} />
       </div>
+    </div>
+  );
+}
+
+/**
+ * The Sunday circle, with its own pages under the tab (the address says which, as `tab=`): Live now (Alira's
+ * circle above, and the circles members host on now), Coming up (every get-together the person may see, with
+ * filters), My events (host standing, what they host, invitations and going) and Create an event (or, without
+ * host standing yet, what's left and what they can do meanwhile). `host=new` previews a newer member.
+ */
+export default function CircleView({ active, name }: { active: boolean; name: string }) {
+  const search = useSearch();
+  const [, navigate] = useLocation();
+  // The Friends drawer opening over the circle has its own `tab`: the circle stays on the page it was on.
+  const drawerOpen = new URLSearchParams(search).has("panel");
+  const [place, setPlace] = useState<CirclePlace>(() => circlePlaceFrom(drawerOpen ? "" : search));
+  useEffect(() => { if (!drawerOpen) setPlace(circlePlaceFrom(search)); }, [search, drawerOpen]);
+  const community = useCommunity();
+  const memory = useCircleEvents();
+  const [samples] = useState(() => sampleGatherings(new Date()));
+  const [today] = useState(() => circleNow(new Date(), eventInAddress()));
+  const [now, setNow] = useState(() => Date.now());
+  const [notice, setNotice] = useState("");
+  const [editing, setEditing] = useState<{ key: number; draft: EventDraft | null }>({ key: 0, draft: null });
+  const main = useRef<HTMLDivElement>(null);
+
+  // Times move on (what is live, what has passed) while the page is open.
+  useEffect(() => {
+    if (!active) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, [active]);
+  useEffect(() => { if (place.tab !== "mine") setNotice(""); }, [place.tab]);
+
+  const friends = friendList(community).map(friend => friend.who);
+  const hidden = PERSON_IDS.filter(who => isBlocked(community, who));
+  const events = mergeGatherings(samples, memory);
+  const lastPost = community.posts.reduce<number | null>((latest, post) => (latest === null || post.createdAt > latest ? post.createdAt : latest), null);
+  const standing = sampleHostStanding(now, place.isNew, lastPost);
+  const eligibility = hostEligibility(standing, now);
+  const hostedStarts = events.filter(event => hostedBy(event, "you")).map(event => ({ id: event.id, start: event.start }));
+  const comingCount = comingUpFor(events, "you", NO_FILTERS, friends, now, hidden).length;
+  const waiting = myEvents(events, memory, SAMPLE_GOING, now, hidden).waiting.length;
+
+  // For the strip at the top of Coming up: Alira's circle on now, and who is in it.
+  const inSight = circle.order.filter(who => who !== "alira" && who !== "you" && !(isPerson(who) && isBlocked(community, who))) as PersonId[];
+  const present = inSight.length + 1 + (community.seated ? 1 : 0);
+  const live: LiveSummary = {
+    name: today.event.name, faces: inSight.slice(0, 3), more: Math.max(0, inSight.length - 3),
+    line: community.seated ? `${countWord(present)} of us now. Your seat is kept.` : `${countWord(present)} of us here. One seat is yours.`,
+  };
+
+  const go = (tab: CircleTab, room: MemberRoomId | null = null) => {
+    navigate(circleHref(tab, { room, isNew: place.isNew }));
+    // The page's heading takes the focus once the new page is drawn, if what was pressed has gone.
+    window.requestAnimationFrame(() => {
+      const focused = document.activeElement as HTMLElement | null;
+      if (!focused || focused === document.body || !focused.isConnected || !focused.getClientRects().length) main.current?.querySelector<HTMLElement>("[data-view-heading]")?.focus({ preventScroll: true });
+    });
+  };
+  const create = (draft: EventDraft | null) => { setEditing(current => ({ key: current.key + 1, draft })); go("create"); };
+  const openOwn = () => go("live", "crossword");
+  const tabs: { id: CircleTab; label: string; count?: number }[] = [{ id: "live", label: "Live now" }, { id: "coming", label: "Coming up", count: comingCount }, { id: "mine", label: "My events", count: waiting || undefined }];
+
+  return (
+    <div className="cm-ce" ref={main}>
+      <div className="cm-ce-nav">
+        <nav className="cm-ce-tabs" aria-label="Sunday circle">
+          {tabs.map(tab => (
+            <button key={tab.id} type="button" className={`cm-ce-tab ${place.tab === tab.id ? "is-on" : ""}`} aria-current={place.tab === tab.id ? "page" : undefined} onClick={() => go(tab.id)}>
+              {tab.id === "live" && <LiveDot />}{tab.label}{tab.count !== undefined && <span className="cm-ce-tab-count">{tab.count}<span className="cm-sr">{tab.id === "mine" ? " waiting for your answer" : " get-togethers"}</span></span>}
+            </button>
+          ))}
+        </nav>
+        <button type="button" className={`cm-btn cm-btn-rust cm-ce-create-button ${place.tab === "create" ? "is-on" : ""}`} aria-current={place.tab === "create" ? "page" : undefined} onClick={() => create(null)}>
+          <PlusIcon size={16} />Create an event
+        </button>
+      </div>
+
+      <div hidden={place.tab !== "live" || place.room !== null}>
+        <LiveNow onOpen={room => go("live", room)} />
+        <LiveCircle active={active && place.tab === "live" && place.room === null} name={name} heading={place.tab === "live" && place.room === null} onSeeAll={() => go("coming")} />
+      </div>
+      {place.tab === "live" && place.room && <MemberCircle key={place.room} room={MEMBER_ROOMS[place.room]} active={active} onLeave={() => go("live")} />}
+      {place.tab === "coming" && (
+        <ComingUpView events={events} friends={friends} hidden={hidden} live={live} now={now} onGoLive={() => { if (!community.seated) communityStore.takeSeat(); go("live"); }} onOpenOwn={openOwn} heading />
+      )}
+      {place.tab === "mine" && (
+        <MyEventsView events={events} friends={friends} hidden={hidden} eligibility={eligibility} standing={standing} now={now} notice={notice}
+          onCreate={() => create(null)} onEdit={event => create(draftFrom(event))} onOpenOwn={openOwn} heading />
+      )}
+      {place.tab === "create" && (eligibility.eligible ? (
+        <CreateEventView key={editing.key} initial={editing.draft ?? memory.draft} standing={standing} hostedStarts={hostedStarts} friends={friends} now={now}
+          onBack={() => go("coming")} heading
+          onCreated={(event, invited) => {
+            setEditing(current => ({ key: current.key + 1, draft: null }));
+            go("mine");
+            setNotice(editing.draft?.editing ? `Saved your changes to ${event.name}.` : invited ? `${event.name} is made, and ${invited} friend${invited === 1 ? " is" : "s are"} invited. Nobody else can see it.` : `${event.name} is in Coming up.`);
+          }} />
+      ) : (
+        <NotEligibleView name={name} eligibility={eligibility} standing={standing} friends={friends} now={now} onBack={() => go("coming")} heading
+          onSeeSettled={() => navigate(circleHref("create"))} />
+      ))}
     </div>
   );
 }

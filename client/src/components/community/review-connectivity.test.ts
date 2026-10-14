@@ -4,7 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 import { Link, Router } from "wouter";
 import { SettingsContext } from "@/components/settings-context";
 import { communityAlerts, FRIENDS_TABS, type FriendsTab } from "@/content/community-samples";
-import { blankCommunityMemory, communityHref, communityViewFromQuery, defaultCommunitySettings, type CommunityMemory, type CommunityPlace, type SafetyTarget } from "@/lib/community-store";
+import { blankCommunityMemory, communityHref, communityViewFromQuery, defaultCommunitySettings, viewHref, type CommunityMemory, type CommunityPlace, type SafetyTarget } from "@/lib/community-store";
 import { fastCheckReturnPath } from "@/lib/fast-check";
 import Community from "@/pages/Community";
 import AlertsPanel from "./AlertsPanel";
@@ -80,7 +80,7 @@ function labelOf(props: Record<string, unknown>): string {
 }
 
 const hrefOf = (link: Seen) => String(link.props.href ?? link.props.to ?? "");
-const APP_PATHS = ["/", "/welcome", "/journey", "/alira", "/warm-up", "/assessment", "/fast-check", "/my-time", "/community"];
+const APP_PATHS = ["/", "/fast-check", "/my-time", "/library", "/community", "/care-team"];
 
 /** Why a link would not land where it says, or null when it does. */
 function problemWith(href: string, groups: string[]): string | null {
@@ -91,7 +91,7 @@ function problemWith(href: string, groups: string[]): string | null {
   if (!APP_PATHS.includes(url.pathname)) return `"${href}" is not a route in App.tsx`;
   if (url.pathname === "/community") {
     const view = communityViewFromQuery(url.search);
-    const again = communityHref(view.space, view.group, { panel: view.panel ?? null, tab: view.tab ?? null, section: view.section ?? null, chat: view.chat ?? null });
+    const again = viewHref(view);
     if (again !== href) return `"${href}" has parts the community ignores (it opens ${again})`;
     if (view.space === "groups" && view.group && !groups.includes(view.group)) return `"${href}" names a group that isn't there`;
     if (view.space === "messages" && view.chat && !chatById(held.memory ?? blankCommunityMemory(), view.chat)) return `"${href}" names a conversation that isn't there`;
@@ -248,10 +248,10 @@ describe("the toolbar and the overlays are wired to the right place", () => {
     expect(onPersonMenu.mock.calls.map(call => call[0])).toEqual([{ who: "anne", postId: null }, { who: "tomasz", postId: "p-tomasz" }]);
   });
 
-  it("the sheet's last step: Back to the feed closes it, See my reports and Alira close it as they go", () => {
+  it("the sheet's last step: Back to the feed closes it, See my reports closes it as it goes", () => {
     const onClose = vi.fn();
     const drawn = draw(createElement(SafetySheetSteps, { target: { who: "margaret", postId: "p-margaret" }, name: "Zak", titleId: "t", onClose, start: { step: "sent", reason: "money", outcome: { blocked: true, postHidden: false } } }), "/community");
-    expect(drawn.links.map(item => [hrefOf(item), item.props.onClick === onClose])).toEqual([["/community?space=safety", true], ["/alira", true]]);
+    expect(drawn.links.map(item => [hrefOf(item), item.props.onClick === onClose])).toEqual([["/community?space=safety", true]]);
     expect(drawn.buttons.find(item => labelOf(item.props) === "Back to the feed")?.props.onClick).toBe(onClose);
   });
 });

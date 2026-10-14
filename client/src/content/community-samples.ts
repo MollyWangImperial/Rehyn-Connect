@@ -74,9 +74,45 @@ export const FEELING_IDS: FeelingId[] = feelings.map(feeling => feeling.id);
 
 /* ------------------------------------------------------------------ groups */
 
+/**
+ * One top-level group per condition. Members start smaller groups (subgroups) inside them. This
+ * list is a placeholder until the real one is confirmed.
+ */
+export type ConditionId = "stroke" | "parkinsons" | "ms" | "brain" | "spine" | "joint";
+export type Condition = { id: ConditionId; name: string; short: string; members: string; tint: string; ink: string };
+export const conditions: Condition[] = [
+  { id: "stroke", name: "Stroke", short: "Stroke", members: "12k members", tint: "#E5EEE7", ink: "#173D2F" },
+  { id: "parkinsons", name: "Parkinson's", short: "Parkinson's · 3.2k", members: "3.2k members", tint: "#E9E2F4", ink: "#45357A" },
+  { id: "ms", name: "Multiple sclerosis", short: "Multiple sclerosis · 2.6k", members: "2.6k members", tint: "#DCECF4", ink: "#1F4E66" },
+  { id: "brain", name: "Brain injury", short: "Brain injury · 1.9k", members: "1.9k members", tint: "#FBEBC2", ink: "#6B5108" },
+  { id: "spine", name: "Spinal cord injury", short: "Spinal cord injury · 1.1k", members: "1.1k members", tint: "#FBE3DB", ink: "#8F3520" },
+  { id: "joint", name: "Hip and knee", short: "Hip and knee · 4.3k", members: "4.3k members", tint: "#F6EEDB", ink: "#7A5C22" },
+];
+export const CONDITION_IDS: ConditionId[] = conditions.map(condition => condition.id);
+/** The condition groups the person is in when the preview starts. */
+export const startConditions: ConditionId[] = ["stroke"];
+
+/**
+ * Who can see a subgroup. Private ones are invisible to anyone not in them: not listed, searched,
+ * counted or suggested. Public ones can be found and joined by anyone in that condition.
+ */
+export type GroupVisibility = "private" | "public";
+/** The line on a subgroup's card: a game on now, something coming up, or the last thing said. */
+export type GroupActivity = { text: string; kind: "game" | "soon" | "chat" };
+
 export type SampleGroupId = "garden" | "walk" | "cook" | "music";
 export type SuggestedGroupId = "knit" | "book";
-export type CommunityGroupId = SampleGroupId | SuggestedGroupId;
+/** Subgroups started by other members, which the person is not in when the preview starts. */
+export type ConditionGroupId =
+  | "finding" | "young" | "tuesday-tea"
+  | "dance" | "tremor" | "steps" | "pd-carers"
+  | "fatigue" | "cool" | "yoga"
+  | "memory" | "work"
+  | "sport" | "owls"
+  | "new-hip" | "knee";
+export type CommunityGroupId = SampleGroupId | SuggestedGroupId | ConditionGroupId;
+/** Groups that can be joined with one tap: the public ones the person isn't in yet. */
+export type JoinableGroupId = SuggestedGroupId | ConditionGroupId;
 export type ThemeId = "gardening" | "walking" | "cooking" | "music" | "books" | "family" | "crafts" | "chatting";
 
 /** A cover is a drawing, or a colour with a letter or a theme's sign on it. */
@@ -108,11 +144,17 @@ export type SampleGroup = {
   lastMinutesAgo: number;
   /** Why a group is suggested. */
   why?: string;
+  /** The condition group it sits inside, and who can see it. */
+  conditionId: ConditionId;
+  visibility: GroupVisibility;
+  /** The line on its card in "Inside {condition}". */
+  activity: GroupActivity;
 };
 
 export const sampleGroups: SampleGroup[] = [
   {
-    id: "garden", name: "Garden gang", lastMinutesAgo: 20,
+    id: "garden", name: "Garden gang", lastMinutesAgo: 20, conditionId: "stroke", visibility: "private",
+    activity: { text: "Chess on now · Margaret vs Joan", kind: "game" },
     about: "For anyone getting their hands back into the soil. Windowsill pots and allotments alike, at whatever pace your hands allow.",
     cover: { image: art("fb2175989c4397ad5f421824e41a5e87"), tint: "#CFE8C9", ink: "#1C4A3C" },
     tint: "#E1F0DC", ink: "#24694B", members: 6, online: 3, faces: ["margaret", "joan", "anne", "samuel"], unread: 3, active: true,
@@ -126,7 +168,8 @@ export const sampleGroups: SampleGroup[] = [
     preview: "Margaret: First tomatoes!",
   },
   {
-    id: "walk", name: "Morning walkers", lastMinutesAgo: 150,
+    id: "walk", name: "Morning walkers", lastMinutesAgo: 150, conditionId: "stroke", visibility: "public",
+    activity: { text: "David: 7 tomorrow?", kind: "chat" },
     about: "Short walks, slow walks and round-the-block walks. We go at the pace of whoever is slowest that day.",
     cover: { image: art("41e5e4e8b1bf6c9bbe7330cc69485ef5"), tint: "#CFE6F2", ink: "#1F4E66" },
     tint: "#DCECF4", ink: "#1F4E66", members: 8, online: 2, faces: ["david", "tomasz", "priya", "liwei"], unread: 0, active: false,
@@ -139,7 +182,8 @@ export const sampleGroups: SampleGroup[] = [
     preview: "David: 7 tomorrow?",
   },
   {
-    id: "cook", name: "One-handed cooks", lastMinutesAgo: 1500,
+    id: "cook", name: "One-handed cooks", lastMinutesAgo: 1500, conditionId: "stroke", visibility: "public",
+    activity: { text: "Samuel shared a recipe", kind: "chat" },
     about: "Recipes, tips and gadgets for cooking with one hand. Every kitchen win counts.",
     cover: { image: art("91162a45a080841062c0f9de0b0bc8fd"), tint: "#FBE3B8", ink: "#6B5108" },
     tint: "#FBEBC2", ink: "#6B5108", members: 11, online: 1, faces: ["samuel", "priya", "margaret", "anne"], unread: 0, active: false,
@@ -151,7 +195,8 @@ export const sampleGroups: SampleGroup[] = [
     incoming: { id: "c3", who: "anne", text: "Does anyone have a good rocker knife to recommend?", hearts: 1 },
   },
   {
-    id: "music", name: "Kitchen singalong", lastMinutesAgo: 2900,
+    id: "music", name: "Kitchen singalong", lastMinutesAgo: 2900, conditionId: "stroke", visibility: "private",
+    activity: { text: "Ludo tonight at 7 pm", kind: "soon" },
     about: "Singing helps the words come back. A song a day, as loud or as quiet as you like.",
     cover: { image: art("242c86dad4e267c11919a79438078c19"), tint: "#E4DAF3", ink: "#45357A" },
     tint: "#E9E2F4", ink: "#45357A", members: 5, online: 2, faces: ["priya", "joan", "liwei"], unread: 1, active: false,
@@ -166,7 +211,8 @@ export const sampleGroups: SampleGroup[] = [
 
 export const suggestedGroups: SampleGroup[] = [
   {
-    id: "knit", name: "Knit and natter", why: "Joan and 6 others", lastMinutesAgo: 300,
+    id: "knit", name: "Knit and natter", why: "Joan and 6 others", lastMinutesAgo: 300, conditionId: "stroke", visibility: "public",
+    activity: { text: "Dropped stitches welcome", kind: "chat" },
     about: "Knitting, crochet and a good natter. Dropped stitches welcome.",
     cover: { tint: "#FBEBC2", ink: "#6B5108", initial: "K" },
     tint: "#FBEBC2", ink: "#6B5108", members: 7, online: 1, faces: ["joan", "anne", "margaret"], unread: 0, active: false,
@@ -178,7 +224,8 @@ export const suggestedGroups: SampleGroup[] = [
     incoming: { id: "k3", who: "margaret", text: "Bringing my scarf to show you all tomorrow.", hearts: 2 },
   },
   {
-    id: "book", name: "One chapter club", why: "One chapter a week, together", lastMinutesAgo: 4300,
+    id: "book", name: "One chapter club", why: "One chapter a week, together", lastMinutesAgo: 4300, conditionId: "stroke", visibility: "public",
+    activity: { text: "One chapter a week, together", kind: "chat" },
     about: "One chapter a week, in print, large print or as an audiobook.",
     cover: { tint: "#F6DDD3", ink: "#8F3520", initial: "O" },
     tint: "#F6DDD3", ink: "#8F3520", members: 4, online: 1, faces: ["anne", "liwei", "samuel"], unread: 0, active: false,
@@ -194,6 +241,109 @@ export const suggestedGroups: SampleGroup[] = [
 export const SAMPLE_GROUP_IDS: SampleGroupId[] = ["garden", "walk", "cook", "music"];
 export const SUGGESTED_GROUP_IDS: SuggestedGroupId[] = ["knit", "book"];
 
+/** What happened in a group today, shown as a small event in its chat. */
+export const groupEvents: Partial<Record<CommunityGroupId, string>> = {
+  garden: "Margaret started chess with Joan · 10:12 am",
+  music: "Priya set up Ludo for 7 pm · 9:40 am",
+  walk: "David made this group public · last week",
+  cook: "Samuel made this group public · in June",
+};
+
+/** A subgroup started by another member, with a letter for its cover and one line said in it. */
+function otherGroup(
+  id: ConditionGroupId, name: string, conditionId: ConditionId, visibility: GroupVisibility, members: number, faces: PersonId[],
+  cover: { tint: string; ink: string }, activity: GroupActivity, about: string, said: string,
+): SampleGroup {
+  return {
+    id, name, about, cover: { ...cover, initial: name.charAt(0) }, tint: cover.tint, ink: cover.ink, members, online: 1, faces, unread: 0, active: false,
+    challenge: { text: "This week: say hello to someone new", done: 2, total: members },
+    messages: [{ id: `${id}-1`, who: faces[0], text: said, hearts: 3 }],
+    incoming: { id: `${id}-2`, who: faces[1], text: "Welcome! Lovely to have you here.", hearts: 1 },
+    lastMinutesAgo: 600, conditionId, visibility, activity,
+  };
+}
+const lilac = { tint: "#E9E2F4", ink: "#45357A" };
+const sky = { tint: "#DCECF4", ink: "#1F4E66" };
+const mint = { tint: "#E5EEE7", ink: "#173D2F" };
+const butter = { tint: "#FBEBC2", ink: "#6B5108" };
+const blush = { tint: "#FBE3DB", ink: "#8F3520" };
+const sand = { tint: "#F6EEDB", ink: "#7A5C22" };
+
+/**
+ * Subgroups other members started inside each condition. The private ones ("Tuesday tea",
+ * "Carers' corner") are here to prove the rule: the person is not in them, so the model never
+ * shows, counts, searches or suggests them.
+ */
+export const conditionGroups: SampleGroup[] = [
+  otherGroup("finding", "Finding words", "stroke", "public", 42, ["anne", "liwei", "samuel"], lilac, { text: "Slow, kind chat for aphasia", kind: "chat" }, "A slow, kind chat for anyone finding words hard after a stroke. Take all the time you need.", "Today's word was 'marmalade'. Took me a while, but I got there."),
+  otherGroup("young", "Young stroke survivors", "stroke", "public", 120, ["tomasz", "priya", "david"], sky, { text: "Back to work, kids, and more", kind: "chat" }, "For anyone who had a stroke young: work, children, friends and everything else.", "First full week back at work. Tired, but proud."),
+  otherGroup("tuesday-tea", "Tuesday tea", "stroke", "private", 4, ["joan", "liwei", "priya"], butter, { text: "Tea at 3 on Tuesdays", kind: "soon" }, "A private tea for four old friends.", "Same table as last week?"),
+  otherGroup("dance", "Dance for balance", "parkinsons", "public", 64, ["joan", "david", "anne"], lilac, { text: "Seated dance on Tuesdays", kind: "soon" }, "Seated and standing dance for balance and fun.", "Tuesday's waltz had us all smiling."),
+  otherGroup("tremor", "Tremor and tea", "parkinsons", "public", 23, ["margaret", "samuel", "liwei"], butter, { text: "Tips for steady cups", kind: "chat" }, "Tips for steady cups, and a natter while we drink them.", "A heavier mug really does help."),
+  otherGroup("steps", "Big steps walking", "parkinsons", "public", 31, ["tomasz", "priya", "joan"], sky, { text: "Walk together on Saturdays", kind: "soon" }, "Big steps, slow pace, good company.", "Saturday at 10 by the bandstand."),
+  otherGroup("pd-carers", "Carers' corner", "parkinsons", "private", 6, ["anne", "david", "samuel"], blush, { text: "A quiet place to talk", kind: "chat" }, "A private corner for people caring for someone.", "Thinking of you all this week."),
+  otherGroup("fatigue", "Fatigue friends", "ms", "public", 48, ["anne", "liwei", "david"], sky, { text: "Pacing tips that work", kind: "chat" }, "Pacing, rest and the tips that really work.", "Spoon count today: six. Spent them well."),
+  otherGroup("cool", "Cool and calm", "ms", "public", 19, ["priya", "samuel", "joan"], mint, { text: "Staying cool in summer", kind: "chat" }, "Staying cool when the weather isn't.", "Cooling scarves are back in the shops."),
+  otherGroup("yoga", "Seated yoga", "ms", "public", 37, ["margaret", "tomasz", "anne"], blush, { text: "Sessions on Thursdays", kind: "soon" }, "Gentle seated yoga, every Thursday.", "Thursday's stretch was just right."),
+  otherGroup("memory", "Memory makers", "brain", "public", 26, ["david", "joan", "liwei"], butter, { text: "Daily notes and reminders", kind: "chat" }, "Notes, lists and reminders that help.", "My fridge is now mostly sticky notes."),
+  otherGroup("work", "Back to work", "brain", "public", 33, ["tomasz", "samuel", "anne"], mint, { text: "First weeks back", kind: "chat" }, "For the first weeks back at work.", "Asked for a quieter desk. They said yes!"),
+  otherGroup("sport", "Adaptive sport", "spine", "public", 41, ["samuel", "priya", "david"], blush, { text: "Try-it days near you", kind: "soon" }, "Wheelchair sport and try-it days near you.", "Tried wheelchair tennis. Hooked."),
+  otherGroup("owls", "Night owls", "spine", "public", 15, ["liwei", "anne", "joan"], lilac, { text: "For the 3 am wake-ups", kind: "chat" }, "For the 3 am wake-ups. Someone is always here.", "Anyone else up? Kettle's on."),
+  otherGroup("new-hip", "New hip club", "joint", "public", 58, ["margaret", "david", "samuel"], sand, { text: "Weeks one to six", kind: "chat" }, "The first six weeks with a new hip.", "Week three: round the garden twice."),
+  otherGroup("knee", "Knee buddies", "joint", "public", 29, ["joan", "tomasz", "priya"], sky, { text: "Exercise check-ins", kind: "chat" }, "Check in after your knee exercises.", "Did all my bends today."),
+];
+export const CONDITION_GROUP_IDS = conditionGroups.map(group => group.id) as ConditionGroupId[];
+
+/* ------------------------------------------------------------------- games */
+
+/** Traditional games only, each with the number of players it needs. Games are for private groups. */
+export type GameId = "chess" | "draughts" | "xiangqi" | "go" | "backgammon" | "ludo" | "dominoes" | "mahjong";
+export type GameInfo = { id: GameId; name: string; min: number; max: number; time: string; tint: string };
+export const GAMES: GameInfo[] = [
+  { id: "chess", name: "Chess", min: 2, max: 2, time: "about 30 min", tint: "#E5EEE7" },
+  { id: "draughts", name: "Draughts", min: 2, max: 2, time: "about 15 min", tint: "#FBE3DB" },
+  { id: "xiangqi", name: "Chinese chess", min: 2, max: 2, time: "about 30 min", tint: "#FBEBC2" },
+  { id: "go", name: "Go", min: 2, max: 2, time: "as long as you like", tint: "#F1EBDD" },
+  { id: "backgammon", name: "Backgammon", min: 2, max: 2, time: "about 20 min", tint: "#DCECF4" },
+  { id: "ludo", name: "Ludo", min: 2, max: 4, time: "about 25 min", tint: "#E9E2F4" },
+  { id: "dominoes", name: "Dominoes", min: 2, max: 4, time: "about 15 min", tint: "#F6EEDB" },
+  { id: "mahjong", name: "Mahjong", min: 4, max: 4, time: "about 45 min", tint: "#E5EEE7" },
+];
+export const GAME_IDS: GameId[] = GAMES.map(game => game.id);
+export const gameInfo = (id: GameId): GameInfo => GAMES.find(game => game.id === id) ?? GAMES[0];
+
+/**
+ * Games already going in the example groups. Chess moves are kept as codes ("e2e4"). Margaret vs
+ * Joan has reached White's 14th move; the person's own game with Margaret has just begun.
+ */
+export type SampleGame = {
+  id: string;
+  groupId: SampleGroupId;
+  type: GameId;
+  /** Who is playing, besides the person when `withYou` is set. */
+  players: PersonId[];
+  withYou: boolean;
+  state: "playing" | "scheduled";
+  moves: string[];
+  /** When it started, or when it will. */
+  when: string;
+  watchers: PersonId[];
+};
+export const sampleGames: SampleGame[] = [
+  {
+    id: "garden-chess", groupId: "garden", type: "chess", players: ["margaret", "joan"], withYou: false, state: "playing", when: "10:12 am", watchers: ["anne", "samuel"],
+    moves: ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5", "c2c3", "g8f6", "d2d3", "d7d6", "e1g1", "e8g8", "f1e1", "a7a6", "c4b3", "c5a7", "h2h3", "h7h6", "b1d2", "f8e8", "d2f1", "c8e6", "f1g3", "d8d7", "b3c2", "a8d8", "d3d4"],
+  },
+  { id: "margaret-chess", groupId: "garden", type: "chess", players: ["margaret"], withYou: true, state: "playing", when: "10:12 am", watchers: ["anne", "samuel", "joan"], moves: ["e2e4", "e7e5", "g1f3", "b8c6"] },
+  { id: "music-ludo", groupId: "music", type: "ludo", players: ["priya", "joan", "liwei"], withYou: false, state: "scheduled", when: "Tonight at 7 pm", watchers: [], moves: [] },
+];
+/** Quick phrases for the people watching a game, and the answer each one gets. */
+export const watcherPhrases: { label: string; tone: QuickTone; reply: { who: PersonId; text: string } }[] = [
+  { label: "Good move!", tone: "amber", reply: { who: "margaret", text: "Flattery will not save your knight." } },
+  { label: "Hmm, let me think", tone: "mint", reply: { who: "anne", text: "Take your time, love. No clock!" } },
+  { label: "Cup of tea break?", tone: "rose", reply: { who: "margaret", text: "Always. Two sugars, please." } },
+];
+
 /* ---------------------------------------------------------- start a group */
 
 export type GroupTheme = { id: ThemeId; label: string; names: [string, string, string]; image?: string; tint: string; ink: string };
@@ -208,6 +358,16 @@ export const groupThemes: GroupTheme[] = [
   { id: "chatting", label: "Just chatting", names: ["Tea and a natter", "The regulars", "Night owls"], tint: "#E3EFE6", ink: "#1C4A3C" },
 ];
 export const THEME_IDS: ThemeId[] = groupThemes.map(theme => theme.id);
+
+/** A board of light and sage squares, the cover of a games group. */
+const checkerCover = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 120' preserveAspectRatio='xMidYMid slice'><defs><pattern id='c' width='30' height='30' patternUnits='userSpaceOnUse'><rect width='30' height='30' fill='#EFE6D2'/><path d='M0 0h15v15H0zM15 15h15v15H15z' fill='#8DB09A'/></pattern></defs><rect width='240' height='120' fill='url(#c)'/></svg>")}`;
+/** Starting a group offers a games theme too. Its icon is drawn by the games pieces, not ThemeIcon. */
+export type StartThemeId = ThemeId | "games";
+export type StartTheme = Omit<GroupTheme, "id"> & { id: StartThemeId };
+export const gamesTheme: StartTheme = { id: "games", label: "Games", names: ["Board game club", "Chess and tea", "Friday games"], image: checkerCover, tint: "#E5EEE7", ink: "#173D2F" };
+/** The themes "What's it about?" offers, in order. Crafts stays readable for groups started before. */
+export const startThemes: StartTheme[] = [...groupThemes.slice(0, 4), gamesTheme, ...groupThemes.filter(theme => theme.id === "books" || theme.id === "family" || theme.id === "chatting")];
+export const START_THEME_IDS: StartThemeId[] = [...THEME_IDS, "games"];
 /** The example friends who can be asked along, and the two ticked to begin with. */
 export const inviteFriends: PersonId[] = ["margaret", "joan", "anne", "david", "priya", "samuel"];
 export const defaultInvites: PersonId[] = ["margaret", "joan"];

@@ -8,6 +8,8 @@ import FeedView from "@/components/community/Feed";
 import FindPanel from "@/components/community/FindPanel";
 import FriendsDrawer from "@/components/community/FriendsDrawer";
 import FriendsPage from "@/components/community/FriendsPage";
+import PokerNightDialog from "@/components/community/games/PokerNightDialog";
+import PokerSpace from "@/components/community/games/PokerSpace";
 import GroupsView from "@/components/community/Groups";
 import { BackIcon } from "@/components/community/icons";
 import LoungeView from "@/components/community/Lounge";
@@ -21,6 +23,7 @@ import StartGroupView from "@/components/community/StartGroup";
 import { lounge, type FriendsTab } from "@/content/community-samples";
 import { communityHref, communityViewFromQuery, firstName, placeOf, useCommunity, type CommunitySpace, type SafetyTarget } from "@/lib/community-store";
 import { fastCheckPath } from "@/lib/fast-check";
+import { pokerNight, pokerNightOn, shouldPop, usePokerNight } from "@/lib/poker-night";
 import { profileName, useProfile } from "@/lib/profile";
 import { todayLabel } from "./Welcome";
 import "./community.css";
@@ -34,6 +37,7 @@ import "./community-messages.css";
 import "./community-circle.css";
 import "./community-daily.css";
 import "./community-picture.css";
+import "./community-poker.css";
 
 // My community: a feed where everybody posts, with the lounge, the Sunday circle, groups, messages
 // and friends as tabs beside it, and a toolbar to search, see alerts, friends, safety and settings.
@@ -43,6 +47,7 @@ import "./community-picture.css";
 //   /community                           the feed
 //   /community?space=lounge              the lounge
 //   /community?space=circle              the Sunday circle
+//   /community?space=poker               Friday poker night: tonight's tables and a table to play at
 //   /community?space=groups&group=walk   my groups, with one open
 //   /community?space=messages&chat=anne  messages, with a conversation open
 //   /community?space=friends             friends: requests, friends, privacy and blocked
@@ -51,6 +56,7 @@ import "./community-picture.css";
 //   /community?space=safety              safety: reports, blocked and hidden people
 //   ...&panel=friends&tab=sent           the Friends drawer, open over any of these
 // Find, Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
+// On Fridays the poker night pop-up opens by itself, once a day (`?poker=friday` shows it any day).
 export default function Community() {
   const search = useSearch();
   const [location, navigate] = useLocation();
@@ -58,6 +64,7 @@ export default function Community() {
   const profile = useProfile();
   const name = firstName(profileName(profile));
   const memory = useCommunity();
+  const poker = usePokerNight();
   const [here, setHere] = useState(lounge.here);
   // A space stays as it was left once it has been opened in this visit.
   const [visited, setVisited] = useState<CommunitySpace[]>(() => [view.space]);
@@ -74,7 +81,7 @@ export default function Community() {
   const viewNow = useRef(view);
   viewNow.current = view;
   const friendsOpen = view.panel === "friends";
-  const overlayOpen = friendsOpen || findOpen || alertsOpen || menu !== null || pictureFrom !== null;
+  const overlayOpen = friendsOpen || findOpen || alertsOpen || menu !== null || pictureFrom !== null || poker.dialogOpen;
   const overlayWasOpen = useRef(overlayOpen);
   // Whether the drawer was opened during this visit, so closing it can step Back rather than add a page.
   const friendsOpenedHere = useRef(false);
@@ -116,6 +123,20 @@ export default function Community() {
   // A new address (a link, or the browser's Back button) closes the panels and the sheets.
   useEffect(() => { setFindOpen(false); setAlertsOpen(false); setMenu(null); setPictureFrom(null); }, [search]);
 
+  // Poker night: `?poker=friday` keeps it on for this browser session. The pop-up opens by itself once
+  // a day on poker night, unless the person said "Not tonight" this week or has already picked; a new
+  // address after that closes it, like the other sheets.
+  const pokerOn = pokerNightOn(poker);
+  const pokerSearch = useRef(search);
+  useEffect(() => {
+    pokerNight.noteAddress(search);
+    if (pokerSearch.current !== search) { pokerSearch.current = search; pokerNight.close(); }
+  }, [search]);
+  useEffect(() => {
+    const now = new Date();
+    if (shouldPop(poker, now, pokerOn) && !poker.dialogOpen) pokerNight.popped(now);
+  }, [pokerOn]);
+
   /** The heading of the view showing now: where the focus goes when what opened a dialog has gone. */
   const headingNow = useCallback(() => {
     const root = page.current;
@@ -155,6 +176,7 @@ export default function Community() {
         {isOpen("feed") && <div className="cm-space" data-space="feed" hidden={view.space !== "feed"}><FeedView name={name} here={here} onMore={openMenu} openPostId={menu?.target.postId ?? null} /></div>}
         {isOpen("lounge") && <div className="cm-space" data-space="lounge" hidden={view.space !== "lounge"}><LoungeView active={view.space === "lounge"} here={here} onHere={setHere} /></div>}
         {isOpen("circle") && <div className="cm-space" data-space="circle" hidden={view.space !== "circle"}><CircleView active={view.space === "circle"} name={name} /></div>}
+        {isOpen("poker") && <div className="cm-space" data-space="poker" hidden={view.space !== "poker"}><PokerSpace active={view.space === "poker"} /></div>}
         {isOpen("groups") && <div className="cm-space" data-space="groups" hidden={view.space !== "groups"}><GroupsView active={view.space === "groups"} requested={view.group} /></div>}
         {isOpen("messages") && <div className="cm-space" data-space="messages" hidden={view.space !== "messages"}><MessagesView active={view.space === "messages"} chat={view.chat ?? null} onPersonMenu={openMenu} /></div>}
         {isOpen("friends") && <div className="cm-space" data-space="friends" hidden={view.space !== "friends"}><FriendsPage onPersonMenu={openMenu} /></div>}
@@ -163,9 +185,9 @@ export default function Community() {
         {isOpen("start") && (
           <div className="cm-space" data-space="start" hidden={view.space !== "start"}>
             <header className="cm-start-head">
-              <Link className="cm-back" href={communityHref()}><BackIcon size={18} /><span>My community</span></Link>
+              <Link className="cm-back" href={communityHref("groups")}><BackIcon size={18} /><span>Groups by condition</span></Link>
               <h1 className="cm-title" tabIndex={-1} data-view-heading>Start a group</h1>
-              <p className="cm-start-intro">A little corner for your people: a chat, photos, and a name you choose.</p>
+              <p className="cm-start-intro">A smaller group inside your condition: private unless you choose otherwise, with a chat, photos and games.</p>
             </header>
             <StartGroupView name={name} />
           </div>
@@ -179,6 +201,7 @@ export default function Community() {
         {alertsOpen && <AlertsPanel onClose={() => setAlertsOpen(false)} anchor={alertsButton.current} over={placeOf(view)} fallbackFocus={headingNow} />}
         {menu && <PostMenu target={menu.target} name={name} onClose={() => setMenu(null)} returnFocus={menu.opener} fallbackFocus={headingNow} startAt={menu.startAt} />}
         {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={headingNow} />}
+        {poker.dialogOpen && <PokerNightDialog name={name} onClose={pokerNight.close} fallbackFocus={headingNow} />}
         <MessagesDock space={view.space} />
       </div>
     </RecoveryShell>

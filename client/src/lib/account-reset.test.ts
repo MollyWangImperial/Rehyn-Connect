@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ACCOUNT_RESET_BACKUP_KEY, createAccountResetStore } from "./account-reset";
-import { loadHomeActionSnapshot, nextHomeAction } from "./home-next-action";
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = new Map(Object.entries(initial));
@@ -28,7 +27,7 @@ const original = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("new-user account reset", () => {
-  it("clears Rehyn's local and session state, keeps other app data, and restores onboarding as the next action", () => {
+  it("clears Rehyn's local and session state, and keeps other app data", () => {
     const local = memoryStorage({ ...original, theme: "dark", "other.app": "keep" });
     const session = memoryStorage({ "rehyn.fromHome": "1", "other.session": "keep" });
     const reset = createAccountResetStore(() => ({ local, session }));
@@ -40,7 +39,6 @@ describe("new-user account reset", () => {
     expect(local.getItem("theme")).toBe("dark");
     expect(local.getItem("other.app")).toBe("keep");
     expect(session.getItem("other.session")).toBe("keep");
-    expect(nextHomeAction(loadHomeActionSnapshot()).kind).toBe("onboarding");
     expect(reset.canUndo()).toBe(true);
   });
   it("can undo after a reload, replacing fresh test progress with the exact previous account", () => {

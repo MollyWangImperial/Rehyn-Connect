@@ -2,15 +2,9 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createAliraAgentRouter } from "./alira-agent";
 import { createAliraSpeaker, createAliraVoiceRouter } from "./alira-voice";
-import { createExerciseDebugRouter } from "./exercise-debug";
-import { createAliraSpeakRouter, createExerciseVoiceRouter, createFastCheckVoiceRouter } from "./exercise-voice";
-import { createMollyProgressRouter } from "./molly-progress";
-import { createAliraChannelRouter } from "./alira-channel";
-import { createAliraLearningRouter } from "./alira-learning";
-import { createAdminAlertsRouter } from "./admin-alerts";
-import { createMovementCheckRunnerRouter } from "./movement-check-runner";
+import { createAliraSpeakRouter } from "./alira-speak";
+import { createLoungePhotoCheckRouter } from "./lounge-photo-check";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,25 +12,14 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  app.use("/api/exercise-debug", createExerciseDebugRouter({ root: path.resolve(__dirname, "..") }));
-  // The exercises and the FAST check speak in Alira's one voice, like the Alira page.
+  // Read aloud (Library, My Time) in Alira's voice.
   const speakAlira = createAliraSpeaker({ root: path.resolve(__dirname, "..") });
-  app.use("/api/exercise-voice", createExerciseVoiceRouter(undefined, speakAlira));
-  app.use("/api/tts/generate", createFastCheckVoiceRouter(speakAlira));
   app.use("/api/alira/speak", createAliraSpeakRouter(speakAlira));
-  app.use("/api/alira/channel", createAliraChannelRouter({ root: path.resolve(__dirname, "..") }));
-  app.use("/api/alira/learning", createAliraLearningRouter({ root: path.resolve(__dirname, "..") }));
-  app.use("/api/molly-progress", createMollyProgressRouter({ root: path.resolve(__dirname, "..") }));
-  app.use("/api/admin-alerts", createAdminAlertsRouter({ root: path.resolve(__dirname, "..") }));
-  // The movement check's original runner, served from this origin so each task's demonstration can come first.
-  app.use("/movement-check/runner", createMovementCheckRunnerRouter());
+  app.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: path.resolve(__dirname, "..") }));
+  // Its /status is Render's health check.
   app.use(
     "/api/alira/voice",
     createAliraVoiceRouter({ root: path.resolve(__dirname, "..") })
-  );
-  app.use(
-    "/api/alira/agent",
-    createAliraAgentRouter({ root: path.resolve(__dirname, "..") })
   );
 
   // Serve static files from dist/public in production

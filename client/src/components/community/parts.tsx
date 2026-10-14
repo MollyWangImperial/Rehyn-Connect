@@ -6,7 +6,7 @@ import { communityStore, communityViewFromQuery, friendsHref, placeOf, preparePo
 import { profileInitial, useProfile } from "@/lib/profile";
 import type { Burst } from "./hooks";
 import { useVoiceNote, voiceSeconds } from "./hooks";
-import { ArrowIcon, CheckIcon, CloseIcon, HandIcon, HeartIcon, MicIcon, PhotoIcon, PlayIcon, PulseIcon, StarIcon, StopIcon, ThemeIcon } from "./icons";
+import { ArrowIcon, CameraIcon, CheckIcon, CloseIcon, HandIcon, HeartIcon, MicIcon, PhotoIcon, PlayIcon, PulseIcon, StarIcon, StopIcon, ThemeIcon } from "./icons";
 
 /* ------------------------------------------------------------------ faces */
 
@@ -248,11 +248,32 @@ export function TypingRow({ who }: { who: PersonId }) {
 }
 
 /**
+ * A photo the caller looks after itself (the lounge, which checks each photo before it can be
+ * shared). ChatInput shows the camera button first, hands the shrunk photo over, and shows the
+ * caller's strip above the row instead of its own little preview.
+ */
+export type ChatPhotoFlow = {
+  /** Called with the photo, shrunk and stripped of its details on this device, and the file's name. */
+  onChosen: (photo: string, fileName: string) => void;
+  /** What sits above the writing row (the check's progress, the result, or a notice). `choose` opens the picker again. */
+  strip?: (choose: () => void) => ReactNode;
+  /** Send waits while this is true (the check is still running). */
+  holdSend?: boolean;
+  /** A photo is ready to go with the words, so Send works without any words. */
+  ready?: boolean;
+  /** Writing on the Send button instead of `sendText` ("Send text only"). */
+  sendText?: string;
+  /** A short line under the row. */
+  footnote?: ReactNode;
+};
+
+/**
  * The writing row under a chat: a voice-note switch, an optional photo, the words and Send.
  * Recording isn't switched on in this preview, so a voice note is made from written words.
  * `sendText` writes Send on the button ("Send"), where there is room, instead of an arrow.
+ * `photoFlow` hands the photo to the caller instead (see ChatPhotoFlow); `allowPhoto` is ignored then.
  */
-export function ChatInput({ label, placeholder, onSend, allowPhoto = false, sendText }: { label: string; placeholder: string; onSend: (draft: NoteDraft) => void; allowPhoto?: boolean; sendText?: string }) {
+export function ChatInput({ label, placeholder, onSend, allowPhoto = false, sendText, photoFlow }: { label: string; placeholder: string; onSend: (draft: NoteDraft) => void; allowPhoto?: boolean; sendText?: string; photoFlow?: ChatPhotoFlow }) {
   const [text, setText] = useState("");
   const [voice, setVoice] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
@@ -260,12 +281,15 @@ export function ChatInput({ label, placeholder, onSend, allowPhoto = false, send
   const picker = useRef<HTMLInputElement>(null);
   const field = useRef<HTMLInputElement>(null);
   const hintId = useId();
+  const held = !!photoFlow?.holdSend;
+  const sendWords = photoFlow?.sendText ?? sendText;
 
   const send = (event: FormEvent) => {
     event.preventDefault();
+    if (held) return;
     const words = text.trim();
     if (voice && !words) { setProblem("Write the words for your voice note first."); field.current?.focus(); return; }
-    if (!words && !photo) { field.current?.focus(); return; }
+    if (!words && !photo && !photoFlow?.ready) { field.current?.focus(); return; }
     onSend({ text: words, photo, voice });
     setText(""); setPhoto(null); setVoice(false); setProblem("");
   };
@@ -273,12 +297,25 @@ export function ChatInput({ label, placeholder, onSend, allowPhoto = false, send
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    try { setPhoto(await preparePostPhoto(file)); setProblem(""); }
+    try {
+      const prepared = await preparePostPhoto(file);
+      setProblem("");
+      if (photoFlow) photoFlow.onChosen(prepared, file.name);
+      else setPhoto(prepared);
+    }
     catch (error) { setProblem(error instanceof Error ? error.message : "This photo couldn't be added."); }
   };
+  const openPicker = () => picker.current?.click();
+  const photoButton = (allowPhoto || photoFlow) && (
+    <>
+      <button type="button" className={`cm-round cm-round-photo ${photoFlow ? "is-first" : ""}`} aria-label="Add a photo" onClick={openPicker}>{photoFlow ? <CameraIcon size={24} /> : <PhotoIcon size={24} />}</button>
+      <input ref={picker} className="cm-sr" type="file" accept="image/jpeg,image/png,image/webp" tabIndex={-1} aria-hidden="true" onChange={choose} />
+    </>
+  );
 
   return (
     <form className="cm-chat-input" onSubmit={send}>
+      {photoFlow?.strip?.(openPicker)}
       {photo && (
         <div className="cm-attached">
           <img src={photo} alt="The photo you chose" />
@@ -286,25 +323,22 @@ export function ChatInput({ label, placeholder, onSend, allowPhoto = false, send
         </div>
       )}
       <div className="cm-chat-row">
+        {photoFlow && photoButton}
         <button type="button" className={`cm-round cm-round-voice ${voice ? "is-on" : ""}`} aria-pressed={voice} aria-label="Send as a voice note" aria-describedby={voice ? hintId : undefined} onClick={() => { setVoice(!voice); setProblem(""); field.current?.focus(); }}>
           <MicIcon size={24} />
         </button>
-        {allowPhoto && (
-          <>
-            <button type="button" className="cm-round cm-round-photo" aria-label="Add a photo" onClick={() => picker.current?.click()}><PhotoIcon size={24} /></button>
-            <input ref={picker} className="cm-sr" type="file" accept="image/jpeg,image/png,image/webp" tabIndex={-1} aria-hidden="true" onChange={choose} />
-          </>
-        )}
+        {!photoFlow && photoButton}
         <label className="cm-chat-field">
           <span className="cm-sr">{voice ? `${label}, as a voice note` : label}</span>
           <input ref={field} type="text" value={text} maxLength={400} placeholder={voice ? "Write the words for your voice note" : placeholder} onChange={event => { setText(event.target.value); setProblem(""); }} enterKeyHint="send" autoComplete="off" />
         </label>
-        {sendText
-          ? <button type="submit" className="cm-send-pill">{sendText}</button>
-          : <button type="submit" className="cm-round cm-round-send" aria-label="Send"><ArrowIcon size={22} /></button>}
+        {sendWords
+          ? <button type="submit" className={`cm-send-pill ${held ? "is-waiting" : ""}`} aria-disabled={held || undefined}>{sendWords}</button>
+          : <button type="submit" className={`cm-round cm-round-send ${held ? "is-waiting" : ""}`} aria-label="Send" aria-disabled={held || undefined}><ArrowIcon size={22} /></button>}
       </div>
       {voice && <p className="cm-hint" id={hintId}>Recording isn't switched on in this preview. Write your words, and Play will read them aloud on this device.</p>}
       {problem && <p className="cm-problem" role="alert">{problem}</p>}
+      {photoFlow?.footnote}
     </form>
   );
 }

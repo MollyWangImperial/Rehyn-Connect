@@ -225,7 +225,7 @@ export function SafetyPage({ memory, warningSignsHref, onPersonMenu }: SafetyVie
             <span className="cm-sa-help-icon" aria-hidden="true"><QuestionIcon size={22} /></span>
             <div className="cm-sa-help-text">
               <p>{"If you feel unwell or unsafe right now, don't wait. "}<Link className="cm-sa-help-link" href={warningSignsHref}>See Warning signs</Link></p>
-              <p>{"Shaken by something you saw here? "}<Link className="cm-sa-help-link" href="/alira">Talk it through with Alira</Link></p>
+              <p>Shaken by something you saw here? Samaritans are there to talk, day and night, on <b>116 123</b>.</p>
             </div>
           </section>
 

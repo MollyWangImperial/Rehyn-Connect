@@ -1,85 +1,79 @@
-import { useEffect, useState } from "react";
-import { useLocation, useSearch } from "wouter";
-import HomeOverview, { type HomeActivity } from "@/components/HomeOverview";
+import { useState } from "react";
+import { Link } from "wouter";
+import { ArrowRight, BookOpen, CalendarHeart, Coffee, Heart, Users } from "lucide-react";
 import RecoveryShell from "@/components/RecoveryShell";
-import { fillCopy } from "@/lib/home-stage";
-import { loadHomeActionSnapshot, nextHomeAction } from "@/lib/home-next-action";
-import { activityDuration, aliraLine, nextStep, progressAreas, weekDays } from "@/lib/home-overview";
-import { surpriseStore, type Surprise } from "@/lib/home-surprise";
-import { useHomeGreeting } from "@/hooks/useHomeGreeting";
-import { setDisplayPrefs, useDisplayPrefs } from "@/lib/display-prefs";
-import { fastCheckPath } from "@/lib/fast-check";
-import { journeyUnlocked } from "@/lib/journey";
+import { circleNow } from "@/content/circle-events";
+import { lounge } from "@/content/community-samples";
+import { myTimeActivities, myTimeHref, suggestedActivity } from "@/lib/my-time";
 import { profileName, useProfile } from "@/lib/profile";
-import { rememberYesFromHome, todayLabel } from "./Welcome";
+import { todayLabel } from "./Welcome";
+import "./home-hub.css";
 
-// The home page: the next step chosen from saved progress, the latest movement check at a glance,
-// this week's practice, Alira, and one optional activity. Randomness only varies optional extras.
+const greetingFor = (hour: number) => hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+const timeOf = (date: Date) => date.toLocaleTimeString("en-GB", { hour: "numeric", minute: date.getMinutes() ? "2-digit" : undefined, hour12: true }).replace(" ", "");
+
+// The home page of Rehyn: Connect: what is happening in the community today, with the Library and
+// My Time a tap away. Nothing here is a plan or a score.
 export default function Home() {
-  const [location, navigate] = useLocation();
-  const search = useSearch();
-  const [snapshot, setSnapshot] = useState(loadHomeActionSnapshot);
-  const [roll] = useState(Math.random);
-  const { stage, days } = nextHomeAction(snapshot, roll);
-  const { greeting, replay } = useHomeGreeting(stage);
-  const action = nextHomeAction(snapshot, roll, greeting.opener);
-  const { largeText } = useDisplayPrefs();
+  const [now] = useState(() => new Date());
   const name = profileName(useProfile());
-  const unlocked = journeyUnlocked(snapshot.assessment);
-  const access = { journey: unlocked, myTime: stage !== "assessment", largeText };
-  const [extra, setExtra] = useState<Surprise | null>(() => surpriseStore.today(access, new Date(), roll).surprise);
-
-  useEffect(() => {
-    const refresh = () => setSnapshot(loadHomeActionSnapshot());
-    const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
-    window.addEventListener("storage", refresh);
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", onVisible);
-    const timer = window.setInterval(refresh, 60000);
-    return () => {
-      window.removeEventListener("storage", refresh);
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", onVisible);
-      window.clearInterval(timer);
-    };
-  }, []);
-
-  const start = () => {
-    // Re-check on click as well: a different tab or midnight can change what is due.
-    const latest = nextHomeAction(loadHomeActionSnapshot(), roll, greeting.opener);
-    // Before the movement check has scores, the button always goes to Alira, who leads into it.
-    if (latest.kind === "onboarding" || latest.kind === "assessment") rememberYesFromHome();
-    navigate(latest.href);
-  };
-  const openExtra = (chosen: Surprise) => {
-    if (chosen.action === "large-text") {
-      setDisplayPrefs({ largeText: true });
-      setExtra(surpriseStore.another({ ...access, largeText: true }, new Date(), Math.random(), [chosen.id]));
-      return;
-    }
-    if (chosen.action === "fast-check") { navigate(fastCheckPath(location, search)); return; }
-    if (chosen.href) navigate(chosen.href);
-  };
-  const next = nextStep(action, snapshot);
-  // An activity that only makes sense once (larger text) gives way as soon as it is no longer needed.
-  const shownExtra = extra && !(extra.action === "large-text" && largeText) ? extra : null;
-  const activity: HomeActivity | null = shownExtra
-    ? { id: shownExtra.id, title: shownExtra.cta, body: shownExtra.title, duration: activityDuration(shownExtra.id), onOpen: () => openExtra(shownExtra) }
-    : null;
+  const circle = circleNow(now);
+  const suggestion = suggestedActivity(now);
+  const activity = myTimeActivities.find(item => item.id === suggestion.id);
+  const circleIsToday = circle.start.toDateString() === now.toDateString();
 
   return (
-    <RecoveryShell active="Home" dateLabel={todayLabel(snapshot.now)} className="welcome-shell home-shell" onboarding={stage === "assessment"}>
-      <HomeOverview
-        headline={fillCopy(greeting.headline, days, name)}
-        next={{ ...next, note: fillCopy(next.note, days, name) }}
-        onStart={start}
-        areas={progressAreas(snapshot.assessment)}
-        onDetails={unlocked ? () => navigate("/journey?tab=progress") : undefined}
-        alira={{ line: aliraLine(stage), animate: greeting.animate, run: greeting.run, onReplay: replay,
-          onTalk: () => navigate(stage === "assessment" ? "/alira?onboarding=1" : "/alira") }}
-        week={weekDays(snapshot.now, snapshot.sessions)}
-        activity={activity}
-      />
+    <RecoveryShell active="Home" dateLabel={todayLabel(now)}>
+      <div className="recovery-page home-hub">
+        <section className="recovery-page-heading home-hub-heading">
+          <div>
+            <h1>{greetingFor(now.getHours())}, {name}<span>.</span></h1>
+            <p>Here’s what’s happening in your community today.</p>
+          </div>
+        </section>
+
+        <div className="home-hub-grid">
+          <Link href="/community?space=lounge" className="home-hub-card home-hub-lounge">
+            <span className="home-hub-icon"><Coffee size={22} aria-hidden="true" /></span>
+            <span className="home-hub-kicker"><i className="home-hub-live" aria-hidden="true" />The lounge</span>
+            <strong>{lounge.here} people are in the lounge now</strong>
+            <span>Drop in for a cup of tea and a chat. Stay as long as you like.</span>
+            <em>Go to the lounge <ArrowRight size={16} aria-hidden="true" /></em>
+          </Link>
+
+          <Link href="/community?space=circle" className="home-hub-card">
+            <span className="home-hub-icon"><CalendarHeart size={22} aria-hidden="true" /></span>
+            <span className="home-hub-kicker">Sunday circle</span>
+            <strong>{circle.event.name}{circleIsToday ? `, today at ${timeOf(circle.start)}` : ""}</strong>
+            <span>{circle.event.detail}.</span>
+            <em>See what’s coming up <ArrowRight size={16} aria-hidden="true" /></em>
+          </Link>
+
+          <Link href="/community?space=groups" className="home-hub-card">
+            <span className="home-hub-icon"><Users size={22} aria-hidden="true" /></span>
+            <span className="home-hub-kicker">Groups</span>
+            <strong>Find people who understand</strong>
+            <span>Groups for each condition, and smaller private groups for friends, games and chat.</span>
+            <em>Open groups <ArrowRight size={16} aria-hidden="true" /></em>
+          </Link>
+
+          <Link href="/library" className="home-hub-card">
+            <span className="home-hub-icon"><BookOpen size={22} aria-hidden="true" /></span>
+            <span className="home-hub-kicker">Library</span>
+            <strong>Plain-words guides and real stories</strong>
+            <span>Understand your condition, with trusted links and the stories of people who’ve been there.</span>
+            <em>Open the Library <ArrowRight size={16} aria-hidden="true" /></em>
+          </Link>
+
+          {activity && <Link href={myTimeHref("play", activity.id)} className="home-hub-card">
+            <span className="home-hub-icon"><Heart size={22} aria-hidden="true" /></span>
+            <span className="home-hub-kicker">My Time</span>
+            <strong>{activity.label}</strong>
+            <span>{suggestion.line}</span>
+            <em>Take a few minutes <ArrowRight size={16} aria-hidden="true" /></em>
+          </Link>}
+        </div>
+      </div>
     </RecoveryShell>
   );
 }

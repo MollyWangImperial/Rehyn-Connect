@@ -1,0 +1,121 @@
+/* The lounge's safety pieces (cm-ls-): the photo check in the writing row, the "Checked" and
+   "With the care team" tags, Report under each message, a reported or removed message, Alira's
+   private notes, and the report sheet (which opens in .cm-layer). Colours from the mockups:
+   amber for waiting, terracotta for blocked or reported. */
+
+:is(.cm-page, .cm-layer) {
+  --cm-ls-amber-bg: #FBF1DC;
+  --cm-ls-amber-ink: #7A4F0D;
+  --cm-ls-amber-line: #D8B36A;
+  --cm-ls-rust-bg: #F5E1DC;
+  --cm-ls-rust-ink: #7D3327;
+  --cm-ls-danger: #A84232;
+}
+
+/* ------------------------------------------------------------------ tags */
+
+.cm-ls-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; line-height: 1.2; }
+.cm-ls-tag-ok { background: var(--cm-mint); color: #205345; }
+.cm-ls-tag-amber { background: var(--cm-ls-amber-bg); color: var(--cm-ls-amber-ink); }
+.cm-ls-tag-rust { background: var(--cm-ls-rust-bg); color: var(--cm-ls-danger); }
+.cm-lounge-meta .cm-ls-tag { margin-left: auto; }
+
+/* Report sits quietly after Reply. */
+.cm-page .cm-ls-report-button { color: #7A8A82; font-weight: 600; }
+.cm-page .cm-ls-report-button:hover { color: var(--cm-ls-danger); }
+
+.cm-ls-link { min-height: 44px; padding: 0 6px; border: 0; background: transparent; color: var(--cm-green); font-size: 14.5px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cm-ls-link:hover { color: var(--cm-deep); }
+.cm-ls-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.cm-ls-chip-button { min-height: 44px; padding: 0 16px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; color: var(--cm-ink); font-size: 14.5px; font-weight: 600; cursor: pointer; }
+.cm-ls-chip-button:hover { background: var(--cm-bubble); }
+.cm-ls-chip-amber { border-color: var(--cm-ls-amber-line); background: transparent; color: var(--cm-ls-amber-ink); }
+.cm-ls-chip-rust { border-color: #C9A39A; background: transparent; color: var(--cm-ls-rust-ink); }
+.cm-ls-note-sent { display: inline-flex; align-items: center; gap: 6px; color: #205345; font-size: 14.5px; font-weight: 600; }
+
+/* ------------------------------------------------- reported, removed, held */
+
+.cm-ls-collapsed, .cm-ls-removed { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 6px 12px; min-width: 0; padding: 10px 14px; border-radius: 16px; }
+.cm-ls-collapsed { border: 1.5px solid var(--cm-line); }
+.cm-ls-collapsed-text { flex: 1 1 220px; color: var(--cm-muted); font-size: 15px; }
+.cm-ls-removed { display: block; background: var(--cm-bubble); color: var(--cm-muted); font-size: 15px; line-height: 1.45; }
+.cm-ls-removed-title { color: var(--cm-soft-ink); font-weight: 700; }
+.cm-ls-removed-face { display: grid; flex-shrink: 0; place-items: center; background: var(--cm-bubble); color: #7A8A82; }
+.cm-ls-how { margin-top: 4px; }
+.cm-ls-how summary { display: inline-flex; align-items: center; min-height: 44px; color: var(--cm-green); font-size: 14.5px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.cm-ls-how p { margin-top: 2px; }
+
+.cm-ls-held { flex: 1; min-width: 0; padding: 14px 16px; border: 1.5px dashed var(--cm-ls-amber-line); border-radius: 18px; background: #FFFBF2; }
+.cm-ls-held-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 16px; margin-top: 10px; }
+.cm-ls-held-photo { display: block; width: 220px; max-width: 100%; height: 150px; border-radius: 14px; object-fit: cover; opacity: .85; }
+.cm-ls-held-why { flex: 1 1 200px; color: var(--cm-muted); font-size: 14.5px; line-height: 1.5; }
+
+.cm-ls-note { flex: 1; min-width: 0; padding: 12px 16px; border-radius: 18px; background: var(--cm-gold-soft); }
+.cm-ls-note-text { margin-top: 4px; color: var(--cm-ink); font-size: 16px; line-height: 1.5; }
+
+/* -------------------------------------------------------- the writing row */
+
+.cm-page .cm-round-photo.is-first { border-color: var(--cm-green); }
+.cm-page :is(.cm-send-pill, .cm-round-send).is-waiting { background: var(--cm-line); color: var(--cm-muted); cursor: not-allowed; }
+
+.cm-ls-strip { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 16px; background: var(--cm-bubble); }
+.cm-ls-strip img { flex-shrink: 0; width: 76px; height: 57px; border-radius: 10px; object-fit: cover; }
+.cm-ls-strip-text { flex: 1; min-width: 0; }
+.cm-ls-strip-name { overflow: hidden; color: var(--cm-ink); font-size: 15px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.cm-ls-strip-state { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 14px; line-height: 1.4; }
+.cm-ls-strip-state.is-checking, .cm-ls-strip-state.is-ok { color: var(--cm-green); }
+.cm-ls-strip-state.is-held { color: var(--cm-ls-amber-ink); }
+.cm-ls-strip-state svg { flex-shrink: 0; }
+.cm-ls-spinner { flex-shrink: 0; width: 16px; height: 16px; border: 3px solid #C9D6CD; border-top-color: var(--cm-green); border-radius: 50%; animation: cm-ls-spin .9s linear infinite; }
+@keyframes cm-ls-spin { to { transform: rotate(360deg); } }
+.cm-ls-round-close { display: grid; flex-shrink: 0; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #FFFFFF; color: var(--cm-muted); cursor: pointer; }
+.cm-ls-round-close:hover { color: var(--cm-ink); }
+
+.cm-ls-blocked { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; border-radius: 16px; background: var(--cm-ls-rust-bg); color: var(--cm-ink); font-size: 15px; line-height: 1.5; }
+.cm-ls-blocked-body { flex: 1; min-width: 0; }
+.cm-ls-blocked-title { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--cm-ls-rust-ink); font-size: 16.5px; font-weight: 700; }
+.cm-ls-blocked .cm-ls-link { color: var(--cm-soft-ink); font-weight: 500; }
+.cm-ls-blocked .cm-ls-round-close { background: rgba(255, 254, 250, .7); color: var(--cm-ls-rust-ink); }
+
+.cm-ls-foot { display: flex; align-items: flex-start; gap: 8px; color: var(--cm-muted); font-size: 13.5px; line-height: 1.45; }
+.cm-ls-foot svg { flex-shrink: 0; margin-top: 2px; color: var(--cm-green); }
+.cm-ls-rules-photos { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
+.cm-ls-rules-photos svg { flex-shrink: 0; margin-top: 2px; color: var(--cm-green); }
+
+/* The pill at the foot of the room after sharing a photo or sending a report. */
+.cm-page .cm-lounge-foot { position: relative; }
+.cm-ls-toast { position: absolute; bottom: calc(100% + 10px); left: 50%; z-index: 6; display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100% - 32px); padding: 10px 18px 10px 12px; border-radius: 999px; background: #183D34; color: #EDF5EE; font-size: 14.5px; font-weight: 600; box-shadow: 0 10px 24px rgba(30, 42, 38, .25); transform: translateX(-50%); pointer-events: none; animation: cm-ls-toast 4.2s ease both; }
+.cm-ls-toast-tick { display: grid; flex-shrink: 0; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #A5D8C0; color: #183D34; }
+@keyframes cm-ls-toast { 0% { opacity: 0; transform: translate(-50%, 8px); } 8%, 88% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
+
+/* ------------------------------------------------------------ report sheet */
+
+.cm-layer .cm-ls-report { display: flex; flex-direction: column; gap: 16px; width: min(480px, calc(100vw - 32px)); padding: 24px 26px; }
+.cm-ls-report-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cm-ls-report-title { color: var(--cm-deep); font: 400 30px/1.1 var(--cm-serif); }
+.cm-ls-report-head p { margin-top: 4px; color: var(--cm-muted); font-size: 14.5px; }
+.cm-ls-report-quote { padding: 10px 14px; border-radius: 12px; background: var(--cm-bubble); color: var(--cm-soft-ink); font-size: 14.5px; line-height: 1.45; }
+.cm-ls-reasons { display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; }
+.cm-ls-reasons legend { margin-bottom: 6px; padding: 0; color: var(--cm-ink); font-size: 14.5px; font-weight: 700; }
+.cm-ls-reason { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; border-radius: 12px; font-size: 15.5px; cursor: pointer; }
+.cm-ls-reason:hover { background: var(--cm-bubble); }
+.cm-ls-reason.is-on { background: var(--cm-mint); font-weight: 700; }
+.cm-ls-reason input, .cm-ls-report-block input { flex-shrink: 0; width: 20px; height: 20px; margin: 0; accent-color: #285B49; }
+.cm-ls-report-private { display: flex; align-items: flex-start; gap: 10px; color: var(--cm-muted); font-size: 13.5px; line-height: 1.5; }
+.cm-ls-report-private svg { flex-shrink: 0; margin-top: 2px; color: var(--cm-green); }
+.cm-ls-report-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.cm-ls-report-block { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--cm-soft-ink); font-size: 14.5px; cursor: pointer; }
+.cm-ls-report-buttons { display: flex; gap: 8px; margin-left: auto; }
+.cm-ls-danger { background: var(--cm-ls-danger); color: #FFFFFF; }
+.cm-ls-danger:hover { background: #8F3527; color: #FFFFFF; }
+.cm-ls-danger[aria-disabled="true"] { opacity: .7; }
+
+@media (max-width: 620px) {
+  .cm-ls-held-photo { width: 100%; }
+  .cm-layer .cm-ls-report { width: 100%; padding: 20px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-ls-spinner { animation-duration: 2.4s; }
+  .cm-ls-toast { animation: none; }
+}

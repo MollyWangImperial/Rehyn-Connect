@@ -1,4 +1,7 @@
-import { dayKey } from "./home-stage";
+/** "2026-10-14": a local calendar day. */
+export function dayKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
 
 // My Time has three sections: things to do (play), short answers about stroke (learn) and stories
 // from survivors and carers. This file holds the list of activities and why each one is there,

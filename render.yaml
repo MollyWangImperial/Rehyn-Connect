@@ -1,20 +1,19 @@
 services:
   - type: web
-    name: rehyn-recovery-companion
+    name: rehyn-connect
     runtime: node
     plan: free
     region: frankfurt
     branch: main
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: node dist/index.js
-    healthCheckPath: /api/alira/voice/status
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
-      # Shared secret for the 8pm Molly-progress publish (same value as MOLLY_PUBLISH_TOKEN in .env.local).
-      - key: MOLLY_PUBLISH_TOKEN
+      # The lounge's automatic photo check (server/lounge-photo-check.ts). Without it every photo is held for the care team.
+      - key: ANTHROPIC_API_KEY
         sync: false
-      # Alira's Learning (server/alira-learning.ts): set to "true" to turn it on. It sends the patient data each
-      # patient agreed to share (consented categories only) to the Claude API, so it stays off until this is "true".
-      - key: ALIRA_LEARNING_ENABLED
+      # Read aloud in Alira's voice (Library, My Time). Without it the device's own voice reads.
+      - key: ELEVENLABS_API_KEY
         sync: false

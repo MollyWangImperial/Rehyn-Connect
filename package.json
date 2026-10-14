@@ -12,11 +12,7 @@
     "start": "node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
-    "molly:progress": "node scripts/molly-progress.mjs",
-    "voice:bake": "tsx scripts/bake-alira-voice.ts",
-    "format": "prettier --write .",
-    "assessment:dev": "node scripts/start-assessment-service.mjs",
-    "dev:assessment": "node scripts/dev-assessment.mjs"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.130.0",

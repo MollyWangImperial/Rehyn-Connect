@@ -1,49 +1,33 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import Welcome from "./pages/Welcome";
-import Journey from "./pages/Journey";
-import Alira from "./pages/Alira";
-import Assessment from "./pages/Assessment";
-import { onlyTasksFrom } from "./lib/assessment";
-import NativeAssessment from "./pages/NativeAssessment";
 import FastCheck from "./pages/FastCheck";
-import ExerciseRunner from "./pages/ExerciseRunner";
 import MyTime from "./pages/MyTime";
 import Community from "./pages/Community";
-import WarmUp from "./pages/WarmUp";
+import Library from "./pages/Library";
+import CareTeam from "./pages/CareTeam";
 import { SettingsProvider } from "./components/AccountSettings";
-import { WarmRepGate } from "./components/WarmRepGate";
-import { usePlanReview } from "./hooks/usePlanReview";
 import "./pages/recovery-pages.css";
 
-/** Alira's daily plan review runs in the background on every page. */
-function PlanReviewRunner() {
-  usePlanReview();
-  return null;
-}
-
+// Rehyn: Connect is the community release: no Alira chat, movement check, exercises or Journey.
+// Their old addresses lead home rather than to a missing page.
+const RETIRED_PATHS = ["/welcome", "/journey", "/alira", "/warm-up", "/assessment", "/assessment/native", "/exercise/:id"];
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/welcome"} component={Welcome} />
-      <Route path={"/journey"} component={Journey} />
-      <Route path={"/alira"} component={Alira} />
-      <Route path={"/warm-up"} component={WarmUp} />
-      {/* The native movement check on the exercise engine, kept for comparison while /assessment uses the original runner. */}
-      <Route path={"/assessment/native"}>{() => <WarmRepGate gate="pre_assessment"><NativeAssessment /></WarmRepGate>}</Route>
-      {/* Testing (?only=L6, Settings → Exercise Engine): straight to those tasks, without the warm-up. */}
-      <Route path={"/assessment"}>{() => (onlyTasksFrom(new URLSearchParams(window.location.search).get("only")).length ? <Assessment /> : <WarmRepGate gate="pre_assessment"><Assessment /></WarmRepGate>)}</Route>
+      {RETIRED_PATHS.map(path => <Route key={path} path={path}><Redirect to="/" replace /></Route>)}
       <Route path={"/fast-check"} component={FastCheck} />
       <Route path={"/my-time"} component={MyTime} />
       <Route path={"/community"} component={Community} />
-      <Route path={"/exercise/:id"}>{() => <WarmRepGate gate="pre_exercise"><ExerciseRunner /></WarmRepGate>}</Route>
+      {/* The Library: /library, /library/:section, /library/:group/:condition (nested routing inside the page). */}
+      <Route path={"/library"} nest component={Library} />
+      <Route path={"/care-team"} component={CareTeam} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -65,7 +49,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <SettingsProvider><PlanReviewRunner /><Router /></SettingsProvider>
+          <SettingsProvider><Router /></SettingsProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
