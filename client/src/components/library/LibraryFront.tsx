@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearch } from "wouter";
-import { libraryLetters, librarySections, LIBRARY_NOTE, MOST_READ, POPULAR, STORIES_NOTE, THREE_MINUTE_ANSWERS, type LibraryLetter } from "@/content/library";
+import { libraryLetters, librarySections, LIBRARY_NOTE, MOST_READ, POPULAR, type LibraryLetter } from "@/content/library";
 import {
   conditionByKey,
   conditionItems,
   contentTitle,
-  findStory,
   isReadable,
   itemByKey,
   itemHref,
@@ -14,19 +13,17 @@ import {
   libraryCounts,
   sectionCounts,
   sectionHref,
-  storyHref,
-  STORIES_HREF,
   type ConditionPlace,
 } from "@/lib/library";
 import { searchLibrary, type SearchHit } from "@/lib/library-search";
 import { useLibraryState, type LibraryState } from "@/lib/library-store";
-import { AliraMark, ArrowIcon, Envelope, HeadphonesIcon, hueStyle, jumpTo, LetterCard, PlayIcon, QuoteCard, SearchIcon, SectionGlyph } from "./parts";
+import { AliraMark, ArrowIcon, Envelope, HeadphonesIcon, hueStyle, jumpTo, PlayIcon, SearchIcon, SectionGlyph } from "./parts";
 
-// The Library's front page: search, three things for today, stories from people who have been
-// here, the eight sections, and the short answers people open most.
+// The Library's front page, in the editorial style: search, then three numbered parts: today's three
+// things, the eight sections (the reference shelf) and the most read. The stories live on the
+// condition and section pages, and under /library/stories.
 
 const FALLBACK = "stroke/ischaemic";
-const FILM = ["li-wei", "margaret", "dev"];
 
 function SearchResults({ query, hits }: { query: string; hits: SearchHit[] }) {
   return <section className="lib-results" aria-labelledby="lib-results-title">
@@ -98,27 +95,6 @@ function ForYou({ state }: { state: LibraryState }) {
   </section>;
 }
 
-function Filmstrip({ state }: { state: LibraryState }) {
-  const stories = FILM.map(id => findStory(id)).filter(story => story !== undefined);
-  const letter = libraryLetters[0];
-  return <section className="lib-film" aria-labelledby="lib-film-title">
-    <div className="lib-wrap lib-film-inner">
-      <div className="lib-row-head">
-        <div>
-          <span className="lib-kicker is-coral">People who've been here</span>
-          <h2 id="lib-film-title" className="lib-h2 is-big">Nobody explains a condition like someone who has lived it</h2>
-        </div>
-        <Link href={STORIES_HREF} className="lib-pill-link is-coral">All {libraryCounts().stories} stories<ArrowIcon /></Link>
-      </div>
-      <div className="lib-grid lib-grid-4">
-        {stories.map(story => <QuoteCard key={story.id} story={story} href={storyHref(story.id)} />)}
-        <LetterCard letter={letter} opened={state.letters.includes(letter.id)} />
-      </div>
-      <span className="lib-film-note">{STORIES_NOTE}</span>
-    </div>
-  </section>;
-}
-
 function Browse() {
   const counts = libraryCounts();
   return <section className="lib-wrap lib-block" aria-labelledby="lib-browse">
@@ -146,9 +122,9 @@ function Browse() {
   </section>;
 }
 
-function ShortLists() {
+/** Most read, across the full width as a two-column list. */
+function MostRead() {
   const mostRead = MOST_READ.map(itemByKey).filter(place => place !== undefined);
-  const answers = THREE_MINUTE_ANSWERS.map(itemByKey).filter(place => place !== undefined);
   return <section className="lib-wrap lib-block lib-pair">
     <div className="lib-mostread">
       <h2 className="lib-h2 is-warm">Most read</h2>
@@ -161,20 +137,6 @@ function ShortLists() {
           </Link>
         </li>)}
       </ol>
-    </div>
-    <div className="lib-answers">
-      <div>
-        <h2 className="lib-h2">Three-minute answers</h2>
-        <p className="lib-sub">Short, friendly answers you can read or listen to in about three minutes.</p>
-      </div>
-      <ul className="lib-grid lib-grid-2" role="list">
-        {answers.map(place => <li key={itemKey(place)}>
-          <Link href={itemHref(place)} className="lib-card lib-answer" style={hueStyle(place.section.hue)}>
-            <strong>{place.item.title}</strong>
-            <span>{place.group.title} · {place.item.minutes} min</span>
-          </Link>
-        </li>)}
-      </ul>
     </div>
   </section>;
 }
@@ -215,9 +177,8 @@ export default function LibraryFront() {
     </section>
 
     <ForYou state={state} />
-    <Filmstrip state={state} />
     <Browse />
-    <ShortLists />
+    <MostRead />
 
     <footer className="lib-wrap lib-foot">
       <span>{LIBRARY_NOTE}</span>

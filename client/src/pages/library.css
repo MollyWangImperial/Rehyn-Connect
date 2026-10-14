@@ -569,3 +569,55 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
   .lib-page *, .lib-page *::before, .lib-page *::after { animation:none !important; transition:none !important; }
   .lib-card:hover, .lib-film-card:hover { transform:none; }
 }
+
+/* ============================================================
+   The front page, "E2 · Editorial — without stories & answers" (library-editorial-trim.html).
+   The stories band and the three-minute answers are gone from LibraryFront.tsx.
+   ============================================================ */
+
+/* Running heads: every part is numbered and named, magazine style */
+.lib-h2::before { display:block; margin-bottom:10px; font:italic 500 15px/1 "Newsreader",Georgia,serif; letter-spacing:1px; color:#B04B30; }
+section[aria-labelledby="lib-foryou"] .lib-h2::before { content:"No. 01  ·  Today"; }
+section[aria-labelledby="lib-browse"] .lib-h2::before { content:"No. 02  ·  The reference shelf"; }
+.lib-mostread .lib-h2::before { content:"No. 03  ·  Popular"; }
+section[aria-labelledby="lib-foryou"] .lib-h2, section[aria-labelledby="lib-browse"] .lib-row-head, .lib-mostread .lib-h2 { border-top:2px solid #24362F; padding-top:16px; }
+section[aria-labelledby="lib-foryou"] .lib-h2 { font-size:34px; }
+/* 01 Today: one feature tile in deep green, two companions in soft fills */
+.lib-foryou { border:0; box-shadow:none; }
+.lib-foryou .lib-card-title { font-size:26px; }
+.lib-foryou:not(.is-alira):not(.is-letter) { background:#1E4A3E; color:#FFFDF7; --lib-ink:#F2B33D; --lib-tint:rgba(255,255,255,.18); }
+.lib-foryou:not(.is-alira):not(.is-letter) .lib-card-title { color:#FFFDF7; font-size:28px; }
+.lib-foryou:not(.is-alira):not(.is-letter) .lib-card-text { color:#CFE0D6; }
+.lib-foryou:not(.is-alira):not(.is-letter) .lib-card-kicker, .lib-foryou:not(.is-alira):not(.is-letter) .lib-progress { color:#F2B33D; }
+.lib-foryou:not(.is-alira):not(.is-letter) .lib-progress-track { background:rgba(255,255,255,.18); }
+.lib-foryou:not(.is-alira):not(.is-letter) .lib-progress-track i { background:#F2B33D; opacity:1; }
+.lib-foryou.is-alira { background:#E6F1EA; }
+.lib-foryou.is-alira .lib-alira { width:36px; height:36px; }
+.lib-foryou.is-letter { background:#FFEDE3; }
+.lib-foryou.is-letter .lib-card-kicker svg { width:48px; }
+/* 02 Reference: switches to sans — the one part that reads like an index */
+section[aria-labelledby="lib-browse"] .lib-h2 { font-family:"Manrope",sans-serif; font-weight:800; letter-spacing:-.6px; }
+.lib-section-card { border-radius:16px; }
+.lib-section-card .lib-card-title { font:800 18px/1.2 "Manrope",sans-serif; letter-spacing:-.3px; }
+.lib-section-icon { width:58px; height:58px; border-radius:18px; }
+.lib-section-count { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; }
+.lib-section-card .lib-card-go { color:var(--lib-ink); font-size:11px; letter-spacing:1.2px; text-transform:uppercase; }
+/* 03 Popular: big faint numerals */
+.lib-mostread { background:#F3EEE3; }
+.lib-mostread a { align-items:center; }
+.lib-mostread-n { min-width:48px; font-size:40px; line-height:.8; opacity:.55; }
+.lib-mostread-title { font-size:16px; }
+/* With the answers gone, Most read takes the full row as a two-column list */
+.lib-pair { grid-template-columns:minmax(0,1fr); }
+.lib-mostread ol { column-count:2; column-gap:56px; }
+.lib-mostread li { break-inside:avoid; }
+.lib-mostread li:last-child a { border-bottom:1px solid #E8E4DA; }
+/* A little more air between the parts now that the stories band is gone */
+section[aria-labelledby="lib-browse"] { padding-top:48px; }
+.lib-pair { padding-top:48px; }
+/* On a phone: one column, and a heading that fits */
+@media (max-width:620px) {
+  section[aria-labelledby="lib-foryou"] .lib-h2 { font-size:28px; }
+  .lib-mostread ol { column-count:1; }
+  section[aria-labelledby="lib-browse"], .lib-pair { padding-top:32px; }
+}
