@@ -5,6 +5,7 @@ import { careHref, Members, Overview, Reports, Settings, type CareSection } from
 import LoungeSafety from "@/components/care-team/LoungeSafety";
 import { useYourName } from "@/components/care-team/parts";
 import { LockIcon } from "@/components/community/icons";
+import { applyCareTeamSwitch, useCareTeamEnabled } from "@/lib/care-team";
 import { needsPerson, useLoungeModeration } from "@/lib/lounge-moderation";
 import { todayLabel } from "./Welcome";
 import "./care-team.css";
@@ -26,8 +27,28 @@ export function sectionFromQuery(search: string): CareSection {
   return SECTIONS.some(item => item.id === asked) ? (asked as CareSection) : "lounge";
 }
 
+/** Not the care team: the page says so and offers the way back, rather than the queue. */
+function NotTheCareTeam() {
+  return (
+    <RecoveryShell active="Care Team" dateLabel={todayLabel()} className="ct-shell">
+      <div className="recovery-page ct-page">
+        <p className="ct-access"><LockIcon size={16} /><span>The care team's pages are for Rehyn's care team. If that's you, open this page with the care team's link.</span></p>
+        <Link href="~/community" className="ct-subnav-link is-on">Back to the Feed</Link>
+      </div>
+    </RecoveryShell>
+  );
+}
+
 export default function CareTeam() {
   const search = useSearch();
+  // `?admin=on` in the address turns this device into the care team's (see lib/care-team.ts).
+  useEffect(() => { applyCareTeamSwitch(search); }, [search]);
+  const staff = useCareTeamEnabled();
+  if (!staff) return <NotTheCareTeam />;
+  return <CareTeamPages search={search} />;
+}
+
+function CareTeamPages({ search }: { search: string }) {
   const section = sectionFromQuery(search);
   const state = useLoungeModeration();
   const yourName = useYourName();
@@ -53,7 +74,7 @@ export default function CareTeam() {
             </Link>
           ))}
         </nav>
-        <p className="ct-access"><LockIcon size={16} /><span>Access control is still to come: in this preview anyone who opens this page can act as the care team, and everything stays in this browser.</span></p>
+        <p className="ct-access"><LockIcon size={16} /><span>Care team only. There are no accounts yet, so this device was set as the care team's by its link; everything stays in this browser.</span></p>
 
         {section === "overview" && <Overview state={state} yourName={yourName} />}
         {section === "members" && <Members state={state} yourName={yourName} />}

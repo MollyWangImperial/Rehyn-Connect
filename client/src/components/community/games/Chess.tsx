@@ -5,12 +5,13 @@ import { people, watcherPhrases, type PersonId } from "@/content/community-sampl
 import { communityHref, communityStore, isBlocked, listNames, useCommunity } from "@/lib/community-store";
 import type { GameModel, GroupModel } from "../group-model";
 import { useLater } from "../hooks";
-import { BackIcon, ClockIcon, EyeIcon, HandIcon, LockIcon, PauseCircleIcon, PlusIcon, SpeakerIcon } from "../icons";
+import { BackIcon, ClockIcon, EyeIcon, HandIcon, LockIcon, PauseCircleIcon, PlusIcon, SpeakerIcon, UsersIcon } from "../icons";
 import { Face, MyFace, toneClass } from "../parts";
 import { canPickUp } from "./chess-drag";
 import { useChessDrag } from "./chess-drag-hook";
 import { capturedPieces, colOf, gameStatus, legalMoves, moveCode, moveWords, PIECE_NAMES, playMove, replay, replyMove, rowOf, squareName, type ChessMove, type PieceKind } from "./chess-rules";
 import { ChessPiece } from "./pieces";
+import { COMPUTER_NOTE } from "./PlayNowSheet";
 import "@/pages/community-games.css";
 import "@/pages/community-chess-drag.css";
 
@@ -36,13 +37,16 @@ const UndoIcon = () => (
  * Chess in a private group, with no clock. The person plays white: press on a piece and drag it to
  * its square (chess-drag-hook.ts), or tap the piece to see where it can go, then tap a square. The
  * other player answers after a moment (in this preview, a legal move that takes a piece when it
- * can). A game the person is only watching can't be touched.
+ * can). A game the person is only watching can't be touched. A Play now game has no group
+ * (`group` is null): it goes back to the Groups page, and says the other player is the computer.
  */
-export default function ChessGame({ game, group }: { game: GameModel; group: GroupModel }) {
+export default function ChessGame({ game, group }: { game: GameModel; group: GroupModel | null }) {
   const memory = useCommunity();
   const later = useLater();
   const playing = game.withYou;
   const opponent = game.players[0];
+  const backHref = group ? communityHref("groups", group.id) : communityHref("groups");
+  const placeName = group?.name ?? "Play now";
   const startLength = useRef(game.own ? 0 : game.moves.length);
   const [codes, setCodes] = useState<string[]>(game.moves);
   const [selected, setSelected] = useState<number | null>(null);
@@ -52,7 +56,7 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
   const [big, setBig] = useState(false);
   const [speak, setSpeak] = useState(false);
   const seq = useRef(0);
-  const watchers = (game.watchers.length ? game.watchers : group.faces.filter(who => !game.players.includes(who))).filter(who => !isBlocked(memory, who)).slice(0, 3);
+  const watchers = (game.watchers.length ? game.watchers : (group?.faces ?? []).filter(who => !game.players.includes(who))).filter(who => !isBlocked(memory, who)).slice(0, 3);
   const [chat, setChat] = useState<ChatLine[]>(() => [
     ...(watchers[0] ? [{ id: -2, who: watchers[0], text: playing ? `Go on, ${nameOf(opponent)} always opens like this!` : "This is better than the telly." }] : []),
     ...(playing ? [{ id: -1, who: opponent, text: "Your move, dear. No rush." }] : []),
@@ -129,7 +133,7 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
     showToast("Draw offer sent…", "you");
     later(() => showToast(`${nameOf(opponent)}: Not yet, I have a plan!`), 1400);
   };
-  const finishLater = () => showToast(`Saved. Carry on any time from ${group.name}.`, "you");
+  const finishLater = () => showToast(`Saved. Carry on any time from ${placeName}.`, "you");
   const toggleSpeak = () => { if (!speak) say("Moves will be read aloud"); setSpeak(!speak); };
   const sayPhrase = (index: number) => {
     const phrase = watcherPhrases[index];
@@ -184,13 +188,14 @@ export default function ChessGame({ game, group }: { game: GameModel; group: Gro
     <div className="cm-chess">
       <section ref={card} className={`cm-card cm-chess-board-card ${big ? "is-big" : ""}`} aria-labelledby="cm-chess-title">
         <div className="cm-chess-head">
-          <Link className="cm-chess-back" href={communityHref("groups", group.id)} aria-label={`Back to ${group.name}`}><BackIcon size={20} /></Link>
+          <Link className="cm-chess-back" href={backHref} aria-label={group ? `Back to ${group.name}` : "Back to groups"}><BackIcon size={20} /></Link>
           <div className="cm-chess-titles">
-            <p className="cm-gs-eyebrow"><LockIcon size={13} strokeWidth={2.2} />{group.name} · private game</p>
+            <p className="cm-gs-eyebrow">{group ? <><LockIcon size={13} strokeWidth={2.2} />{group.name} · private game</> : <><UsersIcon size={13} strokeWidth={2.2} />Play now · with someone new</>}</p>
             <h2 id="cm-chess-title" tabIndex={-1} data-view-heading>{playing ? `You vs ${nameOf(opponent)}` : `${white} vs ${black}`}</h2>
           </div>
           <span className="cm-chess-clock"><ClockIcon size={15} strokeWidth={2} />No clock</span>
         </div>
+        {!group && <p className="cm-game-note">{COMPUTER_NOTE}</p>}
 
         <div className="cm-chess-frame">
           <div className="cm-chess-ranks" aria-hidden="true">{[8, 7, 6, 5, 4, 3, 2, 1].map(rank => <span key={rank}>{rank}</span>)}</div>

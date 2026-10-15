@@ -1,14 +1,16 @@
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { pictureWords } from "@/content/community-pictures";
-import { people, settingsChoices } from "@/content/community-samples";
-import { communityHref, communityStore, communityViewFromQuery, friendList, friendsHref, hourLabel, LIMITS, useCommunity, viewHref, type CommunityMemory, type CommunitySettings } from "@/lib/community-store";
+import { members, people, settingsChoices, type MemberId } from "@/content/community-samples";
+import { communityHref, communityStore, communityViewFromQuery, daysAgoLabel, friendList, friendsHref, hourLabel, LIMITS, useCommunity, viewHref, type CommunityMemory, type CommunitySettings } from "@/lib/community-store";
 import { profileInitial, useProfile } from "@/lib/profile";
+import { blockedRows, friendsVisit, useFriendsVisit, type BlockedRow } from "./friends-visit";
 import { myGroups } from "./group-model";
 import { useLater } from "./hooks";
-import { CheckIcon, ChevronDownIcon, CloseIcon, EyeIcon, LockIcon, MinusIcon, MoonIcon, NextIcon, PersonIcon, PlusIcon, ShieldIcon, SpeakerIcon, UsersIcon } from "./icons";
-import { Face, MyFace } from "./parts";
+import { CheckIcon, ChevronDownIcon, CloseIcon, EyeIcon, LockIcon, MinusIcon, MoonIcon, NextIcon, PlusIcon, ShieldIcon, SpeakerIcon } from "./icons";
+import { Face, MemberFace, MyFace } from "./parts";
 import ProfileCard from "./ProfileCard";
+import { unblockQuestion } from "./safety-model";
 import {
   breakHint,
   breakNow,
@@ -16,29 +18,35 @@ import {
   cardNote,
   hiddenWordProblem,
   nextSuggestedWord,
+  privacyMeaning,
   quietEdges,
   quietHint,
   sampleLine,
   settingsSummaries,
+  settingsTarget,
   stepQuietFrom,
   townHint,
   typedWord,
+  type SettingsPanel,
   type SettingsSection,
 } from "./settings-model";
 
-// F5: Community settings, with a live preview of the person's card. "Your profile" comes first: the
-// picture (Change picture opens "Choose your picture") and the name, town and words on the card,
-// kept with Save changes. The settings sit in five sections that open one at a time. Each change is
-// kept on this device as it is made, takes effect across My community straight away (the feed, the
-// chats and the toolbar read the same settings) and shows "Saved" for a moment.
+// F5: Community settings, with a live preview of the person's card. "Your profile" comes first and
+// is the one place the person's profile is edited: the picture (Change picture opens "Choose your
+// picture") and the name, town and words on the card, kept with Save changes; under it, Your
+// privacy (who sees their posts, who can message them, who can ask to be friends, the town and
+// the online dot) and Blocked (with a way to unblock). The other settings sit in three sections
+// that open one at a time. Each change is kept on this device as it is made, takes effect across
+// My community straight away (the feed, the chats and the toolbar read the same settings) and
+// shows "Saved" for a moment.
 
 export type SettingsViewProps = {
   /** The person's first name. */
   name: string;
   /**
    * The section the address names, when a link is about one setting ("Quiet time: Change" in
-   * Alerts, "Who can send you requests: Change" in Friends): it opens, comes into view and takes
-   * the focus.
+   * Alerts, "View your profile" in the account menu): it opens, comes into view and takes the
+   * focus.
    */
   section?: SettingsSection | null;
   /** Opens "Choose your picture" (outside the page, over everything), from the Change picture button. */
@@ -48,6 +56,8 @@ export type SettingsViewProps = {
 /** Runs a change through the store. True when something changed, and so was saved. */
 type Save = (change: () => unknown) => boolean;
 type Flag = "showTown" | "showOnline" | "gentleMode" | "showHeartCounts" | "readAloud" | "writeOutVoiceNotes";
+/** The cards a link can name: the panels, and Your profile. */
+type Target = SettingsPanel | "profile";
 
 /**
  * Scrolls just enough to show a section that has opened: its heading always, then as much of what
@@ -79,15 +89,15 @@ function Summary({ parts }: { parts: string[] }) {
   );
 }
 
-/** One of the five sections: a heading that opens and closes it, and what is inside. */
+/** One of the three sections: a heading that opens and closes it, and what is inside. */
 function Section({ id, title, tone, icon, summary, open, onToggle, cardRef, children }: {
-  id: SettingsSection;
+  id: SettingsPanel;
   title: string;
-  tone: "rose" | "blue" | "mint" | "lilac" | "amber";
+  tone: "mint" | "lilac" | "amber";
   icon: ReactNode;
   summary: string[];
   open: boolean;
-  onToggle: (id: SettingsSection) => void;
+  onToggle: (id: SettingsPanel) => void;
   cardRef: (card: HTMLDivElement | null) => void;
   children: ReactNode;
 }) {
@@ -308,6 +318,109 @@ function HiddenWords({ words, save }: { words: string[]; save: Save }) {
   );
 }
 
+/* ---------------------------------------------------------- your profile */
+
+/**
+ * "Your privacy", under the profile card: who sees the person's posts, who can message them, who
+ * can ask to be friends, and whether the card shows their town and the online dot. The same
+ * settings the feed, the chats and the Friends drawer read.
+ */
+function PrivacyCard({ settings, town, update, flip }: { settings: CommunitySettings; town: string; update: (patch: Partial<CommunitySettings>) => void; flip: (flag: Flag) => () => void }) {
+  const titleId = useId();
+  return (
+    <section className="cm-card cm-set-privacy" aria-labelledby={titleId}>
+      <h3 className="cm-set-card-title" id={titleId}>Your privacy</h3>
+      <Choice label="Who sees my posts by default" options={settingsChoices.postsSeenBy} value={settings.postsSeenBy} onPick={postsSeenBy => update({ postsSeenBy })} note={{ text: privacyMeaning.postsSeenBy[settings.postsSeenBy] }} />
+      <Choice spaced label="Who can message me" options={settingsChoices.messagesFrom} value={settings.messagesFrom} onPick={messagesFrom => update({ messagesFrom })} note={{ text: privacyMeaning.messagesFrom[settings.messagesFrom] }} />
+      <Choice spaced label="Who can ask to be friends" options={settingsChoices.requestsFrom} value={settings.requestsFrom} onPick={requestsFrom => update({ requestsFrom })} note={{ text: privacyMeaning.requestsFrom[settings.requestsFrom] }} />
+      <SwitchRow label="Show my town" hint={townHint(town)} on={settings.showTown} onFlip={flip("showTown")} />
+      <SwitchRow label="Show when I'm online" hint="A green dot appears on your picture" on={settings.showOnline} onFlip={flip("showOnline")} />
+      <Link className="cm-set-link" href={friendsHref("requests", { space: "settings", group: null })}>See requests you have sent and received<NextIcon size={18} /></Link>
+    </section>
+  );
+}
+
+/**
+ * "Blocked", under Your privacy: the people the person has blocked, each with Unblock (which asks
+ * once more). Someone unblocked keeps their row for this visit, with Undo. Nobody is told.
+ */
+function BlockedCard({ memory }: { memory: CommunityMemory }) {
+  const visit = useFriendsVisit();
+  // Whose "Unblock?" question is showing.
+  const [asking, setAsking] = useState<MemberId | null>(null);
+  const [said, setSaid] = useState("");
+  const [focusKey, setFocusKey] = useState<string | null>(null);
+  const card = useRef<HTMLElement>(null);
+  const titleId = useId();
+  const rows = blockedRows(memory, visit);
+  const blocked = rows.filter(row => !row.unblocked).length;
+
+  // When a row changes into something else (the question shown, someone unblocked), the focus
+  // moves to what took its place rather than being lost.
+  useLayoutEffect(() => {
+    if (focusKey === null) return;
+    setFocusKey(null);
+    card.current?.querySelector<HTMLElement>(`[data-set-focus="${focusKey}"]`)?.focus();
+  }, [focusKey]);
+
+  const keep = (who: MemberId) => { setAsking(null); setFocusKey(`unblock-${who}`); };
+  const unblock = (row: BlockedRow) => {
+    friendsVisit.unblocked(row.who, row.at);
+    communityStore.unblock(row.who);
+    setAsking(null);
+    setSaid(`${members[row.who].name} is unblocked.`);
+    setFocusKey(`reblock-${row.who}`);
+  };
+  // Undo blocks them again from when they were first blocked.
+  const reblock = (row: BlockedRow) => {
+    communityStore.block(row.who, row.at);
+    friendsVisit.reblocked(row.who);
+    setSaid(`${members[row.who].name} is blocked again.`);
+    setFocusKey(`unblock-${row.who}`);
+  };
+
+  return (
+    <section ref={card} className="cm-card cm-set-blocked" aria-labelledby={titleId}>
+      <div className="cm-set-card-head">
+        <h3 className="cm-set-card-title" id={titleId}>Blocked</h3>
+        <span className="cm-set-card-aside">{`${blocked} blocked`}</span>
+      </div>
+      {rows.length > 0 && (
+        <ul className="cm-set-blocked-list">
+          {rows.map(row => {
+            const name = members[row.who].name;
+            const open = asking === row.who && !row.unblocked;
+            // While "Unblock?" is showing, Escape answers "Keep blocked".
+            const onKeyDown = open ? (event: KeyboardEvent<HTMLLIElement>) => { if (event.key === "Escape") { event.preventDefault(); keep(row.who); } } : undefined;
+            return (
+              <li key={row.who} onKeyDown={onKeyDown}>
+                <div className="cm-set-blocked-row">
+                  <MemberFace who={row.who} size={44} />
+                  <span className="cm-set-person"><b>{name}</b><span>{row.unblocked ? "Unblocked just now" : `Blocked ${daysAgoLabel(row.at)}`}</span></span>
+                  {row.unblocked
+                    ? <button type="button" className="cm-set-small" data-set-focus={`reblock-${row.who}`} onClick={() => reblock(row)}>Undo<span className="cm-sr">{`, and block ${name} again`}</span></button>
+                    : <button type="button" className="cm-set-small" data-set-focus={`unblock-${row.who}`} aria-expanded={open} onClick={() => { if (open) keep(row.who); else { setAsking(row.who); setFocusKey(`question-${row.who}`); } }}>Unblock<span className="cm-sr">{` ${name}`}</span></button>}
+                </div>
+                {open && (
+                  <div className="cm-set-confirm cm-pop" role="group" aria-label={`Unblock ${name}?`}>
+                    <p tabIndex={-1} data-set-focus={`question-${row.who}`}>{unblockQuestion(row.who)}</p>
+                    <span className="cm-set-confirm-actions">
+                      <button type="button" className="cm-btn cm-btn-green cm-btn-small" onClick={() => unblock(row)}>Yes, unblock<span className="cm-sr">{` ${name}`}</span></button>
+                      <button type="button" className="cm-btn cm-btn-quiet cm-btn-small" onClick={() => keep(row.who)}>Keep blocked</button>
+                    </span>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p className="cm-set-small-print">{rows.length === 0 ? "You haven't blocked anyone. " : ""}People you block are never told. You can unblock them at any time.</p>
+      <p className="cm-sr" role="status">{said}</p>
+    </section>
+  );
+}
+
 /* -------------------------------------------------------------- preview */
 
 /**
@@ -373,21 +486,24 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
   const searchNow = useRef(search);
   searchNow.current = search;
   const town = profile.city.trim();
-  const [open, setOpen] = useState<SettingsSection | null>(section ?? "appear");
+  const target = settingsTarget(section);
+  const panelOf = (at: Target | null): SettingsPanel | null => (at && at !== "profile" ? at : null);
+  const [open, setOpen] = useState<SettingsPanel | null>(panelOf(target) ?? "see");
   // The section the address named last. A new one opens as it arrives, while the page is drawn,
   // even though the page stays as it was left once it has been visited.
   const [named, setNamed] = useState<SettingsSection | null>(section);
   if (section !== named) {
     setNamed(section);
-    if (section) setOpen(section);
+    const panel = panelOf(target);
+    if (panel) setOpen(panel);
   }
   const [saved, setSaved] = useState<{ id: number; kept: boolean } | null>(null);
   const saves = useRef(0);
-  const cards = useRef<Partial<Record<SettingsSection, HTMLDivElement | null>>>({});
-  const reveal = useRef<SettingsSection | null>(null);
+  const cards = useRef<Partial<Record<Target, HTMLDivElement | null>>>({});
+  const reveal = useRef<SettingsPanel | null>(null);
   const previewTitleId = useId();
   const now = Date.now();
-  const summary = settingsSummaries(settings, town, now);
+  const summary = settingsSummaries(settings, now);
 
   // Opening a section closes the one that was open, which can pull the new one up out of sight,
   // and a section near the bottom of the screen opens below it. Bring it into view.
@@ -398,30 +514,31 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
     if (card) bringIntoView(card);
   }, [open]);
 
-  // A link about one setting ("Quiet time: Change") named its section. Once the page has settled
-  // (My community moves to the top of a page it opens), bring that section into view and put the
-  // focus on its heading. Then the address goes back to plain settings, so the same link opens the
-  // section again later, however the sections have been opened and closed in the meantime.
+  // A link about one setting ("Quiet time: Change", "View your profile") named its section. Once
+  // the page has settled (My community moves to the top of a page it opens), bring that section
+  // into view and put the focus on its heading. Then the address goes back to plain settings, so
+  // the same link opens the section again later, however the sections have been opened and
+  // closed in the meantime.
   useEffect(() => {
-    if (!section || typeof window === "undefined") return;
+    if (!target || typeof window === "undefined") return;
     const frame = window.requestAnimationFrame(() => {
-      const card = cards.current[section];
+      const card = cards.current[target];
       if (card) {
         bringIntoView(card);
-        card.querySelector<HTMLElement>(".cm-set-toggle")?.focus({ preventScroll: true });
+        card.querySelector<HTMLElement>(".cm-set-toggle, [data-set-heading]")?.focus({ preventScroll: true });
       }
       const view = communityViewFromQuery(searchNow.current);
       if (view.space === "settings" && view.section) navigate(viewHref({ ...view, section: undefined }), { replace: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [section, navigate]);
+  }, [target, navigate]);
 
-  const toggle = (id: SettingsSection) => {
+  const toggle = (id: SettingsPanel) => {
     const opening = open !== id;
     reveal.current = opening ? id : null;
     setOpen(opening ? id : null);
   };
-  const cardRef = (id: SettingsSection) => (card: HTMLDivElement | null) => { cards.current[id] = card; };
+  const cardRef = (id: Target) => (card: HTMLDivElement | null) => { cards.current[id] = card; };
 
   /** "Saved" for a moment: `kept` when the change reached the browser's storage; otherwise it lasts this visit. */
   const flash = (kept: boolean) => {
@@ -452,7 +569,7 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
     patch[flag] = !settings[flag];
     update(patch);
   };
-  const sectionProps = (id: SettingsSection) => ({ id, summary: summary[id], open: open === id, onToggle: toggle, cardRef: cardRef(id) });
+  const sectionProps = (id: SettingsPanel) => ({ id, summary: summary[id], open: open === id, onToggle: toggle, cardRef: cardRef(id) });
 
   return (
     <div className="cm-set-page">
@@ -467,25 +584,12 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
           </p>
         </div>
 
-        <ProfileCard onChangePicture={onChangePicture} onSaved={flash} />
-
-        <Section {...sectionProps("appear")} title="How you appear" tone="rose" icon={<PersonIcon size={24} />}>
-          <SwitchRow label="Show my town" hint={townHint(town)} on={settings.showTown} onFlip={flip("showTown")} />
-          <SwitchRow label="Show when I am online" hint="A green dot appears on your picture" on={settings.showOnline} onFlip={flip("showOnline")} />
-        </Section>
-
-        <Section {...sectionProps("friends")} title="Friends and messages" tone="blue" icon={<UsersIcon size={24} />}>
-          <Choice
-            label="Who can send me friend requests"
-            options={settingsChoices.requestsFrom}
-            value={settings.requestsFrom}
-            onPick={requestsFrom => update({ requestsFrom })}
-            note={settings.requestsFrom === "noOne" ? { text: "New requests are off. Requests already waiting stay in Friends." } : null}
-          />
-          <Choice spaced label="Who can message me" options={settingsChoices.messagesFrom} value={settings.messagesFrom} onPick={messagesFrom => update({ messagesFrom })} />
-          <Choice spaced label="Who can see my posts" options={settingsChoices.postsSeenBy} value={settings.postsSeenBy} onPick={postsSeenBy => update({ postsSeenBy })} />
-          <Link className="cm-set-link" href={friendsHref("requests", { space: "settings", group: null })}>See requests you have sent and received<NextIcon size={18} /></Link>
-        </Section>
+        {/* Your profile: the one place the profile is edited, with privacy and blocking under it. */}
+        <div ref={cardRef("profile")} className="cm-set-profile">
+          <ProfileCard onChangePicture={onChangePicture} onSaved={flash} />
+          <PrivacyCard settings={settings} town={town} update={update} flip={flip} />
+          <BlockedCard memory={memory} />
+        </div>
 
         <Section {...sectionProps("see")} title="What you see" tone="mint" icon={<EyeIcon size={24} />}>
           <SwitchRow label="Gentle mode" hint="Sad or upsetting posts stay covered until you tap them" on={settings.gentleMode} onFlip={flip("gentleMode")} />
@@ -518,7 +622,7 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
         <SamplePost memory={memory} />
         <Link className="cm-card cm-set-safety" href={communityHref("safety")}>
           <span className="cm-set-safety-icon" aria-hidden="true"><ShieldIcon size={22} /></span>
-          <span className="cm-set-safety-text"><b>Safety and blocking</b><span>Blocked people and your reports</span></span>
+          <span className="cm-set-safety-text"><b>Safety and blocking</b><span>Your reports, and the people and posts you've hidden</span></span>
           <NextIcon size={20} />
         </Link>
       </aside>

@@ -14,7 +14,7 @@
 // Sentences are kept short because Alira reads them aloud one at a time.
 
 export type Hue = { tint: string; ink: string };
-export type SectionIcon = "brain" | "heart" | "drop" | "bone" | "lungs" | "ribbon" | "mind" | "leaf";
+export type SectionIcon = "brain" | "heart" | "drop" | "bone" | "ribbon" | "mind" | "kidney";
 export type ItemKind = "article" | "video" | "animation" | "exercise" | "podcast" | "audio";
 
 export type LibraryItem = {
@@ -296,7 +296,8 @@ const parkinsonsDisease: LibraryCondition = {
 };
 
 // ------------------------------------------------------------------------------------------------
-// The eight sections.
+// The seven sections. Heart & lungs was two sections once; lib/library.ts keeps the old addresses
+// (/heart-circulation, /lungs-breathing) opening it.
 
 export const librarySections: LibrarySection[] = [
   {
@@ -378,13 +379,13 @@ export const librarySections: LibrarySection[] = [
     ],
   },
   {
-    id: "heart-circulation",
-    title: "Heart & circulation",
+    id: "heart-lungs",
+    title: "Heart & lungs",
     short: "Heart",
-    blurb: "Blood pressure, heart attacks and heart rhythm: what the numbers mean, and what recovery and prevention can look like.",
+    blurb: "Blood pressure, heart attacks and heart rhythm, breathlessness, coughs and breathing at night: what the numbers mean, and what recovery and prevention can look like.",
     hue: HEART,
     icon: "heart",
-    chips: ["High blood pressure", "Heart attack", "Atrial fibrillation"],
+    chips: ["High blood pressure", "Heart attack", "COPD"],
     groups: [
       {
         id: "blood-pressure",
@@ -407,6 +408,8 @@ export const librarySections: LibrarySection[] = [
         blurb: "When the heart beats too fast, too slow or out of step.",
         conditions: [soon("atrial-fibrillation", "Atrial fibrillation", [], ["af", "afib", "irregular heartbeat", "palpitations"])],
       },
+      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler", "lungs", "breathing"], conditions: [soon("copd", "COPD"), soon("asthma", "Asthma")] },
+      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", keywords: ["breathing"], conditions: [soon("sleep-apnoea", "Sleep apnoea", [], ["snoring"])] },
     ],
   },
   {
@@ -454,19 +457,6 @@ export const librarySections: LibrarySection[] = [
     ],
   },
   {
-    id: "lungs-breathing",
-    title: "Lungs & breathing",
-    short: "Lungs",
-    blurb: "Breathlessness, coughs and breathing at night, and the habits and treatments that make each day easier.",
-    hue: { tint: "#E6F0FA", ink: "#2B5A8A" },
-    icon: "lungs",
-    chips: ["COPD", "Asthma", "Sleep apnoea"],
-    groups: [
-      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler"], conditions: [soon("copd", "COPD"), soon("asthma", "Asthma")] },
-      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", conditions: [soon("sleep-apnoea", "Sleep apnoea", [], ["snoring"])] },
-    ],
-  },
-  {
     id: "cancer-recovery",
     title: "Cancer & recovery",
     short: "Cancer",
@@ -499,7 +489,7 @@ export const librarySections: LibrarySection[] = [
     short: "Digestion",
     blurb: "The organs that clean and process: what the test results mean and the changes that help.",
     hue: { tint: "#EEF3DF", ink: "#4F6A14" },
-    icon: "leaf",
+    icon: "kidney",
     chips: ["Chronic kidney disease", "Fatty liver", "IBS"],
     groups: [
       { id: "kidneys", title: "Kidneys", blurb: "How well the kidneys are working, and keeping them that way.", conditions: [soon("chronic-kidney-disease", "Chronic kidney disease", [], ["ckd"])] },
@@ -657,7 +647,7 @@ export const libraryStories: LibraryStory[] = [
     id: "dev",
     name: "Dev",
     age: 47,
-    sectionId: "heart-circulation",
+    sectionId: "heart-lungs",
     groupId: "heart-attack",
     conditionId: "heart-attack",
     tag: "Heart attack",
@@ -673,7 +663,7 @@ export const libraryStories: LibraryStory[] = [
 ];
 
 // ------------------------------------------------------------------------------------------------
-// Letters (placement E). An unread letter waits in "For you" on the front page until it is opened.
+// Letters (placement E). A letter waits at the foot of its condition's page until it is opened.
 
 export const libraryLetters: LibraryLetter[] = [
   {
@@ -695,7 +685,7 @@ export const libraryLetters: LibraryLetter[] = [
     id: "first-year",
     storyId: "margaret",
     title: "From Margaret, six years in, to anyone in their first",
-    teaser: "Unread letters stay in “For you” on the Library front page until you've opened them.",
+    teaser: "Written for anyone in their first year with Parkinson's. It stays here until you've read it.",
     opening: "Dear you. I know what you typed into the search box tonight, because I typed it too. Here is the thing nobody told me in year one, and I wish they had…",
     paragraphs: [
       "It is still you. Parkinson's arrived in my life, but it did not move into every room. I still garden, I still argue with my sister, and I still burn the toast.",
@@ -712,7 +702,10 @@ export const libraryLetters: LibraryLetter[] = [
 // ------------------------------------------------------------------------------------------------
 // The front page's lists. Each points at a piece by `groupId/conditionId/itemId`.
 
-/** An editor's pick for now; it can follow real reading counts once there are any. */
+/**
+ * An editor's pick for now; it can follow real reading counts once there are any. The front page
+ * opens with these five, then turns the list slowly through the pieces that have words to read.
+ */
 export const MOST_READ = [
   "stroke/ischaemic/fatigue",
   "blood-pressure/high-blood-pressure/numbers",

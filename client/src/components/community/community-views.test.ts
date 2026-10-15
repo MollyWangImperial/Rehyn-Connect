@@ -3,8 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
 import Community from "@/pages/Community";
-import { createCommunityStore } from "@/lib/community-store";
+import { createCommunityStore, type CommunitySpace } from "@/lib/community-store";
 import { OwnPostCard } from "./Feed";
+import MessagesDock from "./MessagesDock";
 
 vi.mock("@/components/RecoveryShell", () => ({ default: ({ children }: { children: unknown }) => children }));
 
@@ -34,19 +35,29 @@ describe("My community views", () => {
     // Margaret's post shows its two latest comments, the rest behind "View all".
     expect(text).toContain("David Save me one, Margaret.");
     expect(text).not.toContain("Joan Left hand doing the picking!");
-    expect(text).toContain("View all 6 comments");
+    expect(text).toContain("View all comments");
+    expect(text).not.toMatch(/View all \d+ comments/);
     expect((html.match(/placeholder="Write a comment"/g) ?? []).length).toBeGreaterThanOrEqual(4);
-    // The Daily question as a live thread: today's question with its key phrase, the first answers, starters and the answer box.
-    expect(text).toContain("Daily question From Rehyn");
+    // The Daily question as a live thread: Rehyn's card (with "Daily question" as its small label, no date line), today's
+    // question with its key phrase, the first answers, the starters without a hint above them, and the answer box.
+    expect(text).toContain("Rehyn Daily question");
+    expect(text).not.toContain("From Rehyn");
     expect(html).toMatch(/class="dq-key"><span class="dq-key-text">[^<]+<\/span>/);
     expect((html.match(/class="dq-row /g) ?? []).length).toBe(3);
     expect(text).toContain("3 answered");
-    expect(text).toContain("Add yours in a few words, or start from one of these:");
+    expect(text).toContain("See all answers");
+    expect(text).not.toMatch(/See all \d+ answers/);
+    expect(text).not.toContain("Add yours in a few words");
+    expect(tagWith(html, "div", 'class="dq-chips"', 'role="group"')).toBe(true);
     expect(html).toContain('aria-label="Post your answer"');
+    // The right rail: the Sunday circle first ("Live now", nobody named as host), then the lounge; no groups or people cards.
+    expect(text).toContain("Live now Sunday circle");
+    expect(text).not.toContain("Hosted by Alira");
     expect(text).toContain("Take your seat");
-    expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=walk"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?space=start"')).toBe(true);
+    expect(html.indexOf("Take your seat")).toBeLessThan(html.indexOf("Join the conversation"));
+    expect(text).not.toContain("Your groups");
+    expect(text).not.toContain("People you may know");
+    expect(tagWith(html, "a", 'href="/community?space=start"')).toBe(false);
   });
 
   it("shows who can see your own posts, and never says only you can see what you share", () => {
@@ -61,14 +72,16 @@ describe("My community views", () => {
     for (const path of ["/community", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=start", "/community?space=settings", "/community?panel=friends"]) {
       expect(words(page(path)), path).not.toMatch(onlyYou);
     }
-    expect(words(page("/community?space=settings&section=friends"))).toContain("Who can see my posts");
+    expect(words(page("/community?space=settings&section=profile"))).toContain("Who sees my posts by default");
   });
 
-  it("shows the lounge with its people, Alira's starter, quick replies, house rules and the tea-break poll", () => {
+  it("shows the lounge with its people, quick replies and house rules, without the head count, starter, waves, circle promo or poll", () => {
     const html = page("/community?space=lounge");
     const text = words(html);
-    expect(text).toContain("14 people here now");
-    expect(text).toContain("Today's conversation starter from Alira What are you looking forward to this week?");
+    expect(text).toContain("The lounge");
+    expect(text).toContain("Open to everyone in the community");
+    expect(text).not.toContain("people here now");
+    expect(text).not.toContain("conversation starter");
     expect(text).toContain("It does get lighter, promise.");
     expect(text).toContain("Tomasz New member");
     expect(tagWith(html, "div", 'role="log"', 'aria-live="off"', 'tabindex="0"')).toBe(true);
@@ -77,34 +90,42 @@ describe("My community views", () => {
     expect(tagWith(html, "button", 'aria-label="Heart for Anne&#x27;s message, 5"', 'aria-pressed="false"')).toBe(true);
     expect(text).toContain("Reply to Anne");
     expect(tagWith(html, "button", 'aria-label="Send as a voice note"', 'aria-pressed="false"')).toBe(true);
-    expect(text).toContain("Wave to Tomasz");
     expect(text).toContain("House rules 1 Be kind.");
-    expect(text).toContain("Live now · 9 of 10 seats taken");
-    expect(text).toContain("What's in your mug right now?");
-    expect(text).toContain("Tap one to see what everyone picked");
+    for (const gone of ["Here right now", "Wave to Tomasz", "Photos are checked before they appear.", "seats taken", "Tea-break poll", "What's in your mug right now?"]) expect(text).not.toContain(gone);
   });
 
   it("shows the Sunday circle with an empty seat kept for the person, captions and the circles coming up", () => {
     const html = page("/community?space=circle");
     const text = words(html);
-    expect(text).toContain("Live · Hosted by Alira");
-    expect(text).toContain("Nine of us here. One seat is yours.");
+    // The stage says Live, and no more: no host line, no eyebrow, no head count.
+    expect(html).toMatch(/<p class="cm-stage-live">(?:(?!<\/p>).)*<span>Live<\/span><\/p>/);
+    expect(html).not.toContain("cm-stage-event");
+    expect(html).not.toContain("cm-stage-sub");
+    expect(text).not.toContain("One seat is yours.");
     expect(text).toContain("The teacup goes round. Whoever holds it speaks.");
     expect(text).toContain("Pause the teacup");
     expect(text).toContain("an empty seat, kept for you");
     expect(text).toContain("Alira Host · speaking has the teacup");
     expect(text).toContain("Margaret Up next");
-    expect(text).toContain("Live captions · Alira");
+    expect(html).toMatch(/<p class="cm-captions-label">Alira<\/p>/);
+    expect(text).not.toContain("Live captions");
     expect(tagWith(html, "button", 'aria-pressed="true"', 'class="cm-stage-button is-on"')).toBe(true);
     for (const control of ["Take your seat", "Next speaker", "Leave quietly"]) expect(text).toContain(control);
     expect(tagWith(html, "a", 'class="cm-stage-button"', 'href="/community"')).toBe(true);
-    // Tuesday 6 October: today's get-together is Photo stories, with its own topic and scene; then a new one every two days.
-    expect(text).toContain("Sunday circle · today's get-together Photo stories");
-    expect(text).toContain("Today's topic Tell us about a photo you love.");
+    // Tuesday 6 October: today's get-together is Photo stories, with its topic (no overline) and scene; then a new one every two days.
+    expect(text).not.toContain("today's get-together");
+    expect(text).not.toContain("Today's topic");
+    expect(text).toContain("Photo stories Tell us about a photo you love.");
     expect(tagWith(html, "section", 'class="cm-card cm-stage cm-stage-scene"', 'data-theme="photos"')).toBe(true);
+    expect(text).toContain("Said in the circle");
+    expect(text).not.toContain("Not kept after the circle ends");
     expect(text).toContain("Coming up THU 8 Film night Thursday 8 October, 4 pm · Bring a film you love");
+    // Friday poker night sits in the list too, with its own reminder and the way to its tables.
+    expect(text).toContain("FRI 9 Poker night Friday 9 October, 7 pm · Chips only, just for fun. No real money, ever.");
+    expect(tagWith(html, "a", 'class="cm-upcoming-link"', 'href="/community?space=poker"')).toBe(true);
+    expect(text).toContain("Remind me for Poker night");
     expect(text).toContain("SAT 10 Book club");
-    expect(text).toContain("A new get-together every two days, at 4 pm.");
+    expect(text).not.toContain("A new get-together every two days");
     expect(text).not.toMatch(/stretches|finding words|hand and arm/i);
   });
 
@@ -132,7 +153,9 @@ describe("My community views", () => {
     expect(text).toContain("Voice message · 0:18");
     expect(tagWith(html, "a", 'href="/community?space=messages&amp;chat=margaret"', 'aria-current="page"')).toBe(true);
     expect(text).toContain("Margaret: I promised you one, so I kept the best one for you.");
-    for (const tool of ["Larger text", "Read aloud", "Thank you", "That's lovely to hear", "Speak soon", "Mute notifications", "Block or report"]) expect(text).toContain(tool);
+    for (const tool of ["Thank you", "That's lovely to hear", "Speak soon", "Mute notifications", "Block or report"]) expect(text).toContain(tool);
+    // Text size and reading aloud are set in Community settings: the conversation has no toolbar for them.
+    for (const gone of ["Larger text", "Read aloud"]) expect(text).not.toContain(gone);
     expect(text).toContain("Member of Rehyn since March 2026");
     expect(tagWith(html, "button", "aria-pressed", 'class="cm-segment"')).toBe(true);
     // The little window stays out of the way on Messages itself.
@@ -148,29 +171,38 @@ describe("My community views", () => {
     expect(words(page("/community?space=messages&chat=gary"))).toContain("Margaret: I promised you one");
   });
 
-  it("shows the Messages window at the bottom of the other pages while a message waits", () => {
-    const html = page("/community?space=lounge");
+  it("shows the Messages window at the bottom of the other pages as a small pill with the count", () => {
+    // The shell (mocked away here) renders the window on every page, with the My community view showing.
+    const dock = (space: CommunitySpace | null) => renderToStaticMarkup(createElement(Router, { ssrPath: "/community", children: createElement(MessagesDock, { space }) }));
+    const html = dock("lounge");
     expect(tagWith(html, "button", 'class="cm-dock-bar cm-rise"', 'aria-expanded="false"')).toBe(true);
-    expect(words(html)).toContain("Messages 2 unread Margaret: I promised you one");
-    expect(page("/community?space=start")).not.toContain("cm-dock-bar");
+    expect(words(html)).toContain("Messages 2 , 2 unread");
+    expect(words(html)).not.toContain("I promised you one");
+    // The same pill on a page outside My community.
+    expect(words(dock(null))).toContain("Messages 2 , 2 unread");
+    expect(dock("start")).not.toContain("cm-dock-bar");
+    expect(dock("messages")).not.toContain("cm-dock-bar");
   });
 
-  it("opens Friends as a tab, with requests, friends, privacy, blocked people and the safety centre", () => {
-    const html = page("/community?space=friends");
+  it("keeps privacy and blocked people under Your profile in Settings (the Friends tab has gone; its drawer stays)", () => {
+    const html = page("/community?space=settings&section=profile");
     const text = words(html);
-    expect(text).toContain("Friend requests 2 waiting");
-    expect(text).toContain("Joan Whitby In Garden gang with you");
-    expect(text).toContain("Accept Joan's request");
-    expect(text).toContain("My friends 3");
-    expect(text).toContain("Margaret Leeds · In Garden gang with you");
-    expect(tagWith(html, "a", 'href="/community?space=messages&amp;chat=margaret"', 'class="cm-fp-small"')).toBe(true);
-    expect(text).toContain("Block Margaret");
-    for (const choice of ["Who sees my posts by default", "Who can message me", "Who can ask to be friends", "Show my town on posts", "Show when I'm online"]) expect(text).toContain(choice);
-    expect(text).toContain("Groups too");
+    expect(html).not.toContain("cm-fp-");
+    expect(tagWith(html, "div", 'class="cm-set-profile"')).toBe(true);
+    // Your profile, then Your privacy, then Blocked, before the other sections.
+    expect(text.indexOf("Your profile")).toBeLessThan(text.indexOf("Your privacy"));
+    expect(text.indexOf("Your privacy")).toBeLessThan(text.indexOf("Blocked 1 blocked"));
+    expect(text.indexOf("Blocked 1 blocked")).toBeLessThan(text.indexOf("What you see"));
+    for (const choice of ["Who sees my posts by default", "Who can message me", "Who can ask to be friends", "Show my town", "Show when I'm online"]) expect(text).toContain(choice);
+    expect(text).toContain("Friends and my groups");
     expect(tagWith(html, "button", 'role="switch"', 'aria-checked="true"')).toBe(true);
     expect(text).toContain("Gary Blocked 3 days ago");
+    expect(tagWith(html, "button", 'class="cm-set-small"', 'aria-expanded="false"')).toBe(true);
+    expect(text).toContain("Unblock Gary");
     expect(text).toContain("People you block are never told.");
-    expect(text).toContain("Something doesn't feel right?");
+    // The friends tab's page has gone: its address leads to Your profile, and the drawer still has the requests.
+    expect(page("/community?space=friends")).not.toContain("Friend requests 2 waiting");
+    expect(words(page("/community?panel=friends"))).toContain("wants to be friends");
   });
 
   it("falls back to the first group for an unknown group", () => {
@@ -193,19 +225,20 @@ describe("My community views", () => {
 });
 
 describe("the community header and toolbar", () => {
-  it("shows the deep green header with its counts and five labelled tools, each connected to its place", () => {
+  it("has a slim row of four labelled tools where the green header card was (review comment C04), each connected to its place", () => {
     const html = page("/community");
     const text = words(html);
-    expect(tagWith(html, "header", 'class="cm-head"')).toBe(true);
-    expect(text).toContain("My community 3 friends · 4 groups · 14 people in the lounge now");
-    for (const label of ["Search", "Alerts", "Friends", "Safety", "Settings"]) expect(text).toContain(label);
+    expect(html).not.toContain('class="cm-head"');
+    expect(text).not.toContain("3 friends · 4 groups");
+    expect(tagWith(html, "header", 'class="cm-toolstrip"')).toBe(true);
+    for (const label of ["Search", "Alerts", "Friends", "Safety"]) expect(text).toContain(label);
     expect(tagWith(html, "button", 'aria-label="Search people or groups"', 'aria-haspopup="dialog"', 'aria-expanded="false"')).toBe(true);
-    // The spaces' tabs are at the top right of every page now (SiteTabs, in the shell: recovery-shell.test.ts).
+    // The spaces' tabs and Settings are in the shell's top bar now (recovery-shell.test.ts).
     expect(html).not.toContain('class="cm-tabs"');
+    expect(html).not.toContain('aria-label="Community settings"');
     expect(tagWith(html, "button", 'aria-label="Alerts, 4 new"', 'aria-expanded="false"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?panel=friends"', 'aria-label="Friends and requests, 2 waiting"')).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=safety"', 'aria-label="Safety"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?space=settings"', 'aria-label="Community settings"')).toBe(true);
     expect((html.match(/class="cm-tool-badge/g) ?? []).length).toBe(2);
   });
 
@@ -243,10 +276,10 @@ describe("the feed with friends, safety and settings", () => {
 });
 
 describe("the toolbar's pages", () => {
-  it("opens Community settings as a page of its own", () => {
+  it("opens Community settings as a page of its own (its button is in the shell's top bar, not the toolbar)", () => {
     const html = page("/community?space=settings");
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
-    expect(tagWith(html, "a", 'href="/community?space=settings"', 'class="cm-tool is-on"', 'aria-current="page"')).toBe(true);
+    expect(tagWith(html, "a", 'href="/community?space=settings"', 'class="cm-tool is-on"')).toBe(false);
     expect(html).toMatch(/<div class="cm-space" data-space="settings">/);
     expect(html).not.toMatch(/data-space="feed"/);
   });
@@ -277,7 +310,7 @@ describe("the toolbar's pages", () => {
   it("opens the drawer at another tab, over another view", () => {
     const sent = page("/community?space=lounge&panel=friends&tab=sent");
     expect(words(sent)).toContain("Tomasz");
-    expect(words(sent)).toContain("14 people here now");
+    expect(words(sent)).toContain("The lounge");
     const blocked = page("/community?space=safety&panel=friends&tab=blocked");
     expect(words(blocked)).toContain("Gary");
     expect(tagWith(blocked, "div", 'role="dialog"')).toBe(true);

@@ -1,22 +1,43 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronRight, FileText, HeartPulse, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
-import { DATA_SECTIONS } from "@/content/data-permissions";
-import { PRIVACY_INTRO, PRIVACY_SECTIONS, TERMS_INTRO, TERMS_SECTIONS, type LegalSection } from "@/content/legal-content";
+import { useLocation } from "wouter";
+import { ChevronRight, Eye, FileText, HeartPulse, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import DataPermissions from "./DataPermissions";
+import { LEGAL_EFFECTIVE_DATE, LEGAL_VERSION, PRIVACY_INTRO, PRIVACY_SECTIONS, TERMS_INTRO, TERMS_SECTIONS, type LegalSection } from "@/content/legal-content";
+import { setDisplayPrefs, useDisplayPrefs } from "@/lib/display-prefs";
 import { AgreementLine, HealthConsentPanel } from "./HealthConsent";
-import { ProfileInformation } from "./ProfileInformation";
 import { SettingsContext, type OpenSettings, type SettingsView } from "./settings-context";
 import "./account-settings.css";
 
 export type { SettingsView } from "./settings-context";
+/** Your profile is a page of its own (Community settings → Your profile), so its entry leads there. */
+export const PROFILE_PATH = "/community?space=settings&section=profile";
 // The health information consent has its own entry, apart from the Privacy Notice and the Terms of Use.
 const sections = [
   { id: "profile", label: "Your profile", icon: UserRound },
+  { id: "display", label: "Display", icon: Eye },
   { id: "privacy", label: "Privacy Notice", icon: ShieldCheck },
   { id: "terms", label: "Terms of Use", icon: FileText },
   { id: "health", label: "Health information consent", icon: HeartPulse },
   { id: "data", label: "Data and permissions", icon: SlidersHorizontal },
 ] as const;
+
+/** Display: larger text and stronger contrast, which used to be buttons in the top bar. */
+function DisplaySettings() {
+  const { largeText, strongContrast } = useDisplayPrefs();
+  const row = (label: string, note: string, on: boolean, change: (on: boolean) => void) => (
+    <div className="settings-display-row">
+      <span><b>{label}</b><span>{note}</span></span>
+      <button type="button" role="switch" aria-checked={on} aria-label={label} className="settings-display-switch" onClick={() => change(!on)}><span /></button>
+    </div>
+  );
+  return (
+    <div className="settings-display">
+      {row("Larger text", "Makes the words on every page bigger.", largeText, on => setDisplayPrefs({ largeText: on }))}
+      {row("Stronger contrast", "Darker text and lines, for easier reading.", strongContrast, on => setDisplayPrefs({ strongContrast: on }))}
+    </div>
+  );
+}
 
 export function useSettings() {
   const openSettings = useContext(SettingsContext);
@@ -44,15 +65,20 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<SettingsView>("profile");
   const [focus, setFocus] = useState<string | undefined>();
   const opener = useRef<HTMLElement | null>(null);
+  const [, navigate] = useLocation();
   const title = sections.find(section => section.id === view)!.label;
 
-  const openSettings: OpenSettings = (source, nextView = "profile", nextFocus) => {
+  const openSettings: OpenSettings = (source, nextView = "display", nextFocus) => {
     opener.current = source;
+    if (nextView === "profile") { navigate(`~${PROFILE_PATH}`); return; }
     setView(nextView);
     setFocus(nextFocus);
     setOpen(true);
   };
-  const show = (next: SettingsView, nextFocus?: string) => { setView(next); setFocus(nextFocus); };
+  const show = (next: SettingsView, nextFocus?: string) => {
+    if (next === "profile") { setOpen(false); navigate(`~${PROFILE_PATH}`); return; }
+    setView(next); setFocus(nextFocus);
+  };
 
   return (
     <SettingsContext.Provider value={openSettings}>
@@ -76,14 +102,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
               </nav>
               <section key={view} id="account-settings-panel" className="account-settings-panel" aria-labelledby="account-settings-panel-title" tabIndex={0}>
                 <h2 id="account-settings-panel-title">{title}</h2>
-                {view === "profile" ? <ProfileInformation /> : view === "privacy" ? (
+                {view === "display" ? <DisplaySettings /> : view === "privacy" ? (
                   <><AgreementLine document="privacy" /><SettingsDocument intro={PRIVACY_INTRO} sections={PRIVACY_SECTIONS} focus={focus} /></>
                 ) : view === "terms" ? (
                   <><AgreementLine document="terms" /><SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} focus={focus} /></>
                 ) : view === "health" ? (
                   <HealthConsentPanel onReadPrivacy={() => show("privacy", "4.")} />
                 ) : (
-                  <SettingsDocument intro="How your information is used and the permissions Rehyn asks for." sections={DATA_SECTIONS} />
+                  <DataPermissions onOpenDocument={(which, focus) => show(which, focus)} onClose={() => setOpen(false)} />
                 )}
               </section>
             </div>
@@ -105,6 +131,7 @@ function SettingsDocument({ intro, sections, focus }: { intro: string; sections:
   }, [focus, sections]);
   return (
     <article className="settings-document">
+      <p className="settings-document-version">{`Version ${LEGAL_VERSION} · Effective date: ${LEGAL_EFFECTIVE_DATE} · Rehyn Ltd, company number 17417716 · info@rehyn.com`}</p>
       <p className="settings-document-intro">{intro}</p>
       <label className="settings-section-jump">Jump to a section
         <select defaultValue="" onChange={event => {
@@ -121,6 +148,7 @@ function SettingsDocument({ intro, sections, focus }: { intro: string; sections:
           <h3 tabIndex={-1} ref={element => { headings.current[index] = element; }}>{section.title}</h3>
           {section.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
           {section.bullets && <ul>{section.bullets.map(bullet => <li key={bullet}>{bullet}</li>)}</ul>}
+          {section.after?.map((paragraph, paragraphIndex) => <p key={`after-${paragraphIndex}`}>{paragraph}</p>)}
         </section>
       ))}
     </article>

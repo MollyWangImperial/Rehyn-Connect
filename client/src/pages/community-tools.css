@@ -1,0 +1,13 @@
+/* The community's tool row (Search, Alerts, Friends, Safety) on the light page, where the green
+   "My community" card used to be. The tool classes are shared with community.css; these rules
+   recolour them for the light background. */
+.cm-toolstrip { display: flex; justify-content: flex-end; margin: -6px 0 14px; }
+.cm-toolstrip .cm-tools { gap: 2px; }
+.cm-toolstrip .cm-tool { width: 60px; color: var(--cm-ink); }
+.cm-toolstrip .cm-tool-icon { width: 44px; height: 44px; border-color: var(--cm-line); background: var(--cm-card); color: var(--cm-green); }
+.cm-toolstrip .cm-tool-label { color: var(--cm-muted); font-size: 12px; }
+.cm-toolstrip .cm-tool:hover .cm-tool-icon { border-color: #9fc0aa; background: var(--cm-mint); }
+.cm-toolstrip .cm-tool.is-on .cm-tool-icon { border-color: var(--cm-green); background: var(--cm-green); color: #FFFFFF; }
+.cm-toolstrip .cm-tool.is-on .cm-tool-label { color: var(--cm-ink); font-weight: 700; }
+.cm-toolstrip .cm-tool:focus-visible { outline: 3px solid var(--cm-green); outline-offset: 2px; }
+@media (max-width: 620px) { .cm-toolstrip { margin: 0 0 10px; } .cm-toolstrip .cm-tools { width: auto; } }

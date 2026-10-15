@@ -1,14 +1,14 @@
 import { Link, useLocation, useRouter, useSearch } from "wouter";
-import { BookOpen, CircleDot, Coffee, Heart, Home as HomeIcon, MessageCircle, UsersRound } from "lucide-react";
+import { BookOpen, CircleDot, Coffee, Home as HomeIcon, MessageCircle, UsersRound } from "lucide-react";
 import { lounge } from "@/content/community-samples";
-import { communityHref, communityViewFromQuery, leadsHere, pendingRequestCount, unreadCount, useCommunity, type CommunitySpace } from "@/lib/community-store";
+import { communityHref, communityViewFromQuery, leadsHere, unreadCount, useCommunity, type CommunitySpace } from "@/lib/community-store";
 import { pokerNightOn, secondsToTables, usePokerNight } from "@/lib/poker-night";
 import CircleTab from "./community/CirclePeek";
 import { SuitGlyph } from "./community/games/PokerParts";
 import { unreadMessages } from "./community/messages-model";
 
-export type SiteTab = "feed" | "library" | "lounge" | "circle" | "poker" | "groups" | "messages" | "friends";
-const COMMUNITY_TABS: SiteTab[] = ["feed", "lounge", "circle", "poker", "groups", "messages", "friends"];
+export type SiteTab = "feed" | "library" | "lounge" | "circle" | "poker" | "groups" | "messages";
+const COMMUNITY_TABS: SiteTab[] = ["feed", "lounge", "circle", "poker", "groups", "messages"];
 
 /** Which top tab an address belongs to, if any: Safety, Settings and the Care team have none. */
 export function siteTabFor(pathname: string, search: string): SiteTab | null {
@@ -16,6 +16,7 @@ export function siteTabFor(pathname: string, search: string): SiteTab | null {
   if (pathname !== "/community") return null;
   const space = communityViewFromQuery(search).space;
   if (space === "start") return "groups";
+  if (space === "friends") return null;
   return COMMUNITY_TABS.find(tab => tab === space) ?? null;
 }
 
@@ -33,7 +34,8 @@ const Count = ({ count, what }: { count: number; what: string }) =>
 
 /**
  * The tabs at the top right of every page: the Feed (Rehyn: Connect's home), the Library, then the
- * community's spaces. Poker night joins them on Fridays. The links start with "~" so they lead to the
+ * community's spaces. Poker night joins them on Fridays. Friends has no tab: requests and friends are
+ * in the Friends drawer, and privacy and blocked people under Settings → Your profile. The links start with "~" so they lead to the
  * same place from the Library's nested pages; a tab for the view already showing doesn't add it to
  * Back again. The Sunday circle's tab opens a live peek of the circle on hover (CirclePeek).
  */
@@ -70,7 +72,6 @@ export default function SiteTabs({ here = lounge.here }: { here?: number }) {
       )}
       <Link {...space("groups")}><span className="site-tab-icon"><UsersRound size={20} />{current !== "groups" && <Count count={unreadCount(memory)} what="unread" />}</span><span>Groups</span></Link>
       <Link {...space("messages")}><span className="site-tab-icon"><MessageCircle size={20} /><Count count={unreadMessages(memory)} what="unread" /></span><span>Messages</span></Link>
-      <Link {...space("friends")}><span className="site-tab-icon"><Heart size={20} /><Count count={pendingRequestCount(memory)} what="waiting" /></span><span>Friends</span></Link>
     </nav>
   );
 }

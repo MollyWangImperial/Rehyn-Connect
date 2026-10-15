@@ -9,22 +9,55 @@ import {
   conditionItems,
   findCondition,
   findItem,
+  findSection,
   findStory,
+  isReadable,
   itemByKey,
   itemHref,
+  itemKey,
   companionChapters,
+  mostReadPool,
+  mostReadWindow,
   sectionCounts,
 } from "./library";
 import { queryWords, searchLibrary } from "./library-search";
 import { createLibraryStore, LIBRARY_STORAGE_KEY, readLibraryState } from "./library-store";
 
 describe("the Library's data", () => {
-  it("has the eight sections, each with groups and conditions", () => {
-    expect(librarySections).toHaveLength(8);
+  it("has the seven sections, each with groups and conditions", () => {
+    expect(librarySections).toHaveLength(7);
     for (const section of librarySections) {
       expect(section.groups.length).toBeGreaterThan(0);
+      expect(section.chips).toHaveLength(3);
       expect(sectionCounts(section).conditions).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps everything from Heart & circulation and Lungs & breathing in Heart & lungs, at the old addresses too", () => {
+    const merged = findSection("heart-lungs")!;
+    expect(merged.title).toBe("Heart & lungs");
+    expect(merged.groups.map(group => group.id)).toEqual(["blood-pressure", "heart-attack", "heart-rhythm", "long-term-lung", "sleep-breathing"]);
+    expect(sectionCounts(merged).conditions).toBe(7);
+    expect(findSection("heart-circulation")).toBe(merged);
+    expect(findSection("lungs-breathing")).toBe(merged);
+    expect(findSection("heart-circulation-x")).toBeUndefined();
+    expect(librarySections.find(section => section.id === "heart-circulation" || section.id === "lungs-breathing")).toBeUndefined();
+    expect(findCondition("long-term-lung", "copd")?.section.id).toBe("heart-lungs");
+    expect(libraryStories.find(story => story.id === "dev")?.sectionId).toBe("heart-lungs");
+    expect(searchLibrary("breathless")[0]?.href).toBe("/long-term-lung/copd");
+  });
+
+  it("turns the Most read list through the editor's picks, then the pieces with words to read", () => {
+    const pool = mostReadPool();
+    expect(pool.slice(0, MOST_READ.length).map(itemKey)).toEqual(MOST_READ);
+    expect(pool.length).toBeGreaterThan(5);
+    expect(new Set(pool.map(itemKey)).size).toBe(pool.length);
+    for (const place of pool.slice(MOST_READ.length)) expect(isReadable(place.item)).toBe(true);
+    expect(mostReadWindow([1, 2, 3, 4, 5, 6, 7], 0)).toEqual([1, 2, 3, 4, 5]);
+    expect(mostReadWindow([1, 2, 3, 4, 5, 6, 7], 5)).toEqual([6, 7, 1, 2, 3]);
+    expect(mostReadWindow([1, 2, 3, 4, 5, 6, 7], 7)).toEqual([1, 2, 3, 4, 5]);
+    expect(mostReadWindow([1, 2, 3], 1)).toEqual([2, 3, 1]);
+    expect(mostReadWindow([], 3)).toEqual([]);
   });
 
   it("gives every group and condition an address that names one page", () => {
@@ -155,6 +188,14 @@ describe("what the reader has done in the Library", () => {
       expect(text, file).not.toMatch(/["'`]~\/(alira|journey|assessment|exercise|warm-up)\b/);
       expect(text, file).not.toMatch(/from "@\/lib\/(journey|assessment|exercise|medals|home-|my-time")/);
     }
+  });
+
+  it("keeps the front page to its hero, the reference shelf and the most read", () => {
+    const sources = import.meta.glob("../components/library/LibraryFront.tsx", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+    const [front] = Object.values(sources);
+    expect(front).toBeTruthy();
+    for (const gone of ["For you today", "Popular right now", "lib-lede", "lib-counts", "lib-section-count", "LIBRARY_NOTE", "read any condition page aloud", "trusted links"]) expect(front).not.toContain(gone);
+    expect(front).toContain("continually adding new conditions, topics and resources");
   });
 
   it("finds a piece from its address", () => {

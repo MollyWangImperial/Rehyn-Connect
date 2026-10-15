@@ -530,8 +530,8 @@ export default function FriendsDrawer({ tab, onTab, onClose, onPersonMenu, fallb
       </div>
 
       {/* A link to another page needs no onClose: the new address has no drawer in it, and Back brings it back.
-          It opens Community settings at "Friends and messages", where this choice is made. */}
-      <Link className="cm-dialog-foot-link cm-fr-foot" href={communityHref("settings", null, { section: "friends" })}>
+          It opens Community settings at Your profile, where Your privacy holds this choice. */}
+      <Link className="cm-dialog-foot-link cm-fr-foot" href={communityHref("settings", null, { section: "profile" })}>
         <SlidersIcon size={22} /><span><b>Who can send you requests:</b> {requestsFrom}</span><span className="cm-dialog-foot-action">Change</span>
       </Link>
       <p className="cm-sr" role="status">{said}</p>

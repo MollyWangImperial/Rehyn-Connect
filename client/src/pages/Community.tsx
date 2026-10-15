@@ -7,14 +7,12 @@ import CommunityHeader from "@/components/community/CommunityHeader";
 import FeedView from "@/components/community/Feed";
 import FindPanel from "@/components/community/FindPanel";
 import FriendsDrawer from "@/components/community/FriendsDrawer";
-import FriendsPage from "@/components/community/FriendsPage";
 import PokerNightDialog from "@/components/community/games/PokerNightDialog";
 import PokerSpace from "@/components/community/games/PokerSpace";
 import GroupsView from "@/components/community/Groups";
 import { BackIcon } from "@/components/community/icons";
 import LoungeView from "@/components/community/Lounge";
 import MessagesView from "@/components/community/Messages";
-import MessagesDock from "@/components/community/MessagesDock";
 import PictureDialog from "@/components/community/PictureDialog";
 import PostMenu from "@/components/community/PostMenu";
 import SafetyView from "@/components/community/SafetyView";
@@ -39,9 +37,9 @@ import "./community-daily.css";
 import "./community-picture.css";
 import "./community-poker.css";
 
-// My community: a feed where everybody posts, with the lounge, the Sunday circle, groups, messages
-// and friends as tabs beside it, and a toolbar to search, see alerts, friends, safety and settings.
-// A little Messages window waits at the bottom of each page when a friend has written. It is a
+// My community: a feed where everybody posts, with the lounge, the Sunday circle, groups and messages
+// as tabs in the top bar, and a row of tools to search, see alerts, friends and safety. A little
+// Messages window waits at the bottom right of every page (the shell draws it). It is a
 // preview: the people in it are examples, and nothing leaves the device.
 // The address says which view is open, so every button that opens a page is a link and Back works:
 //   /community                           the feed
@@ -50,17 +48,22 @@ import "./community-poker.css";
 //   /community?space=poker               Friday poker night: tonight's tables and a table to play at
 //   /community?space=groups&group=walk   my groups, with one open
 //   /community?space=messages&chat=anne  messages, with a conversation open
-//   /community?space=friends             friends: requests, friends, privacy and blocked
 //   /community?space=start               start a group
-//   /community?space=settings            community settings (&section=quiet opens a section)
+//   /community?space=settings            community settings (&section=profile: your profile, privacy, blocked)
+//   /community?space=friends             retired: it opens Settings → Your profile
 //   /community?space=safety              safety: reports, blocked and hidden people
 //   ...&panel=friends&tab=sent           the Friends drawer, open over any of these
 // Find, Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
 // On Fridays the poker night pop-up opens by itself, once a day (`?poker=friday` shows it any day).
+/** The spaces that use the full width, without the profile panel on the left (review comments C77, C80). */
+const NO_PANEL = new Set<CommunitySpace>(["groups", "messages", "start"]);
+
 export default function Community() {
   const search = useSearch();
   const [location, navigate] = useLocation();
   const view = communityViewFromQuery(search);
+  // The Friends page is retired: privacy and blocked people live under Settings → Your profile.
+  useEffect(() => { if (view.space === "friends") navigate(communityHref("settings", null, { section: "profile" }), { replace: true }); }, [view.space, navigate]);
   const profile = useProfile();
   const name = firstName(profileName(profile));
   const memory = useCommunity();
@@ -158,12 +161,11 @@ export default function Community() {
   const textSize = memory.settings.textSize === "normal" ? "" : `cm-text-${memory.settings.textSize}`;
 
   return (
-    <RecoveryShell active="My Community" dateLabel={todayLabel()} className="cm-shell" loungeHere={here}>
+    <RecoveryShell active="My Community" dateLabel={todayLabel()} className="cm-shell" loungeHere={here} panel={!NO_PANEL.has(view.space)}>
       <div ref={page} className={`recovery-page cm-page cm-view-${view.space} ${textSize}`}>
         {view.space !== "start" && (
           <CommunityHeader
             view={view}
-            here={here}
             findOpen={findOpen}
             alertsOpen={alertsOpen}
             onFind={() => { setAlertsOpen(false); setFindOpen(true); }}
@@ -179,7 +181,6 @@ export default function Community() {
         {isOpen("poker") && <div className="cm-space" data-space="poker" hidden={view.space !== "poker"}><PokerSpace active={view.space === "poker"} /></div>}
         {isOpen("groups") && <div className="cm-space" data-space="groups" hidden={view.space !== "groups"}><GroupsView active={view.space === "groups"} requested={view.group} /></div>}
         {isOpen("messages") && <div className="cm-space" data-space="messages" hidden={view.space !== "messages"}><MessagesView active={view.space === "messages"} chat={view.chat ?? null} onPersonMenu={openMenu} /></div>}
-        {isOpen("friends") && <div className="cm-space" data-space="friends" hidden={view.space !== "friends"}><FriendsPage onPersonMenu={openMenu} /></div>}
         {isOpen("settings") && <div className="cm-space" data-space="settings" hidden={view.space !== "settings"}><SettingsView name={name} section={view.section ?? null} onChangePicture={setPictureFrom} /></div>}
         {isOpen("safety") && <div className="cm-space" data-space="safety" hidden={view.space !== "safety"}><SafetyView name={name} warningSignsHref={fastCheckPath(location, search)} onPersonMenu={openMenu} /></div>}
         {isOpen("start") && (
@@ -202,7 +203,6 @@ export default function Community() {
         {menu && <PostMenu target={menu.target} name={name} onClose={() => setMenu(null)} returnFocus={menu.opener} fallbackFocus={headingNow} startAt={menu.startAt} />}
         {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={headingNow} />}
         {poker.dialogOpen && <PokerNightDialog name={name} onClose={pokerNight.close} fallbackFocus={headingNow} />}
-        <MessagesDock space={view.space} />
       </div>
     </RecoveryShell>
   );

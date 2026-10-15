@@ -2,19 +2,22 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "wouter";
 import type { PersonId } from "@/content/community-samples";
 import { alertsQuiet, communityStore, messagesHref, shortWhen, useCommunity, type CommunitySpace } from "@/lib/community-store";
+import CommunityDialog from "./dialog";
 import { usePinnedToEnd } from "./hooks";
-import { BackIcon, ChevronDownIcon, ChevronUpIcon } from "./icons";
+import { BackIcon, ChevronDownIcon } from "./icons";
 import { DirectComposer, DirectLines, OnlineFace } from "./Messages";
-import { chatById, directChats, useChatVisit } from "./messages-model";
+import { chatById, directChats, markMessagesNoticeRead, messagesNotice, messagesNoticeDue, noticeStorage, useChatVisit } from "./messages-model";
 import { Face } from "./parts";
 
 /**
- * The little Messages window floating at the bottom right of each community page, always there: with a
- * friend's message waiting, who it is from and the start of it. Opened, it is a small chat (or the list
- * of conversations), so a reply needs no trip to the Messages tab. It stays out of the way on Messages
- * itself and while a group is being started; during quiet time it shows no count.
+ * The little Messages window floating at the bottom right of every page: closed, a small pill with
+ * two faces, "Messages" and how many conversations are waiting. Opened, it is a small chat (or the
+ * list of conversations), so a reply needs no trip to the Messages tab. It stays out of the way on
+ * Messages itself and while a group is being started; during quiet time it shows no count. It only
+ * reads the community store, so it works on any page; `space` is the My community view showing,
+ * when there is one. It also shows the first-open notice (see MessagesNotice below).
  */
-export default function MessagesDock({ space }: { space: CommunitySpace }) {
+export default function MessagesDock({ space = null }: { space?: CommunitySpace | null }) {
   const memory = useCommunity();
   const visit = useChatVisit();
   const [open, setOpen] = useState(false);
@@ -29,7 +32,8 @@ export default function MessagesDock({ space }: { space: CommunitySpace }) {
   const found = chatId ? chatById(memory, chatId, visit) : null;
   const chat = found?.kind === "direct" ? found : null;
   const typing = !!chat && visit.typing === chat.id;
-  const away = space === "messages" || space === "start";
+  const onMessages = space === "messages";
+  const away = onMessages || space === "start";
   const { box, onScroll } = usePinnedToEnd<HTMLDivElement>(`${chat?.id ?? ""}:${chat?.lines.length ?? 0}:${typing}`, open && !!chat);
 
   useEffect(() => { if (away) setOpen(false); }, [away]);
@@ -38,24 +42,25 @@ export default function MessagesDock({ space }: { space: CommunitySpace }) {
   // Whatever the window shows next, its heading takes the focus, so a keyboard carries on from there.
   useEffect(() => { if (open) window.requestAnimationFrame(() => heading.current?.focus()); }, [open, chatId]);
 
-  if (away) return null;
+  // The notice: the first time messages are opened on this device, on the Messages page or here.
+  const notice = <MessagesNotice shown={onMessages || open} fallbackFocus={() => heading.current ?? document.querySelector<HTMLElement>('[data-space="messages"] [data-view-heading]')} />;
+
+  if (away) return notice;
   const quiet = alertsQuiet(memory.settings);
 
   const expand = () => { setChatId(waiting[0]?.id ?? null); setOpen(true); };
   const collapse = () => { setOpen(false); window.requestAnimationFrame(() => bar.current?.focus()); };
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => { if (event.key === "Escape") { event.preventDefault(); collapse(); } };
-  const newest = waiting[0] ?? null;
 
   if (!open) {
     const faces = (waiting.length ? waiting : chats).slice(0, 2);
+    const state = quiet ? "Quiet time: your messages wait here" : unread > 0 ? `${unread} unread` : "No new messages";
     return (
       <button ref={bar} type="button" className="cm-dock-bar cm-rise" aria-expanded={false} aria-controls={panelId} onClick={expand}>
-        <span className="cm-face-stack cm-dock-faces" aria-hidden="true">{faces.map(item => <Face key={item.id} who={item.id} size={34} />)}</span>
-        <span className="cm-dock-text">
-          <span className="cm-dock-title"><b>Messages</b>{unread > 0 && !quiet && <span className="cm-dock-count">{`${unread} unread`}</span>}</span>
-          <span className="cm-dock-snippet">{quiet ? "Quiet time: your messages wait here" : newest ? `${newest.name}: ${newest.snippet}` : "No new messages"}</span>
-        </span>
-        <span className="cm-dock-chevron" aria-hidden="true"><ChevronUpIcon size={18} /></span>
+        <span className="cm-face-stack cm-dock-faces" aria-hidden="true">{faces.map(item => <Face key={item.id} who={item.id} size={28} />)}</span>
+        <b className="cm-dock-title">Messages</b>
+        {unread > 0 && !quiet ? <span className="cm-dock-count" aria-hidden="true">{unread}</span> : null}
+        <span className="cm-sr">{`, ${state}`}</span>
       </button>
     );
   }
@@ -102,6 +107,34 @@ export default function MessagesDock({ space }: { space: CommunitySpace }) {
           <Link className="cm-dock-all" href={messagesHref()} onClick={() => setOpen(false)}>Open Messages</Link>
         </div>
       )}
+      {notice}
     </section>
+  );
+}
+
+/* ----------------------------------------------------------- the notice */
+
+/**
+ * "Before you message": shown once on this device, the first time messages are opened (the Messages
+ * page, or the window). A proper dialog: the focus starts on its one button, Escape closes it, and
+ * the focus goes back where it was. Closing it, however it is closed, counts as reading it, and
+ * the device remembers (`rehyn.messages-notice.v1`); where it can't, the notice shows again next time.
+ */
+export function MessagesNotice({ shown, fallbackFocus }: { shown: boolean; fallbackFocus?: () => HTMLElement | null | undefined }) {
+  const [due, setDue] = useState(() => messagesNoticeDue(noticeStorage()));
+  const titleId = useId();
+  const textId = useId();
+  if (!shown || !due) return null;
+  const close = () => { markMessagesNoticeRead(noticeStorage()); setDue(false); };
+  return (
+    <CommunityDialog kind="sheet" labelledBy={titleId} onClose={close} className="cm-dock-notice" fallbackFocus={fallbackFocus}>
+      <div className="cm-dialog-head">
+        <div className="cm-dialog-titles">
+          <h2 id={titleId} className="cm-dialog-title cm-dialog-title-small">{messagesNotice.title}</h2>
+          <p id={textId}>{messagesNotice.text}</p>
+        </div>
+      </div>
+      <button type="button" className="cm-btn cm-btn-green cm-dock-notice-ok" data-autofocus aria-describedby={textId} onClick={close}>{messagesNotice.button}</button>
+    </CommunityDialog>
   );
 }

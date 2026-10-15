@@ -1,15 +1,14 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "wouter";
-import { CIRCLE_SEATS, lounge, people, PERSON_IDS, type LoungeMessage, type PersonId } from "@/content/community-samples";
-import { canSee, circleSeatsTaken, clockLabel, communityHref, communityStore, firstName, isBlocked, useCommunity, type CommunityMemory, type NoteDraft } from "@/lib/community-store";
+import { lounge, people, PERSON_IDS, type LoungeMessage, type PersonId } from "@/content/community-samples";
+import { canSee, clockLabel, communityStore, firstName, isBlocked, useCommunity, type CommunityMemory, type NoteDraft } from "@/lib/community-store";
 import { authorNameOf, bandOf, countWord, moderationStore, photoOf, reportersOf, reportedBy, useLoungeModeration, type AuthorNote, type LoungeAuthor, type LoungePost, type LoungeReportReason, type ModerationState, type PhotoCheck } from "@/lib/lounge-moderation";
 import { checkLoungePhoto } from "@/lib/lounge-moderation-check";
 import { otherAuthors } from "@/lib/lounge-moderation-samples";
 import { profileName, useProfile } from "@/lib/profile";
+import { SharingLocked, useCanShare } from "@/components/SharingLocked";
 import { useBursts, useLater, usePinnedToEnd } from "./hooks";
-import { CheckIcon, ClockIcon, CloseIcon, EyeOffIcon, FlagIcon, HandIcon, HeartIcon, PulseIcon, ShieldIcon } from "./icons";
-import { OnlineFace } from "./Messages";
+import { CheckIcon, ClockIcon, CloseIcon, EyeOffIcon, FlagIcon, HeartIcon, ShieldIcon } from "./icons";
 import { AliraMark, ChatInput, Face, FloatingHearts, LiveDot, MemberFace, MyFace, toneClass, TypingRow, VoiceNote } from "./parts";
 import { LoungeReportSheet } from "./PostMenu";
 import "@/pages/community-lounge-safety.css";
@@ -202,46 +201,7 @@ function NoteLine({ note, name, moderation, onRules }: { note: AuthorNote; name:
   );
 }
 
-/** "Here right now": who is in the lounge, with a wave for each. A wave can't be taken back, like a real one. */
-function HereNow() {
-  const memory = useCommunity();
-  const later = useLater();
-  // Waves sent in this visit wait a moment for their wave back. Earlier waves already have one.
-  const [waiting, setWaiting] = useState<PersonId[]>([]);
-  const titleId = useId();
-  const wave = (who: PersonId) => {
-    if (memory.waves.includes(who)) return;
-    communityStore.wave(who);
-    setWaiting(list => [...list, who]);
-    later(() => setWaiting(list => list.filter(other => other !== who)), 1500);
-  };
-  return (
-    <section className="cm-card cm-side-card" aria-labelledby={titleId}>
-      <div className="cm-card-row">
-        <h3 className="cm-side-title" id={titleId}>Here right now</h3>
-        <span className="cm-card-aside">Wave to say hello</span>
-      </div>
-      <ul className="cm-wave-list">
-        {lounge.waves.filter(({ who }) => !isBlocked(memory, who)).map(({ who, note }) => {
-          const waved = memory.waves.includes(who);
-          const back = waved && !waiting.includes(who);
-          const name = people[who].name;
-          return (
-            <li key={who} className="cm-wave-row">
-              <OnlineFace who={who} size={44} online />
-              <span className="cm-wave-text"><b>{name}</b><span className={back ? "is-back" : ""}>{back ? "Waved back!" : note}</span></span>
-              <button type="button" className={`cm-wave ${waved ? "is-on" : ""}`} onClick={() => wave(who)} aria-disabled={waved || undefined}>
-                <span className={`cm-wave-hand ${waiting.includes(who) ? "cm-wiggle" : ""}`}><HandIcon size={16} /></span>
-                <span>{waved ? "Waved" : "Wave"}</span><span className="cm-sr">{` to ${name}`}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
+/** The house rules, beside the room. Photos are still checked before they appear; the check speaks for itself in the writing row. */
 function HouseRules() {
   return (
     <section className="cm-card cm-side-card" aria-labelledby={RULES_ID}>
@@ -249,49 +209,6 @@ function HouseRules() {
       <ol className="cm-rules">
         {lounge.rules.map((rule, index) => <li key={rule}><span className="cm-rule-number" aria-hidden="true">{index + 1}</span><span>{rule}</span></li>)}
       </ol>
-      <p className="cm-ls-rules-photos"><ShieldIcon size={16} /><span>Photos are checked before they appear. Nothing sexual, hateful, graphic or about illegal drugs.</span></p>
-    </section>
-  );
-}
-
-function PollCard() {
-  const vote = useCommunity().vote;
-  const titleId = useId();
-  const base = lounge.poll.options.reduce((sum, option) => sum + option.votes, 0);
-  const total = base + (vote ? 1 : 0);
-  return (
-    <section className="cm-card cm-side-card" aria-labelledby={titleId}>
-      <h3 className="cm-overline cm-overline-rust" id={titleId}>Tea-break poll</h3>
-      <p className="cm-poll-question">{lounge.poll.question}</p>
-      <div className="cm-poll" role="group" aria-labelledby={titleId}>
-        {lounge.poll.options.map(option => {
-          const count = option.votes + (vote === option.id ? 1 : 0);
-          const share = vote ? Math.round((count * 100) / total) : 0;
-          return (
-            <button key={option.id} type="button" className={`cm-poll-option ${vote === option.id ? "is-on" : ""}`} aria-pressed={vote === option.id} onClick={() => communityStore.vote(option.id)}>
-              <span className="cm-poll-bar" aria-hidden="true" style={{ width: `${share}%`, background: option.fill }} />
-              <span className="cm-poll-label">{option.label}</span>
-              {vote && <span className="cm-poll-share">{` ${share}%`}</span>}
-            </button>
-          );
-        })}
-      </div>
-      <p className="cm-card-note">{vote ? `Thanks! ${total} people have voted` : "Tap one to see what everyone picked"}</p>
-    </section>
-  );
-}
-
-/** The Sunday circle, beside the lounge: how full it is, and the way in. */
-export function CircleNote() {
-  const memory = useCommunity();
-  const taken = circleSeatsTaken(memory);
-  return (
-    <section className="cm-circle-note" aria-labelledby="cm-circle-note-title">
-      <div>
-        <h3 id="cm-circle-note-title">Sunday circle</h3>
-        <p>{`Live now · ${taken} of ${CIRCLE_SEATS} seats taken`}</p>
-      </div>
-      <Link className="cm-btn cm-btn-gold" href={communityHref("circle")}>Open<span className="cm-sr"> the Sunday circle</span></Link>
     </section>
   );
 }
@@ -352,6 +269,7 @@ type Entry =
  */
 export default function LoungeView({ active, here, onHere }: { active: boolean; here: number; onHere: (change: (here: number) => number) => void }) {
   const memory = useCommunity();
+  const canShare = useCanShare();
   const moderation = useLoungeModeration();
   const name = firstName(profileName(useProfile()));
   // Blocked people are out of sight, their faces included.
@@ -501,20 +419,13 @@ export default function LoungeView({ active, here, onHere }: { active: boolean; 
         <header className="cm-lounge-head">
           <div className="cm-lounge-titles">
             <h2 id="cm-lounge-title" tabIndex={-1} data-view-heading>The lounge</h2>
-            <p className="cm-live-line"><LiveDot /><span>{`${here} people here now`}</span><span className="cm-live-soft">· Open to everyone in the community</span></p>
+            <p className="cm-live-line"><LiveDot /><span className="cm-live-soft">Open to everyone in the community</span></p>
           </div>
           <span className="cm-face-stack cm-chat-faces" aria-hidden="true">
             {faces.map(who => <Face key={who} who={who} size={40} />)}
             <span className="cm-face-more">+{Math.max(0, here - faces.length)}</span>
           </span>
         </header>
-        <div className="cm-starter">
-          <span className="cm-starter-mark" aria-hidden="true"><PulseIcon size={20} /></span>
-          <div>
-            <p className="cm-overline cm-overline-gold">Today's conversation starter from Alira</p>
-            <p className="cm-starter-text">{lounge.starter}</p>
-          </div>
-        </div>
         <div className="cm-chat-log" ref={box} onScroll={onScroll} role="log" aria-live="off" aria-label="Messages in the lounge" tabIndex={0}>
           <div className="cm-chat-fade" aria-hidden="true" />
           <ol className="cm-messages cm-lounge-lines">
@@ -537,6 +448,7 @@ export default function LoungeView({ active, here, onHere }: { active: boolean; 
         <FloatingHearts bursts={bursts} className="cm-hearts-chat" />
         <div className="cm-chat-foot cm-lounge-foot">
           {notice && <div key={notice.n} className="cm-ls-toast" aria-hidden="true"><span className="cm-ls-toast-tick"><CheckIcon size={13} strokeWidth={3} /></span>{notice.text}</div>}
+          {!canShare ? <SharingLocked what="chat" /> : (<>
           {replyName && (
             <p className="cm-lounge-replying">
               <span>{`Replying to ${replyName}`}</span>
@@ -565,14 +477,12 @@ export default function LoungeView({ active, here, onHere }: { active: boolean; 
             }}
           />
           <p className="cm-sr" role="status">{sentNote}</p>
+          </>)}
         </div>
       </section>
 
       <div className="cm-side">
-        <HereNow />
         <HouseRules />
-        <CircleNote />
-        <PollCard />
       </div>
 
       {reporting && createPortal(

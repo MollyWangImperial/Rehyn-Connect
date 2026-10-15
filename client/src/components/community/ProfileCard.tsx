@@ -9,10 +9,10 @@ type Draft = { name: string; town: string; about: string };
 const tidy = (value: string) => value.replace(/\s+/g, " ").trim();
 
 /**
- * "Your profile", at the top of Community settings: the person's picture with Change picture (which opens "Choose
- * your picture"), then the name people see, their town and a few words about them, kept together with Save changes.
- * The name and the town are the person's Rehyn profile, so the rest of the app uses them too; the words are for My
- * community only.
+ * "Your profile", at the top of Community settings and the one place the profile is edited: the person's picture
+ * with Change picture (which opens "Choose your picture"), then the name people see, their town and a few words
+ * about them, kept together with Save changes. The name and the town are the person's Rehyn profile, so the rest
+ * of the app uses them too; the words are for My community only. Your privacy and Blocked sit under it.
  */
 export default function ProfileCard({ onChangePicture, onSaved }: { onChangePicture?: (opener: HTMLElement) => void; onSaved: (kept: boolean) => void }) {
   const profile = useProfile();
@@ -50,7 +50,8 @@ export default function ProfileCard({ onChangePicture, onSaved }: { onChangePict
 
   return (
     <section className="cm-card cm-pic-profile" aria-labelledby={titleId}>
-      <h3 className="cm-pic-profile-title" id={titleId}>Your profile</h3>
+      {/* A link to the section ("View your profile") puts the focus here. */}
+      <h3 className="cm-pic-profile-title" id={titleId} tabIndex={-1} data-set-heading>Your profile</h3>
       <div className="cm-pic-profile-body">
         <div className="cm-pic-picture">
           <span className="cm-pic-avatar"><MyFace size={160} /></span>

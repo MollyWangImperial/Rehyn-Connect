@@ -4,9 +4,10 @@ import { people, type PersonId } from "@/content/community-samples";
 import { communityHref, communityStore } from "@/lib/community-store";
 import type { GameModel, GroupModel } from "../group-model";
 import { useLater, useStill } from "../hooks";
-import { BackIcon, ClockIcon, FlagIcon, LockIcon, PauseCircleIcon } from "../icons";
+import { BackIcon, ClockIcon, FlagIcon, LockIcon, PauseCircleIcon, UsersIcon } from "../icons";
 import { Face, MyFace } from "../parts";
 import { Reticle, ShipArt } from "./BattleshipsArt";
+import { COMPUTER_NOTE } from "./PlayNowSheet";
 import {
   battleOf, computerPick, fire, fits, inBounds, newBattleships, phaseOf, randomFleet, shipAt, shipKind, SHIPS, shipSquares, SIZE, squareName, sunkShips, withShot,
   type Battle, type BattlePhase, type BattleshipsSave, type Ship, type ShipId, type Shot,
@@ -269,13 +270,16 @@ function TargetBoard({ battle, name, active, settled, gridRef, onFire }: { battl
  * Battleships in a private group, with no clock. The person places their five ships, then takes
  * turns with the member they invited to fire at each other's waters. In this preview the other
  * player's shots are chosen by the computer, on the Relaxed level. Every change is kept on this
- * device, so "Finish later" carries on from the same place.
+ * device, so "Finish later" carries on from the same place. A Play now game has no group (`group`
+ * is null): it goes back to the Groups page, and says the other player is the computer.
  */
-export default function BattleshipsGame({ game, group }: { game: GameModel; group: GroupModel }) {
+export default function BattleshipsGame({ game, group }: { game: GameModel; group: GroupModel | null }) {
   const later = useLater();
   const still = useStill();
   const opponent = game.players[0];
   const name = nameOf(opponent);
+  const backHref = group ? communityHref("groups", group.id) : communityHref("groups");
+  const backLabel = group ? `Back to ${group.name}` : "Back to groups";
   const [save, setSave] = useState<BattleshipsSave>(() => game.battle ?? newBattleships());
   const battle = useMemo(() => battleOf(save), [save]);
   const phase = phaseOf(save, battle);
@@ -383,7 +387,7 @@ export default function BattleshipsGame({ game, group }: { game: GameModel; grou
     setFlash(null);
     setSave(current => newBattleships(current));
   };
-  const finishLater = () => showToast(`Saved. Carry on any time from ${group.name}.`);
+  const finishLater = () => showToast(`Saved. Carry on any time from ${group?.name ?? "Play now"}.`);
 
   const status = describe(battle, phase, name);
   const yourShots = battle.shots.filter(shot => shot.by === "you");
@@ -396,13 +400,14 @@ export default function BattleshipsGame({ game, group }: { game: GameModel; grou
     <div className={`cm-bs is-${phase}`}>
       <section ref={card} className="cm-card cm-bs-main" aria-labelledby={titleId}>
         <div className="cm-bs-head">
-          <Link className="cm-bs-back" href={communityHref("groups", group.id)} aria-label={`Back to ${group.name}`}><BackIcon size={20} /></Link>
+          <Link className="cm-bs-back" href={backHref} aria-label={backLabel}><BackIcon size={20} /></Link>
           <div className="cm-bs-titles">
-            <p className="cm-gs-eyebrow"><LockIcon size={13} strokeWidth={2.2} />{group.name} · Battleships</p>
+            <p className="cm-gs-eyebrow">{group ? <><LockIcon size={13} strokeWidth={2.2} />{group.name} · Battleships</> : <><UsersIcon size={13} strokeWidth={2.2} />Play now · Battleships</>}</p>
             <h2 id={titleId} tabIndex={-1} data-view-heading>{`You vs ${name}`}</h2>
           </div>
           <span className="cm-bs-clock"><ClockIcon size={15} strokeWidth={2} />No clock</span>
         </div>
+        {!group && <p className="cm-game-note">{COMPUTER_NOTE}</p>}
 
         <div className={`cm-bs-status is-${status.tone}`} aria-live="polite">
           {busy ? <Face who={opponent} size={36} /> : <MyFace size={36} />}
@@ -439,7 +444,7 @@ export default function BattleshipsGame({ game, group }: { game: GameModel; grou
                 <p className="cm-bs-over-count">{`You fired ${yourShots.length} ${yourShots.length === 1 ? "shot" : "shots"} and hit ${yourShots.filter(shot => shot.hit).length}.`}</p>
                 <div className="cm-bs-over-actions">
                   <button ref={playAgainRef} type="button" className="cm-bs-btn is-primary" onClick={playAgain}>Play again</button>
-                  <Link className="cm-bs-btn is-quiet" href={communityHref("groups", group.id)}>{`Back to ${group.name}`}</Link>
+                  <Link className="cm-bs-btn is-quiet" href={backHref}>{backLabel}</Link>
                 </div>
               </div>
             </div>

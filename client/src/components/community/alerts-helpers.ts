@@ -246,7 +246,7 @@ export function communityPlaces(memory: CommunityMemory, over: CommunityPlace): 
     { id: "friends-sent", label: "Requests you sent", note: sent ? `${sent} waiting for a yes` : "None waiting", href: friendsHref("sent", over), words: ["sent", "requests sent", "friend requests", "cancel", "waiting"], browse: false },
     { id: "friends-list", label: "Your friends", note: count(friends, "friend", "friends"), href: friendsHref("friends", over), words: ["friends", "my friends", "wave", "online"], browse: false },
     { id: "friends-blocked", label: "Blocked people", note: blocked ? `${blocked} blocked` : "No one blocked", href: friendsHref("blocked", over), words: ["blocked", "block", "unblock"], browse: false },
-    { id: "privacy", label: "Who can reach you", note: "Your privacy, in Friends", href: communityHref("friends"), words: ["privacy", "who can message", "message me", "who sees", "online", "town"], browse: false, space: "friends" },
+    { id: "privacy", label: "Who can reach you", note: "Your privacy, in Your profile", href: communityHref("settings", null, { section: "profile" }), words: ["privacy", "who can message", "message me", "who sees", "online", "town"], browse: false, space: "settings" },
   ];
 }
 

@@ -3,6 +3,7 @@ import {
   libraryLetters,
   librarySections,
   libraryStories,
+  MOST_READ,
   type ContentType,
   type ItemKind,
   type LibraryCondition,
@@ -34,7 +35,13 @@ export const STORIES_HREF = "/stories";
 export const allConditions = (): ConditionPlace[] =>
   librarySections.flatMap(section => section.groups.flatMap(group => group.conditions.map(condition => ({ section, group, condition }))));
 
-export const findSection = (id: string | undefined) => librarySections.find(section => section.id === id);
+/** Sections that were merged: their old addresses still open the section they became. */
+export const SECTION_ALIASES: Record<string, string> = { "heart-circulation": "heart-lungs", "lungs-breathing": "heart-lungs" };
+
+export const findSection = (id: string | undefined) => {
+  const wanted = id && SECTION_ALIASES[id] ? SECTION_ALIASES[id] : id;
+  return librarySections.find(section => section.id === wanted);
+};
 
 export function findCondition(groupId: string | undefined, conditionId: string | undefined): ConditionPlace | undefined {
   return allConditions().find(place => place.group.id === groupId && place.condition.id === conditionId);
@@ -89,10 +96,22 @@ export function sectionCounts(section: LibrarySection) {
   };
 }
 
-export function libraryCounts() {
-  const conditions = allConditions();
-  const links = new Set(conditions.flatMap(({ condition }) => (condition.content?.sources ?? []).filter(source => source.url).map(source => `${condition.id}:${source.url}`)));
-  return { sections: librarySections.length, conditions: conditions.length, topics: allItems().length, stories: libraryStories.length, links: links.size };
+/**
+ * The pieces the front page's Most read list turns through: the editor's picks first, in their
+ * order, then every other piece that has words to read. Nothing here is a reading count.
+ */
+export function mostReadPool(): ItemPlace[] {
+  const picks = MOST_READ.map(itemByKey).filter((place): place is ItemPlace => place !== undefined);
+  const picked = new Set(picks.map(itemKey));
+  return [...picks, ...allItems().filter(place => isReadable(place.item) && !picked.has(itemKey(place)))];
+}
+
+/** `size` pieces of the pool from `offset` on, wrapping round, so the list can turn one place at a time. */
+export function mostReadWindow<T>(pool: T[], offset: number, size = 5): T[] {
+  if (!pool.length) return [];
+  const count = Math.min(size, pool.length);
+  const start = ((offset % pool.length) + pool.length) % pool.length;
+  return Array.from({ length: count }, (_, at) => pool[(start + at) % pool.length]);
 }
 
 const KIND_LABEL: Record<ItemKind, string> = { article: "Article", video: "Video", animation: "Animation", exercise: "Exercise set", podcast: "Podcast", audio: "Audio" };

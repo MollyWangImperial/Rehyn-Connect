@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { SAMPLE_GOING } from "@/content/circle-events";
 import { people, type PersonId } from "@/content/community-samples";
 import { circleEventsStore, useCircleEvents } from "@/lib/circle-events-store";
-import { hostLimits, type HostEligibility, type HostStanding } from "@/lib/circle-host";
+import { type HostEligibility, type HostStanding } from "@/lib/circle-host";
 import { REPEATS, type Gathering } from "@/lib/circle-gatherings";
 import { goingCount, isLive, myEvents, standingFor } from "@/lib/circle-listing";
 import { useCommunity } from "@/lib/community-store";
@@ -22,16 +22,15 @@ function useGoingIds(): string[] {
 type Filter = "all" | "waiting" | "going" | "past";
 const FILTERS: { id: Filter; label: string }[] = [{ id: "all", label: "All" }, { id: "waiting", label: "Waiting for me" }, { id: "going", label: "Going" }, { id: "past", label: "Past" }];
 
-/** "You can host": the four things host standing checks, each met or not, with the limits for new hosts. */
+/** "You can host": the four things host standing checks, each met or not. The limits for new hosts stay in the model (circle-host.ts). */
 function StandingCard({ eligibility, standing, now, onCreate }: { eligibility: HostEligibility; standing: HostStanding; now: number; onCreate: () => void }) {
-  const limits = hostLimits(standing);
   return (
     <section className="cm-card cm-ce-standing" aria-labelledby="cm-ce-standing-title">
       <div className="cm-ce-standing-head">
         <span className={`cm-ce-shield ${eligibility.eligible ? "" : "is-warm"}`} aria-hidden="true"><ShieldIcon size={22} /></span>
         <div>
           <h3 className="cm-side-title" id="cm-ce-standing-title">{eligibility.eligible ? "You can host" : "Not quite yet"}</h3>
-          <p className="cm-ce-sub">{eligibility.eligible ? "Host standing · checked each time you create" : `Host standing · ${eligibility.met} of 4`}</p>
+          {!eligibility.eligible && <p className="cm-ce-sub">{`${eligibility.met} of 4`}</p>}
         </div>
       </div>
       <ul className="cm-ce-checks">
@@ -45,10 +44,7 @@ function StandingCard({ eligibility, standing, now, onCreate }: { eligibility: H
           );
         })}
       </ul>
-      <p className="cm-ce-standing-foot">
-        {limits.eventsPerWeek === null ? `As many events as you like · up to ${limits.seats} people each.` : `Up to ${limits.eventsPerWeek} events a week · ${limits.seats} people each. Host 5 well-attended circles to unlock larger ones.`}
-      </p>
-      {!eligibility.eligible && <button type="button" className="cm-ce-button" onClick={onCreate}>See what's left</button>}
+      {!eligibility.eligible &&<button type="button" className="cm-ce-button" onClick={onCreate}>See what's left</button>}
     </section>
   );
 }

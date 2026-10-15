@@ -22,7 +22,7 @@
 .site-brand { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 6px; border: 0; border-radius: 14px; background: transparent; color: #183d34; cursor: pointer; }
 .site-brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #183d34; color: #eff5ec; box-shadow: 0 3px 12px rgba(16, 44, 36, .18); }
 .site-brand-name { font: 800 20px/1 "Manrope", sans-serif; letter-spacing: -.7px; white-space: nowrap; }
-.site-brand-name em { color: #b5522e; font-style: normal; }
+.site-brand-name em { color: #1F5FA8; font-style: normal; }
 
 /* The tabs fit on one row on a wide screen, so the Sunday circle's peek can open below the bar.
    On a narrower one they scroll sideways and the peek stays shut. */
@@ -43,6 +43,13 @@
 .site-tabs .cm-tab-wrap { flex: none; }
 
 .site-top-tools { display: flex; flex: none; align-items: center; gap: 8px; }
+.site-settings { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid #e3e7dd; border-radius: 14px; background: rgba(255, 255, 255, .8); color: #285b49; font: 650 14px "DM Sans", system-ui, sans-serif; cursor: pointer; }
+.site-settings:hover { border-color: #8fc5b0; background: #eff8f3; }
+.site-settings:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
+/* Pages that use the full width draw no panel. */
+.site-shell.no-panel .site-body { grid-template-columns: minmax(0, 1fr); }
+/* The Messages window, on every page. */
+.site-dock { position: relative; z-index: 45; }
 
 /* ------------------------------------------------------------- body and panel */
 
@@ -61,8 +68,9 @@
 .site-panel :focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
 
 .site-card { padding: 16px; border: 1px solid #e4e8df; border-radius: 22px; background: #fffefa; box-shadow: 0 10px 30px rgba(20, 54, 40, .05); }
-.site-date { margin-bottom: 12px; color: #65736b; font: 700 10px "Manrope", sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
-.site-me-row { display: flex; align-items: center; gap: 12px; }
+/* You: no card, so it sits on the page's own background (review comment C48). */
+.site-me { padding: 6px 4px 2px; }
+.site-me-row { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
 .site-me-face { display: grid; flex: none; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: #285b49; color: #fffefa; font: 800 19px "Manrope", sans-serif; }
 .site-me-face img { width: 100%; height: 100%; object-fit: cover; }
 .site-me-words { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
@@ -99,6 +107,8 @@
 .site-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid #d6e4d9; border-radius: 999px; background: #fffefa; color: #1B2A24; font-size: 12.5px; font-weight: 650; }
 .site-chip:hover { border-color: #9fc0aa; color: #183d34; }
 .site-caption { margin: 14px 0 6px !important; color: #2e7d5b; font: 800 10.5px "Manrope", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; }
+.site-caption-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-right: 4px; }
+.site-see-all { display: inline-flex; align-items: center; min-height: 36px; color: #285b49; font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .site-reads { display: flex; flex-direction: column; gap: 6px; }
 .site-read { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; background: #fffefa; color: #1B2A24; }
 .site-read:hover { box-shadow: inset 0 0 0 1px #c9dccf; color: #1B2A24; }

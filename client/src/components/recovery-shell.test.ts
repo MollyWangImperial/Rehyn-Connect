@@ -10,12 +10,16 @@ import { siteTabFor } from "./SiteTabs";
 // inside nested routes too (the Library lives under /library), and their links must still lead to
 // the real pages: on the live site, a relative link from the Library once opened /library/community.
 
-/** Draws the shell at an address inside the Library's nested route; returns the markup and its links. */
+/**
+ * Draws the shell at an address and returns the markup and its links. A Library address is drawn
+ * inside the Library's nested route, without the panel, as the Library page does.
+ */
 function draw(path: string) {
   const hook = () => [path, () => {}] as [string, (to: string) => void];
-  const shell = createElement(RecoveryShell, { active: "Library", dateLabel: "WEDNESDAY, 14 OCTOBER", children: createElement("p", null, "A Library page") });
+  const library = path.startsWith("/library");
+  const shell = createElement(RecoveryShell, { active: library ? "Library" : "My Community", dateLabel: "WEDNESDAY, 14 OCTOBER", panel: !library, children: createElement("p", null, "A page") });
   const html = renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} },
-    createElement(Router, { hook, searchHook: () => "" }, createElement(Route, { path: "/library", nest: true }, shell)))).replace(/ data-loc="[^"]*"/g, "");
+    createElement(Router, { hook, searchHook: () => "" }, library ? createElement(Route, { path: "/library", nest: true }, shell) : shell))).replace(/ data-loc="[^"]*"/g, "");
   const hrefs = [...html.matchAll(/href="([^"]*)"/g)].map(match => match[1].replace(/&amp;/g, "&"));
   return { html, hrefs, text: html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") };
 }
@@ -26,7 +30,7 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
       const { html, hrefs } = draw(path);
       const tabHrefs = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab ')).map(tag => tag.match(/href="([^"]*)"/)![1].replace(/&amp;/g, "&"));
       expect(tabHrefs).toEqual([
-        "/community", "/library", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages", "/community?space=friends",
+        "/community", "/library", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages",
       ]);
       const active = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab is-active"'));
       expect(active).toHaveLength(1);
@@ -37,14 +41,28 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     }
   });
 
-  it("shows your profile, friends, saved pages, events, the Library, your groups and the care team on the left", () => {
-    const { text, hrefs } = draw("/library/stroke/ischaemic");
-    for (const words of ["WEDNESDAY, 14 OCTOBER", "View your profile", "Friends", "Saved", "My events", "The library", "Look up a topic", "Open the library", "Your groups", "Find more groups", "Care team", "Lounge safety", "House rules", "Privacy", "Settings"]) {
+  it("shows your profile, friends, saved pages, events, the Library and two of your groups on the left; the care team only when switched on", () => {
+    const { text, hrefs } = draw("/community");
+    for (const words of ["View your profile", "Friends", "Saved", "My events", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group", "House rules", "Privacy", "Settings"]) {
       expect(text, words).toContain(words);
     }
-    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/care-team", "/community?space=safety"]) {
+    for (const href of ["/community?space=settings&section=profile", "/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start", "/community?space=safety"]) {
       expect(hrefs, href).toContain(href);
     }
+    // Review comments: no date above the profile, no reading minutes, two groups, no care team for members.
+    expect(text).not.toMatch(/OCTOBER|· \d+ min/);
+    expect((text.match(/site-group-name/g) ?? []).length).toBe(0);
+    expect(hrefs.filter(href => href.startsWith("/community?space=groups&group=")).length).toBe(2);
+    expect(hrefs).not.toContain("/care-team");
+    expect(text).not.toContain("Lounge safety");
+  });
+
+  it("draws no panel on the Library, Groups and Messages, and only Settings in the top bar", () => {
+    const { html, text } = draw("/library/stroke/ischaemic");
+    expect(html).not.toContain('id="site-panel"');
+    expect(html).not.toContain("site-menu");
+    expect(text).toContain("Settings");
+    for (const gone of ["Use larger text", "Toggle stronger contrast", "'s profile"]) expect(html).not.toContain(gone);
   });
 
   it("no longer has a Home page, My Time, Journey or Warning signs in it", () => {
@@ -74,7 +92,7 @@ describe("which tab an address belongs to", () => {
     ["/community", "?space=start", "groups"],
     ["/community", "?space=groups&group=garden&game=new", "groups"],
     ["/community", "?space=messages&chat=anne", "messages"],
-    ["/community", "?space=friends", "friends"],
+    ["/community", "?space=friends", null],
     ["/community", "?space=safety", null],
     ["/library", "", "library"],
     ["/library/stroke/ischaemic", "", "library"],

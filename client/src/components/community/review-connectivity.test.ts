@@ -116,7 +116,7 @@ function deadEnds(drawn: ReturnType<typeof draw>) {
 
 const SPACES = [
   "/community", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=groups&group=walk",
-  "/community?space=messages", "/community?space=messages&chat=david", "/community?space=messages&chat=garden", "/community?space=friends",
+  "/community?space=messages", "/community?space=messages&chat=david", "/community?space=messages&chat=garden",
   "/community?space=start", "/community?space=settings", "/community?space=safety",
 ];
 
@@ -182,7 +182,7 @@ describe("every control in My community leads somewhere", () => {
 /* ------------------------------------------------------- where each goes */
 
 describe("the toolbar and the overlays are wired to the right place", () => {
-  it("toolbar: Find and Alerts open panels, Friends opens the drawer over the view, Safety and Settings are pages", () => {
+  it("toolbar: Find and Alerts open panels, Friends opens the drawer over the view, Safety is a page (Settings is in the top bar)", () => {
     const at = (path: string) => draw(createElement(Community), path);
     for (const path of ["/community", "/community?space=lounge", "/community?space=groups&group=walk", "/community?space=settings", "/community?space=safety"]) {
       const { buttons, links } = at(path);
@@ -192,7 +192,7 @@ describe("the toolbar and the overlays are wired to the right place", () => {
       const view = communityViewFromQuery(path.split("?")[1] ?? "");
       expect(hrefOf(tool("friends")!)).toBe(communityHref(view.space, view.group, { panel: "friends" }));
       expect(hrefOf(tool("safety")!)).toBe("/community?space=safety");
-      expect(hrefOf(tool("settings")!)).toBe("/community?space=settings");
+      expect(tool("settings")).toBeUndefined();
     }
   });
 
@@ -282,10 +282,13 @@ describe("problems found in review stay fixed", () => {
     const drawer = draw(createElement(Community), "/community?panel=friends").links.find(item => String(item.props.className).includes("cm-fr-foot"))!;
     const safety = draw(createElement(Community), "/community?space=safety").links.find(item => String(item.props.className).includes("cm-sa-settings"))!;
     const alerts = draw(createElement(AlertsPanel, { onClose: noop, anchor: null, over: FEED, fallbackFocus: () => null }), "/community").links.find(item => String(item.props.className).includes("cm-al-foot"))!;
-    const opens = [gentle, words, drawer, safety, alerts].map(link => openSection(draw(createElement(Community), hrefOf(link)).html));
-    expect(opens).toEqual(["What you see", "What you see", "Friends and messages", "What you see", "Quiet times"]);
+    const opens = [gentle, words, safety, alerts].map(link => openSection(draw(createElement(Community), hrefOf(link)).html));
+    expect(opens).toEqual(["What you see", "What you see", "What you see", "Quiet times"]);
+    // The drawer's "Who can send you requests: Change" leads to Your profile, where Your privacy holds the choice.
+    expect(hrefOf(drawer)).toBe("/community?space=settings&section=profile");
+    expect(draw(createElement(Community), hrefOf(drawer)).html).toContain("Who can ask to be friends");
     // The plain Settings button still opens at the top section.
-    expect(openSection(draw(createElement(Community), "/community?space=settings").html)).toBe("How you appear");
+    expect(openSection(draw(createElement(Community), "/community?space=settings").html)).toBe("What you see");
   });
 
   it("an alert about a request already answered on an earlier visit leads to that person", () => {
@@ -323,7 +326,8 @@ describe("problems found in review stay fixed", () => {
     // The toolbar and tabs: the page showing replaces; the others add a page.
     const safety = draw(createElement(Community), "/community?space=safety").links;
     expect(replaces(safety, "/community?space=safety")).not.toContain(false);
-    expect(replaces(safety, "/community?space=settings")).toEqual([false]);
+    // Settings is in the shell's top bar now; the Friends tool opens the drawer over the page, as a new address.
+    expect(replaces(safety, "/community?space=safety&panel=friends")).toEqual([false]);
     // The spaces' tabs are at the top of every page (SiteTabs); their links start with "~".
     const feed = draw(createElement(SiteTabs), "/community").links;
     expect(replaces(feed, "~/community")).toEqual([true]);

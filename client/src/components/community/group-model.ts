@@ -23,7 +23,7 @@ import {
   type StartThemeId,
   type ThemeId,
 } from "@/content/community-samples";
-import { communityStore, gamesAllowed, inCondition, isBlocked, listNames, type CommunityMemory, type GroupGame, type StartedGroup } from "@/lib/community-store";
+import { communityStore, gamesAllowed, inCondition, isBlocked, listNames, OPEN_GAMES, type CommunityMemory, type GroupGame, type StartedGroup } from "@/lib/community-store";
 import type { BattleshipsSave } from "./games/battleships-rules";
 
 // The groups model. Every list of groups the page shows comes from here, and the privacy rule is
@@ -147,9 +147,10 @@ export const visibleSubgroupCount = (memory: CommunityMemory, conditionId: Condi
 /** The condition the Groups tab opens on: the first one the person is in. */
 export const homeCondition = (memory: CommunityMemory): ConditionId => conditions.find(item => inCondition(memory, item.id))?.id ?? "stroke";
 
-/** A game in one of the person's groups, as the group page, the game strip and "Games in your groups" show it. */
+/** A game in one of the person's groups, as the group page and the game strip show it, or a Play now game. */
 export type GameModel = {
   id: string;
+  /** The group it is played in, or `OPEN_GAMES` for a Play now game, which is in no group. */
   groupId: string;
   type: GameId;
   name: string;
@@ -174,22 +175,33 @@ export type GameModel = {
 export const gameOpens = (game: GameModel): boolean =>
   game.state === "playing" && (game.type === "chess" || (game.type === "battleships" && game.own !== null));
 
+/** A Play now game: played with someone new, in no group. */
+export const isOpenGame = (game: Pick<GameModel, "groupId">): boolean => game.groupId === OPEN_GAMES;
+
+const ownGame = (memory: CommunityMemory, game: GroupGame): GameModel => ({
+  id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: true,
+  state: game.state, moves: memory.chess[game.id] ?? [], battle: memory.battleships[game.id] ?? null, when: "", watchers: [], own: game,
+});
+
 /**
  * Games in the groups the person is in, newest first: the ones they started, then the examples.
- * Games with someone they have blocked are left out.
+ * Games with someone they have blocked are left out, and so are Play now games: they are in no
+ * group (see `openGames`).
  */
 export function myGames(memory: CommunityMemory, groupId?: string): GameModel[] {
   const groups = myGroups(memory).map(group => group.id);
-  const own = memory.games.map((game): GameModel => ({
-    id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: true,
-    state: game.state, moves: memory.chess[game.id] ?? [], battle: memory.battleships[game.id] ?? null, when: "", watchers: [], own: game,
-  }));
+  const own = memory.games.map(game => ownGame(memory, game));
   const examples = sampleGames.map((game): GameModel => ({
     id: game.id, groupId: game.groupId, type: game.type, name: gameInfo(game.type).name, players: game.players, withYou: game.withYou,
     state: game.state, moves: game.withYou ? memory.chess[game.id] ?? game.moves : game.moves, battle: null, when: game.when,
     watchers: game.watchers.filter(who => !isBlocked(memory, who)), own: null,
   }));
   return [...own, ...examples].filter(game => groups.includes(game.groupId) && (groupId === undefined || game.groupId === groupId) && game.players.every(who => !isBlocked(memory, who)));
+}
+
+/** The person's Play now games, newest first. Games with someone they have blocked are left out. */
+export function openGames(memory: CommunityMemory): GameModel[] {
+  return memory.games.filter(isOpenGame).map(game => ownGame(memory, game)).filter(game => game.players.every(who => !isBlocked(memory, who)));
 }
 
 /**

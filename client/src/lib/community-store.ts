@@ -78,9 +78,13 @@ export type CommunitySpace = "feed" | "lounge" | "circle" | "groups" | "messages
 const namedSpaces: CommunitySpace[] = ["lounge", "circle", "groups", "messages", "friends", "start", "settings", "safety", "poker"];
 /** Something that opens over a view. Only the Friends drawer has an address of its own. */
 export type CommunityPanel = "friends";
-/** The sections of Community settings, in the order the page shows them. */
-export type SettingsSection = "appear" | "friends" | "see" | "read" | "quiet";
-export const SETTINGS_SECTIONS: SettingsSection[] = ["appear", "friends", "see", "read", "quiet"];
+/**
+ * The sections of Community settings, in the order the page shows them: "profile" is Your profile
+ * (the picture, name, town and words, Your privacy and Blocked); "appear" and "friends" are its
+ * older names, so links to them still open it.
+ */
+export type SettingsSection = "profile" | "appear" | "friends" | "see" | "read" | "quiet";
+export const SETTINGS_SECTIONS: SettingsSection[] = ["profile", "appear", "friends", "see", "read", "quiet"];
 /**
  * The view an address points at. `panel` and `tab` are there only while the Friends drawer is open
  * (`tab` is then always set: "requests" unless the address names another). `section` is there only
@@ -106,6 +110,8 @@ const isConditionId = (value: unknown): value is ConditionId => typeof value ===
  *   /community?space=groups&cond=ms              groups by condition, inside Multiple sclerosis
  *   /community?space=groups&group=walk           my groups, with one of them open
  *   /community?space=groups&group=garden&game=margaret-chess   a game in a group (game=new: start one)
+ *   /community?space=groups&game=new-open        Play now: a game with someone new, outside any group
+ *   /community?space=groups&game=game-…          one of those Play now games
  *   /community?space=start&cond=stroke           starting a group inside a condition
  *   /community?space=messages&chat=margaret      messages, with a conversation open
  *   /community?space=friends                     friends: requests, friends, privacy and blocked
@@ -124,7 +130,8 @@ export function communityViewFromQuery(search: string): CommunityView {
   if (space === "settings" && isSettingsSection(section)) view.section = section;
   const chat = space === "messages" ? cleanId(query.get("chat")) : null;
   if (chat) view.chat = chat;
-  const game = space === "groups" && view.group ? cleanId(query.get("game")) : null;
+  // A game in a group, or (with no group) a Play now game.
+  const game = space === "groups" ? cleanId(query.get("game")) : null;
   if (game) view.game = game;
   const cond = query.get("cond");
   if ((space === "groups" || space === "start") && isConditionId(cond)) view.cond = cond;
@@ -146,7 +153,7 @@ export function communityHref(space?: CommunitySpace | null, group?: string | nu
   if (space && space !== "feed" && namedSpaces.includes(space)) params.push(`space=${space}`);
   const id = space === "groups" ? cleanId(group) : null;
   if (id) params.push(`group=${id}`);
-  const game = id ? cleanId(open?.game) : null;
+  const game = space === "groups" ? cleanId(open?.game) : null;
   if (game) params.push(`game=${game}`);
   const cond = open?.cond;
   if ((space === "groups" || space === "start") && isConditionId(cond)) params.push(`cond=${cond}`);
@@ -217,8 +224,15 @@ export type StartedGroup = {
   id: string; name: string; theme: StartThemeId; friends: PersonId[]; createdAt: number; hello: string | null;
   conditionId: ConditionId; visibility: GroupVisibility; games: boolean;
 };
-/** A game the person started in one of their private groups: invite, invitees say yes, then play. */
+/**
+ * A game the person started in one of their private groups: invite, invitees say yes, then play.
+ * A Play now game (started from the Groups page with someone new) has `OPEN_GAMES` as its group.
+ */
 export type GroupGame = { id: string; groupId: string; type: GameId; players: PersonId[]; watch: boolean; state: "lobby" | "playing" | "finished"; createdAt: number };
+/** The `groupId` of a Play now game: it belongs to no group, so it never shows in one. */
+export const OPEN_GAMES = "open";
+/** Who Play now matches the person with, in order of preference: the first not blocked. */
+const OPEN_PLAYERS: PersonId[] = ["priya", "samuel", "david", "tomasz", "liwei", "anne", "margaret", "joan"];
 
 export type RequestAnswer = "accepted" | "declined";
 /** A report the person made. It is kept on this device; in this preview it is not sent anywhere. */
@@ -284,7 +298,7 @@ export type CommunityMemory = {
   joined: JoinableGroupId[];
   /** Condition groups joined, besides the ones the person is in to begin with (`startConditions`). */
   conditions: ConditionId[];
-  /** Games started in the person's private groups, newest first. */
+  /** Games started in the person's private groups, and Play now games (`OPEN_GAMES`), newest first. */
   games: GroupGame[];
   /** The moves of each chess game the person plays, as codes ("e2e4"), by game. */
   chess: Record<string, string[]>;
@@ -460,11 +474,15 @@ export function groupPlayers(memory: CommunityMemory, groupId: string): PersonId
   return everyone.filter(who => !isBlocked(memory, who));
 }
 
+/** The members Play now can seat with the person: never anyone blocked. */
+export const openPlayers = (memory: CommunityMemory): PersonId[] => OPEN_PLAYERS.filter(who => !isBlocked(memory, who));
+
+/** A saved game: one in a group the person is in, or a Play now game. */
 function readGame(value: unknown, groupIds: string[]): GroupGame | null {
   if (!isObject(value)) return null;
   const id = cleanId(value.id);
   const createdAt = when(value.createdAt);
-  if (!id || !id.startsWith("game-") || !createdAt || typeof value.groupId !== "string" || !groupIds.includes(value.groupId) || !oneOf(GAME_IDS)(value.type)) return null;
+  if (!id || !id.startsWith("game-") || !createdAt || typeof value.groupId !== "string" || !(value.groupId === OPEN_GAMES || groupIds.includes(value.groupId)) || !oneOf(GAME_IDS)(value.type)) return null;
   const players = strings(value.players, oneOf(PERSON_IDS), 3);
   const info = gameInfo(value.type);
   if (players.length < info.min - 1 || players.length > info.max - 1) return null;
@@ -820,6 +838,19 @@ export function createCommunityStore(access: () => CommunityStorage | null) {
       const info = gameInfo(draft.type);
       if (players.length !== draft.players.length || players.length < info.min - 1 || players.length > info.max - 1) return null;
       const game: GroupGame = { id: newId("game", now), groupId: draft.groupId, type: draft.type, players, watch: draft.watch !== false, state: "lobby", createdAt: now };
+      change(latest => ({ ...latest, games: [game, ...latest.games].slice(0, LIMITS.games) }));
+      return game;
+    },
+    /**
+     * Play now: a game with someone new, outside any group. The person is matched straight away
+     * with the members Play now can seat (as many as the game needs), so the game starts playing.
+     * Nothing is made when there aren't enough members who aren't blocked.
+     */
+    startOpenGame(type: GameId, now = Date.now()): GroupGame | null {
+      if (!oneOf(GAME_IDS)(type)) return null;
+      const players = openPlayers(load()).slice(0, gameInfo(type).min - 1);
+      if (players.length < gameInfo(type).min - 1) return null;
+      const game: GroupGame = { id: newId("game", now), groupId: OPEN_GAMES, type, players, watch: false, state: "playing", createdAt: now };
       change(latest => ({ ...latest, games: [game, ...latest.games].slice(0, LIMITS.games) }));
       return game;
     },

@@ -1,15 +1,25 @@
-/* My community: games in private groups. The strip on a group's page, "Games in your groups",
-   the "Start a game" sheet (cm-gs-) and chess (cm-chess-, cm-sq). Imported by the components that
-   use it, beside community-spaces.css. */
+/* My community: games in private groups, and Play now. The strip on a group's page, the "Play now"
+   card and sheet (cm-play-now, cm-pn-), the "Start a game" sheet (cm-gs-) and chess (cm-chess-,
+   cm-sq). Imported by the components that use it, beside community-spaces.css. */
 
-.cm-start-small .cm-overline, .cm-strip .cm-overline { color: var(--cm-gold); }
+.cm-start-small .cm-overline, .cm-strip .cm-overline, .cm-play-now .cm-overline { color: var(--cm-gold); }
 .cm-nudge { animation: cm-nudge 2.4s ease-in-out infinite; }
 @keyframes cm-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
-/* ------------------------------------------------------- games in your groups */
+/* ------------------------------------------------------------------ play now */
 
-.cm-games-mark { display: flex; color: var(--cm-ok); }
-.cm-games-empty { color: var(--cm-muted); font-size: 14.5px; line-height: 1.45; }
+/* The card on the Groups page: night blue, with a gold button, and the Play now games under it. (.cm-card
+   is named too, as community.css is loaded after this file.) */
+.cm-card.cm-play-now { gap: 10px; padding: 20px; border: 0; background: var(--cm-night); color: #FFFFFF; }
+.cm-play-now h3 { font: 400 28px/1.1 var(--cm-serif); }
+.cm-play-now > p:not(.cm-overline) { color: rgba(255, 255, 255, .78); font-size: 15px; line-height: 1.45; }
+.cm-play-now-go { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; margin-top: 4px; border-radius: 999px; background: var(--cm-gold); color: var(--cm-deep); font-size: 16px; font-weight: 700; }
+.cm-play-now-go:hover { background: #E6CB8A; color: var(--cm-deep); }
+.cm-play-now > .cm-play-now-note { font-size: 13.5px; }
+.cm-play-now .cm-games-list { margin-top: 4px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .16); }
+.cm-play-now .cm-game-row { color: #FFFFFF; }
+.cm-play-now .cm-game-row.is-yours, .cm-play-now a.cm-game-row.is-yours:hover { color: var(--cm-ink); }
+.cm-play-now .cm-game-row:not(.is-yours) .cm-group-text > span { color: rgba(255, 255, 255, .72); }
 .cm-games-list { display: flex; flex-direction: column; gap: 6px; padding: 0; list-style: none; }
 .cm-game-row { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px; border-radius: 16px; color: var(--cm-ink); }
 a.cm-game-row:hover { background: var(--cm-bubble); color: var(--cm-ink); }
@@ -21,7 +31,11 @@ a.cm-game-row.is-yours:hover { background: #F1E5C9; }
 .cm-game-tile { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; background: var(--cm-mint); color: var(--cm-green); }
 .cm-game-tile.is-lilac { background: #E9E2F4; color: #45357A; }
 .cm-game-play { display: inline-flex; flex-shrink: 0; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--cm-deep); color: #FFFFFF; font-size: 14px; font-weight: 700; }
-.cm-game-link { flex-shrink: 0; font-size: 14px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+/* In the Play now sheet: the note under the games, and the seat of the person not yet found. */
+.cm-pn-note { display: flex; align-items: center; gap: 8px; color: var(--cm-soft-ink); font-size: 14px; line-height: 1.4; }
+.cm-pn-unknown { display: grid; place-items: center; width: 84px; height: 84px; border: 2px dashed rgba(255, 255, 255, .5); border-radius: 999px; color: #CFE2D6; }
+/* On a Play now game's own page, under the title. */
+.cm-game-note { padding: 10px 14px; border-radius: 12px; background: var(--cm-gold-soft); color: var(--cm-gold-ink); font-size: 14px; font-weight: 600; line-height: 1.4; }
 
 /* ------------------------------------------------------------ the game strip */
 

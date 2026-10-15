@@ -5,14 +5,14 @@ import { SAMPLE_GOING, sampleGatherings } from "@/content/circle-events";
 import { PERSON_IDS } from "@/content/community-samples";
 import { librarySections, MOST_READ } from "@/content/library";
 import { administrativeControlsEnabled } from "@/lib/administrative-controls";
-import { CARE_TEAM_PATH, useCareTeamWaiting } from "@/lib/care-team";
+import { CARE_TEAM_PATH, useCareTeamEnabled, useCareTeamWaiting } from "@/lib/care-team";
 import { useCircleEvents } from "@/lib/circle-events-store";
 import { mergeGatherings, myEvents } from "@/lib/circle-listing";
 import { communityHref, friendList, isBlocked, useCommunity } from "@/lib/community-store";
 import { conditionByKey, conditionHref, itemByKey, itemHref } from "@/lib/library";
 import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
-import { useSettings } from "./AccountSettings";
+import { PROFILE_PATH, useSettings } from "./AccountSettings";
 import AccountResetControls from "./AccountResetControls";
 import { myGroups } from "./community/group-model";
 
@@ -24,7 +24,7 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
  * your events, the Library, your groups and, for the care team, its review queue. Everything is a link
  * that starts with "~", so it works from the Library's nested pages too.
  */
-export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }: { dateLabel: string; careTeam?: boolean; onNavigate?: () => void }) {
+export default function ProfilePanel({ careTeam = false, onNavigate }: { careTeam?: boolean; onNavigate?: () => void }) {
   const [, navigate] = useLocation();
   const openSettings = useSettings();
   const profile = useProfile();
@@ -32,6 +32,7 @@ export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }
   const library = useLibraryState();
   const circle = useCircleEvents();
   const waiting = useCareTeamWaiting();
+  const staff = useCareTeamEnabled();
   const [savedOpen, setSavedOpen] = useState(false);
   const [query, setQuery] = useState("");
   const savedId = useId();
@@ -59,13 +60,12 @@ export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }
 
   return (
     <div className="site-panel-inner">
-      <section className="site-card site-me" aria-label="You">
-        <p className="site-date">{dateLabel}</p>
+      <section className="site-me" aria-label="You">
         <div className="site-me-row">
           <span className="site-me-face" aria-hidden="true">{profile.photo ? <img src={profile.photo} alt="" /> : profileInitial(profile)}</span>
           <span className="site-me-words">
             <b>{profileName(profile)}</b>
-            <button type="button" className="site-me-link" onClick={event => openSettings(event.currentTarget, "profile")}>View your profile</button>
+            <Link className="site-me-link" {...link(PROFILE_PATH)}>View your profile</Link>
           </span>
         </div>
         <ul className="site-rows">
@@ -118,7 +118,7 @@ export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }
                 <li key={itemHref(place)}>
                   <Link className="site-read" {...link(`/library${itemHref(place)}`)}>
                     <b>{place.item.title}</b>
-                    <span>{place.condition.title}{place.item.minutes ? ` · ${place.item.minutes} min` : ""}</span>
+                    <span>{place.condition.title}</span>
                   </Link>
                 </li>
               ))}
@@ -129,9 +129,12 @@ export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }
       </section>
 
       <section className="site-groups" aria-labelledby={`${searchId}-groups`}>
-        <p className="site-caption" id={`${searchId}-groups`}>Your groups</p>
+        <div className="site-caption-row">
+          <p className="site-caption" id={`${searchId}-groups`}>Your groups</p>
+          <Link className="site-see-all" {...link(communityHref("groups"))}>See all<span className="cm-sr"> your groups</span></Link>
+        </div>
         <ul>
-          {groups.slice(0, 5).map(group => (
+          {groups.slice(0, 2).map(group => (
             <li key={group.id}>
               <Link className="site-group" {...link(communityHref("groups", group.id))}>
                 <span className="site-group-tile" style={{ background: group.tint, color: group.ink }} aria-hidden="true">{initials(group.name)}</span>
@@ -141,19 +144,22 @@ export default function ProfilePanel({ dateLabel, careTeam = false, onNavigate }
             </li>
           ))}
           <li>
-            <Link className="site-group is-more" {...link(communityHref("groups"))}><span className="site-group-tile" aria-hidden="true"><Plus size={16} /></span><span className="site-group-name">Find more groups</span></Link>
+            <Link className="site-group is-more" {...link(communityHref("start"))}><span className="site-group-tile" aria-hidden="true"><Plus size={16} /></span><span className="site-group-name">Start a group</span></Link>
           </li>
         </ul>
       </section>
 
-      <section className="site-staff" aria-labelledby={`${searchId}-staff`}>
-        <p className="site-caption" id={`${searchId}-staff`}>Care team</p>
-        <Link className={`site-row site-staff-link ${careTeam ? "is-active" : ""}`} aria-current={careTeam ? "page" : undefined} {...link(CARE_TEAM_PATH)}>
-          <span className="site-row-icon is-green"><ShieldCheck size={17} /></span><span className="site-row-label">Lounge safety</span>
-          {waiting > 0 && <span className="site-row-badge">{waiting}<span className="cm-sr"> waiting for review</span></span>}
-        </Link>
-        {administrativeControlsEnabled() && <AccountResetControls />}
-      </section>
+      {/* The care team's space shows only when this device is set as the care team's (lib/care-team.ts). */}
+      {staff && (
+        <section className="site-staff" aria-labelledby={`${searchId}-staff`}>
+          <p className="site-caption" id={`${searchId}-staff`}>Care team</p>
+          <Link className={`site-row site-staff-link ${careTeam ? "is-active" : ""}`} aria-current={careTeam ? "page" : undefined} {...link(CARE_TEAM_PATH)}>
+            <span className="site-row-icon is-green"><ShieldCheck size={17} /></span><span className="site-row-label">Lounge safety</span>
+            {waiting > 0 && <span className="site-row-badge">{waiting}<span className="cm-sr"> waiting for review</span></span>}
+          </Link>
+          {administrativeControlsEnabled() && <AccountResetControls />}
+        </section>
+      )}
 
       <footer className="site-foot">
         <Link {...link(communityHref("lounge"))}>House rules</Link>

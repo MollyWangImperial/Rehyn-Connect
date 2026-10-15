@@ -3,14 +3,17 @@ import { Link, useSearch } from "wouter";
 import { groupQuickReplies, newConversation, people, type PersonId } from "@/content/community-samples";
 import { canSee, clockLabel, communityHref, communityStore, leadsHere, messagesHref, shortWhen, useCommunity, type NoteDraft, type OpenSafetyMenu } from "@/lib/community-store";
 import { myGroups } from "./group-model";
-import { useMediaQuery, usePinnedToEnd, useVoiceNote, voiceSeconds } from "./hooks";
-import { BackIcon, BellIcon, BellOffIcon, CalendarIcon, CloseIcon, HeartIcon, PauseCircleIcon, PenIcon, SearchIcon, SpeakerIcon, StopIcon } from "./icons";
+import { useMediaQuery, usePinnedToEnd } from "./hooks";
+import { BackIcon, BellIcon, BellOffIcon, CalendarIcon, CloseIcon, HeartIcon, PauseCircleIcon, PenIcon, SearchIcon } from "./icons";
 import { allChats, chatById, dayLabel, friendsToMessage, groupsWith, mutualFriends, sendDirect, useChatVisit, type Chat, type ChatLine, type DirectChat, type GroupChat } from "./messages-model";
 import { ChatInput, Cover, Face, MyMessage, TheirMessage, toneClass, TypingRow, VoiceNote } from "./parts";
 
 // Messages: conversations with friends and groups, in three columns like a chat app: the list,
 // the conversation, and who it is with. On a narrow screen the list and the conversation take
-// turns. The friends' words are examples; what the person writes stays on this device.
+// turns. The friends' words are examples; what the person writes stays on this device. Text size
+// and reading aloud are set once, in Community settings, so the conversation has no toolbar.
+// The first time Messages opens, a notice says the Rehyn team can read what is sent here (it is
+// shown by the Messages window, MessagesDock, which is on every page).
 
 type Filter = "all" | "unread" | "groups";
 const FILTERS: { id: Filter; label: string }[] = [{ id: "all", label: "All" }, { id: "unread", label: "Unread" }, { id: "groups", label: "Groups" }];
@@ -92,7 +95,7 @@ export function DirectComposer({ chat, compact = false }: { chat: DirectChat; co
       {off && (
         <p className="cm-dm-off">
           <PauseCircleIcon size={18} />
-          <span>Messages to you are off, so friends can't write back. <Link className="cm-inline-link" href={communityHref("friends")}>Change who can message you</Link></span>
+          <span>Messages to you are off, so friends can't write back. <Link className="cm-inline-link" href={communityHref("settings", null, { section: "profile" })}>Change who can message you</Link></span>
         </p>
       )}
       <div className="cm-dm-quick" role="group" aria-label={`Quick replies to ${chat.name}`}>
@@ -101,28 +104,6 @@ export function DirectComposer({ chat, compact = false }: { chat: DirectChat; co
       <ChatInput label={`Write to ${chat.name}`} placeholder={compact ? "Write a message" : `Write to ${chat.name}`} onSend={send} allowPhoto={!compact} sendText={compact ? undefined : "Send"} />
       <p className="cm-sr" role="status">{status}</p>
     </div>
-  );
-}
-
-/** "Larger text": the community's text size, bigger or back to normal. */
-function LargerText() {
-  const on = useCommunity().settings.textSize === "bigger";
-  return (
-    <button type="button" className={`cm-dm-tool ${on ? "is-on" : ""}`} aria-pressed={on} onClick={() => communityStore.updateSettings({ textSize: on ? "normal" : "bigger" })}>
-      <span className="cm-dm-aa" aria-hidden="true">Aa</span><span>Larger text</span>
-    </button>
-  );
-}
-
-/** "Read aloud": the device's own voice reads the newest lines from them. */
-function ReadAloud({ chat }: { chat: DirectChat }) {
-  const theirs = chat.lines.filter(isTheirs).slice(-3);
-  const words = theirs.length ? `${chat.name} says: ${theirs.map(line => line.text).join(" ")}` : `There are no messages from ${chat.name} yet.`;
-  const { playing, toggle } = useVoiceNote(words, voiceSeconds(words));
-  return (
-    <button type="button" className={`cm-dm-tool ${playing ? "is-on" : ""}`} aria-pressed={playing} onClick={toggle}>
-      {playing ? <StopIcon size={14} /> : <SpeakerIcon size={16} />}<span>{playing ? "Stop reading" : "Read aloud"}</span>
-    </button>
   );
 }
 
@@ -279,7 +260,6 @@ function GroupConversation({ chat, headingProps, back }: { chat: GroupChat; head
           <h2 {...headingProps}>{group.name}</h2>
           <p>{group.online > 0 ? `${group.online} online now` : group.meta}</p>
         </div>
-        <div className="cm-dm-tools"><LargerText /></div>
       </header>
       <div className="cm-dm-log" ref={box} onScroll={onScroll} role="log" aria-live="off" aria-label={`Messages in ${group.name}`} tabIndex={0}>
         <ol className="cm-messages">
@@ -311,7 +291,6 @@ function DirectConversation({ chat, headingProps, back, active }: { chat: Direct
           <h2 {...headingProps}>{chat.name}</h2>
           <p>{chat.status}</p>
         </div>
-        <div className="cm-dm-tools"><LargerText /><ReadAloud chat={chat} /></div>
       </header>
       <div className="cm-dm-log" ref={box} onScroll={onScroll} role="log" aria-live="off" aria-label={`Messages with ${chat.name}`} tabIndex={0}>
         <DirectLines chat={chat} typing={typing} />

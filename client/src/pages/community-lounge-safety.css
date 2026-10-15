@@ -79,8 +79,6 @@
 
 .cm-ls-foot { display: flex; align-items: flex-start; gap: 8px; color: var(--cm-muted); font-size: 13.5px; line-height: 1.45; }
 .cm-ls-foot svg { flex-shrink: 0; margin-top: 2px; color: var(--cm-green); }
-.cm-ls-rules-photos { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
-.cm-ls-rules-photos svg { flex-shrink: 0; margin-top: 2px; color: var(--cm-green); }
 
 /* The pill at the foot of the room after sharing a photo or sending a report. */
 .cm-page .cm-lounge-foot { position: relative; }

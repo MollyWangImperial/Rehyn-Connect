@@ -9,10 +9,12 @@ import {
   hiddenWordProblem,
   nextSuggestedWord,
   postsAudience,
+  privacyMeaning,
   quietEdges,
   quietHint,
   sampleLine,
   settingsSummaries,
+  settingsTarget,
   stepQuietFrom,
   townHint,
   typedWord,
@@ -25,9 +27,7 @@ const settings = (patch: Partial<CommunitySettings> = {}): CommunitySettings => 
 
 describe("Community settings: the line under each section", () => {
   it("sums up the settings as they start", () => {
-    expect(settingsSummaries(settings(), "", NOW)).toEqual({
-      appear: ["No town added", "online dot on"],
-      friends: ["Requests from everyone", "messages from friends only", "posts for friends"],
+    expect(settingsSummaries(settings(), NOW)).toEqual({
       see: ["Gentle mode on", "2 hidden words"],
       read: ["Read aloud off", "normal text"],
       quiet: ["Quiet from 9 pm to 8 am"],
@@ -36,20 +36,39 @@ describe("Community settings: the line under each section", () => {
 
   it("follows each change", () => {
     const changed = settings({
-      showTown: false, showOnline: false, picture: "initial", requestsFrom: "noOne", messagesFrom: "friendsAndGroups", postsSeenBy: "everyone",
       gentleMode: false, hiddenWords: ["money"], readAloud: true, textSize: "bigger", quietFrom: 23, breakChoice: "week", breakUntil: NOW + 7 * DAY,
     });
-    expect(settingsSummaries(changed, "Leeds", NOW)).toEqual({
-      appear: ["Town hidden", "online dot off"],
-      friends: ["No new requests", "messages from friends and groups", "posts for everyone"],
+    expect(settingsSummaries(changed, NOW)).toEqual({
       see: ["Gentle mode off", "1 hidden word"],
       read: ["Read aloud on", "bigger text"],
       quiet: ["Quiet from 11 pm to 8 am", "on a break until 13 October"],
     });
-    expect(settingsSummaries(settings({ hiddenWords: [], requestsFrom: "friendsOfFriends" }), "Leeds", NOW).see).toEqual(["Gentle mode on", "no hidden words"]);
-    expect(settingsSummaries(settings({ requestsFrom: "friendsOfFriends" }), "Leeds", NOW).friends[0]).toBe("Requests from friends of friends");
-    expect(settingsSummaries(settings(), "Leeds", NOW).appear[0]).toBe("Town shown");
-    expect(settingsSummaries(settings({ postsSeenBy: "onlyMe" }), "Leeds", NOW).friends[2]).toBe("posts just for you");
+    expect(settingsSummaries(settings({ hiddenWords: [] }), NOW).see).toEqual(["Gentle mode on", "no hidden words"]);
+  });
+});
+
+describe("Community settings: where a link that names a section lands", () => {
+  it("opens a panel by name, and Your profile by its own name or its older ones", () => {
+    expect(settingsTarget("see")).toBe("see");
+    expect(settingsTarget("read")).toBe("read");
+    expect(settingsTarget("quiet")).toBe("quiet");
+    expect(settingsTarget("profile")).toBe("profile");
+    expect(settingsTarget("appear")).toBe("profile");
+    expect(settingsTarget("friends")).toBe("profile");
+    expect(settingsTarget(null)).toBeNull();
+    expect(settingsTarget(undefined)).toBeNull();
+  });
+});
+
+describe("Community settings: Your privacy", () => {
+  it("says what each choice means, on this device and nothing more", () => {
+    expect(privacyMeaning.postsSeenBy.friends).toBe("Only your friends see what you share.");
+    expect(privacyMeaning.postsSeenBy.onlyMe).toBe("What you share stays with you.");
+    expect(privacyMeaning.messagesFrom.noOne).toBe("No one can message you.");
+    expect(privacyMeaning.messagesFrom.friendsAndGroups).toBe("Friends, and people in your groups, can message you.");
+    expect(privacyMeaning.requestsFrom.friendsOfFriends).toBe("Only friends of your friends can ask.");
+    expect(privacyMeaning.requestsFrom.noOne).toContain("Requests already waiting stay in Friends.");
+    for (const group of Object.values(privacyMeaning)) for (const text of Object.values(group)) expect(text).not.toMatch(/told|notified/i);
   });
 });
 
@@ -88,7 +107,7 @@ describe("Community settings: quiet time and breaks", () => {
     expect(breakNow(settings({ breakChoice: "day", breakUntil: NOW - 1 }), NOW)).toBe("none");
     expect(breakNow(settings(), NOW)).toBe("none");
     expect(breakHint(settings({ breakChoice: "day", breakUntil: NOW - 1 }), NOW)).toBe("During a break, the Alerts badge stays quiet. Nothing is deleted.");
-    expect(settingsSummaries(settings({ breakChoice: "day", breakUntil: NOW - 1 }), "", NOW).quiet).toEqual(["Quiet from 9 pm to 8 am"]);
+    expect(settingsSummaries(settings({ breakChoice: "day", breakUntil: NOW - 1 }), NOW).quiet).toEqual(["Quiet from 9 pm to 8 am"]);
   });
 
   it("names days on this device's calendar", () => {

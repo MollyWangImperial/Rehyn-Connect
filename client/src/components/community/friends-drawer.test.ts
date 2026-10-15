@@ -53,10 +53,10 @@ describe("the Friends drawer", () => {
     expect(text).toContain("Add friend (Priya)");
   });
 
-  it("links to Community settings, at Friends and messages, from the foot of every tab", () => {
+  it("links to Community settings, at Your profile (where Your privacy is), from the foot of every tab", () => {
     for (const tab of ["", "&tab=sent", "&tab=friends", "&tab=blocked"]) {
       const html = drawer(`/community?space=lounge&panel=friends${tab}`);
-      expect(tagWith(html, "a", 'href="/community?space=settings&amp;section=friends"', 'class="cm-dialog-foot-link cm-fr-foot"')).toBe(true);
+      expect(tagWith(html, "a", 'href="/community?space=settings&amp;section=profile"', 'class="cm-dialog-foot-link cm-fr-foot"')).toBe(true);
       expect(words(html)).toContain("Who can send you requests: Everyone Change");
     }
   });

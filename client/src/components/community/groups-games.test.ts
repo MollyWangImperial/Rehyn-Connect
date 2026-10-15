@@ -3,10 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
 import { conditionGroups, CONDITION_IDS, GAMES, sampleGames, suggestedGroups } from "@/content/community-samples";
-import { blankCommunityMemory, communityHref, communityViewFromQuery, createCommunityStore, gamesAllowed, groupVisibility, parseCommunityMemory, type CommunityMemory } from "@/lib/community-store";
+import { blankCommunityMemory, communityHref, communityViewFromQuery, createCommunityStore, gamesAllowed, groupVisibility, OPEN_GAMES, parseCommunityMemory, type CommunityMemory } from "@/lib/community-store";
 import { findInCommunity } from "./alerts-helpers";
 import { replay } from "./games/chess-rules";
-import { myGames, myGroups, visibleSubgroupCount, visibleSubgroups } from "./group-model";
+import { myGames, myGroups, openGames, visibleSubgroupCount, visibleSubgroups } from "./group-model";
 import GroupsView from "./Groups";
 import StartGroupView from "./StartGroup";
 
@@ -85,6 +85,11 @@ describe("private groups never show to non-members", () => {
     expect(html).toContain("Finding words");
     expect(html).not.toContain("Tuesday tea");
     expect(html).toContain("Private groups you are not in never appear here.");
+    // The intro, the privacy note, "Games in your groups" and the poker teaser have gone (C34, C35, C36, C63).
+    expect(html).not.toContain("Your own condition comes first");
+    expect(html).not.toContain("Private groups only show to the people in them");
+    expect(html).not.toContain("Games in your groups");
+    expect(html).not.toContain("poker");
     const parkinsons = words(render("/community?space=groups&cond=parkinsons", createElement(GroupsView, { active: false, requested: null })));
     expect(parkinsons).toContain("Join Parkinson's");
     expect(parkinsons).toContain("Dance for balance");
@@ -186,12 +191,10 @@ describe("games disabled in public groups", () => {
     expect(page).toContain("Place your ships");
     expect(page).toContain("No clock");
     expect(page).toContain("Extra shot after a hit");
-    // The group page and "Games in your groups" lead to it, to play.
+    // The group page leads to it, to play.
     const group = render("/community?space=groups&group=garden", createElement(GroupsView, { active: false, requested: "garden" }));
     expect(words(group)).toContain("You vs Margaret · Battleships");
     expect(group).toContain(`href="${href.replace(/&/g, "&amp;")}"`);
-    const card = words(render("/community?space=groups", createElement(GroupsView, { active: false, requested: null })));
-    expect(card).toContain("Battleships · Margaret Place your ships Play");
   });
 
   it("switches the games switch off and greys it out when Start a group is set to Public", () => {
@@ -226,6 +229,80 @@ describe("old saved groups and games", () => {
     expect(communityHref("start", null, { cond: "stroke" })).toBe("/community?space=start&cond=stroke");
     expect(communityViewFromQuery("space=groups&group=garden&game=new")).toMatchObject({ group: "garden", game: "new" });
     expect(communityViewFromQuery("space=groups&cond=nowhere").cond).toBeUndefined();
+    // Play now: a game with no group.
+    expect(communityHref("groups", null, { game: "new-open" })).toBe("/community?space=groups&game=new-open");
+    expect(communityHref("groups", null, { game: "new-open", cond: "ms" })).toBe("/community?space=groups&game=new-open&cond=ms");
+    expect(communityViewFromQuery("space=groups&game=new-open")).toMatchObject({ group: null, game: "new-open" });
+    expect(communityHref("lounge", null, { game: "new-open" })).toBe("/community?space=lounge");
+  });
+});
+
+describe("Play now (C61)", () => {
+  const groupsPage = () => render("/community?space=groups", createElement(GroupsView, { active: false, requested: null }));
+
+  it("offers it on the Groups page, in the right column, with the same nine games", () => {
+    const html = groupsPage();
+    expect(words(html)).toContain("Play a game with someone new");
+    expect(html).toContain('href="/community?space=groups&amp;game=new-open&amp;cond=stroke"');
+    expect(words(html)).toContain("In this preview the other player is played by the computer.");
+    // The card sits after "Start a smaller group", in the side column.
+    expect(html.indexOf("cm-play-now")).toBeGreaterThan(html.indexOf("cm-start-small"));
+    const sheet = render("/community?space=groups&game=new-open", createElement(GroupsView, { active: false, requested: null }));
+    const area = element(sheet, sheet.lastIndexOf("<div", sheet.indexOf('class="cm-gs-area"')));
+    expect([...area.matchAll(/data-game="([a-z]+)"/g)].map(match => match[1])).toEqual(GAMES.map(game => game.id));
+    expect(words(sheet)).toContain("Next: find someone to play Chess");
+  });
+
+  it("matches the person straight away with a member who isn't blocked, in no group", () => {
+    const game = store.startOpenGame("chess", NOW)!;
+    expect(game).toMatchObject({ groupId: OPEN_GAMES, type: "chess", players: ["priya"], state: "playing" });
+    const memory = store.load();
+    expect(openGames(memory).map(item => item.id)).toEqual([game.id]);
+    // Never in a group's games, nor in any group's strip.
+    expect(myGames(memory).map(item => item.id)).not.toContain(game.id);
+    for (const group of myGroups(memory)) expect(myGames(memory, group.id).map(item => item.id)).not.toContain(game.id);
+    expect(render("/community?space=groups&group=garden", createElement(GroupsView, { active: false, requested: "garden" }))).not.toContain(game.id);
+    // Its own page says who the other player really is, and goes back to the groups.
+    const page = render(`/community?space=groups&game=${game.id}`, createElement(GroupsView, { active: false, requested: null }));
+    expect(words(page)).toContain("You vs Priya");
+    expect(words(page)).toContain("In this preview the other player is played by the computer.");
+    expect(page).toMatch(/<a[^>]*aria-label="Back to groups"[^>]*href="\/community\?space=groups"[^>]*class="cm-chess-back"/);
+    // The card on the Groups page leads to it.
+    expect(groupsPage()).toContain(`href="/community?space=groups&amp;game=${game.id}"`);
+    // Mahjong needs three others; Battleships keeps its ships.
+    expect(store.startOpenGame("mahjong", NOW)!.players).toEqual(["priya", "samuel", "david"]);
+    const sea = store.startOpenGame("battleships", NOW)!;
+    const board = words(render(`/community?space=groups&game=${sea.id}`, createElement(GroupsView, { active: false, requested: null })));
+    expect(board).toContain("Play now · Battleships You vs Priya");
+    expect(board).toContain("Place your ships");
+  });
+
+  it("leaves out anyone blocked, and keeps the private-group rules as they were", () => {
+    store.block("priya");
+    expect(store.startOpenGame("chess", NOW)!.players).toEqual(["samuel"]);
+    store.unblock("priya");
+    const game = store.startOpenGame("chess", NOW)!;
+    store.block("priya");
+    expect(openGames(store.load()).map(item => item.id)).not.toContain(game.id);
+    // "open" is not a group: no games can be started in it the group way, and nothing can be said in it.
+    expect(gamesAllowed(store.load(), OPEN_GAMES)).toBe(false);
+    expect(store.startGame({ groupId: OPEN_GAMES, type: "chess", players: ["samuel"] }, NOW)).toBeNull();
+    expect(store.addMessage(OPEN_GAMES, { text: "Hello" }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "walk", type: "chess", players: ["david"] }, NOW)).toBeNull();
+    expect(store.startGame({ groupId: "garden", type: "chess", players: ["margaret"] }, NOW)).not.toBeNull();
+  });
+
+  it("keeps Play now games that were saved, with their moves, and drops games in groups that aren't there", () => {
+    const memory = parseCommunityMemory(JSON.stringify({
+      games: [
+        { id: "game-open", groupId: "open", type: "chess", players: ["priya"], watch: false, state: "playing", createdAt: NOW },
+        { id: "game-lost", groupId: "nowhere", type: "chess", players: ["priya"], state: "playing", createdAt: NOW },
+      ],
+      chess: { "game-open": ["e2e4"], "game-lost": ["e2e4"] },
+    }));
+    expect(memory.games.map(game => game.id)).toEqual(["game-open"]);
+    expect(memory.chess).toEqual({ "game-open": ["e2e4"] });
+    expect(openGames(memory)[0].moves).toEqual(["e2e4"]);
   });
 });
 

@@ -1,12 +1,34 @@
-import { settingsChoices, startHiddenWords, suggestedHiddenWords, type BreakChoice, type MessagesFrom, type PersonId, type PostsSeenBy } from "@/content/community-samples";
+import { settingsChoices, startHiddenWords, suggestedHiddenWords, type BreakChoice, type MessagesFrom, type PersonId, type PostsSeenBy, type RequestsFrom } from "@/content/community-samples";
 import { canSee, cleanHiddenWord, hiddenWordIn, hourLabel, inQuietHours, LIMITS, onBreak, type CommunityMemory, type CommunitySettings, type SettingsSection } from "@/lib/community-store";
 
 // The wording and small rules behind the Community settings page (F5): the one line under each
-// section's name, the hours quiet time can start at, the break, the card preview and the words
-// a person hides. Everything here describes what happens on this device, and nothing more.
+// section's name, the hours quiet time can start at, the break, the card preview, the privacy
+// choices and the words a person hides. Everything here describes what happens on this device,
+// and nothing more.
 
-/** The five sections. The address can name one (`?space=settings&section=quiet`), so it lives in the store. */
+/** The sections. The address can name one (`?space=settings&section=quiet`), so it lives in the store. */
 export type { SettingsSection };
+/** The sections that open and close under Your profile: What you see, Reading and listening, Quiet times. */
+export type SettingsPanel = "see" | "read" | "quiet";
+export const SETTINGS_PANELS: SettingsPanel[] = ["see", "read", "quiet"];
+
+/**
+ * Where a link that names a section lands: one of the panels, or Your profile (whose older names,
+ * "appear" and "friends", still lead there). Null when the address names none.
+ */
+export function settingsTarget(section: SettingsSection | null | undefined): SettingsPanel | "profile" | null {
+  if (!section) return null;
+  return (SETTINGS_PANELS as string[]).includes(section) ? section as SettingsPanel : "profile";
+}
+
+/* ---------------------------------------------------------------- privacy */
+
+/** What each privacy choice means, said under it in Your privacy. */
+export const privacyMeaning = {
+  postsSeenBy: { friends: "Only your friends see what you share.", everyone: "Everyone in My community sees what you share.", onlyMe: "What you share stays with you." } as Record<PostsSeenBy, string>,
+  messagesFrom: { friends: "Only your friends can message you.", friendsAndGroups: "Friends, and people in your groups, can message you.", noOne: "No one can message you." } as Record<MessagesFrom, string>,
+  requestsFrom: { everyone: "Anyone can ask to be your friend.", friendsOfFriends: "Only friends of your friends can ask.", noOne: "No one can send you a friend request. Requests already waiting stay in Friends." } as Record<RequestsFrom, string>,
+};
 
 const labelOf = <T extends string>(choices: { id: T; label: string }[], id: T): string => choices.find(choice => choice.id === id)?.label ?? "";
 /** "1 friend", "3 friends", or the words for none. */
@@ -34,19 +56,10 @@ export function postsAudience(seenBy: PostsSeenBy): { label: string; summary: st
 /** The break on now: "none" once a break has ended, whatever was chosen. */
 export const breakNow = (settings: CommunitySettings, now = Date.now()): BreakChoice => (onBreak(settings, now) ? settings.breakChoice : "none");
 
-/** The line under each section's name, in parts: "Town shown", "online dot on". */
-export function settingsSummaries(settings: CommunitySettings, town: string, now = Date.now()): Record<SettingsSection, string[]> {
+/** The line under each panel's name, in parts: "Gentle mode on", "2 hidden words". */
+export function settingsSummaries(settings: CommunitySettings, now = Date.now()): Record<SettingsPanel, string[]> {
   const until = onBreak(settings, now) && settings.breakUntil !== null ? settings.breakUntil : null;
   return {
-    appear: [
-      town ? (settings.showTown ? "Town shown" : "Town hidden") : "No town added",
-      settings.showOnline ? "online dot on" : "online dot off",
-    ],
-    friends: [
-      settings.requestsFrom === "noOne" ? "No new requests" : `Requests from ${labelOf(settingsChoices.requestsFrom, settings.requestsFrom).toLowerCase()}`,
-      settings.messagesFrom === "friends" ? "messages from friends only" : settings.messagesFrom === "noOne" ? "messages off" : "messages from friends and groups",
-      postsAudience(settings.postsSeenBy).summary,
-    ],
     see: [settings.gentleMode ? "Gentle mode on" : "Gentle mode off", counted(settings.hiddenWords.length, "hidden word", "hidden words", "no hidden words")],
     read: [settings.readAloud ? "Read aloud on" : "Read aloud off", `${labelOf(settingsChoices.textSize, settings.textSize).toLowerCase()} text`],
     quiet: [`Quiet from ${hourLabel(settings.quietFrom)} to ${hourLabel(settings.quietUntil)}`, ...(until !== null ? [`on a break until ${dayLabel(until)}`] : [])],

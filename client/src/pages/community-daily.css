@@ -21,7 +21,8 @@
 .dq-mark path { stroke-dasharray: 36; animation: dq-draw 2.8s ease-in-out infinite; }
 .dq-titles { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .dq-eyebrow { width: fit-content; padding: 3px 10px; border-radius: 999px; background: var(--cm-gold); color: var(--cm-deep); font-size: 12.5px; font-weight: 800; letter-spacing: .06em; line-height: 1.5; text-transform: uppercase; }
-.dq-meta { color: var(--cm-muted); font-size: 14.5px; }
+/* "Daily question", quietly under the Rehyn pill. */
+.dq-kind { color: var(--cm-muted); font-size: 13.5px; font-weight: 600; letter-spacing: .02em; }
 
 .dq-count { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin-left: auto; }
 .dq-stack { display: inline-flex; align-items: center; }
@@ -83,7 +84,6 @@
 
 /* Writing an answer. */
 .dq-compose { display: flex; flex-direction: column; gap: 10px; }
-.dq-hint { color: var(--cm-muted); font-size: 15.5px; }
 .dq-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .dq-chip { height: 44px; padding: 0 16px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: #FFFFFF; color: var(--cm-ink); font-size: 15.5px; font-weight: 600; cursor: pointer; }
 .dq-chip:hover { background: var(--cm-cream); }

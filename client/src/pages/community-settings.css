@@ -1,7 +1,8 @@
 /* My community: Community settings page (F5). Classes here start with cm-set-. Imported after community.css.
-   Five sections that open one at a time on the left; on the right, a live preview of the person's
-   card, a sample post at the chosen text size and a way to Safety. Below 860px the preview moves
-   under the settings. Motion is switched off by the shared reduced-motion rule in community.css. */
+   Your profile first (the profile card is cm-pic-, in community-picture.css; Your privacy and Blocked
+   are here), then three sections that open one at a time on the left; on the right, a live preview
+   of the person's card, a sample post at the chosen text size and a way to Safety. Below 860px the
+   preview moves under the settings. Motion is switched off by the shared reduced-motion rule in community.css. */
 
 /* ------------------------------------------------------------------ page */
 
@@ -15,6 +16,33 @@
 .cm-set-saved { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 14px; border-radius: 999px; background: var(--cm-mint); color: var(--cm-green); font-size: 14.5px; font-weight: 700; white-space: nowrap; animation: cm-set-saved 1.8s ease both; }
 .cm-set-saved svg { flex-shrink: 0; }
 .cm-set-saved svg path { stroke-dasharray: 40; animation: cm-set-draw .6s .15s ease-out both; }
+
+/* ----------------------------------------------------------- your profile */
+
+/* The profile card, then Your privacy and Blocked, as one group a link can bring into view. */
+.cm-set-profile { display: flex; flex-direction: column; gap: 12px; scroll-margin: 24px 0; }
+.cm-set-profile .cm-pic-profile-title:focus-visible { outline-offset: 4px; border-radius: 4px; }
+.cm-set-privacy, .cm-set-blocked { display: flex; flex-direction: column; gap: 10px; padding: 22px 26px 24px; }
+.cm-set-card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+/* The same small rust title as "Your profile" on the card above. */
+.cm-set-card-title { padding-left: 2px; color: var(--cm-rust-dark); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.cm-set-card-aside { color: var(--cm-muted); font-size: 14px; }
+.cm-set-privacy .cm-set-choice:first-of-type { padding-top: 0; }
+.cm-set-privacy .cm-set-row { padding-top: 10px; border-top: 1px solid var(--cm-line); }
+
+/* Blocked: a row for each person, and the "Unblock?" question under the one asked about. */
+.cm-set-blocked-list { display: flex; flex-direction: column; padding: 0; list-style: none; }
+.cm-set-blocked-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 6px 0; }
+.cm-set-person { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.cm-set-person > b { color: var(--cm-ink); font-size: 16.5px; font-weight: 700; overflow-wrap: anywhere; }
+.cm-set-person > span { color: var(--cm-muted); font-size: 14px; line-height: 1.35; }
+.cm-set-small { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: var(--cm-card); color: var(--cm-ink); font-size: 14.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.cm-set-small:hover { border-color: #BDB5A5; }
+.cm-set-confirm { display: flex; flex-direction: column; gap: 10px; margin: 2px 0 10px; padding: 12px 14px; border-radius: 16px; background: var(--cm-bubble); }
+.cm-set-confirm p { color: var(--cm-ink); font-size: 15px; line-height: 1.45; }
+.cm-set-confirm p:focus-visible { outline-offset: 3px; }
+.cm-set-confirm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cm-set-small-print { color: var(--cm-muted); font-size: 13.5px; line-height: 1.45; }
 
 /* --------------------------------------------------------------- sections */
 
@@ -130,11 +158,11 @@
 
 /* ------------------------------------------------- comfort and small screens */
 
-.recovery-large-text :is(.cm-page, .cm-layer) :is(.cm-set-hint, .cm-set-summary, .cm-set-card-note, .cm-set-safety-text span) { font-size: 16px; }
+.recovery-large-text :is(.cm-page, .cm-layer) :is(.cm-set-hint, .cm-set-summary, .cm-set-card-note, .cm-set-safety-text span, .cm-set-person > span, .cm-set-small-print) { font-size: 16px; }
 
 /* On a phone the app's top bar stays put and its tab bar sits along the bottom. */
 @media (max-width: 620px) {
-  .cm-set-section { scroll-margin: 84px 0 calc(84px + env(safe-area-inset-bottom)); }
+  .cm-set-section, .cm-set-profile { scroll-margin: 84px 0 calc(84px + env(safe-area-inset-bottom)); }
 }
 
 /* Narrower: the preview goes under the settings, the card beside the sample post and Safety. */
@@ -156,6 +184,8 @@
   .cm-set-icon { width: 44px; height: 44px; border-radius: 14px; }
   .cm-set-toggle-title { font-size: 18px; }
   .cm-set-panel { padding: 4px 16px 18px; }
+  .cm-set-privacy, .cm-set-blocked { padding: 18px 16px 20px; }
+  .cm-set-confirm-actions > .cm-btn { flex: 1 1 130px; }
   .cm-set-row { gap: 12px; }
   .cm-set-card-body { padding: 0 16px 18px; }
 }

@@ -3,13 +3,15 @@ import { dailyQuestion, type DailyAnswer } from "@/content/daily-questions";
 import { people } from "@/content/community-samples";
 import { canSee, commentKey, communityStore, useCommunity } from "@/lib/community-store";
 import { pokerNightOn, usePokerNight } from "@/lib/poker-night";
+import { SharingLocked, useCanShare } from "@/components/SharingLocked";
 import PokerFridayCard from "./games/PokerFridayCard";
 import { Face, MyFace } from "./parts";
 
-// The Daily question at the top of the feed, as the "Live thread" design (option B): one question a day from Rehyn,
-// its key phrase underlined, today's answers coming in one at a time in a three-row window that slides up (with
-// "<name> is writing an answer" first and the newest briefly lit), a count that bumps, starters that fill the answer
-// box, and the person's own answer pinned beneath with Remove. The answers are the example people's (this is a
+// The Daily question at the top of the feed, as the "Live thread" design (option B): one question a day from Rehyn
+// (the card says "Rehyn", with "Daily question" as a small label under it), its key phrase underlined, today's answers
+// coming in one at a time in a three-row window that slides up (with "<name> is writing an answer" first and the
+// newest briefly lit), a count that bumps, starters that fill the answer box, and the person's own answer pinned
+// beneath with Remove. The answers are the example people's (this is a
 // preview): they come in once, and after that the window goes round today's answers without inventing new ones.
 // Everything stands still with reduced motion; the content still changes. Styles: community-daily.css.
 // On Fridays (poker night) the card is the poker invitation instead: games/PokerFridayCard.tsx.
@@ -59,6 +61,7 @@ export default function DailyQuestionCard({ name }: { name: string }) {
 
 function DailyQuestionThread({ name }: { name: string }) {
   const memory = useCommunity();
+  const canShare = useCanShare();
   const [today] = useState(() => dailyQuestion());
   // Answers from people the person has blocked or hidden are left out, as everywhere in My community.
   const answers = today.answers.map((answer, index) => ({ answer, index })).filter(({ answer }) => canSee(memory, answer.who));
@@ -134,8 +137,8 @@ function DailyQuestionThread({ name }: { name: string }) {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6h5" /></svg>
         </span>
         <div className="dq-titles">
-          <p className="dq-eyebrow">Daily question</p>
-          <p className="dq-meta">{`From Rehyn · ${today.dateLabel}`}</p>
+          <p className="dq-eyebrow">Rehyn</p>
+          <p className="dq-kind">Daily question</p>
         </div>
         <div className="dq-count">
           <span className="dq-stack" aria-hidden="true">{answers.slice(0, 3).map(({ answer }) => <Face key={answer.who} who={answer.who} size={34} />)}</span>
@@ -170,7 +173,7 @@ function DailyQuestionThread({ name }: { name: string }) {
             </p>
           )}
           {total > 0 && (
-            <button type="button" className="dq-seeall" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `See all ${count} answers`}</button>
+            <button type="button" className="dq-seeall" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : "See all answers"}</button>
           )}
         </div>
       </section>
@@ -189,10 +192,9 @@ function DailyQuestionThread({ name }: { name: string }) {
           </div>
           <button type="button" className="dq-remove" onClick={remove}>Remove<span className="cm-sr"> your answer</span></button>
         </div>
-      ) : (
+      ) : !canShare ? <SharingLocked what="answer" /> : (
         <div className="dq-compose">
-          <p className="dq-hint">Add yours in a few words, or start from one of these:</p>
-          <div className="dq-chips">
+          <div className="dq-chips" role="group" aria-label="Starters for your answer">
             {today.starters.map(words => <button key={words} type="button" className="dq-chip" onClick={() => fill(words)}>{words}</button>)}
           </div>
           <form className="dq-reply" onSubmit={send}>

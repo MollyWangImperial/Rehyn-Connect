@@ -49,7 +49,7 @@
 
 /* ---------------------------------------------------------------- lounge */
 
-/* The lounge: its name and who is here, Alira's conversation starter, then the room. */
+/* The lounge: its name and who is here, then the room. */
 .cm-lounge-room.cm-chat { height: clamp(680px, calc(100vh - 230px), 920px); }
 .cm-lounge-head { display: flex; flex-shrink: 0; align-items: center; gap: 14px; padding: 22px 26px 18px; border-bottom: 1px solid var(--cm-line); }
 .cm-lounge-titles { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; }
@@ -59,9 +59,6 @@
 .cm-live-soft { color: var(--cm-muted); font-weight: 400; }
 .cm-lounge .cm-chat-faces > * + * { margin-left: -8px; }
 .cm-lounge .cm-face-more { justify-content: center; width: 40px; height: 40px; padding: 0; background: var(--cm-deep); color: #FFFFFF; font-size: 13px; }
-.cm-lounge .cm-starter { gap: 14px; margin: 18px 26px 6px; padding: 14px 18px; border: 1px solid #E7DBBE; background: var(--cm-gold-soft); }
-.cm-starter-mark { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 999px; background: var(--cm-deep); color: var(--cm-gold); }
-.cm-lounge .cm-starter-text { margin-top: 2px; font: 400 25px/1.2 var(--cm-serif); }
 .cm-lounge .cm-chat-log { padding: 0 26px 14px; }
 .cm-lounge .cm-chat-fade { margin: 0 -26px -26px; background: linear-gradient(to bottom, var(--cm-card), rgba(255, 255, 255, 0)); }
 .cm-lounge-lines { gap: 20px !important; }
@@ -87,36 +84,13 @@
 .cm-lounge-replying { display: flex; align-self: flex-start; align-items: center; gap: 8px; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--cm-bubble); color: var(--cm-ink); font-size: 14px; font-weight: 600; }
 .cm-lounge .cm-love { width: 46px; height: 46px; margin-left: 0; }
 
-/* Beside the lounge: who is here, the house rules, the Sunday circle and the poll. */
-.cm-wave-list { display: flex; flex-direction: column; padding: 0; list-style: none; }
-.cm-wave-row { display: flex; align-items: center; gap: 12px; min-height: 64px; }
-.cm-wave-row + .cm-wave-row { border-top: 1px solid var(--cm-line); }
+/* Beside the lounge: the house rules. (The online dot is Messages' too.) */
 .cm-face-live { position: relative; flex-shrink: 0; width: 44px; height: 44px; }
 .cm-online-dot { position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border: 2px solid var(--cm-card); border-radius: 999px; background: var(--cm-ok); }
 .cm-online-dot.cm-live { animation-name: cm-live-green; }
-.cm-wave-text { display: flex; flex: 1; flex-direction: column; gap: 1px; min-width: 0; }
-.cm-wave-text > b { font-size: 16px; font-weight: 700; }
-.cm-wave-text > span { color: var(--cm-muted); font-size: 13.5px; }
-.cm-wave-text > span.is-back { color: var(--cm-rust-dark); font-weight: 700; }
-.cm-wave { display: inline-flex; flex-shrink: 0; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 1.5px solid var(--cm-chip-line); border-radius: 999px; background: var(--cm-card); color: var(--cm-ink); font-size: 15px; font-weight: 700; cursor: pointer; }
-.cm-wave:hover { border-color: #BDB5A5; }
-.cm-wave.is-on { border-color: var(--cm-mint); background: var(--cm-mint); color: var(--cm-green); cursor: default; }
-.cm-wave-hand { display: flex; transform-origin: 70% 90%; }
 .cm-rules { display: flex; flex-direction: column; gap: 14px; padding: 0; list-style: none; }
 .cm-rules li { display: flex; align-items: flex-start; gap: 14px; color: var(--cm-ink); font-size: 15.5px; line-height: 1.45; }
 .cm-rule-number { flex-shrink: 0; width: 14px; color: var(--cm-gold-ink); font: 400 24px/1.05 var(--cm-serif); }
-.cm-circle-note { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 20px 22px; border-radius: 24px; background: var(--cm-deep); color: #FFFFFF; box-shadow: 0 14px 30px rgba(20, 54, 40, .16); }
-.cm-circle-note > div { flex: 1; min-width: 150px; }
-.cm-circle-note h3 { color: #FFFFFF; font: 400 28px/1.05 var(--cm-serif); }
-.cm-circle-note p { margin-top: 4px; color: rgba(255, 255, 255, .78); font-size: 14.5px; }
-
-.cm-poll-question { color: var(--cm-ink); font-size: 17.5px; font-weight: 700; }
-.cm-poll { display: flex; flex-direction: column; gap: 10px; }
-.cm-poll-option { position: relative; display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 14px; overflow: hidden; border: 1.5px solid transparent; border-radius: 14px; background: var(--cm-cream); color: var(--cm-ink); font-size: 15.5px; font-weight: 700; text-align: left; cursor: pointer; }
-.cm-poll-option.is-on { border-color: var(--cm-green); }
-.cm-poll-bar { position: absolute; top: 0; bottom: 0; left: 0; transition: width .9s cubic-bezier(.2, .8, .2, 1); }
-.cm-poll-label, .cm-poll-share { position: relative; }
-.cm-poll-share { color: var(--cm-soft-ink); font-size: 14.5px; }
 
 /* ---------------------------------------------------------- Sunday circle */
 
@@ -135,7 +109,6 @@
 .cm-stage-live > span:nth-child(2) { color: var(--cm-rust-dark); }
 .cm-stage-head h2 { color: var(--cm-ink); font: 400 42px/1 var(--cm-serif); }
 .cm-stage-head h2:focus-visible { outline-offset: 4px; }
-.cm-stage-sub { color: var(--cm-muted); font-size: 15px; }
 .cm-topic { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 360px; text-align: right; }
 .cm-topic-text { color: var(--cm-ink); font: 400 29px/1.12 var(--cm-serif); }
 .cm-stage-rule { position: relative; z-index: 3; display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; margin-top: 12px; padding: 6px 14px; border-radius: 999px; background: var(--cm-gold-soft); color: var(--cm-gold-ink); font-size: 13.5px; font-weight: 600; line-height: 1.3; }
@@ -282,12 +255,8 @@
 /* Groups by condition: the six condition tiles, then "Inside {condition}" and the right column. */
 .cm-conds { display: flex; flex-direction: column; gap: 18px; }
 .cm-conds-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 20px; }
-.cm-conds-head > div { display: flex; flex-direction: column; gap: 4px; }
 .cm-conds-title { color: var(--cm-ink); font: 400 34px/1.05 var(--cm-serif); }
 .cm-conds-title:focus-visible { outline-offset: 4px; }
-.cm-conds-head p { color: var(--cm-muted); font-size: 15.5px; }
-.cm-conds-head .cm-conds-note { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-.cm-conds-note svg { color: var(--cm-gold-ink); }
 .cm-cond-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .cm-cond-tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 8px; min-height: 128px; padding: 14px; border: 2.5px solid transparent; border-radius: 22px; color: var(--cm-ink); transition: box-shadow .25s ease, transform .25s ease; }
 .cm-cond-tile:hover { color: var(--cm-ink); transform: translateY(-2px); }
@@ -340,15 +309,7 @@
 .cm-start-small > p:not(.cm-overline) { color: rgba(255, 255, 255, .78); font-size: 15px; line-height: 1.45; }
 .cm-start-gold { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; margin-top: 2px; border-radius: 999px; background: var(--cm-gold); color: var(--cm-deep); font-size: 16px; font-weight: 700; }
 .cm-start-gold:hover { background: #E6CB8A; color: var(--cm-deep); }
-.cm-poker-teaser { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 18px 92px 18px 20px; overflow: hidden; border-radius: 24px; background: var(--cm-night); color: #FFFFFF; }
-.cm-poker-teaser:hover { color: #FFFFFF; box-shadow: 0 10px 24px rgba(26, 34, 56, .3); }
-.cm-poker-teaser .cm-overline { color: #E2C47E; }
-.cm-poker-teaser b { font: 400 26px/1.1 var(--cm-serif); }
-.cm-poker-teaser > span:not(.cm-overline):not(.cm-poker-cards) { color: rgba(255, 255, 255, .78); font-size: 14.5px; line-height: 1.45; }
-.cm-poker-cards { position: absolute; top: 14px; right: 14px; display: flex; }
-.cm-poker-cards i { display: grid; place-items: center; width: 30px; height: 42px; border-radius: 6px; background: #FFFFFF; color: var(--cm-ink); font-size: 18px; font-style: normal; box-shadow: 0 4px 10px rgba(0, 0, 0, .3); transform: rotate(-10deg); animation: cm-float 4s ease-in-out infinite; }
-.cm-poker-cards i + i { margin-left: -8px; color: var(--cm-live); transform: rotate(8deg); animation-delay: .6s; }
-@keyframes cm-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+/* "Play now", the card after it: community-games.css. */
 
 /* The group page's list: the condition, everyone in it, then the person's groups nested under it. */
 .cm-cond-chip { display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; min-height: 44px; margin: 0 6px 4px; padding: 0 12px; border-radius: 999px; background: var(--cm-mint); color: var(--cm-green); font-size: 14px; font-weight: 700; }
@@ -413,8 +374,7 @@
   .cm-group-head { padding: 0 16px 10px; }
   .cm-group-about { padding: 0 16px 12px; }
   .cm-chat-titles h2, .cm-group-titles h2, .cm-lounge-titles h2 { font-size: 30px; }
-  .cm-starter, .cm-lounge .cm-starter, .cm-challenge, .cm-invite-panel, .cm-started-bar { margin-left: 16px; margin-right: 16px; }
-  .cm-lounge .cm-starter-text { font-size: 21px; }
+  .cm-starter, .cm-challenge, .cm-invite-panel, .cm-started-bar { margin-left: 16px; margin-right: 16px; }
   .cm-chat-log, .cm-lounge .cm-chat-log { padding: 0 16px 14px; }
   .cm-chat-fade, .cm-lounge .cm-chat-fade { margin: 0 -16px -26px; }
   .cm-chat-foot { padding: 12px 16px 16px; }

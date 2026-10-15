@@ -26,7 +26,9 @@ export function calendarPage(date: Date): { day: string; date: string } {
 const utc = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 function about(meeting: CircleMeeting, origin: string) {
-  return `${meeting.detail}. Join from My community in Rehyn${origin ? `: ${origin}/community?space=circle` : "."}`;
+  // A poker night is held at the tables, not in the circle.
+  const where = meeting.id.startsWith("poker") ? "poker" : "circle";
+  return `${meeting.detail}. Join from ${where === "poker" ? "Poker" : "Sunday circle"} in Rehyn: Connect${origin ? `: ${origin}/community?space=${where}` : "."}`;
 }
 
 /** A Google Calendar page with the circle filled in, ready to save. */

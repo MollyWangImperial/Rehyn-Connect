@@ -6,12 +6,12 @@ import { createCommunityStore, type CommunityMemory } from "@/lib/community-stor
 import CircleView from "./Circle";
 import { calendarPage, circleIcs, googleCalendarUrl, nextMeeting, outlookCalendarUrl } from "./circle-calendar";
 import FeedView from "./Feed";
-import FriendsPage from "./FriendsPage";
 import GroupsView from "./Groups";
 import LoungeView from "./Lounge";
 import MessagesView from "./Messages";
 import MessagesDock from "./MessagesDock";
 import { unreadMessages } from "./messages-model";
+import SettingsView from "./SettingsView";
 import StartGroupView from "./StartGroup";
 
 // Review checks for the My community toolbar features (Find, Alerts, Friends, Safety, Settings).
@@ -48,13 +48,16 @@ describe("a blocked person stays out of sight across My community", () => {
     expect(render("/community?space=groups&group=garden", createElement(GroupsView, { active: false, requested: "garden" }))).not.toContain("Margaret: First tomatoes!");
   });
 
+  // Seats with someone in them: each shows what they are doing (Alira, speaking first, is the host).
+  const seatsTaken = (text: string) => (text.match(/\b(?:Listening|Up next|Host · speaking)\b/g) ?? []).length;
+
   // The sheet says "You won't see each other in My community": the Sunday circle leaves her chair
   // empty, doesn't name her, and doesn't pass her the teacup.
   it("leaves a blocked person out of the Sunday circle", () => {
     store.block("margaret");
     const text = render("/community?space=circle", createElement(CircleView, { active: false, name: "Zak" }));
     expect(text).not.toContain("Margaret");
-    expect(text).toContain("Eight of us here. One seat is yours.");
+    expect(seatsTaken(text)).toBe(8);
     expect(text).not.toContain("My granddaughter");
   });
 
@@ -63,7 +66,7 @@ describe("a blocked person stays out of sight across My community", () => {
     store.mute("margaret");
     const text = render("/community?space=circle", createElement(CircleView, { active: false, name: "Zak" }));
     expect(text).toContain("Margaret");
-    expect(text).toContain("Nine of us here. One seat is yours.");
+    expect(seatsTaken(text)).toBe(9);
   });
 
   // "Who's coming?" offers only people not blocked, and doesn't tick Margaret to begin with.
@@ -74,16 +77,12 @@ describe("a blocked person stays out of sight across My community", () => {
     expect(text).toContain("You and 1 friend");
   });
 
-  // The feed's "My groups" card drops a blocked or hidden writer's message, as My groups and Alerts do.
-  it("drops a blocked writer's message from the feed's My groups card", () => {
+  // The feed no longer carries a "My groups" card (review, C01): the panel's Your groups names the groups only.
+  it("quotes nobody's group message on the feed, blocked or not", () => {
+    const feed = () => render("/community", createElement(FeedView, { name: "Zak", here: 14, onMore: () => {} }));
+    expect(feed()).not.toContain("Margaret: First tomatoes!");
     store.block("margaret");
-    const text = render("/community", createElement(FeedView, { name: "Zak", here: 14, onMore: () => {} }));
-    expect(text).not.toContain("Margaret: First tomatoes!");
-    expect(text).toContain("Joan: Mine are still green.");
-  });
-
-  it("guard: the feed's My groups card quotes Margaret while she is in sight", () => {
-    expect(render("/community", createElement(FeedView, { name: "Zak", here: 14, onMore: () => {} }))).toContain("Margaret: First tomatoes!");
+    expect(feed()).not.toContain("Joan: Mine are still green.");
   });
 
   // The lounge's one-tap replies name people: one to someone blocked would reach nobody.
@@ -136,27 +135,33 @@ describe("Messages, the Messages window and Friends", () => {
     expect(text).toContain("Change who can message you");
   });
 
-  it("keeps the Messages window at the bottom right of each page: who wrote while a message waits, and still there once everything is read", () => {
-    const dock = (space: "feed" | "messages" | "start") => render("/community", createElement(MessagesDock, { space }));
-    expect(dock("feed")).toContain("Messages 2 unread Margaret: I promised you one");
+  it("keeps the Messages window at the bottom right of each page as a small pill: how many wait, and still there once everything is read", () => {
+    const dock = (space: "feed" | "messages" | "start" | null) => render("/community", createElement(MessagesDock, { space }));
+    expect(dock("feed")).toContain("Messages 2 , 2 unread");
+    // Only the count: the pill stays small, so it covers next to nothing of the page.
+    expect(dock("feed")).not.toContain("I promised you one");
     expect(dock("messages")).toBe("");
     expect(dock("start")).toBe("");
+    // On a page outside My community (the shell shows it everywhere) it is there too.
+    expect(dock(null)).toContain("Messages 2 , 2 unread");
     store.markChatRead("margaret");
     store.markChatRead("david");
-    expect(dock("feed")).toContain("Messages No new messages");
+    expect(dock("feed")).toContain("Messages , No new messages");
     expect(dock("feed")).not.toContain("unread");
   });
 
-  it("Friends: each privacy choice shows what is chosen, and what it means", () => {
+  it("Settings, Your privacy: each choice shows what is chosen, and what it means", () => {
     store.updateSettings({ messagesFrom: "noOne", postsSeenBy: "everyone", showOnline: false });
     given.memory = store.load();
-    const html = renderToStaticMarkup(createElement(Router, { ssrPath: "/community?space=friends", children: createElement(FriendsPage, { onPersonMenu: () => {} }) }));
+    const html = renderToStaticMarkup(createElement(Router, { ssrPath: "/community?space=settings&section=profile", children: createElement(SettingsView, { name: "Zak", section: "profile" }) }));
     const text = words(html);
     expect(text).toContain("No one can message you.");
     expect(text).toContain("Everyone in My community sees what you share.");
     expect(html).toMatch(/aria-pressed="true">No one</);
     expect(html).toMatch(/aria-pressed="true">Everyone</);
     expect(html).toMatch(/role="switch"[^>]*aria-checked="false"/);
+    // Each choice is said once: the privacy card is the one place for it.
+    expect(text.match(/Who can message me/g)).toHaveLength(1);
   });
 });
 

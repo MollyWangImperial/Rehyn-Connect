@@ -6,12 +6,8 @@ import { AUDIENCES, COMMUNITY_TAGS, comingUpFor, HOSTED_BY, isAlira, NO_FILTERS,
 import { goingCount, isLive, standingFor } from "@/lib/circle-listing";
 import { communityStore, useCommunity } from "@/lib/community-store";
 import { downloadIcs, googleCalendarUrl, openCalendar, outlookCalendarUrl, type CircleMeeting } from "../circle-calendar";
-import { CalendarIcon, CheckIcon, DownloadIcon, GlobeIcon, LockIcon } from "../icons";
-import { AliraMark, Face, LiveDot } from "../parts";
+import { CalendarIcon, CheckIcon, DownloadIcon } from "../icons";
 import { EventRow, Going, nameOfViewer } from "./shared";
-
-/** The circle on now, for the strip at the top of Coming up. */
-export type LiveSummary = { name: string; line: string; faces: PersonId[]; more: number };
 
 /** Add to calendar: Google, Outlook, or a file for Apple and the rest. */
 export function CalendarRow({ event }: { event: Gathering }) {
@@ -97,16 +93,14 @@ function ChipRow<T extends string>({ label, options, value, onChange }: { label:
 }
 
 /**
- * Coming up: the circle on now, the filters (who it's for, which community, who hosts), and every get-together
- * the person may see, Alira's and members', soonest first. Friends-only events show only to the friends invited.
+ * Coming up: the filters (who it's for, which community, who hosts), and every get-together the person may see,
+ * Alira's and members', soonest first. Friends-only events show only to the friends invited.
  */
-export default function ComingUpView({ events, friends, hidden, live, now, onGoLive, onOpenOwn, heading }: {
+export default function ComingUpView({ events, friends, hidden, now, onOpenOwn, heading }: {
   events: Gathering[];
   friends: PersonId[];
   hidden: PersonId[];
-  live: LiveSummary;
   now: number;
-  onGoLive: () => void;
   onOpenOwn: () => void;
   heading: boolean;
 }) {
@@ -114,27 +108,11 @@ export default function ComingUpView({ events, friends, hidden, live, now, onGoL
   const community = useCommunity();
   const memory = useCircleEvents();
   const shown = comingUpFor(events, "you", filters, friends, now, hidden);
-  const fromAlira = shown.filter(isAlira).length;
   const set = (change: Partial<GatheringFilters>) => setFilters(current => ({ ...current, ...change }));
   const titleId = useId();
 
   return (
     <div className="cm-ce-page">
-      <section className="cm-ce-live-strip" aria-label="On now in the Sunday circle">
-        <div className="cm-ce-live-main">
-          <AliraMark size={46} light />
-          <div>
-            <p className="cm-ce-live-kicker"><LiveDot />Live now · Hosted by Alira</p>
-            <p className="cm-ce-live-name">{live.name}</p>
-            <p className="cm-ce-live-line">{live.line}</p>
-          </div>
-        </div>
-        <div className="cm-ce-live-side">
-          <span className="cm-ce-faces is-dark">{live.faces.map(who => <Face key={who} who={who} size={34} />)}{live.more > 0 && <span className="cm-ce-more">{`+${live.more}`}</span>}</span>
-          <button type="button" className="cm-ce-button is-light" onClick={onGoLive}>Take your seat</button>
-        </div>
-      </section>
-
       <section className="cm-card cm-ce-filters" aria-label="Filter the get-togethers">
         <ChipRow label="Who it's for" options={AUDIENCES} value={filters.audience} onChange={audience => set({ audience })} />
         <div className="cm-ce-filter-line">
@@ -151,11 +129,7 @@ export default function ComingUpView({ events, friends, hidden, live, now, onGoL
         <div className="cm-ce-list-head">
           <div>
             <h2 className="cm-side-title" id={titleId} tabIndex={-1} data-view-heading={heading ? "" : undefined}>Coming up</h2>
-            <p className="cm-ce-sub" role="status">{shown.length ? `${shown.length} get-together${shown.length === 1 ? "" : "s"} · ${fromAlira} hosted by Alira, ${shown.length - fromAlira} by members` : "Nothing coming up that fits these filters."}</p>
-          </div>
-          <div className="cm-ce-key">
-            <span><GlobeIcon size={14} />Public · anyone can join</span>
-            <span><LockIcon size={14} />Friends only · by invitation</span>
+            {!shown.length && <p className="cm-ce-sub" role="status">Nothing coming up that fits these filters.</p>}
           </div>
         </div>
         {shown.map(event => {
@@ -175,7 +149,6 @@ export default function ComingUpView({ events, friends, hidden, live, now, onGoL
             </div>
           );
         })}
-        <p className="cm-ce-foot">Alira hosts a get-together every two days at 4 pm. Members add their own in between. Press Remind me and it reminds you half an hour before.</p>
       </section>
     </div>
   );

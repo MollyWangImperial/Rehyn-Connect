@@ -93,10 +93,6 @@
 /* An event: its date, what it is, and its buttons. */
 .cm-ce-list { display: flex; flex-direction: column; padding: 22px 24px 18px; }
 .cm-ce-list-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 16px; padding-bottom: 14px; }
-.cm-ce-key { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--ce-muted); font-size: 13px; }
-.cm-ce-key span { display: inline-flex; align-items: center; gap: 6px; }
-.cm-ce-key span:first-child svg { color: var(--ce-mint-ink); }
-.cm-ce-key span:last-child svg { color: var(--ce-warm-ink); }
 .cm-ce-item { border-top: 1px solid var(--ce-line); }
 .cm-ce-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 16px 4px; }
 .cm-ce-row.is-highlight { margin: 0 -24px; padding: 16px 28px; background: #FBF7F1; }
@@ -113,15 +109,6 @@
 .cm-ce-foot { margin-top: 2px; padding-top: 14px; border-top: 1px solid var(--ce-line); color: var(--ce-muted); font-size: 13.5px; line-height: 1.45; }
 
 /* ------------------------------------------------------------------ coming up */
-
-.cm-ce-live-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 18px 22px; border-radius: 20px; background: linear-gradient(100deg, #3A1F5E, #5B2A7E); color: #FFFFFF; }
-.cm-ce-live-main { display: flex; flex: 1 1 340px; align-items: center; gap: 14px; min-width: 0; }
-.cm-ce-live-kicker { display: flex; align-items: center; gap: 8px; color: #F2C6B5; font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-.cm-ce-live-name { margin-top: 2px; font: 400 27px/1.1 var(--cm-serif); }
-.cm-ce-live-line { margin-top: 2px; color: #E4D6F0; font-size: 14px; }
-.cm-ce-live-side { display: flex; align-items: center; gap: 14px; }
-.cm-ce-live-strip .cm-ce-button.is-light { color: #3A1F5E; }
-.cm-ce-live-strip :focus-visible { outline: 3px solid var(--cm-gold) !important; outline-offset: 3px; }
 
 .cm-ce-filters { display: flex; flex-direction: column; gap: 12px; padding: 18px 22px; }
 .cm-ce-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
@@ -153,7 +140,6 @@
 .cm-ce-checks li { display: flex; align-items: flex-start; gap: 10px; }
 .cm-ce-tick { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 20px; height: 20px; margin-top: 1px; border: 2px solid var(--cm-rust); border-radius: 999px; color: #FFFFFF; }
 .cm-ce-checks li.is-met .cm-ce-tick { border-color: var(--ce-primary); background: var(--ce-primary); }
-.cm-ce-standing-foot { padding-top: 12px; border-top: 1px solid var(--ce-line); color: var(--ce-muted); font-size: 13.5px; line-height: 1.45; }
 .cm-ce-standing .cm-ce-button { align-self: flex-start; }
 .cm-ce-invite-more { display: flex; flex-direction: column; gap: 10px; margin: 0 0 14px 70px; padding: 14px; border: 1px solid var(--ce-line); border-radius: 16px; }
 .cm-ce-invite-more legend { padding: 0 6px; color: var(--ce-muted); font-size: 13px; font-weight: 700; }

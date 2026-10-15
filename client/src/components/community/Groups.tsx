@@ -8,16 +8,17 @@ import { battleshipsProgress } from "./games/battleships-rules";
 import ChessGame from "./games/Chess";
 import { replay } from "./games/chess-rules";
 import { ChessPiece, GamesIcon } from "./games/pieces";
+import PlayNowSheet, { COMPUTER_NOTE } from "./games/PlayNowSheet";
 import StartGameSheet from "./games/StartGameSheet";
-import { conditionOf, gameOpens, homeCondition, lastLine, myGames, myGroups, visibleSubgroups, type GameModel, type GroupModel, type SubgroupCard } from "./group-model";
+import { conditionOf, gameOpens, homeCondition, lastLine, myGames, myGroups, openGames, visibleSubgroups, type GameModel, type GroupModel, type SubgroupCard } from "./group-model";
 import { useBursts, usePinnedToEnd } from "./hooks";
 import { CheckIcon, ChevronDownIcon, ClockIcon, EyeIcon, GlobeIcon, HeartIcon, LockIcon, NextIcon, PlusIcon, PulseIcon, UsersIcon } from "./icons";
 import { ChatInput, Cover, Face, FloatingHearts, LiveDot, MyFace, MyMessage, TheirMessage, toneClass, TypingRow } from "./parts";
 import "@/pages/community-games.css";
 
 const nameOf = (who: PersonId) => people[who].name;
-/** Friday poker night is its own space, added beside the groups. */
-const POKER_HREF = "/community?space=poker";
+/** `&game=new-open` on the Groups page opens Play now. */
+const NEW_OPEN = "new-open";
 
 /* --------------------------------------------------------------- small parts */
 
@@ -55,58 +56,47 @@ function progressOf(game: GameModel): { text: string; yours: boolean } {
 /** "Your move" becomes "your move" in the middle of a sentence; a name keeps its capital. */
 const midSentence = (text: string, name: string) => (text.startsWith(name) ? text : `${text.charAt(0).toLowerCase()}${text.slice(1)}`);
 
-/** "Games in your groups": games the person plays, games they can watch, and games coming up. */
-function GamesCard({ memory }: { memory: CommunityMemory }) {
-  // Games the person plays come first, then ones to watch, then ones coming up.
-  const games = myGames(memory).filter(game => game.state !== "finished").sort((a, b) => Number(b.withYou) - Number(a.withYou)).slice(0, 4);
-  const groupName = (id: string) => myGroups(memory).find(group => group.id === id)?.name ?? "";
+/**
+ * "Play now": a game with someone new, with no group to make first. Under the button, the Play now
+ * games already going: chess and Battleships open to play; the other games are coming soon.
+ */
+function PlayNowCard({ memory, cond }: { memory: CommunityMemory; cond: ConditionId }) {
+  const games = openGames(memory).filter(game => game.state !== "finished").slice(0, 4);
   return (
-    <section className="cm-card cm-side-card cm-rise-2" aria-labelledby="cm-games-title">
-      <div className="cm-card-row"><h3 className="cm-side-title" id="cm-games-title">Games in your groups</h3><span className="cm-games-mark"><GamesIcon /></span></div>
-      {games.length === 0 && <p className="cm-games-empty">No games yet. Start one in any of your private groups.</p>}
-      <ul className="cm-games-list">
-        {games.map(game => {
-          const href = communityHref("groups", game.groupId, { game: game.id });
-          if (playsNow(game)) {
-            const { text, yours } = progressOf(game);
-            return (
-              <li key={game.id}>
-                <Link className="cm-game-row is-yours" href={href}>
-                  <span className="cm-game-face">
-                    <Face who={game.players[0]} size={44} />
-                    <span className="cm-game-badge" aria-hidden="true">{game.type === "battleships" ? <Reticle className="cm-bs-badge" /> : <ChessPiece piece="wN" size={16} />}</span>
-                  </span>
-                  <span className="cm-group-text"><b>{`${game.name} · ${nameOf(game.players[0])}`}</b><span className={yours ? "is-go" : ""}>{text}</span></span>
-                  <span className={`cm-game-play ${yours ? "cm-nudge" : ""}`}>Play</span>
-                </Link>
-              </li>
-            );
-          }
-          if (game.state === "scheduled") {
-            const on = memory.gameReminders.includes(game.id);
+    <section className="cm-card cm-side-card cm-play-now cm-rise-2" aria-labelledby="cm-play-now-title">
+      <p className="cm-overline">Play now</p>
+      <h3 id="cm-play-now-title">Play a game with someone new</h3>
+      <p>Pick a game and you're matched with a member who is free. No group needed, and no clock.</p>
+      <Link className="cm-play-now-go cm-nudge" href={communityHref("groups", null, { game: NEW_OPEN, cond })}><GamesIcon size={20} />Play now</Link>
+      <p className="cm-play-now-note">{COMPUTER_NOTE}</p>
+      {games.length > 0 && (
+        <ul className="cm-games-list" aria-label="Your Play now games">
+          {games.map(game => {
+            const who = listNames(game.players.map(nameOf));
+            if (playsNow(game)) {
+              const { text, yours } = progressOf(game);
+              return (
+                <li key={game.id}>
+                  <Link className="cm-game-row is-yours" href={communityHref("groups", null, { game: game.id })}>
+                    <span className="cm-game-face">
+                      <Face who={game.players[0]} size={44} />
+                      <span className="cm-game-badge" aria-hidden="true">{game.type === "battleships" ? <Reticle className="cm-bs-badge" /> : <ChessPiece piece="wN" size={16} />}</span>
+                    </span>
+                    <span className="cm-group-text"><b>{`${game.name} · ${who}`}</b><span className={yours ? "is-go" : ""}>{text}</span></span>
+                    <span className={`cm-game-play ${yours ? "cm-nudge" : ""}`}>Play</span>
+                  </Link>
+                </li>
+              );
+            }
             return (
               <li key={game.id} className="cm-game-row">
                 <span className="cm-game-tile is-lilac"><GamesIcon /></span>
-                <span className="cm-group-text"><b>{`${game.name} ${game.when.charAt(0).toLowerCase()}${game.when.slice(1)}`}</b><span>{`${game.players.length} going · ${groupName(game.groupId)}`}</span></span>
-                <button type="button" className={`cm-remind ${on ? "is-on" : ""}`} aria-pressed={on} onClick={() => communityStore.toggleGameReminder(game.id)}>{on ? "Reminder set" : "Remind me"}<span className="cm-sr">{` for ${game.name}`}</span></button>
+                <span className="cm-group-text"><b>{`${game.name} · ${who}`}</b><span>Coming soon in this preview</span></span>
               </li>
             );
-          }
-          const watching = !game.withYou;
-          return (
-            <li key={game.id}>
-              <Link className="cm-game-row" href={gameOpens(game) ? href : communityHref("groups", game.groupId)}>
-                <span className="cm-game-tile">{game.type === "battleships" ? <Reticle className="cm-bs-tile-icon" /> : <ChessPiece piece="bP" size={26} />}</span>
-                <span className="cm-group-text">
-                  <b>{watching ? `${listNames(game.players.map(nameOf))}` : `${game.name} with ${listNames(game.players.map(nameOf))}`}</b>
-                  <span>{`${game.name} · ${groupName(game.groupId)}`}{game.own?.state === "lobby" ? " · waiting" : ""}</span>
-                </span>
-                <span className="cm-game-link">{watching ? "Watch" : game.type === "chess" || game.type === "battleships" ? "Play" : "Open"}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+          })}
+        </ul>
+      )}
     </section>
   );
 }
@@ -119,9 +109,11 @@ const FILTERS: { id: Filter; label: string }[] = [{ id: "all", label: "All" }, {
 /**
  * The Groups tab: the condition groups, then the smaller groups members started inside the one
  * chosen. Private groups show only to the people in them; everyone else never sees them here.
+ * With `playAsked` (`&game=new-open`), Play now is open over it.
  */
-function ConditionGroups({ chosen }: { chosen: ConditionId | null }) {
+function ConditionGroups({ chosen, playAsked }: { chosen: ConditionId | null; playAsked: boolean }) {
   const memory = useCommunity();
+  const [, navigate] = useLocation();
   const cond = conditionOf(chosen ?? homeCondition(memory));
   const member = inCondition(memory, cond.id);
   const [filter, setFilter] = useState<Filter>("all");
@@ -131,15 +123,15 @@ function ConditionGroups({ chosen }: { chosen: ConditionId | null }) {
   const all = visibleSubgroups(memory, cond.id);
   const shown = all.filter(group => (filter === "mine" ? group.member : filter === "public" ? group.visibility === "public" : true));
   const join = (group: SubgroupCard) => { communityStore.toggleJoined(group.id as JoinableGroupId); burst(); };
+  // Play now closes back to the groups; a game that can be played opens on its own page.
+  const here = communityHref("groups", null, { cond: chosen });
+  const closePlay = () => navigate(here, { replace: true });
+  const play = (game: { id: string; type: string }) => navigate(game.type === "chess" || game.type === "battleships" ? communityHref("groups", null, { game: game.id }) : here, { replace: true });
 
   return (
     <div className="cm-conds">
       <div className="cm-conds-head">
-        <div>
-          <h2 className="cm-conds-title" tabIndex={-1} data-view-heading>Groups by condition</h2>
-          <p>Your own condition comes first. Inside each one, members start smaller groups of their own.</p>
-        </div>
-        <p className="cm-conds-note"><LockIcon size={16} strokeWidth={2} />Private groups only show to the people in them</p>
+        <h2 className="cm-conds-title" tabIndex={-1} data-view-heading>Groups by condition</h2>
       </div>
 
       <nav className="cm-cond-tiles" aria-label="Conditions">
@@ -218,15 +210,10 @@ function ConditionGroups({ chosen }: { chosen: ConditionId | null }) {
             <p>A corner for your people. It's private to start with, and you can open it up later.</p>
             <Link className="cm-start-gold" href={communityHref("start", null, { cond: cond.id })}><PlusIcon size={18} />Start a group</Link>
           </section>
-          <GamesCard memory={memory} />
-          <Link className="cm-poker-teaser cm-rise-3" href={POKER_HREF}>
-            <span className="cm-overline">Every Friday · 7 pm</span>
-            <b>Friday poker night</b>
-            <span>Rehyn asks on Friday morning which game you fancy, then seats you with others who picked the same. Chips only, never money.</span>
-            <span className="cm-poker-cards" aria-hidden="true"><i>♠&#xFE0E;</i><i>♥&#xFE0E;</i></span>
-          </Link>
+          <PlayNowCard memory={memory} cond={cond.id} />
         </div>
       </div>
+      {playAsked && <PlayNowSheet onClose={closePlay} onPlay={play} />}
     </div>
   );
 }
@@ -645,11 +632,16 @@ function GroupPage({ active, requested, sheetAsked }: { active: boolean; request
 /**
  * The Groups tab. With no group named it shows the groups by condition; with one, that group's
  * page; with a game named too (`&game=`), that game. `&game=new` opens "Start a game" on the page.
+ * With no group, `&game=new-open` opens Play now, and `&game=<id>` one of its games.
  */
 export default function GroupsView({ active, requested }: { active: boolean; requested: string | null }) {
   const memory = useCommunity();
   const view = communityViewFromQuery(useSearch());
-  if (!requested) return <ConditionGroups chosen={view.cond ?? null} />;
+  if (!requested) {
+    const open = view.game && view.game !== NEW_OPEN ? openGames(memory).find(item => item.id === view.game && gameOpens(item)) : undefined;
+    if (open) return open.type === "battleships" ? <BattleshipsGame key={open.id} game={open} group={null} /> : <ChessGame key={open.id} game={open} group={null} />;
+    return <ConditionGroups chosen={view.cond ?? null} playAsked={view.game === NEW_OPEN} />;
+  }
   const group = myGroups(memory).find(item => item.id === requested);
   const game = group && view.game ? myGames(memory, group.id).find(item => item.id === view.game && gameOpens(item)) : undefined;
   if (group && game) return game.type === "battleships" ? <BattleshipsGame key={game.id} game={game} group={group} /> : <ChessGame key={game.id} game={game} group={group} />;

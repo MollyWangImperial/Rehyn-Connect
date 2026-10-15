@@ -50,6 +50,18 @@
 .settings-profile-feedback[role=alert] { color:#a33f27; }
 .settings-profile-content button:disabled { opacity:.6; cursor:wait; }
 @media (max-width:620px) { .settings-profile-fields { grid-template-columns:1fr; } }
+.settings-document-version { margin:0 0 12px; padding:8px 12px; border-radius:10px; background:#eff1eb; color:#596a62; font:650 12.5px "Manrope",sans-serif; }
+.settings-display { display:flex; flex-direction:column; gap:10px; }
+.settings-display-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:12px 16px; border:1px solid #e1e7da; border-radius:14px; background:#fff; }
+.settings-display-row > span { display:flex; flex-direction:column; gap:3px; }
+.settings-display-row b { color:#2e4938; font-size:15px; }
+.settings-display-row > span > span { color:#647565; font-size:13px; }
+.settings-display-switch { position:relative; flex:none; width:52px; height:30px; border:0; border-radius:999px; background:#cfd8cf; cursor:pointer; transition:background .16s ease; }
+.settings-display-switch span { position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .16s ease; }
+.settings-display-switch[aria-checked="true"] { background:#285b49; }
+.settings-display-switch[aria-checked="true"] span { transform:translateX(22px); }
+.settings-display-switch:focus-visible { outline:3px solid #285b49; outline-offset:2px; }
+@media (prefers-reduced-motion:reduce) { .settings-display-switch, .settings-display-switch span { transition:none; } }
 .settings-profile-card { margin-top:18px; padding:20px; border:1px solid #e1e7da; border-radius:17px; background:#fff; }
 .settings-profile-card h3 { margin:0 0 15px; color:#2e4938; font-size:13px; font-weight:800; }
 .settings-profile-card dl { margin:0; }

@@ -1,29 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearch } from "wouter";
-import { libraryLetters, librarySections, LIBRARY_NOTE, MOST_READ, POPULAR, type LibraryLetter } from "@/content/library";
-import {
-  conditionByKey,
-  conditionItems,
-  contentTitle,
-  isReadable,
-  itemByKey,
-  itemHref,
-  itemKey,
-  learnArticle,
-  libraryCounts,
-  sectionCounts,
-  sectionHref,
-  type ConditionPlace,
-} from "@/lib/library";
+import { librarySections, POPULAR } from "@/content/library";
+import { conditionByKey, itemHref, itemKey, mostReadPool, mostReadWindow, sectionHref } from "@/lib/library";
 import { searchLibrary, type SearchHit } from "@/lib/library-search";
-import { useLibraryState, type LibraryState } from "@/lib/library-store";
-import { AliraMark, ArrowIcon, Envelope, HeadphonesIcon, hueStyle, jumpTo, PlayIcon, SearchIcon, SectionGlyph } from "./parts";
+import { ArrowIcon, hueStyle, jumpTo, SearchIcon, SectionGlyph } from "./parts";
 
-// The Library's front page, in the editorial style: search, then three numbered parts: today's three
-// things, the eight sections (the reference shelf) and the most read. The stories live on the
-// condition and section pages, and under /library/stories.
+// The Library's front page, in the editorial style: search, then two numbered parts: the seven
+// sections (the reference shelf) and the most read. The stories live on the condition and section
+// pages, and under /library/stories.
 
-const FALLBACK = "stroke/ischaemic";
+/** How long each Most read list stays before it turns one place. */
+const MOST_READ_TURN_MS = 6000;
+const MOST_READ_SHOWN = 5;
 
 function SearchResults({ query, hits }: { query: string; hits: SearchHit[] }) {
   return <section className="lib-results" aria-labelledby="lib-results-title">
@@ -42,94 +30,68 @@ function SearchResults({ query, hits }: { query: string; hits: SearchHit[] }) {
   </section>;
 }
 
-/** The condition to pick up: the one visited last, if it has a page yet; otherwise ischaemic stroke. */
-function pickUp(state: LibraryState) {
-  const last = state.last ? conditionByKey(state.last) : undefined;
-  const place = (last?.condition.content?.understand.length ? last : undefined) ?? (conditionByKey(FALLBACK) as ConditionPlace);
-  const items = conditionItems(place.condition);
-  const read = items.filter(({ item }) => state.read.includes(itemKey({ ...place, item })));
-  const next = items.find(({ item }) => !state.read.includes(itemKey({ ...place, item }))) ?? items[0];
-  return { place, items, read: read.length, next, resumed: Boolean(last && last === place) };
-}
-
-function ForYou({ state }: { state: LibraryState }) {
-  const resume = pickUp(state);
-  const progress = resume.items.length ? Math.round((resume.read / resume.items.length) * 100) : 0;
-  // Alira suggests a checked short answer the reader has not opened, from the condition they read most recently.
-  const suggestion = conditionItems(resume.place.condition).find(({ item }) => isReadable(item) && !state.read.includes(itemKey({ ...resume.place, item })))
-    ?? conditionItems(resume.place.condition).find(({ item }) => isReadable(item));
-  const learn = suggestion && learnArticle(suggestion.item);
-  const letter: LibraryLetter | undefined = libraryLetters.find(candidate => !state.letters.includes(candidate.id));
-  const fresh = conditionItems(resume.place.condition).find(({ item }) => item.isNew);
-
-  return <section className="lib-wrap lib-block" aria-labelledby="lib-foryou">
-    <h2 id="lib-foryou" className="lib-h2">For you today</h2>
-    <div className="lib-grid lib-grid-3">
-      <Link href={itemHref({ ...resume.place, item: resume.next.item })} className="lib-card lib-foryou" style={hueStyle(resume.place.section.hue)}>
-        <span className="lib-card-kicker">{resume.resumed ? "Pick up where you left off" : "A good place to start"}</span>
-        <strong className="lib-card-title">{resume.place.condition.title} · {contentTitle(resume.next.type, resume.place.condition)}</strong>
-        <span className="lib-card-text">Next up: “{resume.next.item.title}”{resume.next.item.minutes ? ` · ${resume.next.item.minutes} min` : ""}</span>
-        <span className="lib-progress">
-          <span className="lib-progress-track" aria-hidden="true"><i style={{ width: `${progress}%` }} /></span>
-          {resume.read} of {resume.items.length} read
-        </span>
-      </Link>
-      {suggestion && <Link href={itemHref({ ...resume.place, item: suggestion.item })} className="lib-card lib-foryou is-alira">
-        <span className="lib-card-kicker"><AliraMark />Alira suggests</span>
-        <strong className="lib-card-title">{learn?.question ?? suggestion.item.title}</strong>
-        <span className="lib-card-text">{learn?.hook ?? suggestion.item.blurb}</span>
-        <span className="lib-card-foot">A short answer · Alira can read it to you</span>
-      </Link>}
-      {letter ? <Link href={`/letters/${letter.id}`} className="lib-card lib-foryou is-letter">
-        <span className="lib-card-kicker"><Envelope size={34} />A letter waiting for you</span>
-        <strong className="lib-card-title">{letter.title}</strong>
-        <span className="lib-card-text">{letter.teaser}</span>
-        <span className="lib-card-foot">Open the envelope · {letter.minutes} min</span>
-      </Link> : fresh ? <Link href={itemHref({ ...resume.place, item: fresh.item })} className="lib-card lib-foryou is-new">
-        <span className="lib-card-kicker">New this week</span>
-        <strong className="lib-card-title">{fresh.item.title}</strong>
-        {fresh.item.blurb && <span className="lib-card-text">{fresh.item.blurb}</span>}
-        <span className="lib-card-foot"><PlayIcon size={14} />Video · {fresh.item.minutes} min</span>
-      </Link> : null}
-    </div>
-  </section>;
-}
-
 function Browse() {
-  const counts = libraryCounts();
   return <section className="lib-wrap lib-block" aria-labelledby="lib-browse">
     <div className="lib-row-head">
       <div>
         <h2 id="lib-browse" className="lib-h2 is-big">Browse by condition</h2>
-        <p className="lib-sub">{counts.sections} sections, {counts.conditions} conditions. Start broad and narrow down, or search above if you already know the name.</p>
+        <p className="lib-sub">Our team is continually adding new conditions, topics and resources to the library.</p>
       </div>
-      <span className="lib-counts">{counts.topics} topics · {counts.stories} stories · {counts.links} trusted links</span>
     </div>
     <ul className="lib-grid lib-grid-4" role="list">
-      {librarySections.map(section => {
-        const count = sectionCounts(section);
-        return <li key={section.id}>
-          <Link href={sectionHref(section)} className="lib-card lib-section-card" style={hueStyle(section.hue)}>
-            <span className="lib-section-icon"><SectionGlyph icon={section.icon} /></span>
-            <strong className="lib-card-title">{section.title}</strong>
-            <span className="lib-section-count">{count.conditions} conditions · {count.topics} {count.topics === 1 ? "topic" : "topics"}</span>
-            <span className="lib-chips">{section.chips.map(chip => <span key={chip}>{chip}</span>)}</span>
-            <span className="lib-card-go">Explore section →</span>
-          </Link>
-        </li>;
-      })}
+      {librarySections.map(section => <li key={section.id}>
+        <Link href={sectionHref(section)} className="lib-card lib-section-card" style={hueStyle(section.hue)}>
+          <span className="lib-section-icon"><SectionGlyph icon={section.icon} /></span>
+          <strong className="lib-card-title">{section.title}</strong>
+          <span className="lib-chips">{section.chips.map(chip => <span key={chip}>{chip}</span>)}</span>
+          <span className="lib-card-go">Explore section →</span>
+        </Link>
+      </li>)}
     </ul>
   </section>;
 }
 
-/** Most read, across the full width as a two-column list. */
+/** Whether the reader has asked for less motion; follows the setting if it changes. */
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(() => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
+  useEffect(() => {
+    const media = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!media) return;
+    const follow = () => setReduced(media.matches);
+    media.addEventListener("change", follow);
+    return () => media.removeEventListener("change", follow);
+  }, []);
+  return reduced;
+}
+
+/**
+ * Most read, across the full width as a two-column list. Every few seconds the list turns one
+ * place through the pool, in place; it holds while the pointer or focus is on it, while the tab is
+ * hidden, and altogether when the reader prefers less motion.
+ */
 function MostRead() {
-  const mostRead = MOST_READ.map(itemByKey).filter(place => place !== undefined);
+  const pool = useMemo(mostReadPool, []);
+  const [offset, setOffset] = useState(0);
+  const [held, setHeld] = useState(false);
+  const still = useReducedMotion();
+  const turning = !still && !held && pool.length > MOST_READ_SHOWN;
+
+  useEffect(() => {
+    if (!turning) return;
+    let timer: number | undefined;
+    const start = () => { stop(); if (!document.hidden) timer = window.setInterval(() => setOffset(at => at + 1), MOST_READ_TURN_MS); };
+    const stop = () => { if (timer !== undefined) { window.clearInterval(timer); timer = undefined; } };
+    start();
+    document.addEventListener("visibilitychange", start);
+    return () => { stop(); document.removeEventListener("visibilitychange", start); };
+  }, [turning]);
+
+  const shown = mostReadWindow(pool, offset, MOST_READ_SHOWN);
   return <section className="lib-wrap lib-block lib-pair">
-    <div className="lib-mostread">
+    <div className="lib-mostread" onPointerEnter={() => setHeld(true)} onPointerLeave={() => setHeld(false)} onFocus={() => setHeld(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false); }}>
       <h2 className="lib-h2 is-warm">Most read</h2>
       <ol role="list">
-        {mostRead.map((place, index) => <li key={itemKey(place)}>
+        {shown.map((place, index) => <li key={itemKey(place)}>
           <Link href={itemHref(place)}>
             <span className="lib-mostread-n">{index + 1}</span>
             <span className="lib-mostread-title">{place.item.title}</span>
@@ -142,7 +104,6 @@ function MostRead() {
 }
 
 export default function LibraryFront() {
-  const state = useLibraryState();
   // A search can arrive in the address (/library?q=tired), from "Look up a topic" in the left panel.
   const asked = new URLSearchParams(useSearch()).get("q") ?? "";
   const [query, setQuery] = useState(asked);
@@ -155,7 +116,6 @@ export default function LibraryFront() {
     <section className="lib-wrap lib-hero">
       <span className="lib-kicker is-coral">Understand what you're living with</span>
       <h1 className="lib-title">Library<span>.</span></h1>
-      <p className="lib-lede">Plain-words guides, short videos and trusted links on the conditions that matter to you, and the stories of people who have already been through them.</p>
       <form role="search" className="lib-search" onSubmit={event => { event.preventDefault(); results.current?.querySelector<HTMLElement>("h2")?.focus(); }}>
         <label htmlFor="lib-search" className="lib-sr">Search the library</label>
         <div className="lib-search-box">
@@ -167,22 +127,15 @@ export default function LibraryFront() {
       </form>
       {/* Results come straight under the box, so they are seen as soon as they change. */}
       <div ref={results}>{searching && <SearchResults query={query} hits={hits} />}</div>
-      <div className="lib-popular">
-        <span>Popular right now</span>
+      <nav className="lib-popular" aria-label="Popular conditions">
         {POPULAR.map(chip => {
           const place = conditionByKey(chip.key);
           return place ? <Link key={chip.key} href={`/${chip.key}`}>{chip.label}</Link> : null;
         })}
-      </div>
+      </nav>
     </section>
 
-    <ForYou state={state} />
     <Browse />
     <MostRead />
-
-    <footer className="lib-wrap lib-foot">
-      <span>{LIBRARY_NOTE}</span>
-      <span className="lib-foot-voice"><HeadphonesIcon />Alira can read any condition page aloud</span>
-    </footer>
   </div>;
 }

@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Check } from "lucide-react";
 import { useSettings, type SettingsView } from "@/components/AccountSettings";
 import HeartRateMark from "@/components/HeartRateMark";
-import { agreedTo, consentStore, HEALTH_CONSENT_TEXT, useConsents } from "@/lib/consent";
+import { ageOn, agreedTo, consentStore, HEALTH_CONSENT_TEXT, MIN_AGE, useConsents } from "@/lib/consent";
 import { fastCheckPath } from "@/lib/fast-check";
 import { profileName, profileStore, useProfile } from "@/lib/profile";
 import "@/components/consent.css";
@@ -39,15 +39,21 @@ export default function Join() {
   const profile = useProfile();
   const consents = useConsents();
   const agreed = agreedTo(consents);
-  const returning = consents.terms !== null || consents.healthWithdrawnAt !== null;
+  // Back here only when a document has a new version (withdrawing the health consent keeps the account; it just stops sharing).
+  const returning = consents.terms !== null;
   const [name, setName] = useState(() => (returning ? profileName(profile) : ""));
-  const [ticked, setTicked] = useState<Record<Box, boolean>>({ terms: agreed.terms, privacy: agreed.privacy, health: false });
+  const [born, setBorn] = useState(consents.dateOfBirth ?? "");
+  const [ticked, setTicked] = useState<Record<Box, boolean>>({ terms: agreed.terms, privacy: agreed.privacy, health: agreed.health });
   const [tried, setTried] = useState(false);
   const problemBox = useRef<HTMLDivElement>(null);
   const nameId = useId();
+  const bornId = useId();
+  const age = ageOn(born || null);
+  const tooYoung = age !== null && age < MIN_AGE;
 
   const missing = [
     !name.trim() && "your name",
+    age === null && "your date of birth",
     !ticked.terms && "the Terms of Use",
     !ticked.privacy && "the Privacy Notice",
     !ticked.health && "the health information consent",
@@ -63,9 +69,10 @@ export default function Join() {
       requestAnimationFrame(() => problemBox.current?.focus());
       return;
     }
+    if (tooYoung) { setTried(true); requestAnimationFrame(() => problemBox.current?.focus()); return; }
     const typed = name.trim();
     if (typed !== profileName(profile)) profileStore.save({ ...profile, name: typed, preferredName: "" });
-    consentStore.register();
+    consentStore.register(born, ticked.health);
   };
 
   return (
@@ -74,11 +81,11 @@ export default function Join() {
         <p className="join-brand"><span className="join-brand-mark"><HeartRateMark size={22} /></span><span>Rehyn<em>: Connect</em></span></p>
         <h1 className="join-title">{returning ? "Welcome back" : "Join Rehyn: Connect"}</h1>
         <p className="join-lede">{returning
-          ? "Before you carry on, please look at these again. All three are needed to use Rehyn: Connect."
+          ? "The Terms of Use or the Privacy Notice have changed since you agreed to them. Please look at these again: all three are needed to use Rehyn: Connect."
           : "A warm, safe community for people living with stroke, Parkinson's, MS and other conditions, and the people who care for them."}</p>
 
-        {tried && missing.length > 0 && (
-          <div ref={problemBox} className="join-problem" role="alert" tabIndex={-1}>{`To join, please add ${listed}.`}</div>
+        {tried && (missing.length > 0 || tooYoung) && (
+          <div ref={problemBox} className="join-problem" role="alert" tabIndex={-1}>{tooYoung ? `Rehyn Connect is for people aged ${MIN_AGE} or over, so we can't create an account for you.` : `To join, please add ${listed}.`}</div>
         )}
 
         <form className="join-form" onSubmit={join} noValidate>
@@ -87,10 +94,15 @@ export default function Join() {
             <p className="join-hint" id={`${nameId}-hint`}>This is the name other members will see.</p>
             <input id={nameId} value={name} onChange={event => setName(event.target.value)} autoComplete="given-name" maxLength={80} aria-describedby={`${nameId}-hint`} aria-invalid={(tried && !name.trim()) || undefined} />
           </div>
+          <div className={`join-field ${tried && (age === null || tooYoung) ? "is-missing" : ""}`}>
+            <label htmlFor={bornId}>Your date of birth</label>
+            <p className="join-hint" id={`${bornId}-hint`}>{`Rehyn Connect is for people aged ${MIN_AGE} or over. Under 18s get extra protections. Your date of birth is never shown to anyone.`}</p>
+            <input id={bornId} type="date" value={born} onChange={event => setBorn(event.target.value)} autoComplete="bday" max={new Date().toISOString().slice(0, 10)} aria-describedby={`${bornId}-hint`} aria-invalid={(tried && (age === null || tooYoung)) || undefined} />
+          </div>
 
           <fieldset className="join-consents">
             <legend>Please read and agree to all three</legend>
-            <ConsentBox title="Terms of Use" text="I have read and agree to the Terms of Use." note="Rehyn is for people aged 18 or over."
+            <ConsentBox title="Terms of Use" text="I have read and agree to the Terms of Use." note="Version 2.0. Section 6 has the Community Rules."
               checked={ticked.terms} onChange={tick("terms")} read={read("terms", "Read the Terms of Use")} problem={tried && !ticked.terms} />
             <ConsentBox title="Privacy Notice" text="I have read the Privacy Notice, which explains how Rehyn Ltd uses my information."
               checked={ticked.privacy} onChange={tick("privacy")} read={read("privacy", "Read the Privacy Notice")} problem={tried && !ticked.privacy} />

@@ -46,7 +46,7 @@ const or = (found: unknown, page: ReactNode) => (found ? page : <Missing />);
 
 export default function Library() {
   useScrollOnArrival();
-  return <RecoveryShell active="Library" dateLabel={todayLabel()} className="library-shell">
+  return <RecoveryShell active="Library" dateLabel={todayLabel()} className="library-shell" panel={false}>
     <Switch>
       <Route path="/"><LibraryFront /></Route>
       <Route path="/stories"><StoriesPage /></Route>

@@ -158,6 +158,37 @@ export function mutualFriends(memory: CommunityMemory, who: PersonId): PersonId[
 /** Whether a friend can be written to: they are a friend, and in sight. */
 export const canWrite = (memory: CommunityMemory, who: PersonId) => relationship(memory, who) === "friend" && canSee(memory, who);
 
+/* --------------------------------------------------------- the first-open notice */
+
+/** Where this device remembers that the notice has been read. */
+export const MESSAGES_NOTICE_KEY = "rehyn.messages-notice.v1";
+/** The notice, in the words the dialog shows. */
+export const messagesNotice = {
+  title: "Before you message",
+  text: "The Rehyn team can access messages sent here, to keep the community safe. Please keep this in mind before sharing personal information.",
+  button: "OK, I understand",
+};
+
+/**
+ * Whether the notice still has to be shown on this device: it has not been read, or the device's
+ * storage can't be read. With no storage at all (a server, a test) there is nothing to show.
+ */
+export function messagesNoticeDue(storage: Storage | null | undefined): boolean {
+  if (!storage) return false;
+  try { return storage.getItem(MESSAGES_NOTICE_KEY) !== "1"; } catch { return true; }
+}
+
+/** The person has read the notice. True when the device will remember it. */
+export function markMessagesNoticeRead(storage: Storage | null | undefined): boolean {
+  if (!storage) return false;
+  try { storage.setItem(MESSAGES_NOTICE_KEY, "1"); return true; } catch { return false; }
+}
+
+/** The browser's storage, or null where there is none (or it can't be touched). */
+export function noticeStorage(): Storage | null {
+  try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; }
+}
+
 /** What day a line was said, for the little label above each day's lines: "Today", "Yesterday", "Tuesday". */
 export function dayLabel(then: number, now = Date.now()): string {
   const day = (time: number) => { const date = new Date(time); return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000; };

@@ -18,8 +18,9 @@ const PEEK = 26;
  * The games to choose from, six at a time (three across and two down, or two across on a phone),
  * in an area that scrolls down to the rest. A soft fade and "Scroll for more games" show there is
  * more below, until the person scrolls. A tile reached with the keyboard is scrolled into view.
+ * Play now (PlayNowSheet.tsx) picks from the same nine games.
  */
-function GamePicker({ chosen, onPick, returning }: { chosen: GameId; onPick: (game: GameId) => void; returning: boolean }) {
+export function GamePicker({ chosen, onPick, returning }: { chosen: GameId; onPick: (game: GameId) => void; returning: boolean }) {
   const area = useRef<HTMLDivElement>(null);
   const still = useStill();
   const [edges, setEdges] = useState({ above: false, below: true, bar: 0 });

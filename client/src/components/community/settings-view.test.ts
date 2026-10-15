@@ -49,17 +49,21 @@ function withSettings(patch: Partial<CommunitySettings>, edit?: (memory: Communi
 }
 
 describe("Community settings (F5)", () => {
-  it("opens under the community header, with five sections and How you appear open", () => {
+  it("opens under the community header, with Your profile first, then three sections with What you see open", () => {
     const html = page("/community?space=settings");
     const text = words(html);
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
     expect(text).toContain("Only for My community. The settings below save as you go.");
-    // Your profile comes first: the picture with Change picture, then the name, town and words on the card.
-    expect(text.indexOf("Your profile")).toBeLessThan(text.indexOf("How you appear"));
+    // Your profile comes first: the picture with Change picture, then the name, town and words on the card,
+    // with Your privacy and Blocked under it. The old "How you appear" and "Friends and messages" live there now.
+    expect(text.indexOf("Your profile")).toBeLessThan(text.indexOf("Your privacy"));
+    expect(text.indexOf("Your privacy")).toBeLessThan(text.indexOf("Blocked"));
+    expect(text.indexOf("Blocked")).toBeLessThan(text.indexOf("What you see"));
+    for (const gone of ["How you appear", "Friends and messages"]) expect(text).not.toContain(gone);
     const toggles = tagsWith(html, "button", 'class="cm-set-toggle"');
-    expect(toggles).toHaveLength(5);
+    expect(toggles).toHaveLength(3);
     expect(toggles.filter(tag => tag.includes('aria-expanded="true"'))).toHaveLength(1);
-    for (const title of ["How you appear", "Friends and messages", "What you see", "Reading and listening", "Quiet times"]) expect(text).toContain(title);
+    for (const title of ["What you see", "Reading and listening", "Quiet times"]) expect(text).toContain(title);
     // Each heading controls its own panel; only the open one is shown.
     const panels = toggles.map(tag => tag.match(/aria-controls="([^"]+)"/)?.[1]);
     panels.forEach((id, index) => {
@@ -69,8 +73,8 @@ describe("Community settings (F5)", () => {
     });
     expect(tagWith(html, "button", 'class="cm-set-toggle"', 'aria-expanded="true"')).toBe(true);
     // The dots are shown; a screen reader hears commas.
-    expect(text).toContain("No town added · , online dot on");
     expect(text).toContain("Gentle mode on · , 2 hidden words");
+    expect(text).toContain("Read aloud off · , normal text");
     expect(text).toContain("Quiet from 9 pm to 8 am");
     expect(tagWith(html, "p", 'class="cm-set-saved-slot"', 'role="status"')).toBe(true);
   });
@@ -97,7 +101,30 @@ describe("Community settings (F5)", () => {
     expect(tagWith(html, "a", 'class="cm-set-link"', 'href="/community?space=settings&amp;panel=friends"')).toBe(true);
     expect(words(html)).toContain("See requests you have sent and received");
     expect(tagWith(html, "a", 'class="cm-card cm-set-safety"', 'href="/community?space=safety"')).toBe(true);
-    expect(words(html)).toContain("Safety and blocking Blocked people and your reports");
+    expect(words(html)).toContain("Safety and blocking Your reports, and the people and posts you've hidden");
+  });
+
+  it("puts Your privacy and Blocked under Your profile, with the stored settings and a way to unblock", () => {
+    state.memory = withSettings({ messagesFrom: "noOne", postsSeenBy: "everyone", showTown: false });
+    const html = view();
+    const text = words(html);
+    expect(tagWith(html, "section", 'class="cm-card cm-set-privacy"')).toBe(true);
+    for (const choice of ["Who sees my posts by default", "Who can message me", "Who can ask to be friends", "Show my town", "Show when I'm online"]) expect(text).toContain(choice);
+    expect(pressed(html, "No one")).toBe(true);
+    expect(pressed(html, "Everyone")).toBe(true);
+    expect(text).toContain("No one can message you.");
+    expect(text).toContain("Everyone in My community sees what you share.");
+    expect(text).toContain("Anyone can ask to be your friend.");
+    expect(html).toMatch(/role="switch"[^>]*aria-checked="false"/);
+    // Blocked: Gary, from the start, with Unblock (which asks once more before it happens).
+    expect(tagWith(html, "section", 'class="cm-card cm-set-blocked"')).toBe(true);
+    expect(text).toContain("Blocked 1 blocked");
+    expect(text).toContain("Gary Blocked 3 days ago");
+    expect(tagWith(html, "button", 'class="cm-set-small"', 'data-set-focus="unblock-gary"', 'aria-expanded="false"')).toBe(true);
+    expect(text).toContain("People you block are never told. You can unblock them at any time.");
+    // Gary unblocked on an earlier visit (a block of 0 is one taken off): nobody is listed.
+    state.memory = withSettings({}, memory => { memory.blocks = { gary: 0 }; });
+    expect(words(view())).toContain("Blocked 0 blocked You haven't blocked anyone.");
   });
 
   it("keeps the words true to what happens on this device", () => {
@@ -107,7 +134,7 @@ describe("Community settings (F5)", () => {
     expect(text).toContain("Your device's own voice reads them.");
     expect(text).not.toMatch(/Alira reads|her voice/);
     expect(text).toContain("During a break, the Alerts badge stays quiet. Nothing is deleted.");
-    expect(text).not.toMatch(/friends see|will be told|notified|Taking a break/i);
+    expect(text).not.toMatch(/friends will see|will be told|notified|Taking a break/i);
     expect(text).toContain("How others would see you");
     expect(text).toContain("What other members would see when they tap your name. Only friends could message you.");
   });
@@ -122,14 +149,18 @@ describe("links that name a setting", () => {
   };
 
   it("opens Community settings at the section the address names", () => {
-    expect(openSection(page("/community?space=settings&section=appear"))).toBe("How you appear");
-    expect(openSection(page("/community?space=settings&section=friends"))).toBe("Friends and messages");
     expect(openSection(page("/community?space=settings&section=see"))).toBe("What you see");
     expect(openSection(page("/community?space=settings&section=read"))).toBe("Reading and listening");
     expect(openSection(page("/community?space=settings&section=quiet"))).toBe("Quiet times");
-    // An unknown section, or none, opens at the top as before.
-    expect(openSection(page("/community?space=settings&section=secrets"))).toBe("How you appear");
-    expect(openSection(page("/community?space=settings"))).toBe("How you appear");
+    // Your profile is always open at the top; a link to it (by its name, or the old "appear" and
+    // "friends") leaves the first panel open under it. An unknown section, or none, does the same.
+    for (const section of ["profile", "appear", "friends", "secrets"]) {
+      const html = page(`/community?space=settings&section=${section}`);
+      expect(openSection(html)).toBe("What you see");
+      expect(tagWith(html, "div", 'class="cm-set-profile"')).toBe(true);
+      expect(tagWith(html, "h3", 'class="cm-pic-profile-title"', 'tabindex="-1"', "data-set-heading")).toBe(true);
+    }
+    expect(openSection(page("/community?space=settings"))).toBe("What you see");
   });
 
   it("names the section only on Community settings", () => {
@@ -163,11 +194,10 @@ describe("the live preview of the person's card", () => {
     const shown = words(view());
     expect(shown).toContain("Leeds · In 4 groups · 3 friends");
     expect(shown).toContain("Puts “Leeds” under your name on your card");
-    expect(shown).toContain("Town shown");
     state.memory = withSettings({ showTown: false });
     const hidden = words(view());
     expect(hidden).not.toContain("Leeds · In 4 groups");
-    expect(hidden).toContain("Town hidden");
+    expect(hidden).toContain("Hidden from your card while Show my town is off.");
   });
 
   it("follows who can ask, who can message, the online dot and the picture", () => {
@@ -175,7 +205,7 @@ describe("the live preview of the person's card", () => {
     const html = view();
     const text = words(html);
     expect(text).toContain("Not taking requests");
-    expect(text).toContain("New requests are off. Requests already waiting stay in Friends.");
+    expect(text).toContain("No one can send you a friend request. Requests already waiting stay in Friends.");
     expect(text).not.toContain("(friends only)");
     expect(text).not.toContain("Only friends could message you");
     expect(tagWith(html, "span", "cm-set-online")).toBe(false);
