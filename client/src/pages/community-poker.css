@@ -62,7 +62,7 @@
 .pk-stack > .cm-face + .cm-face { margin-left: -8px; }
 .pk-initial { font-family: "DM Sans", system-ui, sans-serif; font-weight: 700; color: #1E2A26; }
 
-/* "Chips only, just for fun. No real money, ever." */
+/* "Chips only, just for fun." */
 .pk-chips-only { display: flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, .72); font-size: 14px; line-height: 1.4; }
 .pk-chips-only > svg { flex-shrink: 0; color: var(--pk-gold); }
 .pk-chips-only.is-centred { justify-content: center; text-align: center; }

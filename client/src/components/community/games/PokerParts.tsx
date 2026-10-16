@@ -95,7 +95,7 @@ export function useSecondsToTables(running = true) {
   return left;
 }
 
-/** "Chips only, just for fun. No real money, ever." Said wherever poker appears. */
+/** "Chips only, just for fun." Said wherever poker appears. */
 export const ChipsOnly = ({ className = "" }: { className?: string }) => (
   <p className={`pk-chips-only ${className}`}><ShieldIcon size={16} /><span>{CHIPS_ONLY}</span></p>
 );

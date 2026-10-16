@@ -125,7 +125,8 @@ describe("My community views", () => {
     expect(text).not.toContain("Not kept after the circle ends");
     expect(text).toContain("Coming up THU 8 Film night Thursday 8 October, 4 pm · Bring a film you love");
     // Friday poker night sits in the list too, with its own reminder and the way to its tables.
-    expect(text).toContain("FRI 9 Poker night Friday 9 October, 7 pm · Chips only, just for fun. No real money, ever.");
+    expect(text).toContain("FRI 9 Poker night Friday 9 October, 7 pm · Chips only, just for fun.");
+    expect(text).not.toContain("No real money, ever");
     expect(tagWith(html, "a", 'class="cm-upcoming-link"', 'href="/community?space=poker"')).toBe(true);
     expect(text).toContain("Remind me for Poker night");
     expect(text).toContain("SAT 10 Book club");

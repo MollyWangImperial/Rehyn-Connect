@@ -49,7 +49,7 @@ export const pokerGame = (id: PokerGameId) => POKER_GAMES.find(game => game.id =
 const isGameId = (value: unknown): value is PokerGameId => POKER_GAMES.some(game => game.id === value);
 
 /** The line said wherever poker appears. */
-export const CHIPS_ONLY = "Chips only, just for fun. No real money, ever.";
+export const CHIPS_ONLY = "Chips only, just for fun.";
 
 /* ----------------------------------------------------------- the seating */
 
