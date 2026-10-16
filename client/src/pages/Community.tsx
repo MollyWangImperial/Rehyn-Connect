@@ -54,7 +54,7 @@ import "./community-poker.css";
 // Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
 // On Fridays the poker night pop-up opens by itself, once a day (`?poker=friday` shows it any day).
 /** The spaces that use the full width, without the profile panel on the left (review comments C77, C80). */
-const NO_PANEL = new Set<CommunitySpace>(["groups", "messages", "start"]);
+const NO_PANEL = new Set<CommunitySpace>(["groups", "messages", "start", "poker"]);
 
 export default function Community() {
   const search = useSearch();

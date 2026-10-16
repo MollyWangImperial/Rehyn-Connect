@@ -267,7 +267,9 @@
 .cm-cond-name b { font-size: 16.5px; line-height: 1.2; }
 .cm-cond-name span { color: var(--cm-soft-ink); font-size: 13.5px; }
 
-.cm-conds-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.cm-conds-body { display: flex; flex-direction: column; gap: 20px; }
+/* Under the group list: "Start a smaller group" and "Play a game with someone new", side by side where there is room. */
+.cm-conds-after { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .cm-inside { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; overflow: hidden; }
 .cm-inside-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 16px; }
 .cm-inside-head > div:first-child { display: flex; flex: 1 1 260px; flex-direction: column; gap: 4px; }
@@ -348,11 +350,11 @@
 @container cm (max-width: 1000px) {
   .cm-circle-bottom { grid-template-columns: minmax(0, 1fr); }
   .cm-cond-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .cm-conds-body { grid-template-columns: minmax(0, 1fr); }
 }
 
 @container cm (max-width: 640px) {
   .cm-cond-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cm-conds-after { grid-template-columns: minmax(0, 1fr); }
   .cm-sub-grid { grid-template-columns: minmax(0, 1fr); }
   .cm-inside { padding: 18px 16px; }
 }

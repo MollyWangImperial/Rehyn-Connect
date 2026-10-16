@@ -203,7 +203,8 @@ function ConditionGroups({ chosen, playAsked }: { chosen: ConditionId | null; pl
           <FloatingHearts bursts={bursts} className="cm-hearts-chat" />
         </section>
 
-        <div className="cm-side">
+        {/* After the list, not beside it (review): start a smaller group, then play with someone new. */}
+        <div className="cm-conds-after">
           <section className="cm-card cm-start-small cm-rise-2" aria-labelledby="cm-start-small-title">
             <p className="cm-overline cm-overline-gold">{`Inside ${cond.name}`}</p>
             <h3 id="cm-start-small-title">Start a smaller group</h3>

@@ -201,10 +201,10 @@ function NoteLine({ note, name, moderation, onRules }: { note: AuthorNote; name:
   );
 }
 
-/** The house rules, beside the room. Photos are still checked before they appear; the check speaks for itself in the writing row. */
+/** The house rules, beside the room, straight on the page (review: no card surface). Photos are still checked before they appear; the check speaks for itself in the writing row. */
 function HouseRules() {
   return (
-    <section className="cm-card cm-side-card" aria-labelledby={RULES_ID}>
+    <section className="cm-side-card cm-side-plain cm-house-rules" aria-labelledby={RULES_ID}>
       <h3 className="cm-side-title" id={RULES_ID} tabIndex={-1}>House rules</h3>
       <ol className="cm-rules">
         {lounge.rules.map((rule, index) => <li key={rule}><span className="cm-rule-number" aria-hidden="true">{index + 1}</span><span>{rule}</span></li>)}
