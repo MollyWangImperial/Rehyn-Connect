@@ -117,7 +117,7 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
         <Crumbs trail={[{ label: "Library", href: "/" }, { label: section.title }]} />
         <div className="lib-section-hero-row">
           <div className="lib-section-hero-words">
-            <span className="lib-section-hero-icon"><SectionGlyph icon={section.icon} size={44} /></span>
+            <span className="lib-section-hero-icon"><SectionGlyph icon={section.icon} size={72} /></span>
             <div>
               <h1>{section.title}</h1>
               <p>{section.blurb}</p>

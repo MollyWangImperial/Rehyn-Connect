@@ -113,6 +113,8 @@ a.lib-card:hover, .lib-card:has(.lib-stretch:hover) { border-color:#C9D8CC; box-
 /* Section cards */
 .lib-section-card { height:100%; border-radius:22px; }
 .lib-section-icon { width:52px; height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:16px; background:var(--lib-tint); color:var(--lib-ink); }
+/* The supplied symbols carry their own transparent margin, so they fill most of the tile. */
+.lib-section-img { display:block; width:86%; height:86%; object-fit:contain; }
 .lib-section-count { font-size:13px; font-weight:700; color:var(--lib-ink); }
 .lib-chips { display:flex; flex-wrap:wrap; gap:6px; font-size:12.5px; font-weight:600; color:#4C6157; }
 .lib-chips span { padding:5px 10px; border-radius:999px; background:#F4F1EA; }
@@ -475,7 +477,6 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
   .lib-film-quote { font-size:20px; }
   .lib-section-hero-words { flex-direction:column; gap:14px; }
   .lib-section-hero-icon { width:60px; height:60px; border-radius:18px; }
-  .lib-section-hero-icon svg { width:32px; height:32px; }
   .lib-section-hero p { font-size:15px; }
   .lib-group { padding:18px; }
   .lib-group h3 { font-size:23px; }

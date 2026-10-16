@@ -29,25 +29,20 @@ const CameraIcon = ({ size = 20 }: IconProps) => <svg {...stroke(size)}><rect x=
 const ExerciseIcon = ({ size = 40 }: IconProps) => <svg {...stroke(size, 1.8)}><path d="M6 5v14M18 5v14M3 8v8M21 8v8M6 12h12" /></svg>;
 const SpeechIcon = ({ size = 40 }: IconProps) => <svg {...stroke(size, 1.8)}><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.4A8 8 0 1 1 21 12z" /></svg>;
 
-const SECTION_PATHS: Record<SectionIcon, ReactNode> = {
-  // Two lobed hemispheres round a midline, with a fold in each and the stem below.
-  brain: <>
-    <path d="M12 4.6a3 3 0 0 0-5.6 1.3 3.5 3.5 0 0 0-2 5.5 3.5 3.5 0 0 0 .7 5.5A3.3 3.3 0 0 0 12 18.6" />
-    <path d="M12 4.6a3 3 0 0 1 5.6 1.3 3.5 3.5 0 0 1 2 5.5 3.5 3.5 0 0 1-.7 5.5A3.3 3.3 0 0 1 12 18.6" />
-    <path d="M12 4.6v16M8.6 9.4c-.6 1.1.2 2.3 1.5 2.5M15.4 9.4c.6 1.1-.2 2.3-1.5 2.5M7.4 14.8c1.2-.2 2.2.4 2.6 1.5M16.6 14.8c-1.2-.2-2.2.4-2.6 1.5" />
-  </>,
-  heart: <path d="M12 20s-7-4.4-9-9a4.5 4.5 0 0 1 9-3 4.5 4.5 0 0 1 9 3c-2 4.6-9 9-9 9z" />,
-  drop: <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" />,
-  bone: <><path d="M17.5 6.5a2.5 2.5 0 1 0-3-3l-8 8a2.5 2.5 0 1 0 3 3z" /><path d="M6.5 17.5a2.5 2.5 0 1 0 3 3l8-8a2.5 2.5 0 1 0-3-3z" /></>,
-  ribbon: <><path d="M12 3c3 0 5 2.5 5 5 0 4-5 8-5 8s-5-4-5-8c0-2.5 2-5 5-5z" /><path d="m9 13-4 8M15 13l4 8" /></>,
-  mind: <><circle cx="12" cy="12" r="9" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></>,
-  // A pair of kidneys, the notch of each turned inwards.
-  kidney: <>
-    <path d="M9 4.6C5.9 4.6 4 7.6 4 12s1.9 7.4 5 7.4c1.6 0 2.6-1 2.6-2.3 0-1.2-1.2-1.6-1.2-3V9.9c0-1.4 1.2-1.8 1.2-3C11.6 5.6 10.6 4.6 9 4.6z" />
-    <path d="M15 4.6c3.1 0 5 3 5 7.4s-1.9 7.4-5 7.4c-1.6 0-2.6-1-2.6-2.3 0-1.2 1.2-1.6 1.2-3V9.9c0-1.4-1.2-1.8-1.2-3 0-1.3 1-2.3 2.6-2.3z" />
-  </>,
+// The sections' symbols are the supplied outline drawings (public/library-icons, from the Rehyn
+// library icon pack): the coloured symbol alone on a transparent square, with some padding of its
+// own, so each sits a little larger than the old drawn glyph did. They are decorative: the card's
+// title beside each one says the same thing.
+const SECTION_IMAGES: Record<SectionIcon, string> = {
+  brain: "/library-icons/brain-nervous-system.png",
+  heart: "/library-icons/heart-lungs.png",
+  drop: "/library-icons/diabetes-metabolism.png",
+  bone: "/library-icons/bones-joints-muscles.png",
+  ribbon: "/library-icons/cancer-recovery.png",
+  mind: "/library-icons/mind-mood.png",
+  kidney: "/library-icons/kidneys-liver-digestion.png",
 };
-export const SectionGlyph = ({ icon, size = 26 }: { icon: SectionIcon; size?: number }) => <svg {...stroke(size, 1.9)}>{SECTION_PATHS[icon]}</svg>;
+export const SectionGlyph = ({ icon, size = 44 }: { icon: SectionIcon; size?: number }) => <img className="lib-section-img" src={SECTION_IMAGES[icon]} alt="" width={size} height={size} decoding="async" />;
 
 /** The section's colours as CSS variables, for the cards and headers tinted by them. */
 export const hueStyle = (hue: Hue): CSSProperties => ({ "--lib-tint": hue.tint, "--lib-ink": hue.ink } as CSSProperties);
