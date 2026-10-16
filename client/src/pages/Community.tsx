@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import RecoveryShell from "@/components/RecoveryShell";
-import AlertsPanel from "@/components/community/AlertsPanel";
 import CircleView from "@/components/community/Circle";
-import CommunityHeader from "@/components/community/CommunityHeader";
 import FeedView from "@/components/community/Feed";
-import FindPanel from "@/components/community/FindPanel";
 import FriendsDrawer from "@/components/community/FriendsDrawer";
 import PokerNightDialog from "@/components/community/games/PokerNightDialog";
 import PokerSpace from "@/components/community/games/PokerSpace";
@@ -19,7 +16,8 @@ import SafetyView from "@/components/community/SafetyView";
 import SettingsView from "@/components/community/SettingsView";
 import StartGroupView from "@/components/community/StartGroup";
 import { lounge, type FriendsTab } from "@/content/community-samples";
-import { communityHref, communityViewFromQuery, firstName, placeOf, useCommunity, type CommunitySpace, type SafetyTarget } from "@/lib/community-store";
+import { useAlertsPanel } from "@/lib/alerts-panel";
+import { communityHref, communityViewFromQuery, firstName, useCommunity, type CommunitySpace, type SafetyTarget } from "@/lib/community-store";
 import { fastCheckPath } from "@/lib/fast-check";
 import { pokerNight, pokerNightOn, shouldPop, usePokerNight } from "@/lib/poker-night";
 import { profileName, useProfile } from "@/lib/profile";
@@ -38,7 +36,7 @@ import "./community-picture.css";
 import "./community-poker.css";
 
 // My community: a feed where everybody posts, with the lounge, the Sunday circle, groups and messages
-// as tabs in the top bar, and a row of tools to search, see alerts, friends and safety. A little
+// as tabs in the top bar; Alerts and Friends are rows in the profile panel on the left. A little
 // Messages window waits at the bottom right of every page (the shell draws it). It is a
 // preview: the people in it are examples, and nothing leaves the device.
 // The address says which view is open, so every button that opens a page is a link and Back works:
@@ -53,7 +51,7 @@ import "./community-poker.css";
 //   /community?space=friends             retired: it opens Settings → Your profile
 //   /community?space=safety              safety: reports, blocked and hidden people
 //   ...&panel=friends&tab=sent           the Friends drawer, open over any of these
-// Find, Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
+// Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
 // On Fridays the poker night pop-up opens by itself, once a day (`?poker=friday` shows it any day).
 /** The spaces that use the full width, without the profile panel on the left (review comments C77, C80). */
 const NO_PANEL = new Set<CommunitySpace>(["groups", "messages", "start"]);
@@ -71,20 +69,18 @@ export default function Community() {
   const [here, setHere] = useState(lounge.here);
   // A space stays as it was left once it has been opened in this visit.
   const [visited, setVisited] = useState<CommunitySpace[]>(() => [view.space]);
-  const [findOpen, setFindOpen] = useState(false);
-  const [alertsOpen, setAlertsOpen] = useState(false);
+  // Alerts opens from the profile panel's row; the shell draws the panel (lib/alerts-panel.ts).
+  const alertsOpen = useAlertsPanel().open;
   const [menu, setMenu] = useState<{ target: SafetyTarget; opener: HTMLElement; startAt?: "block" } | null>(null);
   // "Choose your picture", opened from Community settings: the button that opened it, for the focus to return to.
   const [pictureFrom, setPictureFrom] = useState<HTMLElement | null>(null);
   const page = useRef<HTMLDivElement>(null);
-  const findButton = useRef<HTMLButtonElement>(null);
-  const alertsButton = useRef<HTMLButtonElement>(null);
   const firstView = useRef(true);
   const lastSpace = useRef(view.space);
   const viewNow = useRef(view);
   viewNow.current = view;
   const friendsOpen = view.panel === "friends";
-  const overlayOpen = friendsOpen || findOpen || alertsOpen || menu !== null || pictureFrom !== null || poker.dialogOpen;
+  const overlayOpen = friendsOpen || alertsOpen || menu !== null || pictureFrom !== null || poker.dialogOpen;
   const overlayWasOpen = useRef(overlayOpen);
   // Whether the drawer was opened during this visit, so closing it can step Back rather than add a page.
   const friendsOpenedHere = useRef(false);
@@ -124,7 +120,7 @@ export default function Community() {
   }, [view.panel]);
 
   // A new address (a link, or the browser's Back button) closes the panels and the sheets.
-  useEffect(() => { setFindOpen(false); setAlertsOpen(false); setMenu(null); setPictureFrom(null); }, [search]);
+  useEffect(() => { setMenu(null); setPictureFrom(null); }, [search]);
 
   // Poker night: `?poker=friday` keeps it on for this browser session. The pop-up opens by itself once
   // a day on poker night, unless the person said "Not tonight" this week or has already picked; a new
@@ -145,7 +141,11 @@ export default function Community() {
     const root = page.current;
     return root?.querySelector<HTMLElement>(`[data-space="${viewNow.current.space}"] [data-view-heading]`) ?? root?.querySelector<HTMLElement>("[data-page-heading]") ?? null;
   }, []);
-  const friendsButton = useCallback(() => page.current?.querySelector<HTMLElement>('[data-cm-tool="friends"]') ?? headingNow(), [headingNow]);
+  // The Friends row is in the profile panel (outside the page); on a phone it is in the closed drawer, so the heading instead.
+  const friendsButton = useCallback(() => {
+    const row = document.querySelector<HTMLElement>('#site-panel:not([inert]) [href="/community?panel=friends"]');
+    return row && row.getClientRects().length ? row : headingNow();
+  }, [headingNow]);
 
   const closeFriends = useCallback(() => {
     const current = viewNow.current;
@@ -163,17 +163,8 @@ export default function Community() {
   return (
     <RecoveryShell active="My Community" dateLabel={todayLabel()} className="cm-shell" loungeHere={here} panel={!NO_PANEL.has(view.space)}>
       <div ref={page} className={`recovery-page cm-page cm-view-${view.space} ${textSize}`}>
-        {view.space !== "start" && (
-          <CommunityHeader
-            view={view}
-            findOpen={findOpen}
-            alertsOpen={alertsOpen}
-            onFind={() => { setAlertsOpen(false); setFindOpen(true); }}
-            onAlerts={() => { setFindOpen(false); setAlertsOpen(true); }}
-            findButton={findButton}
-            alertsButton={alertsButton}
-          />
-        )}
+        {/* The page's name for a screen reader, and where the focus lands when a view has no heading of its own. */}
+        <h1 className="cm-sr" tabIndex={-1} data-page-heading>My community</h1>
 
         {isOpen("feed") && <div className="cm-space" data-space="feed" hidden={view.space !== "feed"}><FeedView name={name} here={here} onMore={openMenu} openPostId={menu?.target.postId ?? null} /></div>}
         {isOpen("lounge") && <div className="cm-space" data-space="lounge" hidden={view.space !== "lounge"}><LoungeView active={view.space === "lounge"} here={here} onHere={setHere} /></div>}
@@ -198,8 +189,6 @@ export default function Community() {
       {/* Drawers, sheets and panels sit outside the page, over everything. The newest one is on top. */}
       <div className={`cm-layer ${textSize}`}>
         {friendsOpen && <FriendsDrawer tab={view.tab ?? "requests"} onTab={showTab} onClose={closeFriends} onPersonMenu={openMenu} fallbackFocus={friendsButton} name={name} />}
-        {findOpen && <FindPanel onClose={() => setFindOpen(false)} anchor={findButton.current} over={placeOf(view)} fallbackFocus={headingNow} />}
-        {alertsOpen && <AlertsPanel onClose={() => setAlertsOpen(false)} anchor={alertsButton.current} over={placeOf(view)} fallbackFocus={headingNow} />}
         {menu && <PostMenu target={menu.target} name={name} onClose={() => setMenu(null)} returnFocus={menu.opener} fallbackFocus={headingNow} startAt={menu.startAt} />}
         {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={headingNow} />}
         {poker.dialogOpen && <PokerNightDialog name={name} onClose={pokerNight.close} fallbackFocus={headingNow} />}

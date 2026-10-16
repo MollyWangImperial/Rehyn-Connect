@@ -452,6 +452,9 @@
 
 /* Side column: small cards, close-set. */
 .cm-side-card { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 20px; }
+/* The lounge panel on the feed sits straight on the page, with no card surface (Feed review, comment 8). */
+.cm-side-plain { padding: 6px 4px; border: 0; background: transparent; box-shadow: none; }
+.cm-side-plain .cm-quote { background: var(--cm-card); }
 .cm-side .cm-side-card .cm-side-title { font-size: 21px; }
 .cm-side .cm-side-card .cm-btn { min-height: 44px; font-size: 15.5px; }
 .cm-card-head { display: flex; align-items: center; gap: 12px; }

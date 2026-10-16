@@ -38,12 +38,19 @@ function focusablesIn(root: HTMLElement): HTMLElement[] {
 const usable = (element: HTMLElement | null | undefined): element is HTMLElement =>
   !!element && element.isConnected && element !== document.body && !element.closest("[hidden], [inert]");
 
-/** Where a panel sits: just under the button that opened it, lined up with its right-hand edge. */
+/**
+ * Where a panel sits: just under the button that opened it. Lined up with the button's left-hand
+ * edge when it opened from the profile panel on the left (so it stays on the screen), and with
+ * its right-hand edge otherwise.
+ */
 function panelPlace(anchor: HTMLElement | null): CSSProperties | undefined {
   if (!anchor || typeof window === "undefined") return undefined;
   const box = anchor.getBoundingClientRect();
   const top = Math.round(box.bottom + 10);
-  return { top, right: Math.max(16, Math.round(window.innerWidth - box.right)), maxHeight: `calc(100vh - ${top + 16}px)` };
+  const maxHeight = `calc(100vh - ${top + 16}px)`;
+  const width = Math.min(420, window.innerWidth - 32);
+  if (box.left < window.innerWidth / 2 && box.left + width + 16 <= window.innerWidth) return { top, left: Math.max(16, Math.round(box.left)), right: "auto", maxHeight };
+  return { top, right: Math.max(16, Math.round(window.innerWidth - box.right)), maxHeight };
 }
 
 export type CommunityDialogProps = {

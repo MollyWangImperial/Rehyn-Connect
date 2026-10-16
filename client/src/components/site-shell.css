@@ -85,6 +85,9 @@
 .site-row-icon.is-sun { background: #fbf0dc; color: #8a5a12; }
 .site-row-icon.is-mint { background: #e5eee7; color: #205345; }
 .site-row-icon.is-green { background: #183d34; color: #eff5ec; }
+.site-row-icon.is-sky { background: #e1ebf5; color: #1F5FA8; }
+.site-row[aria-expanded="true"] { background: #e2ece4; }
+.site-row-badge.is-new { background: #a84232; }
 .site-row-label { flex: 1; min-width: 0; }
 .site-row-note { display: inline-flex; align-items: center; gap: 4px; color: #5e6a64; font-size: 13px; font-weight: 600; }
 .site-row-note svg { transition: transform .16s ease; }
@@ -129,10 +132,6 @@
 .site-group-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #2e7d5b; }
 .site-staff { display: flex; flex-direction: column; gap: 6px; }
 .site-staff .account-reset-controls { align-self: flex-start; }
-
-.site-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; padding: 4px 8px 8px; color: #5e6a64; font-size: 12.5px; }
-.site-foot a, .site-foot button { min-height: 32px; padding: 0; border: 0; background: none; color: #285b49; font: inherit; font-weight: 650; cursor: pointer; }
-.site-foot a:hover, .site-foot button:hover { text-decoration: underline; }
 
 .recovery-strong-contrast .site-top, .recovery-strong-contrast .site-card { border-color: #7da08c; }
 

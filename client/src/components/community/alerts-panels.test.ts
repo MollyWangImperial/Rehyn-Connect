@@ -5,8 +5,6 @@ import { Router } from "wouter";
 import { ALERT_IDS, communityAlerts } from "@/content/community-samples";
 import { blankCommunityMemory, defaultCommunitySettings, type CommunityMemory, type CommunityPlace } from "@/lib/community-store";
 import AlertsPanel from "./AlertsPanel";
-import CommunitySearch from "./CommunitySearch";
-import FindPanel from "./FindPanel";
 import {
   alertLabel,
   alertLink,
@@ -52,10 +50,6 @@ const tagWith = (html: string, name: string, ...attributes: string[]) => tags(ht
 
 const alertsPanel = (over = FEED, path = "/community") =>
   render(createElement(AlertsPanel, { onClose: noop, anchor: null, over, fallbackFocus: () => null }), path);
-const findPanel = (over = FEED, path = "/community") =>
-  render(createElement(FindPanel, { onClose: noop, anchor: null, over, fallbackFocus: () => null }), path);
-const results = (query: string, over = FEED, path = "/community") =>
-  render(createElement(CommunitySearch, { results: findInCommunity(held.memory ?? blankCommunityMemory(), query, over), over, onClose: noop }), path);
 
 describe("the Alerts panel", () => {
   it("is a dialog listing the four new alerts, each a link to where it happened", () => {
@@ -128,30 +122,8 @@ describe("the Alerts panel", () => {
   });
 });
 
-describe("the Find panel", () => {
-  it("is a dialog with the search box ready and the places one tap away", () => {
-    const html = findPanel();
-    const text = words(html);
-    expect(tagWith(html, "div", 'role="dialog"', 'aria-modal="true"', 'class="cm-dialog cm-dialog-panel cm-al-find"')).toBe(true);
-    expect(html).toMatch(/<h2 id="[^"]+"[^>]*>Search<\/h2>/);
-    expect(tagWith(html, "input", 'type="search"', "data-autofocus", 'placeholder="A name, a group or a place"')).toBe(true);
-    expect(tagWith(html, "p", 'role="status"', 'class="cm-al-find-count"')).toBe(true);
-    for (const href of ["/community", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=start", "/community?panel=friends", "/community?space=safety", "/community?space=settings"]) {
-      expect(tagWith(html, "a", `href="${href}"`, "cm-al-find-place")).toBe(true);
-    }
-    expect(tagWith(html, "a", 'href="/community"', 'aria-current="page"', 'aria-label="Feed, you&#x27;re here"')).toBe(true);
-    expect(text).toContain("2 requests waiting");
-    expect(text).toContain("4 unread messages");
-  });
-
-  it("opens the Friends drawer over the view the person is on", () => {
-    const html = findPanel(LOUNGE, "/community?space=lounge");
-    expect(tagWith(html, "a", 'href="/community?space=lounge&amp;panel=friends"', "cm-al-find-place")).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?space=lounge"', 'aria-current="page"')).toBe(true);
-  });
-});
-
-describe("what Find finds", () => {
+// The Find panel is gone from the page (Feed review, comment 1); its search logic stays for the alerts' places.
+describe("what findInCommunity finds", () => {
   it("finds people, groups and places by name or by what is said about them, best first", () => {
     const blank = blankCommunityMemory();
     const gar = findInCommunity(blank, "gar", FEED);
@@ -188,34 +160,6 @@ describe("what Find finds", () => {
     expect(joined.groups.map(item => [item.group.id, item.sub])).toEqual([["knit", "You joined · 7 members"]]);
     // Found by why it was suggested ("Joan and 6 others") before joining, and still after.
     expect(findInCommunity(memory({ joined: ["knit"] }), "joan", FEED).groups.map(item => item.group.id)).toEqual(["knit"]);
-  });
-
-  it("shows each person with where they stand, groups to open, groups to join and the places", () => {
-    held.memory = memory({ muted: { david: Date.now() } });
-    const html = results("gar");
-    expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"', 'class="cm-al-find-link"', 'aria-label="Garden gang, 6 members, 3 unread"')).toBe(true);
-    expect(html).toContain('<mark class="cm-al-find-mark">Gar</mark>den gang');
-    expect(html).toContain('Mar<mark class="cm-al-find-mark">gar</mark>et');
-    // Margaret is a friend: her pill opens the friends list. Joan is asking: hers opens her request.
-    expect(tagWith(html, "a", 'href="/community?panel=friends&amp;tab=friends"', "cm-al-find-friend")).toBe(true);
-    expect(tagWith(html, "a", 'class="cm-friend is-asking "', 'href="/community?panel=friends"')).toBe(true);
-
-    const people = words(results("a"));
-    expect(people).toContain("Add friend (Priya)");
-    expect(people).toContain("Request sent to Tomasz");
-    expect(people).toContain("Walks with Biscuit, his dog · posts hidden for you");
-
-    const knit = results("knit");
-    expect(tagWith(knit, "button", 'class="cm-join"')).toBe(true);
-    expect(words(knit)).toContain("Join Knit and natter");
-
-    const nothing = results("zzz");
-    expect(words(nothing)).toContain("Nothing found for “zzz”");
-    expect(tags(nothing, "a", "cm-al-find-place")).toHaveLength(9);
-
-    const lounge = results("lounge", LOUNGE, "/community?space=lounge");
-    expect(tagWith(lounge, "a", 'href="/community?space=lounge"', 'aria-current="page"')).toBe(true);
-    expect(lounge).toContain('<mark class="cm-al-find-mark">lounge</mark>');
   });
 });
 

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, useSearch } from "wouter";
 import { Menu, Settings, X } from "lucide-react";
 import { useSettings } from "./AccountSettings";
+import AlertsPanel from "./community/AlertsPanel";
 import { useMediaQuery } from "./community/hooks";
 import MessagesDock from "./community/MessagesDock";
 import HeartRateMark from "./HeartRateMark";
 import ProfilePanel from "./ProfilePanel";
 import SiteTabs, { usePathname } from "./SiteTabs";
-import { communityViewFromQuery } from "@/lib/community-store";
+import { alertsPanel, useAlertsPanel } from "@/lib/alerts-panel";
+import { communityViewFromQuery, placeOf } from "@/lib/community-store";
 import { useDisplayPrefs } from "@/lib/display-prefs";
 import "./site-shell.css";
 
@@ -45,12 +47,22 @@ export default function RecoveryShell({ active, children, dateLabel = "THURSDAY,
   // The Messages window stays out of the way on Messages itself and while a group is being started.
   const search = useSearch();
   const space = usePathname() === "/community" ? communityViewFromQuery(search).space : "feed";
+  // Alerts: opened from the profile panel's row, closed by its Close button, Escape or a new address.
+  const alerts = useAlertsPanel();
+  useEffect(() => { alertsPanel.close(); }, [search]);
+  /** Where the focus goes when the panel closes: its row in the profile panel, or the view's heading when the row is out of sight. */
+  const headingNow = () => {
+    const row = document.querySelector<HTMLElement>('#site-panel:not([inert]) [data-cm-tool="alerts"]');
+    if (row && row.getClientRects().length) return row;
+    return document.querySelector<HTMLElement>("[data-space]:not([hidden]) [data-view-heading]") ?? document.querySelector<HTMLElement>("[data-page-heading], main h1") ?? null;
+  };
 
   // The slide-in panel: Escape closes it, and the focus goes into it and back to the menu button.
   useEffect(() => {
     if (!drawer) return;
     aside.current?.querySelector<HTMLElement>("a, button, input")?.focus();
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setPanelOpen(false); };
+    // (Escape closes the Alerts panel first when it is open over the drawer: that one is the dialog's.)
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && !event.defaultPrevented && !alertsPanel.get().open) { setPanelOpen(false); menuButton.current?.focus(); } };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [drawer]);
@@ -87,8 +99,10 @@ export default function RecoveryShell({ active, children, dateLabel = "THURSDAY,
         <main className="site-main">{children}</main>
       </div>
 
-      {/* The Messages window, on every page, over everything else. */}
+      {/* The Messages window and the Alerts panel, on every page, over everything else. */}
       <div className="cm-layer site-dock"><MessagesDock space={space} /></div>
+      {/* In a layer of its own, so it sits above the slide-in panel it opened from. */}
+      {alerts.open && <div className="cm-layer"><AlertsPanel onClose={alertsPanel.close} anchor={alerts.anchor} over={placeOf(communityViewFromQuery(search))} fallbackFocus={headingNow} /></div>}
     </div>
   );
 }

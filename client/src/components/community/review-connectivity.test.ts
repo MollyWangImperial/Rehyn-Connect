@@ -8,11 +8,9 @@ import { blankCommunityMemory, communityHref, communityViewFromQuery, defaultCom
 import { fastCheckReturnPath } from "@/lib/fast-check";
 import SiteTabs from "@/components/SiteTabs";
 import Community from "@/pages/Community";
+import ProfilePanel from "@/components/ProfilePanel";
 import AlertsPanel from "./AlertsPanel";
-import { findInCommunity } from "./alerts-helpers";
-import CommunitySearch from "./CommunitySearch";
 import FeedView from "./Feed";
-import FindPanel from "./FindPanel";
 import FriendsDrawer from "./FriendsDrawer";
 import { friendsVisit } from "./friends-visit";
 import { myGroups } from "./group-model";
@@ -150,13 +148,13 @@ describe("every control in My community leads somewhere", () => {
     expect(found).toEqual([]);
   });
 
-  it("in Alerts, Find (browsing and searching) and every step of the hide, block or report sheet", () => {
+  it("in Alerts, the profile panel and every step of the hide, block or report sheet", () => {
     const found: string[] = [];
     found.push(...deadEnds(draw(createElement(AlertsPanel, { onClose: noop, anchor: null, over: FEED, fallbackFocus: () => null }), "/community")));
-    found.push(...deadEnds(draw(createElement(FindPanel, { onClose: noop, anchor: null, over: FEED, fallbackFocus: () => null }), "/community")));
-    for (const query of ["a", "e", "gar", "joan", "knit", "friends", "blocked", "settings", "start", "sent", "zzz"]) {
-      found.push(...deadEnds(draw(createElement(CommunitySearch, { results: findInCommunity(blankCommunityMemory(), query, FEED), over: FEED, onClose: noop }), "/community")).map(problem => `Find "${query}": ${problem}`));
-    }
+    // The profile panel's buttons (Alerts, Saved): its links lead into the Library's nested routes, which this
+    // sweep does not know, so recovery-shell.test.ts checks those.
+    const panel = draw(createElement(SettingsContext.Provider, { value: noop, children: createElement(ProfilePanel) }), "/community");
+    found.push(...deadEnds({ ...panel, links: [] }).map(problem => `panel: ${problem}`));
     const steps: SheetStep[] = ["menu", "reason", "details", "sent", "block", "blocked", "muted"];
     for (const target of [{ who: "margaret", postId: "p-margaret" }, { who: "gary", postId: null }] as SafetyTarget[]) {
       for (const step of steps) {
@@ -181,19 +179,18 @@ describe("every control in My community leads somewhere", () => {
 
 /* ------------------------------------------------------- where each goes */
 
-describe("the toolbar and the overlays are wired to the right place", () => {
-  it("toolbar: Find and Alerts open panels, Friends opens the drawer over the view, Safety is a page (Settings is in the top bar)", () => {
-    const at = (path: string) => draw(createElement(Community), path);
-    for (const path of ["/community", "/community?space=lounge", "/community?space=groups&group=walk", "/community?space=settings", "/community?space=safety"]) {
-      const { buttons, links } = at(path);
-      const tool = (name: string) => [...buttons, ...links].find(item => item.props["data-cm-tool"] === name);
-      expect(typeof tool("find")?.props.onClick).toBe("function");
-      expect(typeof tool("alerts")?.props.onClick).toBe("function");
-      const view = communityViewFromQuery(path.split("?")[1] ?? "");
-      expect(hrefOf(tool("friends")!)).toBe(communityHref(view.space, view.group, { panel: "friends" }));
-      expect(hrefOf(tool("safety")!)).toBe("/community?space=safety");
-      expect(tool("settings")).toBeUndefined();
+describe("the profile panel's rows and the overlays are wired to the right place", () => {
+  it("the page has no toolbar any more: Alerts is a row in the profile panel that opens its panel, beside Friends (Feed review, comments 1 to 7)", () => {
+    for (const path of ["/community", "/community?space=lounge", "/community?space=settings", "/community?space=safety"]) {
+      const { buttons, links } = draw(createElement(Community), path);
+      expect([...buttons, ...links].filter(item => item.props["data-cm-tool"] !== undefined)).toEqual([]);
     }
+    const { buttons, links, html } = draw(createElement(SettingsContext.Provider, { value: noop, children: createElement(ProfilePanel) }), "/community");
+    const alerts = buttons.find(item => item.props["data-cm-tool"] === "alerts");
+    expect(typeof alerts?.props.onClick).toBe("function");
+    expect(alerts?.props["aria-haspopup"]).toBe("dialog");
+    expect(links.map(hrefOf)).toContain("~/community?panel=friends");
+    expect(html).not.toContain("site-foot");
   });
 
   it("each alert is a link that closes the panel on its way", () => {
@@ -205,16 +202,6 @@ describe("the toolbar and the overlays are wired to the right place", () => {
     for (const link of [...rows, ...links.filter(item => String(item.props.className).includes("cm-al-foot"))]) {
       expect(link.props.onClick).toBe(onClose);
     }
-  });
-
-  it("each Find result that is a link closes the panel on its way", () => {
-    const onClose = vi.fn();
-    const missing: string[] = [];
-    for (const query of ["", "a", "gar", "friends", "settings"]) {
-      const { links } = draw(createElement(CommunitySearch, { results: findInCommunity(blankCommunityMemory(), query, FEED), over: FEED, onClose }), "/community");
-      links.filter(item => item.props.onClick !== onClose && !String(item.props.className).includes("is-asking")).forEach(item => missing.push(`${query}: ${labelOf(item.props)}`));
-    }
-    expect(missing).toEqual([]);
   });
 
   it("the drawer's tabs, Close and a friend's ··· call back to Community", () => {
@@ -313,21 +300,14 @@ describe("problems found in review stay fixed", () => {
     expect(drawer).toContain("show Li Wei&#x27;s request again");
   });
 
-  it("Find's 'Wants to be friends' link closes the Find panel like every other result", () => {
-    const onClose = vi.fn();
-    const { links } = draw(createElement(CommunitySearch, { results: findInCommunity(blankCommunityMemory(), "joan", FEED), over: FEED, onClose }), "/community");
-    const asking = links.find(item => String(item.props.className).includes("is-asking"))!;
-    expect(hrefOf(asking)).toBe("/community?panel=friends");
-    expect(asking.props.onClick).toBe(onClose);
-  });
-
   it("a link to the view already showing replaces the address, so Back isn't given the same page twice", () => {
     const replaces = (links: Seen[], href: string) => links.filter(item => hrefOf(item) === href).map(item => item.props.replace === true);
-    // The toolbar and tabs: the page showing replaces; the others add a page.
+    // On the page itself nothing links to the Safety page any more (the toolbar is gone); the profile panel's
+    // Friends row opens the drawer over the feed, as a new address.
     const safety = draw(createElement(Community), "/community?space=safety").links;
     expect(replaces(safety, "/community?space=safety")).not.toContain(false);
-    // Settings is in the shell's top bar now; the Friends tool opens the drawer over the page, as a new address.
-    expect(replaces(safety, "/community?space=safety&panel=friends")).toEqual([false]);
+    const panel = draw(createElement(SettingsContext.Provider, { value: noop, children: createElement(ProfilePanel) }), "/community").links;
+    expect(replaces(panel, "~/community?panel=friends")).toEqual([false]);
     // The spaces' tabs are at the top of every page (SiteTabs); their links start with "~".
     const feed = draw(createElement(SiteTabs), "/community").links;
     expect(replaces(feed, "~/community")).toEqual([true]);
@@ -345,11 +325,7 @@ describe("problems found in review stay fixed", () => {
     const onSettings = draw(createElement(AlertsPanel, { onClose: noop, anchor: null, over: settings, fallbackFocus: () => null }), "/community?space=settings").links;
     expect(replaces(onSettings, "/community?space=settings&section=quiet")).toEqual([true]);
 
-    // Find: the place showing keeps its group open; "See my reports" from a sheet on the Safety page.
-    const walk: CommunityPlace = { space: "groups", group: "walk" };
-    const find = draw(createElement(CommunitySearch, { results: findInCommunity(blankCommunityMemory(), "", walk), over: walk, onClose: noop }), "/community?space=groups&group=walk").links;
-    const here = find.find(item => item.props["aria-current"] === "page")!;
-    expect([hrefOf(here), here.props.replace]).toEqual(["/community?space=groups&group=walk", true]);
+    // "See my reports" from a sheet on the Safety page.
     const sheet = (path: string) => draw(createElement(SafetySheetSteps, { target: { who: "margaret", postId: "p-margaret" }, name: "Zak", titleId: "t", onClose: noop, start: { step: "sent", reason: "money", outcome: { blocked: true, postHidden: false } } }), path).links;
     expect(replaces(sheet("/community?space=safety"), "/community?space=safety")).toEqual([true]);
     expect(replaces(sheet("/community"), "/community?space=safety")).toEqual([false]);

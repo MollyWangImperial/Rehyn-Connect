@@ -1,6 +1,6 @@
 import { useId, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, BookOpen, Bookmark, CalendarDays, ChevronRight, Heart, Plus, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, Bell, BookOpen, Bookmark, CalendarDays, ChevronRight, Heart, Plus, Search, ShieldCheck } from "lucide-react";
 import { SAMPLE_GOING, sampleGatherings } from "@/content/circle-events";
 import { PERSON_IDS } from "@/content/community-samples";
 import { librarySections, MOST_READ } from "@/content/library";
@@ -8,11 +8,12 @@ import { administrativeControlsEnabled } from "@/lib/administrative-controls";
 import { CARE_TEAM_PATH, useCareTeamEnabled, useCareTeamWaiting } from "@/lib/care-team";
 import { useCircleEvents } from "@/lib/circle-events-store";
 import { mergeGatherings, myEvents } from "@/lib/circle-listing";
-import { communityHref, friendList, isBlocked, useCommunity } from "@/lib/community-store";
+import { alertsPanel, useAlertsPanel } from "@/lib/alerts-panel";
+import { alertsQuiet, communityHref, friendList, hourLabel, inQuietHours, isBlocked, unseenAlertCount, useCommunity } from "@/lib/community-store";
 import { conditionByKey, conditionHref, itemByKey, itemHref } from "@/lib/library";
 import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
-import { PROFILE_PATH, useSettings } from "./AccountSettings";
+import { PROFILE_PATH } from "./AccountSettings";
 import AccountResetControls from "./AccountResetControls";
 import { myGroups } from "./community/group-model";
 
@@ -26,7 +27,6 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
  */
 export default function ProfilePanel({ careTeam = false, onNavigate }: { careTeam?: boolean; onNavigate?: () => void }) {
   const [, navigate] = useLocation();
-  const openSettings = useSettings();
   const profile = useProfile();
   const memory = useCommunity();
   const library = useLibraryState();
@@ -49,6 +49,12 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
   }, [circle, memory]);
   const groups = myGroups(memory);
   const mostRead = MOST_READ.slice(0, 2).map(itemByKey).filter(place => place !== undefined);
+  const alerts = useAlertsPanel();
+  const fresh = unseenAlertCount(memory);
+  const quiet = alertsQuiet(memory.settings);
+  const alertsLabel = quiet
+    ? `Alerts, quiet ${inQuietHours(memory.settings) ? `until ${hourLabel(memory.settings.quietUntil)}` : "during your break"}`
+    : `Alerts, ${fresh > 0 ? `${fresh} new` : "nothing new"}`;
 
   const go = (href: string) => { onNavigate?.(); navigate(`~${href}`); };
   const search = (event: FormEvent) => {
@@ -93,6 +99,14 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
               <span className="site-row-icon is-mint"><CalendarDays size={17} /></span><span className="site-row-label">My events</span>
               {events.waiting > 0 ? <span className="site-row-badge">{events.waiting}<span className="cm-sr"> invitations waiting</span></span> : <span className="site-row-note">{events.upcoming || ""}</span>}
             </Link>
+          </li>
+          <li>
+            {/* Alerts opens its panel beside this row (the shell draws it); quiet time keeps the count down. */}
+            <button type="button" className={`site-row ${alerts.open ? "is-active" : ""}`} aria-label={alertsLabel} aria-haspopup="dialog" aria-expanded={alerts.open} data-cm-tool="alerts" onClick={event => alertsPanel.open(event.currentTarget)}>
+              <span className="site-row-icon is-sky"><Bell size={17} /></span><span className="site-row-label">Alerts</span>
+              {quiet ? <span className="site-row-note">{inQuietHours(memory.settings) ? `Quiet until ${hourLabel(memory.settings.quietUntil)}` : "Quiet"}</span>
+                : fresh > 0 ? <span className="site-row-badge is-new">{fresh}<span className="cm-sr"> new</span></span> : null}
+            </button>
           </li>
         </ul>
       </section>
@@ -161,15 +175,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
         </section>
       )}
 
-      <footer className="site-foot">
-        <Link {...link(communityHref("lounge"))}>House rules</Link>
-        <span aria-hidden="true">·</span>
-        <Link {...link(communityHref("safety"))}>Safety</Link>
-        <span aria-hidden="true">·</span>
-        <button type="button" onClick={event => openSettings(event.currentTarget, "privacy")}>Privacy</button>
-        <span aria-hidden="true">·</span>
-        <button type="button" onClick={event => openSettings(event.currentTarget)}>Settings</button>
-      </footer>
     </div>
   );
 }

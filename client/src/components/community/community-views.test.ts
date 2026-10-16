@@ -224,28 +224,23 @@ describe("My community views", () => {
   });
 });
 
-describe("the community header and toolbar", () => {
-  it("has a slim row of four labelled tools where the green header card was (review comment C04), each connected to its place", () => {
+describe("the top of the page", () => {
+  it("has no header card or toolbar: the page starts with its content, with only a hidden heading for screen readers (Feed review, comments 1 to 7)", () => {
     const html = page("/community");
     const text = words(html);
     expect(html).not.toContain('class="cm-head"');
-    expect(text).not.toContain("3 friends · 4 groups");
-    expect(tagWith(html, "header", 'class="cm-toolstrip"')).toBe(true);
-    for (const label of ["Search", "Alerts", "Friends", "Safety"]) expect(text).toContain(label);
-    expect(tagWith(html, "button", 'aria-label="Search people or groups"', 'aria-haspopup="dialog"', 'aria-expanded="false"')).toBe(true);
-    // The spaces' tabs and Settings are in the shell's top bar now (recovery-shell.test.ts).
+    expect(html).not.toContain("cm-toolstrip");
+    expect(html).not.toContain("cm-tool ");
+    expect(text).not.toContain("Search people or groups");
+    expect(tagWith(html, "h1", 'class="cm-sr"', "data-page-heading")).toBe(true);
+    // The spaces' tabs and Settings are in the shell's top bar; Alerts and Friends in the profile panel (recovery-shell.test.ts).
     expect(html).not.toContain('class="cm-tabs"');
     expect(html).not.toContain('aria-label="Community settings"');
-    expect(tagWith(html, "button", 'aria-label="Alerts, 4 new"', 'aria-expanded="false"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?panel=friends"', 'aria-label="Friends and requests, 2 waiting"')).toBe(true);
-    expect(tagWith(html, "a", 'href="/community?space=safety"', 'aria-label="Safety"')).toBe(true);
-    expect((html.match(/class="cm-tool-badge/g) ?? []).length).toBe(2);
+    expect(html).not.toContain('aria-label="Alerts, 4 new"');
   });
 
-  it("opens the Friends drawer over the view the person is on", () => {
-    const html = page("/community?space=lounge");
-    expect(tagWith(html, "a", 'href="/community?space=lounge&amp;panel=friends"')).toBe(true);
-    expect(html).not.toContain('role="dialog"');
+  it("draws no dialog until the Friends drawer is asked for", () => {
+    expect(page("/community?space=lounge")).not.toContain('role="dialog"');
   });
 });
 
@@ -279,7 +274,6 @@ describe("the toolbar's pages", () => {
   it("opens Community settings as a page of its own (its button is in the shell's top bar, not the toolbar)", () => {
     const html = page("/community?space=settings");
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
-    expect(tagWith(html, "a", 'href="/community?space=settings"', 'class="cm-tool is-on"')).toBe(false);
     expect(html).toMatch(/<div class="cm-space" data-space="settings">/);
     expect(html).not.toMatch(/data-space="feed"/);
   });
@@ -288,7 +282,6 @@ describe("the toolbar's pages", () => {
     const html = page("/community?space=safety");
     const text = words(html);
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Safety<\/h2>/);
-    expect(tagWith(html, "a", 'href="/community?space=safety"', 'class="cm-tool is-on"', 'aria-current="page"')).toBe(true);
     expect(text).toContain("Gary");
     expect(text).toContain("Blocked 3 days ago");
     expect(html).toContain('href="/fast-check');
@@ -302,7 +295,6 @@ describe("the toolbar's pages", () => {
     expect(tagWith(html, "button", 'role="tab"', 'aria-selected="true"')).toBe(true);
     expect(text).toContain("Joan");
     expect(text).toContain("Li Wei");
-    expect(tagWith(html, "a", 'class="cm-tool is-on"', 'href="/community?panel=friends"')).toBe(true);
     // The feed is still there underneath.
     expect(text).toContain("What's new with you, Zak?");
   });

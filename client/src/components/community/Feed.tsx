@@ -459,7 +459,7 @@ function LoungeCard({ here }: { here: number }) {
   const memory = useCommunity();
   const titleId = useId();
   return (
-    <section className="cm-card cm-side-card cm-rise-3" aria-labelledby={titleId}>
+    <section className="cm-side-card cm-side-plain cm-rise-3" aria-labelledby={titleId}>
       <div className="cm-card-row">
         <h3 className="cm-side-title" id={titleId}>The lounge</h3>
         <span className="cm-live-pill"><LiveDot />Live</span>

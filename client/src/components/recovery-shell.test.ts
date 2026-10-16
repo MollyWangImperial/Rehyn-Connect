@@ -28,7 +28,8 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
   it("has the Feed, the Library and the community's spaces as tabs, leading to the real pages from the Library too", () => {
     for (const path of ["/library", "/library/stroke/ischaemic"]) {
       const { html, hrefs } = draw(path);
-      const tabHrefs = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab ')).map(tag => tag.match(/href="([^"]*)"/)![1].replace(/&amp;/g, "&"));
+      // (The Poker night tab appears on Fridays only, so it is left out of the comparison.)
+      const tabHrefs = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab ')).map(tag => tag.match(/href="([^"]*)"/)![1].replace(/&amp;/g, "&")).filter(href => href !== "/community?space=poker");
       expect(tabHrefs).toEqual([
         "/community", "/library", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages",
       ]);
@@ -41,14 +42,18 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     }
   });
 
-  it("shows your profile, friends, saved pages, events, the Library and two of your groups on the left; the care team only when switched on", () => {
-    const { text, hrefs } = draw("/community");
-    for (const words of ["View your profile", "Friends", "Saved", "My events", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group", "House rules", "Privacy", "Settings"]) {
+  it("shows your profile, friends, saved pages, events, alerts, the Library and two of your groups on the left; the care team only when switched on", () => {
+    const { html, text, hrefs } = draw("/community");
+    for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }
-    for (const href of ["/community?space=settings&section=profile", "/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start", "/community?space=safety"]) {
+    for (const href of ["/community?space=settings&section=profile", "/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
       expect(hrefs, href).toContain(href);
     }
+    // Feed review: Alerts is a row under the profile that opens its panel; the footer links are gone.
+    expect(html).toMatch(/<button[^>]*class="site-row [^"]*"[^>]*aria-label="Alerts, 4 new"[^>]*aria-haspopup="dialog"[^>]*data-cm-tool="alerts"/);
+    expect(html).not.toContain("site-foot");
+    for (const gone of ["House rules", "Privacy"]) expect(text).not.toContain(gone);
     // Review comments: no date above the profile, no reading minutes, two groups, no care team for members.
     expect(text).not.toMatch(/OCTOBER|· \d+ min/);
     expect((text.match(/site-group-name/g) ?? []).length).toBe(0);
