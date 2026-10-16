@@ -47,9 +47,11 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }
-    for (const href of ["/community?space=settings&section=profile", "/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
+    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
       expect(hrefs, href).toContain(href);
     }
+    // "View your profile" opens Settings → Your profile (a window), not a page.
+    expect(html).toMatch(/<button[^>]*class="site-me-link"[^>]*aria-haspopup="dialog"[^>]*>View your profile<\/button>/);
     // Feed review: Alerts is a row under the profile that opens its panel; the footer links are gone.
     expect(html).toMatch(/<button[^>]*class="site-row [^"]*"[^>]*aria-label="Alerts, 4 new"[^>]*aria-haspopup="dialog"[^>]*data-cm-tool="alerts"/);
     expect(html).not.toContain("site-foot");

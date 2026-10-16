@@ -79,6 +79,8 @@ function labelOf(props: Record<string, unknown>): string {
 }
 
 const hrefOf = (link: Seen) => String(link.props.href ?? link.props.to ?? "");
+/** The settings section a community address names (`?space=settings&section=quiet`), as Settings → Your profile receives it. */
+const sectionOf = (href: string) => communityViewFromQuery(href.split("?")[1] ?? "").section ?? null;
 const APP_PATHS = ["/", "/fast-check", "/library", "/community", "/care-team"];
 
 /** Why a link would not land where it says, or null when it does. */
@@ -256,7 +258,7 @@ describe("problems found in review stay fixed", () => {
   it("Alerts' 'Quiet time … Change' opens Settings with Quiet times open", () => {
     const { links } = draw(createElement(AlertsPanel, { onClose: noop, anchor: null, over: FEED, fallbackFocus: () => null }), "/community");
     const change = hrefOf(links.find(item => String(item.props.className).includes("cm-al-foot"))!);
-    const { html } = draw(createElement(Community), change);
+    const { html } = draw(createElement(SettingsView, { name: "Zak", section: sectionOf(change) }), "/community");
     // The quiet-time stepper sits in the panel that is open, not in a hidden one.
     expect(html).toMatch(/<div class="cm-set-panel" id="[^"]+" role="region" aria-labelledby="[^"]+">(?:(?!<div class="cm-set-panel")[\s\S])*Earlier start/);
   });
@@ -269,13 +271,14 @@ describe("problems found in review stay fixed", () => {
     const drawer = draw(createElement(Community), "/community?panel=friends").links.find(item => String(item.props.className).includes("cm-fr-foot"))!;
     const safety = draw(createElement(Community), "/community?space=safety").links.find(item => String(item.props.className).includes("cm-sa-settings"))!;
     const alerts = draw(createElement(AlertsPanel, { onClose: noop, anchor: null, over: FEED, fallbackFocus: () => null }), "/community").links.find(item => String(item.props.className).includes("cm-al-foot"))!;
-    const opens = [gentle, words, safety, alerts].map(link => openSection(draw(createElement(Community), hrefOf(link)).html));
+    // Each address names a section; My community opens Settings → Your profile at it (the settings draw as there).
+    const opens = [gentle, words, safety, alerts].map(link => openSection(draw(createElement(SettingsView, { name: "Zak", section: sectionOf(hrefOf(link)) }), "/community").html));
     expect(opens).toEqual(["What you see", "What you see", "What you see", "Quiet times"]);
     // The drawer's "Who can send you requests: Change" leads to Your profile, where Your privacy holds the choice.
     expect(hrefOf(drawer)).toBe("/community?space=settings&section=profile");
-    expect(draw(createElement(Community), hrefOf(drawer)).html).toContain("Who can ask to be friends");
-    // The plain Settings button still opens at the top section.
-    expect(openSection(draw(createElement(Community), "/community?space=settings").html)).toBe("What you see");
+    expect(draw(createElement(SettingsView, { name: "Zak", section: sectionOf(hrefOf(drawer)) }), "/community").html).toContain("Who can ask to be friends");
+    // The old plain settings address opens at the top section.
+    expect(openSection(draw(createElement(SettingsView, { name: "Zak", section: sectionOf("/community?space=settings") }), "/community").html)).toBe("What you see");
   });
 
   it("an alert about a request already answered on an earlier visit leads to that person", () => {

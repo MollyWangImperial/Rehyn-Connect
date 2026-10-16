@@ -22,6 +22,14 @@
 .account-settings-nav button[aria-pressed=true] { color:#fffefa; background:#285b49; box-shadow:0 4px 12px #24493312; }
 .account-settings-panel { min-width:0; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-gutter:stable; padding:30px 34px 40px; }
 .account-settings-panel > h2 { margin:0 0 24px; font:600 33px/1.1 "Newsreader",Georgia,serif; letter-spacing:-.6px; }
+/* Your profile: the community settings page, drawn inside the window in one column, its previews under the settings. */
+.account-settings-panel.is-profile { position:relative; }
+.account-settings-panel.is-profile .cm-set-page { grid-template-columns:minmax(0,1fr); max-width:none; }
+.account-settings-panel.is-profile .cm-set-aside { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+.account-settings-panel.is-profile .cm-set-aside-title { grid-column:1 / -1; }
+.account-settings-panel.is-profile .cm-set-head { margin-bottom:4px; }
+.account-settings-panel.is-profile .cm-set-head .cm-view-intro { margin:0; color:#596a62; font-size:15px; }
+@media (max-width:760px) { .account-settings-panel.is-profile .cm-set-aside { display:flex; flex-direction:column; } }
 .account-settings-panel-chat { display:flex; flex-direction:column; overflow:hidden; }
 .account-settings-panel-chat > h2 { flex-shrink:0; }
 .account-settings-panel-chat > .hw,.account-settings-panel-chat > .mp { flex:1; min-height:0; }

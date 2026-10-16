@@ -102,7 +102,18 @@
 .cm-ce-row-main { display: flex; flex: 1 1 320px; flex-direction: column; gap: 7px; min-width: 0; }
 .cm-ce-row-title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .cm-ce-row-title h4 { margin: 0; color: #1B2A24; font-size: 17px; font-weight: 600; line-height: 1.3; }
+/* The name opens the event's details (when, format, description) under the row. */
+.cm-ce-row-name { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.cm-ce-row-name svg { flex: none; color: var(--ce-muted); transition: transform .16s ease; }
+.cm-ce-row-name[aria-expanded="true"] svg { transform: rotate(180deg); }
+.cm-ce-row-name:hover { color: var(--cm-green, #285b49); }
+.cm-ce-row-name:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; border-radius: 6px; }
+.cm-ce-row-detail { display: flex; flex-direction: column; gap: 4px; flex-basis: 100%; margin-left: 70px; padding: 10px 14px; border-radius: 12px; background: #F6F4EE; }
+.cm-ce-row-detail[hidden] { display: none; }
 .cm-ce-row-when { color: var(--ce-muted); font-size: 14px; line-height: 1.45; }
+.cm-ce-row-when b { color: #1B2A24; font-weight: 600; }
+.cm-ce-row-about { color: #1B2A24; font-size: 14.5px; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .cm-ce-row-name svg { transition: none; } }
 .cm-ce-row-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .cm-ce-row-side { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px; margin-left: auto; }
 .cm-ce-calendar { margin: 0 0 14px 70px; }

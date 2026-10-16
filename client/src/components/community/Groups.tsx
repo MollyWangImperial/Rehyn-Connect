@@ -66,7 +66,6 @@ function PlayNowCard({ memory, cond }: { memory: CommunityMemory; cond: Conditio
     <section className="cm-card cm-side-card cm-play-now cm-rise-2" aria-labelledby="cm-play-now-title">
       <p className="cm-overline">Play now</p>
       <h3 id="cm-play-now-title">Play a game with someone new</h3>
-      <p>Pick a game and you're matched with a member who is free. No group needed, and no clock.</p>
       <Link className="cm-play-now-go cm-nudge" href={communityHref("groups", null, { game: NEW_OPEN, cond })}><GamesIcon size={20} />Play now</Link>
       <p className="cm-play-now-note">{COMPUTER_NOTE}</p>
       {games.length > 0 && (
@@ -208,7 +207,6 @@ function ConditionGroups({ chosen, playAsked }: { chosen: ConditionId | null; pl
           <section className="cm-card cm-start-small cm-rise-2" aria-labelledby="cm-start-small-title">
             <p className="cm-overline cm-overline-gold">{`Inside ${cond.name}`}</p>
             <h3 id="cm-start-small-title">Start a smaller group</h3>
-            <p>A corner for your people. It's private to start with, and you can open it up later.</p>
             <Link className="cm-start-gold" href={communityHref("start", null, { cond: cond.id })}><PlusIcon size={18} />Start a group</Link>
           </section>
           <PlayNowCard memory={memory} cond={cond.id} />

@@ -1,16 +1,26 @@
-import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { useLocation } from "wouter";
 import { ChevronRight, Eye, FileText, HeartPulse, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import PictureDialog from "./community/PictureDialog";
+import CommunitySettingsView from "./community/SettingsView";
+import type { SettingsSection } from "./community/settings-model";
 import DataPermissions from "./DataPermissions";
+import { firstName } from "@/lib/community-store";
+import { profileName, useProfile } from "@/lib/profile";
 import { LEGAL_EFFECTIVE_DATE, LEGAL_VERSION, PRIVACY_INTRO, PRIVACY_SECTIONS, TERMS_INTRO, TERMS_SECTIONS, type LegalSection } from "@/content/legal-content";
 import { setDisplayPrefs, useDisplayPrefs } from "@/lib/display-prefs";
 import { AgreementLine, HealthConsentPanel } from "./HealthConsent";
 import { SettingsContext, type OpenSettings, type SettingsView } from "./settings-context";
+import "@/pages/community.css";
+import "@/pages/community-settings.css";
+import "@/pages/community-picture.css";
 import "./account-settings.css";
 
 export type { SettingsView } from "./settings-context";
-/** Your profile is a page of its own (Community settings → Your profile), so its entry leads there. */
+/**
+ * The old address of Community settings. It still works: My community opens Settings → Your profile
+ * for it (and `&section=` names a part of it), over the feed.
+ */
 export const PROFILE_PATH = "/community?space=settings&section=profile";
 // The health information consent has its own entry, apart from the Privacy Notice and the Terms of Use.
 const sections = [
@@ -65,19 +75,29 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<SettingsView>("profile");
   const [focus, setFocus] = useState<string | undefined>();
   const opener = useRef<HTMLElement | null>(null);
-  const [, navigate] = useLocation();
+  const panel = useRef<HTMLElement>(null);
+  // "Choose your picture", opened from Your profile: the button that opened it, for the focus to return to.
+  const [pictureFrom, setPictureFrom] = useState<HTMLElement | null>(null);
+  const profile = useProfile();
   const title = sections.find(section => section.id === view)!.label;
 
   const openSettings: OpenSettings = (source, nextView = "display", nextFocus) => {
     opener.current = source;
-    if (nextView === "profile") { navigate(`~${PROFILE_PATH}`); return; }
     setView(nextView);
     setFocus(nextFocus);
     setOpen(true);
   };
-  const show = (next: SettingsView, nextFocus?: string) => {
-    if (next === "profile") { setOpen(false); navigate(`~${PROFILE_PATH}`); return; }
-    setView(next); setFocus(nextFocus);
+  const show = (next: SettingsView, nextFocus?: string) => { setView(next); setFocus(nextFocus); };
+  // A link inside Your profile (to the Friends drawer, to Safety) leaves Settings for that page.
+  const onPanelClick = (event: MouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest("a[href]")) setOpen(false);
+  };
+  /** When what opened Settings has gone or is out of reach (it opened from an address, or from the closed drawer), the page's heading takes the focus. */
+  const closeFocus = () => {
+    const source = opener.current;
+    const usable = !!source && source.isConnected && !source.closest("[inert], [hidden]") && source.getClientRects().length > 0;
+    const target = usable ? source : document.querySelector<HTMLElement>("[data-space]:not([hidden]) [data-view-heading], [data-page-heading], main h1");
+    target?.focus({ preventScroll: true });
   };
 
   return (
@@ -86,7 +106,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="account-settings-backdrop" />
-          <Dialog.Content className="account-settings-dialog" aria-describedby={undefined} onCloseAutoFocus={event => { event.preventDefault(); opener.current?.focus(); }}>
+          <Dialog.Content className="account-settings-dialog" aria-describedby={undefined} onCloseAutoFocus={event => { event.preventDefault(); closeFocus(); }} onEscapeKeyDown={event => { if (pictureFrom) { event.preventDefault(); setPictureFrom(null); } }}>
             <header className="account-settings-header">
               <span className="account-settings-mark"><Settings size={22} aria-hidden="true" /></span>
               <Dialog.Title>Settings</Dialog.Title>
@@ -100,16 +120,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                   </button>
                 ))}
               </nav>
-              <section key={view} id="account-settings-panel" className="account-settings-panel" aria-labelledby="account-settings-panel-title" tabIndex={0}>
+              <section key={view} ref={panel} id="account-settings-panel" className={`account-settings-panel ${view === "profile" ? "cm-layer is-profile" : ""}`} aria-labelledby="account-settings-panel-title" tabIndex={0} onClick={onPanelClick}>
                 <h2 id="account-settings-panel-title">{title}</h2>
-                {view === "display" ? <DisplaySettings /> : view === "privacy" ? (
+                {view === "profile" ? (
+                  <>
+                    <CommunitySettingsView embedded name={firstName(profileName(profile))} section={(focus as SettingsSection | undefined) ?? "profile"} onChangePicture={setPictureFrom} />
+                    {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={() => panel.current} />}
+                  </>
+                ) : view === "display" ? <DisplaySettings /> : view === "privacy" ? (
                   <><AgreementLine document="privacy" /><SettingsDocument intro={PRIVACY_INTRO} sections={PRIVACY_SECTIONS} focus={focus} /></>
                 ) : view === "terms" ? (
                   <><AgreementLine document="terms" /><SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} focus={focus} /></>
                 ) : view === "health" ? (
                   <HealthConsentPanel onReadPrivacy={() => show("privacy", "4.")} />
                 ) : (
-                  <DataPermissions onOpenDocument={(which, focus) => show(which, focus)} onClose={() => setOpen(false)} />
+                  <DataPermissions onOpenDocument={(which, focus) => show(which, focus)} onOpenProfile={() => show("profile")} onClose={() => setOpen(false)} />
                 )}
               </section>
             </div>

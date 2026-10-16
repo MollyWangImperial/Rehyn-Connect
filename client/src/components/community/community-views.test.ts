@@ -6,6 +6,8 @@ import Community from "@/pages/Community";
 import { createCommunityStore, type CommunitySpace } from "@/lib/community-store";
 import { OwnPostCard } from "./Feed";
 import MessagesDock from "./MessagesDock";
+import type { SettingsSection } from "./settings-model";
+import SettingsView from "./SettingsView";
 
 vi.mock("@/components/RecoveryShell", () => ({ default: ({ children }: { children: unknown }) => children }));
 
@@ -14,6 +16,8 @@ beforeAll(() => { vi.useFakeTimers({ toFake: ["Date"] }); vi.setSystemTime(new D
 afterAll(() => { vi.useRealTimers(); });
 
 const page = (path: string) => renderToStaticMarkup(createElement(Router, { ssrPath: path, children: createElement(Community) })).replace(/ data-loc="[^"]*"/g, "");
+/** Settings → Your profile: the community settings, as drawn inside the Settings window. */
+const settings = (section: SettingsSection, embedded = false) => renderToStaticMarkup(createElement(Router, { ssrPath: "/community", children: createElement(SettingsView, { name: "Zak", section, embedded }) })).replace(/ data-loc="[^"]*"/g, "");
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/\s+/g, " ");
 /** Whether some opening tag of this kind carries every one of the given attributes, in any order. */
 const tagWith = (html: string, name: string, ...attributes: string[]) =>
@@ -72,7 +76,7 @@ describe("My community views", () => {
     for (const path of ["/community", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=start", "/community?space=settings", "/community?panel=friends"]) {
       expect(words(page(path)), path).not.toMatch(onlyYou);
     }
-    expect(words(page("/community?space=settings&section=profile"))).toContain("Who sees my posts by default");
+    expect(words(settings("profile"))).toContain("Who sees my posts by default");
   });
 
   it("shows the lounge with its people, quick replies and house rules, without the head count, starter, waves, circle promo or poll", () => {
@@ -185,7 +189,7 @@ describe("My community views", () => {
   });
 
   it("keeps privacy and blocked people under Your profile in Settings (the Friends tab has gone; its drawer stays)", () => {
-    const html = page("/community?space=settings&section=profile");
+    const html = settings("profile");
     const text = words(html);
     expect(html).not.toContain("cm-fp-");
     expect(tagWith(html, "div", 'class="cm-set-profile"')).toBe(true);
@@ -271,11 +275,15 @@ describe("the feed with friends, safety and settings", () => {
 });
 
 describe("the toolbar's pages", () => {
-  it("opens Community settings as a page of its own (its button is in the shell's top bar, not the toolbar)", () => {
+  it("no longer has a Community settings page: its address shows the feed, and Settings → Your profile opens over it (review)", () => {
     const html = page("/community?space=settings");
-    expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
-    expect(html).toMatch(/<div class="cm-space" data-space="settings">/);
-    expect(html).not.toMatch(/data-space="feed"/);
+    expect(html).not.toContain("Community settings");
+    expect(html).not.toMatch(/data-space="settings"/);
+    expect(html).toMatch(/<div class="cm-space" data-space="feed">/);
+    // Inside Settings the page keeps its parts, without its own title (the window names it).
+    const inside = settings("profile", true);
+    expect(inside).not.toContain("Community settings");
+    for (const part of ["Your profile", "Your privacy", "Blocked", "What you see", "Reading and listening", "Quiet times", "How others would see you"]) expect(words(inside)).toContain(part);
   });
 
   it("opens Safety as a page, with Gary blocked and a way to Warning signs", () => {

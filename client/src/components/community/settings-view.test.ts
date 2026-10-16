@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
-import type { CommunityMemory, CommunitySettings } from "@/lib/community-store";
+import type { CommunityMemory, CommunitySettings, SettingsSection } from "@/lib/community-store";
 import type { Profile } from "@/lib/profile";
 
 // What the page reads in each test: the stored record and the profile (by default, a blank record
@@ -34,6 +34,8 @@ afterEach(() => { state.memory = null; state.profile = null; });
 const clean = (html: string) => html.replace(/ data-loc="[^"]*"/g, "");
 const page = (path: string) => clean(renderToStaticMarkup(createElement(Router, { ssrPath: path, children: createElement(Community) })));
 const view = () => clean(renderToStaticMarkup(createElement(Router, { ssrPath: "/community?space=settings", children: createElement(SettingsView, { name: "Zak" }) })));
+/** The settings as Settings → Your profile draws them when an address names a section (`?space=settings&section=…`). */
+const at = (section: string) => clean(renderToStaticMarkup(createElement(Router, { ssrPath: "/community", children: createElement(SettingsView, { name: "Zak", section: section as SettingsSection }) })));
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/\s+/g, " ");
 /** Every opening tag of this kind that carries all of the given attributes. */
 const tagsWith = (html: string, name: string, ...attributes: string[]) =>
@@ -49,8 +51,8 @@ function withSettings(patch: Partial<CommunitySettings>, edit?: (memory: Communi
 }
 
 describe("Community settings (F5)", () => {
-  it("opens under the community header, with Your profile first, then three sections with What you see open", () => {
-    const html = page("/community?space=settings");
+  it("has Your profile first, then three sections with What you see open", () => {
+    const html = view();
     const text = words(html);
     expect(html).toMatch(/<h2[^>]*data-view-heading[^>]*>Community settings<\/h2>/);
     expect(text).toContain("Only for My community. The settings below save as you go.");
@@ -148,23 +150,23 @@ describe("links that name a setting", () => {
     return open[0]?.match(/>([^<>]+)<$/)?.[1];
   };
 
-  it("opens Community settings at the section the address names", () => {
-    expect(openSection(page("/community?space=settings&section=see"))).toBe("What you see");
-    expect(openSection(page("/community?space=settings&section=read"))).toBe("Reading and listening");
-    expect(openSection(page("/community?space=settings&section=quiet"))).toBe("Quiet times");
+  it("opens at the section the address names", () => {
+    expect(openSection(at("see"))).toBe("What you see");
+    expect(openSection(at("read"))).toBe("Reading and listening");
+    expect(openSection(at("quiet"))).toBe("Quiet times");
     // Your profile is always open at the top; a link to it (by its name, or the old "appear" and
     // "friends") leaves the first panel open under it. An unknown section, or none, does the same.
     for (const section of ["profile", "appear", "friends", "secrets"]) {
-      const html = page(`/community?space=settings&section=${section}`);
+      const html = at(section);
       expect(openSection(html)).toBe("What you see");
       expect(tagWith(html, "div", 'class="cm-set-profile"')).toBe(true);
       expect(tagWith(html, "h3", 'class="cm-pic-profile-title"', 'tabindex="-1"', "data-set-heading")).toBe(true);
     }
-    expect(openSection(page("/community?space=settings"))).toBe("What you see");
+    expect(openSection(view())).toBe("What you see");
   });
 
-  it("names the section only on Community settings", () => {
-    expect(page("/community?section=quiet")).not.toContain("cm-set-page");
+  it("is no longer a page of My community: its old address shows the feed (Settings opens over it)", () => {
+    for (const path of ["/community?space=settings", "/community?space=settings&section=quiet", "/community?section=quiet"]) expect(page(path)).not.toContain("cm-set-page");
   });
 });
 

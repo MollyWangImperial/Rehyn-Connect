@@ -13,7 +13,7 @@ import { alertsQuiet, communityHref, friendList, hourLabel, inQuietHours, isBloc
 import { conditionByKey, conditionHref, itemByKey, itemHref } from "@/lib/library";
 import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
-import { PROFILE_PATH } from "./AccountSettings";
+import { useOptionalSettings } from "./AccountSettings";
 import AccountResetControls from "./AccountResetControls";
 import { myGroups } from "./community/group-model";
 
@@ -27,6 +27,7 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
  */
 export default function ProfilePanel({ careTeam = false, onNavigate }: { careTeam?: boolean; onNavigate?: () => void }) {
   const [, navigate] = useLocation();
+  const openSettings = useOptionalSettings();
   const profile = useProfile();
   const memory = useCommunity();
   const library = useLibraryState();
@@ -71,7 +72,7 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
           <span className="site-me-face" aria-hidden="true">{profile.photo ? <img src={profile.photo} alt="" /> : profileInitial(profile)}</span>
           <span className="site-me-words">
             <b>{profileName(profile)}</b>
-            <Link className="site-me-link" {...link(PROFILE_PATH)}>View your profile</Link>
+            <button type="button" className="site-me-link" aria-haspopup="dialog" onClick={event => { onNavigate?.(); openSettings?.(event.currentTarget, "profile"); }}>View your profile</button>
           </span>
         </div>
         <ul className="site-rows">

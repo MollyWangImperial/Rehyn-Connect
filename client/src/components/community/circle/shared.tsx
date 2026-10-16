@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { MEMBER_ROOM_IDS, type MemberRoomId } from "@/content/circle-events";
 import { people, type PersonId } from "@/content/community-samples";
 import { accessLabels, AUDIENCES, COMMUNITY_TAGS, formatLabel, whenRange, type Access, type Gathering } from "@/lib/circle-gatherings";
-import { GlobeIcon, LockIcon } from "../icons";
+import { ChevronDownIcon, GlobeIcon, LockIcon } from "../icons";
 import { AliraMark, Face, MyFace } from "../parts";
 
 // Pieces the Sunday circle's pages share: their addresses, the event row Coming up and My events
@@ -84,11 +84,15 @@ export function Going({ faces, label }: { faces: PersonId[]; label: string }) {
   );
 }
 
-/** One event: its date, name, who can join, when and how it runs, who it's for and who hosts it, and its buttons. */
+/**
+ * One event: its date, name, who can join, who it's for and who hosts it, and its buttons. Its
+ * details (when and how long, the format, and its description) open under the row when the name is
+ * pressed (review: the list rows carry the name only).
+ */
 export function EventRow({ event, friends, line, hostExtra, aside, highlight = false, live = false, children }: {
   event: Gathering;
   friends: readonly PersonId[];
-  /** What follows the time ("Teacup circle · …"); the event's description unless given. */
+  /** What follows the time in the details ("Teacup circle · …"); the event's description unless given. */
   line?: ReactNode;
   hostExtra?: string;
   /** Beside the buttons: who's going. */
@@ -97,19 +101,20 @@ export function EventRow({ event, friends, line, hostExtra, aside, highlight = f
   live?: boolean;
   children?: ReactNode;
 }) {
+  const [open, setOpen] = useState(false);
+  const detailId = useId();
   const tags = [
     ...event.audience.map(id => ({ id, label: AUDIENCES.find(item => item.id === id)?.label ?? id, warm: id !== "all" && id !== "carers" && id !== "newly" })),
     ...event.communities.map(id => ({ id: `c-${id}`, label: COMMUNITY_TAGS.find(item => item.id === id)?.label ?? id, warm: false })),
   ];
   return (
-    <article className={`cm-ce-row ${highlight ? "is-highlight" : ""}`}>
+    <article className={`cm-ce-row ${highlight ? "is-highlight" : ""} ${open ? "is-open" : ""}`}>
       <DateBlock at={event.start} />
       <div className="cm-ce-row-main">
         <div className="cm-ce-row-title">
-          <h4>{event.name}</h4>
+          <h4><button type="button" className="cm-ce-row-name" aria-expanded={open} aria-controls={detailId} onClick={() => setOpen(!open)}>{event.name}<span className="cm-sr">{open ? ": hide the details" : ": show the details"}</span><ChevronDownIcon size={16} /></button></h4>
           {live ? <span className="cm-ce-badge is-live">Live now</span> : <AccessBadge access={event.access} />}
         </div>
-        <p className="cm-ce-row-when">{`${whenRange(event.start, event.minutes)} · ${formatLabel(event.format)}`}{line === undefined ? (event.detail ? ` · ${event.detail}` : "") : line}</p>
         <div className="cm-ce-row-tags">
           {tags.map(tag => <span key={tag.id} className={`cm-ce-tag ${tag.warm ? "is-warm" : ""}`}>{tag.label}</span>)}
           <HostLine event={event} friends={friends} extra={hostExtra} />
@@ -118,6 +123,10 @@ export function EventRow({ event, friends, line, hostExtra, aside, highlight = f
       <div className="cm-ce-row-side">
         {aside}
         {children}
+      </div>
+      <div className="cm-ce-row-detail" id={detailId} hidden={!open}>
+        <p className="cm-ce-row-when"><b>{whenRange(event.start, event.minutes)}</b>{` · ${formatLabel(event.format)}`}{line === undefined ? "" : line}</p>
+        {line === undefined && event.detail && <p className="cm-ce-row-about">{event.detail}</p>}
       </div>
     </article>
   );

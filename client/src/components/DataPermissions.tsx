@@ -5,7 +5,6 @@ import { DATA_SCREEN } from "@/content/data-permissions";
 import { settingsChoices, type MemberId, type MessagesFrom, type PersonId, type PostsSeenBy } from "@/content/community-samples";
 import { agreedOn, agreedTo, consentStore, HEALTH_CONSENT_TEXT, isUnder18, useConsents } from "@/lib/consent";
 import { communityHref, communityStore, isBlocked, useCommunity } from "@/lib/community-store";
-import { PROFILE_PATH } from "./AccountSettings";
 import "./data-permissions.css";
 
 // The Data and permissions screen, built to "Data and permissions screen · Version 2.0": every label,
@@ -135,7 +134,7 @@ export function HealthConsentBlock({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export default function DataPermissions({ onOpenDocument, onClose }: { onOpenDocument: (which: "privacy" | "terms", focus?: string) => void; onClose: () => void }) {
+export default function DataPermissions({ onOpenDocument, onOpenProfile, onClose }: { onOpenDocument: (which: "privacy" | "terms", focus?: string) => void; onOpenProfile: () => void; onClose: () => void }) {
   const consents = useConsents();
   const memory = useCommunity();
   const [, navigate] = useLocation();
@@ -168,7 +167,7 @@ export default function DataPermissions({ onOpenDocument, onClose }: { onOpenDoc
         <Switch label={S.privacy.online.label} on={memory.settings.showOnline} onChange={showOnline => communityStore.updateSettings({ showOnline })} />
       </Row>
       <Row label={S.privacy.blocked.label} note={S.privacy.blocked.note}>
-        <button type="button" className="dp-link" onClick={() => go(PROFILE_PATH)}>{S.privacy.blocked.action}{blocked > 0 ? ` (${blocked})` : ""}</button>
+        <button type="button" className="dp-link" onClick={onOpenProfile}>{S.privacy.blocked.action}{blocked > 0 ? ` (${blocked})` : ""}</button>
       </Row>
 
       {/* "Improving the app" is left out until there is any analytics to switch on (build note: only ship the toggle if it exists). */}
@@ -196,7 +195,7 @@ export default function DataPermissions({ onOpenDocument, onClose }: { onOpenDoc
 
       <h3 className="dp-heading">{S.yourData.heading}</h3>
       <Row label={S.yourData.download.label} note={S.yourData.download.note}><button type="button" className="dp-link" onClick={downloadMyData}>Download</button></Row>
-      <Row label={S.yourData.correct.label} note={S.yourData.correct.note}><button type="button" className="dp-link" onClick={() => go(PROFILE_PATH)}>Open your profile</button></Row>
+      <Row label={S.yourData.correct.label} note={S.yourData.correct.note}><button type="button" className="dp-link" onClick={onOpenProfile}>Open your profile</button></Row>
       <Row label={S.yourData.delete.label} note={S.yourData.delete.note}><button type="button" className="dp-link is-danger" onClick={() => setDeleting(true)}>Delete</button></Row>
       {deleting && <Confirm title={S.deleteAccount.title} text={S.deleteAccount.text} more={S.deleteAccount.more} confirm={S.deleteAccount.confirm} cancel={S.deleteAccount.cancel} danger typed="DELETE" onConfirm={() => { deleteEverything(); window.location.assign("/"); }} onCancel={() => setDeleting(false)} />}
 

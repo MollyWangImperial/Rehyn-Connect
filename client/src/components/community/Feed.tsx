@@ -468,12 +468,6 @@ function LoungeCard({ here }: { here: number }) {
         <span className="cm-face-stack" aria-hidden="true">{loungeFaces.filter(who => !isBlocked(memory, who)).map(who => <Face key={who} who={who} size={28} />)}</span>
         <span className="cm-here">{`${here} people chatting now`}</span>
       </div>
-      {loungeQuote && canSee(memory, loungeQuote.who) && (
-        <figure className="cm-quote">
-          <blockquote>{`“${loungeQuote.text}”`}</blockquote>
-          <figcaption>{`${people[loungeQuote.who].name} · ${loungeQuote.minutesAgo ?? 0} min ago`}</figcaption>
-        </figure>
-      )}
       <Link className="cm-btn cm-btn-green cm-btn-wide" href={communityHref("lounge")}>Join the conversation<span className="cm-sr"> in the lounge</span></Link>
     </section>
   );

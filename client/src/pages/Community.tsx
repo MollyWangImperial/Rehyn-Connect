@@ -10,10 +10,9 @@ import GroupsView from "@/components/community/Groups";
 import { BackIcon } from "@/components/community/icons";
 import LoungeView from "@/components/community/Lounge";
 import MessagesView from "@/components/community/Messages";
-import PictureDialog from "@/components/community/PictureDialog";
 import PostMenu from "@/components/community/PostMenu";
+import { useOptionalSettings } from "@/components/AccountSettings";
 import SafetyView from "@/components/community/SafetyView";
-import SettingsView from "@/components/community/SettingsView";
 import StartGroupView from "@/components/community/StartGroup";
 import { lounge, type FriendsTab } from "@/content/community-samples";
 import { useAlertsPanel } from "@/lib/alerts-panel";
@@ -47,8 +46,8 @@ import "./community-poker.css";
 //   /community?space=groups&group=walk   my groups, with one open
 //   /community?space=messages&chat=anne  messages, with a conversation open
 //   /community?space=start               start a group
-//   /community?space=settings            community settings (&section=profile: your profile, privacy, blocked)
-//   /community?space=friends             retired: it opens Settings → Your profile
+//   /community?space=settings            retired: it opens Settings → Your profile over the feed (&section= names a part)
+//   /community?space=friends             retired: the same
 //   /community?space=safety              safety: reports, blocked and hidden people
 //   ...&panel=friends&tab=sent           the Friends drawer, open over any of these
 // Alerts and the hide, block or report sheet (a post's ··· button) open on the page itself.
@@ -59,9 +58,18 @@ const NO_PANEL = new Set<CommunitySpace>(["groups", "messages", "start", "poker"
 export default function Community() {
   const search = useSearch();
   const [location, navigate] = useLocation();
-  const view = communityViewFromQuery(search);
-  // The Friends page is retired: privacy and blocked people live under Settings → Your profile.
-  useEffect(() => { if (view.space === "friends") navigate(communityHref("settings", null, { section: "profile" }), { replace: true }); }, [view.space, navigate]);
+  const openSettings = useOptionalSettings();
+  const asked = communityViewFromQuery(search);
+  // Community settings (and the retired Friends page) live in Settings → Your profile now (review):
+  // their addresses open that window over the feed, at the section named (`&section=quiet`), and a
+  // `panel=friends` address keeps its drawer instead.
+  const toSettings = asked.space === "settings" || asked.space === "friends";
+  const view = toSettings ? { ...asked, space: "feed" as const } : asked;
+  useEffect(() => {
+    if (!toSettings) return;
+    navigate(communityHref("feed", null, { panel: asked.panel ?? null, tab: asked.tab ?? null }), { replace: true });
+    if (!asked.panel) openSettings?.(null, "profile", asked.section ?? undefined);
+  }, [toSettings, asked.panel, asked.tab, asked.section, navigate, openSettings]);
   const profile = useProfile();
   const name = firstName(profileName(profile));
   const memory = useCommunity();
@@ -72,15 +80,13 @@ export default function Community() {
   // Alerts opens from the profile panel's row; the shell draws the panel (lib/alerts-panel.ts).
   const alertsOpen = useAlertsPanel().open;
   const [menu, setMenu] = useState<{ target: SafetyTarget; opener: HTMLElement; startAt?: "block" } | null>(null);
-  // "Choose your picture", opened from Community settings: the button that opened it, for the focus to return to.
-  const [pictureFrom, setPictureFrom] = useState<HTMLElement | null>(null);
   const page = useRef<HTMLDivElement>(null);
   const firstView = useRef(true);
   const lastSpace = useRef(view.space);
   const viewNow = useRef(view);
   viewNow.current = view;
   const friendsOpen = view.panel === "friends";
-  const overlayOpen = friendsOpen || alertsOpen || menu !== null || pictureFrom !== null || poker.dialogOpen;
+  const overlayOpen = friendsOpen || alertsOpen || menu !== null || poker.dialogOpen;
   const overlayWasOpen = useRef(overlayOpen);
   // Whether the drawer was opened during this visit, so closing it can step Back rather than add a page.
   const friendsOpenedHere = useRef(false);
@@ -120,7 +126,7 @@ export default function Community() {
   }, [view.panel]);
 
   // A new address (a link, or the browser's Back button) closes the panels and the sheets.
-  useEffect(() => { setMenu(null); setPictureFrom(null); }, [search]);
+  useEffect(() => { setMenu(null); }, [search]);
 
   // Poker night: `?poker=friday` keeps it on for this browser session. The pop-up opens by itself once
   // a day on poker night, unless the person said "Not tonight" this week or has already picked; a new
@@ -172,7 +178,6 @@ export default function Community() {
         {isOpen("poker") && <div className="cm-space" data-space="poker" hidden={view.space !== "poker"}><PokerSpace active={view.space === "poker"} /></div>}
         {isOpen("groups") && <div className="cm-space" data-space="groups" hidden={view.space !== "groups"}><GroupsView active={view.space === "groups"} requested={view.group} /></div>}
         {isOpen("messages") && <div className="cm-space" data-space="messages" hidden={view.space !== "messages"}><MessagesView active={view.space === "messages"} chat={view.chat ?? null} onPersonMenu={openMenu} /></div>}
-        {isOpen("settings") && <div className="cm-space" data-space="settings" hidden={view.space !== "settings"}><SettingsView name={name} section={view.section ?? null} onChangePicture={setPictureFrom} /></div>}
         {isOpen("safety") && <div className="cm-space" data-space="safety" hidden={view.space !== "safety"}><SafetyView name={name} warningSignsHref={fastCheckPath(location, search)} onPersonMenu={openMenu} /></div>}
         {isOpen("start") && (
           <div className="cm-space" data-space="start" hidden={view.space !== "start"}>
@@ -190,7 +195,6 @@ export default function Community() {
       <div className={`cm-layer ${textSize}`}>
         {friendsOpen && <FriendsDrawer tab={view.tab ?? "requests"} onTab={showTab} onClose={closeFriends} onPersonMenu={openMenu} fallbackFocus={friendsButton} name={name} />}
         {menu && <PostMenu target={menu.target} name={name} onClose={() => setMenu(null)} returnFocus={menu.opener} fallbackFocus={headingNow} startAt={menu.startAt} />}
-        {pictureFrom && <PictureDialog onClose={() => setPictureFrom(null)} returnFocus={pictureFrom} fallbackFocus={headingNow} />}
         {poker.dialogOpen && <PokerNightDialog name={name} onClose={pokerNight.close} fallbackFocus={headingNow} />}
       </div>
     </RecoveryShell>

@@ -51,6 +51,8 @@ export type SettingsViewProps = {
   section?: SettingsSection | null;
   /** Opens "Choose your picture" (outside the page, over everything), from the Change picture button. */
   onChangePicture?: (opener: HTMLElement) => void;
+  /** Inside Settings → Your profile: the window names the page, so the page's own title is left out. */
+  embedded?: boolean;
 };
 
 /** Runs a change through the store. True when something changed, and so was saved. */
@@ -476,7 +478,7 @@ function SamplePost({ memory }: { memory: CommunityMemory }) {
 
 /* ----------------------------------------------------------------- page */
 
-export default function SettingsView({ name, section = null, onChangePicture }: SettingsViewProps) {
+export default function SettingsView({ name, section = null, onChangePicture, embedded = false }: SettingsViewProps) {
   const memory = useCommunity();
   const settings = memory.settings;
   const profile = useProfile();
@@ -572,13 +574,15 @@ export default function SettingsView({ name, section = null, onChangePicture }: 
   const sectionProps = (id: SettingsPanel) => ({ id, summary: summary[id], open: open === id, onToggle: toggle, cardRef: cardRef(id) });
 
   return (
-    <div className="cm-set-page">
+    <div className={`cm-set-page ${embedded ? "is-embedded" : ""}`}>
       <div className="cm-set-main">
         <div className="cm-set-head">
-          <div className="cm-set-titles">
-            <h2 className="cm-view-title" tabIndex={-1} data-view-heading>Community settings</h2>
-            <p className="cm-view-intro">Only for My community. The settings below save as you go.</p>
-          </div>
+          {embedded ? <p className="cm-view-intro">Your card, your privacy, and the settings for My community. They save as you go.</p> : (
+            <div className="cm-set-titles">
+              <h2 className="cm-view-title" tabIndex={-1} data-view-heading>Community settings</h2>
+              <p className="cm-view-intro">Only for My community. The settings below save as you go.</p>
+            </div>
+          )}
           <p className="cm-set-saved-slot" role="status">
             {saved && <span key={saved.id} className="cm-set-saved"><CheckIcon size={18} strokeWidth={2.4} />{saved.kept ? "Saved" : "Saved for this visit"}</span>}
           </p>
