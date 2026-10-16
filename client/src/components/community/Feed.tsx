@@ -490,7 +490,7 @@ function CircleCard({ seated, memory }: { seated: boolean; memory: CommunityMemo
         <span className="cm-seat-bar" role="progressbar" aria-label="Seats taken" aria-valuemin={0} aria-valuemax={CIRCLE_SEATS} aria-valuenow={taken} aria-valuetext={`${taken} of ${CIRCLE_SEATS} seats taken`}>
           <span style={{ width: `${Math.round((taken * 100) / CIRCLE_SEATS)}%` }} />
         </span>
-        <span aria-hidden="true">{`${taken} of ${CIRCLE_SEATS} seats taken${seated ? " · yours is kept" : ""}`}</span>
+        {/* The count under the bar was removed in review; the bar still says it to a screen reader. */}
       </div>
       <Link className="cm-btn cm-btn-gold" href={communityHref("circle")} onClick={() => communityStore.takeSeat()}>{seated ? "Go to your seat" : "Take your seat"}</Link>
     </section>
