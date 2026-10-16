@@ -8,7 +8,7 @@ import { battleshipsProgress } from "./games/battleships-rules";
 import ChessGame from "./games/Chess";
 import { replay } from "./games/chess-rules";
 import { ChessPiece, GamesIcon } from "./games/pieces";
-import PlayNowSheet, { COMPUTER_NOTE } from "./games/PlayNowSheet";
+import PlayNowSheet from "./games/PlayNowSheet";
 import StartGameSheet from "./games/StartGameSheet";
 import { conditionOf, gameOpens, homeCondition, lastLine, myGames, myGroups, openGames, visibleSubgroups, type GameModel, type GroupModel, type SubgroupCard } from "./group-model";
 import { useBursts, usePinnedToEnd } from "./hooks";
@@ -68,7 +68,6 @@ function PlayNowCard({ memory, cond }: { memory: CommunityMemory; cond: Conditio
       <h3 id="cm-play-now-title">Play a game with someone new</h3>
       <p>Pick a game and you're matched with a member who is free. No group needed, and no clock.</p>
       <Link className="cm-play-now-go cm-nudge" href={communityHref("groups", null, { game: NEW_OPEN, cond })}><GamesIcon size={20} />Play now</Link>
-      <p className="cm-play-now-note">{COMPUTER_NOTE}</p>
       {games.length > 0 && (
         <ul className="cm-games-list" aria-label="Your Play now games">
           {games.map(game => {

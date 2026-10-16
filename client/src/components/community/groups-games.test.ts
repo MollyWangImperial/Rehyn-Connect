@@ -244,8 +244,9 @@ describe("Play now (C61)", () => {
     const html = groupsPage();
     expect(words(html)).toContain("Play a game with someone new");
     expect(html).toContain('href="/community?space=groups&amp;game=new-open&amp;cond=stroke"');
-    expect(words(html)).toContain("In this preview the other player is played by the computer.");
-    // The card sits after "Start a smaller group", in the side column.
+    // The card no longer carries the computer-player note (review); the sheet and the game's page still say it.
+    expect(words(html)).not.toContain("In this preview the other player is played by the computer.");
+    // The card sits after "Start a smaller group", under the list.
     expect(html.indexOf("cm-play-now")).toBeGreaterThan(html.indexOf("cm-start-small"));
     const sheet = render("/community?space=groups&game=new-open", createElement(GroupsView, { active: false, requested: null }));
     const area = element(sheet, sheet.lastIndexOf("<div", sheet.indexOf('class="cm-gs-area"')));
