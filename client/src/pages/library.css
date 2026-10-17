@@ -201,7 +201,6 @@ a.lib-card:hover, .lib-card:has(.lib-stretch:hover) { border-color:#C9D8CC; box-
 .lib-parts a.is-active { border-bottom-color:#183D34; color:#183D34; font-weight:800; }
 .lib-parts a.is-story { color:#B04B30; }
 .lib-parts a.is-story.is-active { border-bottom-color:#B04B30; }
-.lib-parts-count { color:#8A94A0; font-weight:600; }
 
 .lib-condition-body { display:grid; grid-template-columns:minmax(0,1fr); gap:32px; padding-top:28px; padding-bottom:16px; }
 .lib-condition-main, .lib-condition-body.is-single { display:flex; flex-direction:column; gap:40px; }
@@ -270,19 +269,19 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
 .lib-source.is-compact { flex-direction:row; align-items:center; padding:0 14px; border-radius:999px; }
 .lib-source.is-compact .lib-source-name { font-size:13px; }
 
-/* B: pause for a story */
-.lib-pause { position:relative; display:flex; gap:24px; align-items:center; flex-wrap:wrap; padding:28px 30px; overflow:hidden; border-radius:26px; background:#183D34; color:#FFFEFA; }
-.lib-pause-mark { position:absolute; right:-10px; top:-40px; font:500 260px/1 "Newsreader",Georgia,serif; color:#2F6851; opacity:.35; pointer-events:none; }
-.lib-pause-words { position:relative; flex:999 1 380px; min-width:0; display:flex; flex-direction:column; gap:12px; }
-.lib-pause-kicker { display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:1.6px; text-transform:uppercase; color:#F2B33D; }
-.lib-pause-quote { margin:0; font:500 clamp(21px,2.3vw,28px)/1.25 "Newsreader",Georgia,serif; }
-.lib-pause-who { display:flex; align-items:center; gap:10px; font-size:14px; color:#CFE0D6; }
-.lib-pause-who b { color:#FFFEFA; }
-.lib-pause-actions { position:relative; display:flex; flex-direction:column; gap:8px; }
-.lib-pause-go { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:46px; padding:0 20px; border-radius:14px; background:#F2B33D; color:#183D34 !important; font-size:14px; font-weight:800; }
-.lib-pause-go:hover { background:#F5C25F; }
-.lib-pause-later { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 20px; border:1px solid #4B7A68; border-radius:14px; color:#CFE0D6 !important; font-size:13.5px; font-weight:700; }
-.lib-pause-later:hover { background:#21493E; }
+/* C: the companion, behind a button at the top of the page (review). Closed until opened. */
+.lib-companion-fold { display:flex; flex-direction:column; gap:12px; }
+.lib-companion-toggle { display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:8px 14px; border:1.5px solid #F3D9CF; border-radius:18px; background:#FFFFFF; color:#24362F; font:inherit; text-align:left; cursor:pointer; box-shadow:0 6px 18px #B04B300F; }
+.lib-companion-toggle:hover { border-color:#D9674A; background:#FFF8F4; }
+.lib-companion-toggle:focus-visible { outline:3px solid #B04B30; outline-offset:2px; }
+.lib-companion-toggle-words { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+.lib-companion-toggle-words b { font:600 16px/1.2 "Newsreader",Georgia,serif; color:#253D32; }
+.lib-companion-toggle-words span { font-size:12.5px; color:#4C6157; }
+.lib-companion-toggle-state { display:inline-flex; align-items:center; gap:4px; flex-shrink:0; font-size:13px; font-weight:800; color:#B04B30; }
+.lib-companion-toggle-state svg { transition:transform .16s ease; }
+.lib-companion-toggle[aria-expanded="true"] .lib-companion-toggle-state svg { transform:rotate(90deg); }
+.lib-companion[hidden] { display:none; }
+@media (prefers-reduced-motion:reduce) { .lib-companion-toggle-state svg { transition:none; } }
 
 /* C: someone further ahead */
 .lib-companion { display:flex; flex-direction:column; gap:14px; padding:22px; border:1.5px solid #F3D9CF; border-radius:22px; background:#FFFFFF; box-shadow:0 12px 28px #B04B3014; }
@@ -310,8 +309,6 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
 .lib-companion-bar i.is-current { background:#D9674A; }
 .lib-companion-go { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:46px; border-radius:14px; background:#B04B30; color:#FFFEFA !important; font-size:14px; font-weight:800; }
 .lib-companion-go:hover { background:#953C24; }
-.lib-companion.is-inline .lib-companion-list { display:none !important; }
-.lib-companion.is-inline .lib-companion-bar { display:flex; }
 
 .lib-ask-doctor { display:flex; flex-direction:column; gap:12px; padding:20px; border-radius:22px; background:#F4F1EA; scroll-margin-top:66px; }
 .lib-ask-doctor h2, .lib-related h2 { margin:0; font:600 20px/1.2 "Newsreader",Georgia,serif; color:#44382F; }
@@ -522,12 +519,6 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
   .lib-list-row { min-height:52px; padding:12px 14px; }
   .lib-list-words { flex-direction:column; align-items:flex-start; }
   .lib-list-title { font-size:14.5px; }
-  .lib-pause { gap:10px; padding:20px; border-radius:22px; }
-  .lib-pause-mark { font-size:180px; top:-36px; right:-6px; opacity:.4; }
-  .lib-pause-actions { flex-direction:row; width:100%; }
-  .lib-pause-go { flex:1; min-height:44px; border-radius:12px; font-size:13.5px; }
-  .lib-pause-later { min-height:44px; padding:0 14px; border-radius:12px; }
-  .lib-pause-who { font-size:13px; }
   .lib-companion { padding:18px; border-radius:20px; gap:10px; }
   .lib-companion-go { min-height:44px; border-radius:12px; }
   .lib-sources { display:none; }

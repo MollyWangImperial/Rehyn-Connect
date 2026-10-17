@@ -114,12 +114,13 @@ export function mostReadWindow<T>(pool: T[], offset: number, size = 5): T[] {
   return Array.from({ length: count }, (_, at) => pool[(start + at) % pool.length]);
 }
 
-const KIND_LABEL: Record<ItemKind, string> = { article: "Article", video: "Video", animation: "Animation", exercise: "Exercise set", podcast: "Podcast", audio: "Audio" };
+// An animation is a video to the reader (review), so it says so.
+const KIND_LABEL: Record<ItemKind, string> = { article: "Article", video: "Video", animation: "Video", exercise: "Exercise set", podcast: "Podcast", audio: "Audio", news: "News", research: "Research" };
 export const kindLabel = (kind: ItemKind) => KIND_LABEL[kind];
 
-/** "Video · 6 min · neuro-physiotherapist". */
-export function itemMeta(item: LibraryItem, withKind = true): string {
-  return [withKind ? kindLabel(item.kind) : null, item.minutes ? `${item.minutes} min` : null, item.extra ?? null].filter(Boolean).join(" · ");
+/** "Video · 6 min · neuro-physiotherapist", or without the minutes: "Video · neuro-physiotherapist". A resource elsewhere adds who published it and when. */
+export function itemMeta(item: LibraryItem, withKind = true, withMinutes = true): string {
+  return [withKind ? kindLabel(item.kind) : null, withMinutes && item.minutes ? `${item.minutes} min` : null, item.extra ?? null, item.publisher ?? null, item.date ?? null].filter(Boolean).join(" · ");
 }
 
 const NUMBER_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];

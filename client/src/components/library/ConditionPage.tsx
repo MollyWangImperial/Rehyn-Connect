@@ -27,7 +27,6 @@ import {
   BackIcon,
   BookmarkIcon,
   ChevronIcon,
-  ClockIcon,
   Crumbs,
   Envelope,
   Faces,
@@ -38,8 +37,6 @@ import {
   KindBadge,
   MetaLine,
   PauseIcon,
-  ReadAloudButton,
-  SoonTag,
   SourceCard,
   TickIcon,
   useLines,
@@ -76,6 +73,7 @@ function useActivePart(ids: string[]) {
 
 type Part = { id: string; label: string; count: number; story?: boolean };
 
+/** The names of the page's parts, without counts (review). A part with nothing in it is left out. */
 function PartsBar({ parts }: { parts: Part[] }) {
   const active = useActivePart(parts.map(part => part.id));
   const bar = useRef<HTMLElement>(null);
@@ -90,7 +88,7 @@ function PartsBar({ parts }: { parts: Part[] }) {
   return <div className="lib-parts-sticky">
     <nav ref={bar} aria-label="On this page" className="lib-wrap lib-parts">
       {parts.map(part => <a key={part.id} href={`#${part.id}`} onClick={jumpTo(part.id)} className={`${active === part.id ? "is-active" : ""}${part.story ? " is-story" : ""}`} aria-current={active === part.id ? "true" : undefined}>
-        {part.label}{part.count ? <span className="lib-parts-count">{part.count}</span> : null}
+        {part.label}
       </a>)}
     </nav>
   </div>;
@@ -102,20 +100,25 @@ function PartsBar({ parts }: { parts: Part[] }) {
 type CardProps = { place: ConditionPlace; item: LibraryItem; state: LibraryState };
 const isRead = (state: LibraryState, place: ConditionPlace, item: LibraryItem) => state.read.includes(itemKey({ ...place, item }));
 
-function Meta({ place, item, state }: CardProps) {
-  const readable = isReadable(item);
+/** Under a piece: its type (and, on Watch & listen, its length). No "Coming soon" tags on this page (review). */
+function Meta({ place, item, state, minutes = false }: CardProps & { minutes?: boolean }) {
   return <span className="lib-meta-row">
-    <MetaLine item={item} read={isRead(state, place, item)} readable={readable} />
-    {!readable && <SoonTag />}
+    <MetaLine item={item} read={isRead(state, place, item)} readable={isReadable(item)} minutes={minutes} />
   </span>;
+}
+
+/** The link on a card: a genuine resource elsewhere opens in a new tab; a piece of ours opens its page. */
+function PieceLink({ place, item, className, children }: { place: ConditionPlace; item: LibraryItem; className: string; children: ReactNode }) {
+  if (item.url) return <a href={item.url} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
+  return <Link href={itemHref({ ...place, item })} className={className}>{children}</Link>;
 }
 
 /** Understand: a text card. A "they felt this too" prompt (placement D) can sit on it. */
 function TextCard({ place, item, state }: CardProps) {
   const felt = item.feltToo;
   const stories = felt ? felt.storyIds.map(id => findStory(id)).filter((story): story is LibraryStory => Boolean(story)) : [];
-  return <li className="lib-card lib-text-card">
-    <Link href={itemHref({ ...place, item })} className="lib-stretch"><strong>{item.title}</strong></Link>
+  return <li className={`lib-card lib-text-card${item.url ? " is-external" : ""}`}>
+    <PieceLink place={place} item={item} className="lib-stretch"><strong>{item.title}</strong></PieceLink>
     {item.blurb && <span className="lib-card-text">{item.blurb}</span>}
     {felt && stories.length > 0 && <Link href={storyHref(felt.storyIds[0], felt.chapter)} className="lib-felt">
       <Faces stories={stories} size={22} /><span className="lib-felt-long">{felt.label} →</span><span className="lib-felt-short">{felt.shortLabel}</span>
@@ -128,31 +131,30 @@ function TextCard({ place, item, state }: CardProps) {
 function MediaCard({ place, item, state }: CardProps) {
   return <li className="lib-card lib-media-card">
     <KindArt item={item} />
-    <Link href={itemHref({ ...place, item })} className="lib-stretch"><strong>{item.title}</strong></Link>
+    <PieceLink place={place} item={item} className="lib-stretch"><strong>{item.title}</strong></PieceLink>
     <Meta place={place} item={item} state={state} />
   </li>;
 }
 
 function RowItem({ place, item, state }: CardProps) {
   return <li>
-    <Link href={itemHref({ ...place, item })} className="lib-list-row">
+    <PieceLink place={place} item={item} className="lib-list-row">
       <span className="lib-list-words">
         <span className="lib-list-title">{item.title}</span>
         {isRead(state, place, item) && <span className="lib-readmark"><TickIcon />Read</span>}
-        {!isReadable(item) && <SoonTag />}
       </span>
       <span className="lib-list-time">{item.minutes ? `${item.minutes} min` : ""}</span>
       <ChevronIcon />
-    </Link>
+    </PieceLink>
   </li>;
 }
 
 function WatchCard({ place, item, state }: CardProps) {
   return <li>
-    <Link href={itemHref({ ...place, item })} className="lib-card lib-watch-card">
+    <PieceLink place={place} item={item} className="lib-card lib-watch-card">
       <KindBadge kind={item.kind} />
-      <span className="lib-watch-words"><strong>{item.title}</strong><Meta place={place} item={item} state={state} /></span>
-    </Link>
+      <span className="lib-watch-words"><strong>{item.title}</strong><Meta place={place} item={item} state={state} minutes /></span>
+    </PieceLink>
   </li>;
 }
 
@@ -169,27 +171,14 @@ function SectionHead({ id, title, note, story, action }: { id: string; title: st
 // ------------------------------------------------------------------------------------------------
 // The story placements.
 
-/** B: a dark band between Understand and Explore. */
-function PauseBand({ pause }: { pause: NonNullable<ConditionContent["pause"]> }) {
-  const story = findStory(pause.storyId);
-  if (!story) return null;
-  return <section className="lib-pause" aria-label="Pause for a story">
-    <span className="lib-pause-mark" aria-hidden="true">”</span>
-    <div className="lib-pause-words">
-      <span className="lib-pause-kicker"><ClockIcon />Pause for a story · 2 minutes</span>
-      <p className="lib-pause-quote"><span className="lib-wide-only">“{pause.quote}”</span><span className="lib-narrow-only">“{story.quote}”</span></p>
-      <span className="lib-pause-who"><Initial story={story} size={38} /><span><b>{story.name}, {story.age}</b> · {story.tag.toLowerCase()}, {story.detail.split(" · ")[0].toLowerCase()} · {story.when}</span></span>
-    </div>
-    <div className="lib-pause-actions">
-      <Link href={storyHref(story.id, pause.chapter)} className="lib-pause-go">{pause.cta}<ArrowIcon /></Link>
-      <a href="#recover" onClick={jumpTo("recover")} className="lib-pause-later"><span className="lib-wide-only">Keep learning instead</span><span className="lib-narrow-only">Later</span></a>
-    </div>
-  </section>;
-}
-
-/** C: someone further on. The reader says roughly where they are now, and their chapter is offered. */
-function Companion({ storyId, state, inline = false }: { storyId: string; state: LibraryState; inline?: boolean }) {
+/**
+ * C: someone further on. The reader says roughly where they are now, and their chapter is offered.
+ * It sits at the top of the page behind a button of its own, closed until it is opened (review), so
+ * the page's words have the full width until then.
+ */
+function Companion({ storyId, state }: { storyId: string; state: LibraryState }) {
   const story = findStory(storyId);
+  const [open, setOpen] = useState(false);
   if (!story) return null;
   const chosen = state.companion[story.id];
   const chapter = companionChapter(story, chosen);
@@ -197,13 +186,18 @@ function Companion({ storyId, state, inline = false }: { storyId: string; state:
   const at = timed.indexOf(chapter);
   const he = story.pronoun === "his" ? "He's" : "She's";
   const label = chapter.label.toLowerCase();
-  const titleId = inline ? "companion-inline" : "companion";
-  return <section className={`lib-companion${inline ? " is-inline" : ""}`} aria-labelledby={titleId}>
+  return <div className={`lib-companion-fold${open ? " is-open" : ""}`}>
+    <button type="button" className="lib-companion-toggle" aria-expanded={open} aria-controls="companion" onClick={() => setOpen(value => !value)}>
+      <Initial story={story} size={32} />
+      <span className="lib-companion-toggle-words"><b>Walk the first year with {story.name}</b><span>{story.tag} · {story.when}</span></span>
+      <span className="lib-companion-toggle-state">{open ? "Close" : "Open"}<ChevronIcon /></span>
+    </button>
+    <section id="companion" className="lib-companion" aria-labelledby="companion-title" hidden={!open}>
     <span className="lib-kicker is-coral">Someone {story.when.replace(/ on$/, "")} ahead</span>
     <div className="lib-companion-who">
-      <Initial story={story} size={inline ? 42 : 52} />
+      <Initial story={story} size={52} />
       <div>
-        <h2 id={titleId}>Walk the first year with {story.name}</h2>
+        <h2 id="companion-title">{story.name}, {story.age}</h2>
         <span>{story.tag}. {he} {story.when.replace(/ on$/, "")} ahead.</span>
       </div>
     </div>
@@ -227,9 +221,9 @@ function Companion({ storyId, state, inline = false }: { storyId: string; state:
         </li>;
       })}
     </ol>
-    <div className="lib-companion-bar" aria-hidden="true">{timed.map((candidate, index) => <i key={candidate.id} className={index === at ? "is-current" : index < at ? "is-before" : undefined} />)}</div>
     <Link href={storyHref(story.id, chapter.id)} className="lib-companion-go"><span>Read {label}<span className="lib-narrow-only"> · {chapter.minutes} min</span></span><ArrowIcon /></Link>
-  </section>;
+    </section>
+  </div>;
 }
 
 /** A: the story opens the page; the facts follow, with a way straight to them. */
@@ -341,7 +335,8 @@ function useCollapsed() {
   return { open, toggle: () => setOpen(value => !value) };
 }
 
-function ConditionHeader({ place, full, state, lines }: { place: ConditionPlace; full: boolean; state: LibraryState; lines: string[] }) {
+/** The title, its line and the facts; the only action is Save (the read-aloud button was removed in review). */
+function ConditionHeader({ place, full, state }: { place: ConditionPlace; full: boolean; state: LibraryState }) {
   const { condition, group } = place;
   const saved = state.saved.includes(conditionKey(place));
   const save = () => libraryStore.toggleSaved(conditionKey(place));
@@ -352,11 +347,18 @@ function ConditionHeader({ place, full, state, lines }: { place: ConditionPlace;
       {full && condition.facts && <ul className="lib-facts" role="list">{condition.facts.map(fact => <li key={fact}>{fact}</li>)}</ul>}
     </div>
     <div className="lib-condition-actions">
-      <ReadAloudButton lines={lines} />
       <button type="button" className="lib-save lib-wide-only" aria-pressed={saved} onClick={save}><BookmarkIcon filled={saved} />{saved ? "Saved to my pages" : "Save to my pages"}</button>
     </div>
   </div>;
 }
+
+/** The line under each part's heading: the page's own, or a plain default. */
+const PURPOSE = {
+  understand: (title: string) => `Understand ${title.toLowerCase()}, its causes and the tests used to diagnose it.`,
+  recover: () => "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
+  liveWell: () => "Find practical support for everyday life.",
+  sources: () => "Find reliable information and guidance from trusted health organisations.",
+};
 
 export default function ConditionPage({ place }: { place: ConditionPlace }) {
   const { section, group, condition } = place;
@@ -366,16 +368,8 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   const state = useLibraryState();
   const understand = useCollapsed();
   useEffect(() => { libraryStore.visit(key); }, [key]);
-
-  const lines = useLines([
-    sentence(condition.title),
-    condition.summary ?? group.blurb,
-    ...(condition.facts ?? []).map(sentence),
-    ...(content ? (["understand", "recover", "liveWell", "watch"] as ContentType[]).flatMap(type => content[type].length
-      ? [sentence(contentTitle(type, condition)), ...content[type].flatMap(item => [sentence(item.title), item.blurb])]
-      : []) : []),
-    full ? "" : "This page is still being written.",
-  ]);
+  const purpose = (part: keyof typeof PURPOSE) => content?.purpose?.[part] ?? PURPOSE[part](condition.title);
+  const footer = content?.footer ?? LIBRARY_NOTE;
 
   const saved = state.saved.includes(key);
   const mobileBar = <div className="lib-mobilebar">
@@ -385,7 +379,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   </div>;
   const crumbs = <Crumbs className="lib-wide-flex" trail={[{ label: "Library", href: "/" }, { label: section.title, href: sectionHref(section) }, { label: group.title, href: `${sectionHref(section)}#group-${group.id}` }, { label: condition.title }]} />;
 
-  if (!full || !content) return <PlaceholderCondition place={place} lines={lines} mobileBar={mobileBar} crumbs={crumbs} state={state} />;
+  if (!full || !content) return <PlaceholderCondition place={place} mobileBar={mobileBar} crumbs={crumbs} state={state} />;
 
   const woven = condition.storyLayout !== "opening";
   const card = (Card: (props: CardProps) => ReactNode) => (item: LibraryItem) => <Card key={item.id} place={place} item={item} state={state} />;
@@ -400,25 +394,25 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   ].filter(part => part.count > 0);
 
   const understandPart = <section id={PANEL_IDS.understand} aria-labelledby="h-understand" className="lib-part">
-    <SectionHead id="understand" title="Understand" note={woven ? "Plain words, three to five minutes each" : undefined} story={content.sectionStory?.understand} />
+    <SectionHead id="understand" title="Understand" note={purpose("understand")} story={content.sectionStory?.understand} />
     <ul className={`lib-grid lib-grid-cards${woven ? " is-two" : " is-four"}${understand.open ? "" : " is-collapsed"}`} role="list">{content.understand.map(card(TextCard))}</ul>
     {content.understand.length > 2 && <button type="button" className="lib-more lib-narrow-only" aria-expanded={understand.open} onClick={understand.toggle}>
       {understand.open ? "Show fewer" : `${numberWord(content.understand.length - 2)} more`} →
     </button>}
   </section>;
   const recoverPart = <section id={PANEL_IDS.recover} aria-labelledby="h-recover" className="lib-part">
-    <SectionHead id="recover" title={contentTitle("recover", condition)} note={woven ? "Articles, videos and exercise ideas, a few minutes each" : undefined} story={content.sectionStory?.recover} />
+    <SectionHead id="recover" title={contentTitle("recover", condition)} note={purpose("recover")} story={content.sectionStory?.recover} />
     <ul className={`lib-grid lib-media-grid${woven ? " is-three" : " is-four"}`} role="list">{content.recover.map(card(MediaCard))}</ul>
   </section>;
   const liveWellPart = <section id={PANEL_IDS.liveWell} aria-labelledby="h-livewell" className="lib-part">
-    <SectionHead id="livewell" title="Live well" />
+    <SectionHead id="livewell" title="Live well" note={purpose("liveWell")} />
     <ul className="lib-list" role="list">{content.liveWell.map(card(RowItem))}</ul>
   </section>;
   const watchList = <ul className="lib-grid lib-grid-cards is-three" role="list">{content.watch.map(card(WatchCard))}</ul>;
   const sourcesPart = (two: boolean) => <section id="sources" aria-labelledby="h-sources" className="lib-part">
     <div className="lib-part-head is-stacked">
       <h2 id="h-sources" className="lib-h2">Trusted sources</h2>
-      <span className="lib-sub">Each opens in a new tab.</span>
+      <span className="lib-sub">{purpose("sources")}</span>
     </div>
     <div className={`lib-grid lib-sources${two ? " is-two" : " is-three"}`}>{content.sources.map(source => <SourceCard key={source.name} source={source} />)}</div>
     <div className="lib-sources-pills">{content.sources.filter(source => source.url).map(source => <SourceCard key={source.name} source={source} compact />)}</div>
@@ -430,7 +424,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
         {mobileBar}
         {crumbs}
         {content.opening && <OpeningStory storyId={content.opening.storyId} quote={content.opening.quote} />}
-        <ConditionHeader place={place} full state={state} lines={lines} />
+        <ConditionHeader place={place} full state={state} />
       </div>
       <PartsBar parts={parts} />
       <div className="lib-wrap lib-condition-body is-single">
@@ -452,7 +446,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
         </div>
         {content.letterId && <LetterBand letterId={content.letterId} state={state} />}
       </div>
-      <footer className="lib-wrap lib-foot"><span>{LIBRARY_NOTE}</span></footer>
+      <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
     </div>;
   }
 
@@ -460,15 +454,14 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     <div className="lib-wrap">
       {mobileBar}
       {crumbs}
-      <ConditionHeader place={place} full state={state} lines={lines} />
+      <ConditionHeader place={place} full state={state} />
     </div>
     <PartsBar parts={parts} />
     <div className="lib-wrap lib-condition-body">
       <div className="lib-condition-main">
+        {content.companion && <Companion storyId={content.companion.storyId} state={state} />}
         {understandPart}
-        {content.pause && <PauseBand pause={content.pause} />}
         {recoverPart}
-        {content.companion && <div className="lib-norail-only"><Companion storyId={content.companion.storyId} state={state} inline /></div>}
         {liveWellPart}
         <section id={PANEL_IDS.watch} aria-labelledby="h-watch" className="lib-part">
           <SectionHead id="watch" title="Watch & listen" />
@@ -478,17 +471,16 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
         <StoriesPanel place={place} />
       </div>
       <aside className="lib-condition-aside" aria-label="Alongside this page">
-        {content.companion && <div className="lib-rail-only lib-sticky"><Companion storyId={content.companion.storyId} state={state} /></div>}
         <AskDoctor place={place} questions={content.askDoctor} state={state} />
         <Related content={content} />
       </aside>
     </div>
-    <footer className="lib-wrap lib-foot"><span>{LIBRARY_NOTE}</span></footer>
+    <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
   </div>;
 }
 
 /** A condition whose page is still being written: what there is, said plainly. */
-function PlaceholderCondition({ place, lines, mobileBar, crumbs, state }: { place: ConditionPlace; lines: string[]; mobileBar: ReactNode; crumbs: ReactNode; state: LibraryState }) {
+function PlaceholderCondition({ place, mobileBar, crumbs, state }: { place: ConditionPlace; mobileBar: ReactNode; crumbs: ReactNode; state: LibraryState }) {
   const { group, condition } = place;
   const items = condition.content?.understand ?? [];
   const sources = condition.content?.sources ?? DEFAULT_SOURCES;
@@ -498,7 +490,7 @@ function PlaceholderCondition({ place, lines, mobileBar, crumbs, state }: { plac
     <div className="lib-wrap">
       {mobileBar}
       {crumbs}
-      <ConditionHeader place={place} full={false} state={state} lines={lines} />
+      <ConditionHeader place={place} full={false} state={state} />
     </div>
     <div className="lib-wrap lib-condition-body is-single">
       <section className="lib-soon-panel" aria-labelledby="lib-soon-title">

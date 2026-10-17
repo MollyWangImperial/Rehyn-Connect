@@ -113,9 +113,11 @@ const KIND_ART: Record<ItemKind, { tint: string; ink: string; icon: ReactNode; p
   article: { tint: "#FBF0DC", ink: "#8A5A12", icon: <DocIcon /> },
   podcast: { tint: "#FCEBE6", ink: "#A8402B", icon: <MicIcon size={40} /> },
   audio: { tint: "#E8EBF8", ink: "#35458C", icon: <HeadphonesIcon size={40} /> },
+  news: { tint: "#E4F3F1", ink: "#1F6B64", icon: <DocIcon /> },
+  research: { tint: "#EEF3DF", ink: "#4F6A14", icon: <DocIcon /> },
 };
 const SMALL_ICON: Record<ItemKind, ReactNode> = {
-  video: <CameraIcon />, animation: <CameraIcon />, exercise: <ExerciseIcon size={20} />, article: <DocIcon size={20} />, podcast: <MicIcon />, audio: <HeadphonesIcon size={20} />,
+  video: <CameraIcon />, animation: <CameraIcon />, exercise: <ExerciseIcon size={20} />, article: <DocIcon size={20} />, podcast: <MicIcon />, audio: <HeadphonesIcon size={20} />, news: <DocIcon size={20} />, research: <DocIcon size={20} />,
 };
 
 /** The art at the top of a media card: a play button for films, an icon for everything else. */
@@ -134,14 +136,20 @@ export function KindBadge({ kind }: { kind: ItemKind }) {
 
 export const ReadMark = () => <span className="lib-readmark"><TickIcon />Read</span>;
 
-/** "Coming soon", said plainly, for a piece that is not written yet. */
+/** "Coming soon", said plainly, for a piece that is not written yet (a piece's own page still says it; the condition pages no longer do). */
 export const SoonTag = () => <span className="lib-soon">Coming soon</span>;
 
-export function MetaLine({ item, read, readable }: { item: LibraryItem; read: boolean; readable: boolean }) {
+/**
+ * The line under a piece: its type and, where asked for, its length and who it is by. The "Coming
+ * soon" tag that used to follow pieces without words yet was removed from the condition pages in
+ * review; a piece without a page still opens its honest note.
+ */
+export function MetaLine({ item, read, readable, minutes = true }: { item: LibraryItem; read: boolean; readable: boolean; minutes?: boolean }) {
   return <span className="lib-meta">
     {read && <ReadMark />}
-    <span>{itemMeta(item)}</span>
+    <span>{itemMeta(item, true, minutes)}</span>
     {readable && item.kind === "article" && <span>Alira can read it</span>}
+    {item.url && <span className="lib-sr">(opens in a new tab)</span>}
   </span>;
 }
 
@@ -150,7 +158,6 @@ export function SourceCard({ source, compact = false }: { source: TrustedSource;
     return <div className={`lib-source is-soon${compact ? " is-compact" : ""}`}>
       <span className="lib-source-name">{source.name}{source.printable ? <DocIcon size={14} /> : null}</span>
       {!compact && <span className="lib-source-note">{source.note}</span>}
-      <SoonTag />
     </div>;
   }
   return <a className={`lib-source${compact ? " is-compact" : ""}`} href={source.url} target="_blank" rel="noopener noreferrer">

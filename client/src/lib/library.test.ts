@@ -76,7 +76,7 @@ describe("the Library's data", () => {
     const stroke = findCondition("stroke", "ischaemic")!.condition;
     const parkinsons = findCondition("parkinsons", "parkinsons-disease")!.condition;
     expect(stroke.storyLayout).toBe("woven");
-    expect(stroke.content?.pause && stroke.content.companion).toBeTruthy();
+    expect(stroke.content?.companion).toBeTruthy();
     expect(stroke.content?.understand.some(item => item.feltToo)).toBe(true);
     expect(parkinsons.storyLayout).toBe("opening");
     expect(parkinsons.content?.opening && parkinsons.content.letterId).toBeTruthy();

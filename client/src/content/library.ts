@@ -23,7 +23,7 @@ import { anxiety, bowelCancer, breastCancer, cancerFatigue, chronicKidneyDisease
 
 export type Hue = { tint: string; ink: string };
 export type SectionIcon = "brain" | "heart" | "drop" | "bone" | "ribbon" | "mind" | "kidney";
-export type ItemKind = "article" | "video" | "animation" | "exercise" | "podcast" | "audio";
+export type ItemKind = "article" | "video" | "animation" | "exercise" | "podcast" | "audio" | "news" | "research";
 
 export type LibraryItem = {
   id: string;
@@ -31,6 +31,12 @@ export type LibraryItem = {
   blurb?: string;
   kind: ItemKind;
   minutes?: number;
+  /** A genuine resource elsewhere: the page opens it in a new tab instead of a page of its own. */
+  url?: string;
+  /** Who published it ("Stroke Association"), shown with the date on the card. */
+  publisher?: string;
+  /** When it was published or last reviewed, as shown ("May 2025"). */
+  date?: string;
   /** A few words after the time: "neuro-physiotherapist", "with a diagram". */
   extra?: string;
   /** The checked answer (content/my-time-learn.ts) that this piece opens. */
@@ -58,10 +64,12 @@ export type ConditionContent = {
   stories: string[];
   askDoctor: string[];
   related: { groupId: string; conditionId: string; label?: string }[];
-  /** Placement B: a dark band between Understand and Explore. */
-  pause?: { storyId: string; chapter: string; quote: string; cta: string };
-  /** Placement C: a companion in the side rail, at the point the reader says they have reached. */
+  /** Placement C: a companion the reader can open at the top of the page, at the point they say they have reached. */
   companion?: { storyId: string };
+  /** The line under each part's heading, saying what it is for; the page has plain defaults. */
+  purpose?: Partial<Record<"understand" | "recover" | "liveWell" | "sources", string>>;
+  /** The page's closing line, in place of the Library's general one. */
+  footer?: string;
   /** Placement A: the story opens the page and the facts follow. */
   opening?: { storyId: string; quote: string };
   /** On story-led pages, a pill beside a heading that jumps into the story. */
@@ -178,6 +186,14 @@ const ischaemicStroke: LibraryCondition = {
       article("types", "TIA, ischaemic, haemorrhagic: the difference", 3, { blurb: "Three words the ward used that nobody explained. A two-minute picture of each.", extra: "With a diagram", keywords: ["mini-stroke", "bleed"] }),
       article("scans", "The scans and tests you had", 4, { blurb: "CT, MRI, carotid ultrasound, the heart monitor. What each one was looking for and how to ask for your results.", keywords: ["ct", "mri", "ultrasound", "results"] }),
       article("heavy-side", "Why does one side feel heavier?", 3, { blurb: "The short answer about a hand and arm that won't do as they are told.", learnId: "hand", keywords: ["weakness", "heavy", "arm", "leg"] }),
+      // Genuine resources elsewhere (review): each checked on 17 October 2026 for its title, publisher, date and address.
+      { id: "sa-ischaemic", title: "Ischaemic stroke: symptoms, causes, diagnosis and treatment", kind: "article", url: "https://www.stroke.org.uk/stroke/types/ischaemic", publisher: "Stroke Association", blurb: "The charity's own guide, with a helpline and printed, large-print and braille versions.", keywords: ["stroke association", "guide"] },
+      { id: "nhs-stroke", title: "Stroke: symptoms, causes and treatment", kind: "article", url: "https://www.nhs.uk/conditions/stroke/", publisher: "NHS", blurb: "The NHS overview: what a stroke is, the FAST signs and what happens in hospital.", keywords: ["nhs", "fast", "signs"] },
+      { id: "sa-thrombolysis-video", title: "Emergency treatment for ischaemic stroke: an aphasia-friendly video on thrombolysis", kind: "video", url: "https://www.stroke.org.uk/stroke/symptoms/diagnosis-treatment", publisher: "Stroke Association", blurb: "Short, simply worded and captioned, on the charity's diagnosis and emergency treatment page.", keywords: ["thrombolysis", "clot-busting", "video", "aphasia"] },
+      { id: "sa-stroke-stories", title: "Stroke Stories: survivors talk about their recovery", kind: "podcast", url: "https://www.stroke.org.uk/stroke/life-after/stroke-stories-podcast", publisher: "Stroke Association", blurb: "Mark Goodier's interviews with stroke survivors and their families, including a stroke at 50 with aphasia.", keywords: ["podcast", "stories", "survivors"] },
+      { id: "lth-thrombectomy-news", title: "Launch of 24/7 thrombectomy service for Lancashire and South Cumbria", kind: "news", url: "https://www.lancsteachinghospitals.nhs.uk/news/article/862", publisher: "Lancashire Teaching Hospitals NHS Foundation Trust", date: "28 January 2026", blurb: "Clot removal around the clock from 2 February 2026 at Royal Preston Hospital, and why minutes matter.", keywords: ["thrombectomy", "news", "24/7"] },
+      { id: "nice-ng128", title: "Stroke and TIA in over 16s: diagnosis and initial management (NICE guideline NG128)", kind: "research", url: "https://www.nice.org.uk/guidance/ng128", publisher: "NICE", date: "updated April 2022, reviewed March 2026", blurb: "The established UK guidance on the first 48 hours: recognising a stroke, scans, clot-busting and clot removal. A plain 'information for the public' version is on the same page.", keywords: ["nice", "guideline", "guidance"] },
+      { id: "bridge-tnk", title: "Intravenous tenecteplase before thrombectomy in stroke (the BRIDGE-TNK trial)", kind: "research", url: "https://pubmed.ncbi.nlm.nih.gov/40396577/", publisher: "New England Journal of Medicine", date: "July 2025", blurb: "An emerging finding, not yet UK guidance: in one trial in China, a clot-busting drug given before clot removal left more people independent at 90 days (53% against 44%).", keywords: ["tenecteplase", "trial", "research", "thrombectomy"] },
     ],
     recover: [
       { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 6, extra: "neuro-physiotherapist", learnId: "rewiring", keywords: ["neuroplasticity", "rewire"] },
@@ -221,8 +237,14 @@ const ischaemicStroke: LibraryCondition = {
       { groupId: "depression", conditionId: "after-stroke" },
       { groupId: "diabetes", conditionId: "type-2" },
     ],
-    pause: { storyId: "li-wei", chapter: "week-9", quote: "The physio said ‘again’ about four hundred times. On day sixty I said it first. That's the day I'd tell you about, not the day of the stroke.", cta: "Read day sixty" },
     companion: { storyId: "li-wei" },
+    purpose: {
+      understand: "Understand ischaemic stroke, its causes and the tests used to diagnose it.",
+      recover: "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
+      liveWell: "Find practical support for everyday life after stroke.",
+      sources: "Find reliable information and guidance from trusted health organisations.",
+    },
+    footer: "This page helps you understand ischaemic stroke, explore recovery and find practical support for daily life. Your own care team knows your situation; follow their advice first.",
   },
 };
 
