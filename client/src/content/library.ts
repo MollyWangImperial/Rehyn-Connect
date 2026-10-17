@@ -9,9 +9,17 @@
 // IMPORTANT: the titles of articles, videos and podcasts are placeholders until each one is written
 // and clinically checked. A piece with a `learnId` opens a checked answer (content/my-time-learn.ts);
 // any other piece shows an honest "coming soon" with trusted links.
-// Only the conditions with `content` have a full page; the rest say their page is still being written.
+// Every condition has a full page, built to the shape of the Ischaemic stroke page (the others are in
+// library-conditions/*.ts). A condition without `content` would say its page is still being written.
 // The stories and letters are composites written for Rehyn. The people in them are not real.
 // Sentences are kept short because Alira reads them aloud one at a time.
+
+import { article, CHSS, CURE_PARKINSONS, DIFFERENT_STROKES, NHS, PARKINSONS_FOUNDATION, PARKINSONS_UK, source, STROKE_ASSOCIATION } from "./library-helpers";
+import { alzheimers, dystonia, essentialTremor, haemorrhagicStroke, lewyBodyDementia, mildCognitiveImpairment, progressiveMs, relapsingRemittingMs, strokeUnder50, tia, vascularDementia } from "./library-conditions/brain-a";
+import { bellsPalsy, carpalTunnel, concussion, focalSeizures, generalisedSeizures, migraine, peripheralNeuropathy, sciatica, seizuresAfterStroke, spinalCordInjury, tensionHeadache, traumaticBrainInjury } from "./library-conditions/brain-b";
+import { angina, asthma, atrialFibrillation, copd, heartAttack, highBloodPressure, sleepApnoea } from "./library-conditions/heart";
+import { backPain, osteoarthritis, osteoporosis, overactiveThyroid, prediabetes, rheumatoidArthritis, type1Diabetes, type2Diabetes, underactiveThyroid } from "./library-conditions/body";
+import { anxiety, bowelCancer, breastCancer, cancerFatigue, chronicKidneyDisease, depression, depressionAfterStroke, fattyLiver, ibs, insomnia, prostateCancer } from "./library-conditions/cancer-mind-digestion";
 
 export type Hue = { tint: string; ink: string };
 export type SectionIcon = "brain" | "heart" | "drop" | "bone" | "ribbon" | "mind" | "kidney";
@@ -138,34 +146,16 @@ export const STORIES_NOTE = "These stories are composites, written for Rehyn fro
 export const LIBRARY_NOTE = "Everything here is general information. Your own care team knows your situation; follow their advice first.";
 
 // ------------------------------------------------------------------------------------------------
-// Trusted sources. Each is the organisation's real homepage.
+// Trusted sources and the small helpers live in library-helpers.ts; every other condition's page is
+// in library-conditions/*.ts, each built to the shape of the Ischaemic stroke page below.
 
-const NHS: TrustedSource = { name: "NHS", note: "Health A to Z, symptoms and treatment", url: "https://www.nhs.uk/" };
-const source = (base: TrustedSource, note: string): TrustedSource => ({ ...base, note });
-const STROKE_ASSOCIATION: TrustedSource = { name: "Stroke Association", note: "Helpline, printed guides and local groups", url: "https://www.stroke.org.uk/" };
-const DIFFERENT_STROKES: TrustedSource = { name: "Different Strokes", note: "For younger survivors and working-age families", url: "https://differentstrokes.co.uk/" };
-const CHSS: TrustedSource = { name: "Chest Heart & Stroke Scotland", note: "Support if you're in Scotland", url: "https://www.chss.org.uk/" };
-const PARKINSONS_UK: TrustedSource = { name: "Parkinson's UK", note: "Helpline, local groups, exercise classes", url: "https://www.parkinsons.org.uk/" };
-const PARKINSONS_FOUNDATION: TrustedSource = { name: "Parkinson's Foundation", note: "Videos and a large library in plain English", url: "https://www.parkinson.org/" };
-const CURE_PARKINSONS: TrustedSource = { name: "Cure Parkinson's", note: "Research news and trials you can join", url: "https://cureparkinsons.org.uk/" };
-
-/** The sources shown on a condition whose own page is still being written. */
-export const DEFAULT_SOURCES: TrustedSource[] = [NHS];
+export { DEFAULT_SOURCES } from "./library-helpers";
 
 const BRAIN: Hue = { tint: "#EEEBFA", ink: "#4A3F9C" };
 const CORAL: Hue = { tint: "#FBEDE7", ink: "#B04B30" };
 const GREEN: Hue = { tint: "#F1F7F2", ink: "#2F6851" };
 const SUN: Hue = { tint: "#FBF0DC", ink: "#8A5A12" };
 const HEART: Hue = { tint: "#FCEBE6", ink: "#A8402B" };
-
-/** A condition whose own page is still being written; it may already list a piece or two. */
-const soon = (id: string, title: string, understand: LibraryItem[] = [], keywords?: string[]): LibraryCondition => ({
-  id,
-  title,
-  keywords,
-  ...(understand.length ? { content: { understand, recover: [], liveWell: [], watch: [], sources: DEFAULT_SOURCES, stories: [], askDoctor: [], related: [] } } : {}),
-});
-const article = (id: string, title: string, minutes: number, more: Partial<LibraryItem> = {}): LibraryItem => ({ id, title, kind: "article", minutes, ...more });
 
 // ------------------------------------------------------------------------------------------------
 // Ischaemic stroke: the full page, with stories woven through it (placements B, C and D).
@@ -315,66 +305,56 @@ export const librarySections: LibrarySection[] = [
         blurb: "When blood stops reaching part of the brain. The type you had shapes your treatment and the shape of your recovery.",
         badge: "Most visited",
         keywords: ["face", "arm", "weakness", "one side", "speech"],
-        conditions: [
-          ischaemicStroke,
-          soon("haemorrhagic", "Haemorrhagic stroke", [], ["bleed"]),
-          soon("tia", "TIA (mini-stroke)", [], ["mini-stroke", "transient"]),
-          soon("under-50", "Stroke under 50", [], ["young"]),
-        ],
+        conditions: [ischaemicStroke, haemorrhagicStroke, tia, strokeUnder50],
       },
       {
         id: "dementia",
         title: "Dementia & memory",
         blurb: "Memory, thinking and language changes that are more than ordinary ageing, for the person and for the family around them.",
         keywords: ["memory", "forgetting", "losing words", "repeating", "confused", "confusion"],
-        conditions: [
-          soon("alzheimers", "Alzheimer's disease"),
-          soon("vascular", "Vascular dementia"),
-          soon("lewy-body", "Lewy body dementia"),
-          soon("mild-cognitive-impairment", "Mild cognitive impairment", [article("forgetting-words", "Forgetting words versus early dementia: how to tell", 4, { keywords: ["forgetting", "memory", "words"] })]),
-        ],
+        conditions: [alzheimers, vascularDementia, lewyBodyDementia, mildCognitiveImpairment],
       },
       {
         id: "parkinsons",
         title: "Parkinson's & movement",
         blurb: "Tremor, stiffness and slowness, and the many things that help: medication timing, exercise, voice work and good sleep.",
         keywords: ["tremor", "shaking", "stiff", "slow"],
-        conditions: [parkinsonsDisease, soon("essential-tremor", "Essential tremor", [], ["shaking"]), soon("dystonia", "Dystonia")],
+        conditions: [parkinsonsDisease, essentialTremor, dystonia],
       },
       {
         id: "multiple-sclerosis",
         title: "Multiple sclerosis",
         blurb: "An immune condition of the nerves. Comes in different patterns, and each pattern has its own treatment path.",
         keywords: ["ms"],
-        conditions: [soon("relapsing-remitting", "Relapsing-remitting MS"), soon("progressive", "Progressive MS")],
+        conditions: [relapsingRemittingMs, progressiveMs],
       },
       {
         id: "epilepsy",
         title: "Epilepsy & seizures",
         blurb: "Including seizures that start after a stroke or a brain injury, and what to do when one happens.",
         keywords: ["fit", "fits", "seizure"],
-        conditions: [soon("focal", "Focal seizures"), soon("generalised", "Generalised seizures"), soon("after-stroke", "Seizures after stroke")],
+        conditions: [focalSeizures, generalisedSeizures, seizuresAfterStroke],
       },
       {
         id: "brain-spinal-injury",
         title: "Brain & spinal injury",
         blurb: "Recovery after a knock to the head or damage to the spinal cord, from the first weeks to getting back to everyday life.",
         keywords: ["head injury", "knock", "accident"],
-        conditions: [soon("traumatic-brain-injury", "Traumatic brain injury"), soon("concussion", "Concussion"), soon("spinal-cord", "Spinal cord injury")],
+        conditions: [traumaticBrainInjury, concussion, spinalCordInjury],
       },
       {
         id: "headache",
         title: "Migraine & headache",
         blurb: "Telling a migraine from a headache that needs urgent attention, and the triggers worth keeping a diary of.",
         keywords: ["headache", "migraine"],
-        conditions: [soon("migraine", "Migraine"), soon("tension", "Tension headache")],
+        conditions: [migraine, tensionHeadache],
       },
       {
         id: "nerves",
         title: "Nerve conditions",
         blurb: "Numbness, tingling, weakness or pain along a nerve, often alongside diabetes or after an injury.",
         keywords: ["numb", "numbness", "tingling", "pins and needles"],
-        conditions: [soon("peripheral-neuropathy", "Peripheral neuropathy"), soon("bells-palsy", "Bell's palsy"), soon("sciatica", "Sciatica"), soon("carpal-tunnel", "Carpal tunnel")],
+        conditions: [peripheralNeuropathy, bellsPalsy, sciatica, carpalTunnel],
       },
     ],
   },
@@ -391,25 +371,22 @@ export const librarySections: LibrarySection[] = [
         id: "blood-pressure",
         title: "Blood pressure",
         blurb: "The numbers, the tablets and the habits that keep them where your doctor wants them.",
-        conditions: [soon("high-blood-pressure", "High blood pressure", [
-          article("numbers", "What the blood pressure numbers actually mean", 3, { keywords: ["reading", "numbers", "hypertension"] }),
-          article("after-stroke", "Why blood pressure matters after a stroke", 3, { keywords: ["stroke"] }),
-        ], ["hypertension", "bp"])],
+        conditions: [highBloodPressure],
       },
       {
         id: "heart-attack",
         title: "Heart attack & angina",
         blurb: "Chest pain, the days in hospital, and the months of cardiac rehab that follow.",
-        conditions: [soon("heart-attack", "Heart attack", [article("statins", "Do statins really need to be taken for life?", 3, { keywords: ["statins", "cholesterol"] })], ["chest pain", "cardiac"]), soon("angina", "Angina")],
+        conditions: [heartAttack, angina],
       },
       {
         id: "heart-rhythm",
         title: "Heart rhythm",
         blurb: "When the heart beats too fast, too slow or out of step.",
-        conditions: [soon("atrial-fibrillation", "Atrial fibrillation", [], ["af", "afib", "irregular heartbeat", "palpitations"])],
+        conditions: [atrialFibrillation],
       },
-      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler", "lungs", "breathing"], conditions: [soon("copd", "COPD"), soon("asthma", "Asthma")] },
-      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", keywords: ["breathing"], conditions: [soon("sleep-apnoea", "Sleep apnoea", [], ["snoring"])] },
+      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler", "lungs", "breathing"], conditions: [copd, asthma] },
+      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", keywords: ["breathing"], conditions: [sleepApnoea] },
     ],
   },
   {
@@ -426,13 +403,13 @@ export const librarySections: LibrarySection[] = [
         title: "Diabetes",
         blurb: "Blood sugar, the tests that track it and the everyday changes that help.",
         keywords: ["sugar", "glucose"],
-        conditions: [soon("type-2", "Type 2 diabetes", [article("hba1c", "What is an HbA1c number?", 2, { keywords: ["blood test", "sugar", "hba1c"] })]), soon("prediabetes", "Prediabetes"), soon("type-1", "Type 1 diabetes")],
+        conditions: [type2Diabetes, prediabetes, type1Diabetes],
       },
       {
         id: "thyroid",
         title: "Thyroid",
         blurb: "A small gland in the neck that sets the pace for much of the body.",
-        conditions: [soon("underactive", "Underactive thyroid"), soon("overactive", "Overactive thyroid")],
+        conditions: [underactiveThyroid, overactiveThyroid],
       },
     ],
   },
@@ -450,10 +427,10 @@ export const librarySections: LibrarySection[] = [
         title: "Arthritis",
         blurb: "Painful, stiff joints, and the treatments and operations that help.",
         keywords: ["joint", "knee", "hip"],
-        conditions: [soon("osteoarthritis", "Osteoarthritis", [article("knee-week-three", "Knee replacement: what week three really feels like", 4, { keywords: ["knee", "replacement", "operation"] })]), soon("rheumatoid", "Rheumatoid arthritis")],
+        conditions: [osteoarthritis, rheumatoidArthritis],
       },
-      { id: "bone-health", title: "Bone health", blurb: "Keeping bones strong, and recovering well after a break.", conditions: [soon("osteoporosis", "Osteoporosis", [], ["fracture", "brittle"])] },
-      { id: "back-neck", title: "Back & neck", blurb: "Everyday back and neck pain, and when to get it checked.", conditions: [soon("back-pain", "Back pain")] },
+      { id: "bone-health", title: "Bone health", blurb: "Keeping bones strong, and recovering well after a break.", conditions: [osteoporosis] },
+      { id: "back-neck", title: "Back & neck", blurb: "Everyday back and neck pain, and when to get it checked.", conditions: [backPain] },
     ],
   },
   {
@@ -465,8 +442,8 @@ export const librarySections: LibrarySection[] = [
     icon: "ribbon",
     chips: ["Breast", "Bowel", "Prostate"],
     groups: [
-      { id: "common-cancers", title: "Common cancers", blurb: "Recovery after treatment for some of the most common cancers.", conditions: [soon("breast", "Breast cancer"), soon("bowel", "Bowel cancer"), soon("prostate", "Prostate cancer")] },
-      { id: "after-treatment", title: "Life after treatment", blurb: "Tiredness, worry and going back to normal life after treatment ends.", conditions: [soon("cancer-fatigue", "Tiredness after treatment", [], ["tired", "fatigue"])] },
+      { id: "common-cancers", title: "Common cancers", blurb: "Recovery after treatment for some of the most common cancers.", conditions: [breastCancer, bowelCancer, prostateCancer] },
+      { id: "after-treatment", title: "Life after treatment", blurb: "Tiredness, worry and going back to normal life after treatment ends.", conditions: [cancerFatigue] },
     ],
   },
   {
@@ -478,9 +455,9 @@ export const librarySections: LibrarySection[] = [
     icon: "mind",
     chips: ["Depression", "Anxiety", "Sleep"],
     groups: [
-      { id: "depression", title: "Depression", blurb: "Low mood that lasts, including the kind that follows a stroke or a diagnosis.", keywords: ["low", "sad", "mood"], conditions: [soon("depression", "Depression"), soon("after-stroke", "Depression after stroke")] },
-      { id: "anxiety", title: "Anxiety", blurb: "Worry that gets in the way of everyday life.", keywords: ["worry", "panic"], conditions: [soon("anxiety", "Anxiety")] },
-      { id: "sleep", title: "Sleep", blurb: "Trouble getting to sleep, staying asleep or waking rested.", keywords: ["insomnia", "night"], conditions: [soon("insomnia", "Sleep problems")] },
+      { id: "depression", title: "Depression", blurb: "Low mood that lasts, including the kind that follows a stroke or a diagnosis.", keywords: ["low", "sad", "mood"], conditions: [depression, depressionAfterStroke] },
+      { id: "anxiety", title: "Anxiety", blurb: "Worry that gets in the way of everyday life.", keywords: ["worry", "panic"], conditions: [anxiety] },
+      { id: "sleep", title: "Sleep", blurb: "Trouble getting to sleep, staying asleep or waking rested.", keywords: ["insomnia", "night"], conditions: [insomnia] },
     ],
   },
   {
@@ -492,9 +469,9 @@ export const librarySections: LibrarySection[] = [
     icon: "kidney",
     chips: ["Chronic kidney disease", "Fatty liver", "IBS"],
     groups: [
-      { id: "kidneys", title: "Kidneys", blurb: "How well the kidneys are working, and keeping them that way.", conditions: [soon("chronic-kidney-disease", "Chronic kidney disease", [], ["ckd"])] },
-      { id: "liver", title: "Liver", blurb: "The liver, what can strain it and what helps it recover.", conditions: [soon("fatty-liver", "Fatty liver")] },
-      { id: "gut", title: "Gut & digestion", blurb: "Tummy pain, bloating and bowel changes.", conditions: [soon("ibs", "Irritable bowel syndrome (IBS)", [], ["ibs", "bloating"])] },
+      { id: "kidneys", title: "Kidneys", blurb: "How well the kidneys are working, and keeping them that way.", conditions: [chronicKidneyDisease] },
+      { id: "liver", title: "Liver", blurb: "The liver, what can strain it and what helps it recover.", conditions: [fattyLiver] },
+      { id: "gut", title: "Gut & digestion", blurb: "Tummy pain, bloating and bowel changes.", conditions: [ibs] },
     ],
   },
 ];

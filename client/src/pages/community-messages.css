@@ -4,7 +4,9 @@
 /* --------------------------------------------------------------- messages */
 
 /* Three columns, like a chat app: the conversations, the one that is open, and who it is with. */
-.cm-dm { display: grid; grid-template-columns: 310px minmax(0, 1fr) 300px; height: clamp(580px, calc(100vh - 360px), 880px); overflow: hidden; }
+/* Messages fills the screen below the top bar (review), however tall the window is. */
+.cm-dm { display: grid; grid-template-columns: 310px minmax(0, 1fr) 300px; height: max(520px, calc(100dvh - 132px)); overflow: hidden; }
+.cm-page.cm-view-messages { padding-bottom: 24px; }
 .cm-dm-list { display: flex; flex-direction: column; gap: 12px; min-height: 0; padding: 22px 0 0; border-right: 1px solid var(--cm-line); background: #FBF9F4; }
 .cm-dm-list-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 20px; }
 .cm-dm-list-head h2 { color: var(--cm-ink); font: 400 36px/1 var(--cm-serif); }
@@ -116,7 +118,7 @@
 .cm-dm.is-single .cm-dm-list { border-right: 0; }
 
 @container cm (max-width: 560px) {
-  .cm-dm { height: calc(100vh - 230px); min-height: 520px; }
+  .cm-dm { height: max(480px, calc(100dvh - 200px)); }
   .cm-dm-head { padding: 14px 16px; }
   .cm-dm-head-text h2 { font-size: 26px; }
   .cm-dm-log { padding: 14px 16px; }
