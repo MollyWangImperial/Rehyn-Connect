@@ -294,7 +294,7 @@ export const librarySections: LibrarySection[] = [
     id: "brain-nervous-system",
     title: "Brain & nervous system",
     short: "Brain",
-    blurb: "Conditions that affect the brain, the spinal cord and the nerves: how they change movement, memory, speech and mood, and what recovery can look like. Start with the group that sounds like yours.",
+    blurb: "Explore brain, spinal cord and nerve conditions, their effects and recovery.",
     hue: BRAIN,
     icon: "brain",
     chips: ["Stroke", "Dementia", "Parkinson's"],

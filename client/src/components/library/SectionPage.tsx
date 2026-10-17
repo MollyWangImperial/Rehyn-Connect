@@ -2,9 +2,9 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { LIBRARY_NOTE, STORIES_NOTE, type LibraryCondition, type LibraryGroup, type LibrarySection, type LibraryStory } from "@/content/library";
 import { useReadAloud } from "@/lib/alira-read-aloud";
-import { conditionHref, conditionItems, groupStories, numberWord, plural, sectionCounts, sectionStories, storyHref } from "@/lib/library";
+import { conditionHref, groupStories, numberWord, sectionStories, storyHref } from "@/lib/library";
 import { searchLibrary } from "@/lib/library-search";
-import { ArrowIcon, Crumbs, Faces, HeadphonesIcon, hueStyle, Initial, jumpTo, PauseIcon, SectionGlyph } from "./parts";
+import { ArrowIcon, Crumbs, HeadphonesIcon, hueStyle, Initial, jumpTo, PauseIcon } from "./parts";
 
 // One section of the Library: its groups, each opening into conditions, then stories from
 // people across the section (placement F), and a way to ask which group fits.
@@ -54,9 +54,12 @@ function AskWhichGroup({ section }: { section: LibrarySection }) {
   </form>;
 }
 
+/**
+ * One group: its name, a line about it, and a pill for each condition (the name alone: the topic
+ * counts were removed in review). The footer that counted the group's stories was removed too; a
+ * "viewed this section" line would need real viewing data, which the Library does not keep.
+ */
 function GroupCard({ group }: { group: LibraryGroup }) {
-  const stories = groupStories(group.id);
-  const carers = stories.filter(story => story.carer).length;
   return <article id={`group-${group.id}`} className={`lib-group${group.badge ? " is-featured" : ""}`} aria-labelledby={`group-${group.id}-title`}>
     <div className="lib-group-head">
       <h3 id={`group-${group.id}-title`}>{group.title}</h3>
@@ -64,20 +67,10 @@ function GroupCard({ group }: { group: LibraryGroup }) {
     </div>
     <p>{group.blurb}</p>
     <ul className="lib-condition-pills" role="list">
-      {group.conditions.map(condition => {
-        const topics = conditionItems(condition).length;
-        return <li key={condition.id}>
-          <Link href={conditionHref(group.id, condition.id)} className="lib-condition-pill">
-            {condition.title}
-            <span className="lib-pill-count"><span aria-hidden="true">{topics || "soon"}</span><span className="lib-sr">{topics ? `, ${plural(topics, "topic")}` : ", page coming soon"}</span></span>
-          </Link>
-        </li>;
-      })}
+      {group.conditions.map(condition => (
+        <li key={condition.id}><Link href={conditionHref(group.id, condition.id)} className="lib-condition-pill">{condition.title}</Link></li>
+      ))}
     </ul>
-    <span className="lib-group-stories">
-      {stories.length ? <><Faces stories={stories} />{plural(stories.length, "story", "stories")} in this group{carers ? `, ${carers === stories.length ? "told by a carer" : `including ${numberWord(carers).toLowerCase()} told by a carer`}` : ""}</>
-        : <>No stories yet</>}
-    </span>
   </article>;
 }
 
@@ -101,7 +94,6 @@ export function StoryCard({ story }: { story: LibraryStory }) {
 type Filter = { id: string; label: string; test: (story: LibraryStory) => boolean };
 
 export default function SectionPage({ section }: { section: LibrarySection }) {
-  const count = sectionCounts(section);
   const stories = sectionStories(section.id);
   const filters: Filter[] = [
     { id: "all", label: "All", test: () => true },
@@ -116,12 +108,11 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
       <div className="lib-wrap">
         <Crumbs trail={[{ label: "Library", href: "/" }, { label: section.title }]} />
         <div className="lib-section-hero-row">
+          {/* The title and its line only: the icon and the counts line were removed in review. */}
           <div className="lib-section-hero-words">
-            <span className="lib-section-hero-icon"><SectionGlyph icon={section.icon} size={72} /></span>
             <div>
               <h1>{section.title}</h1>
               <p>{section.blurb}</p>
-              <span className="lib-section-count">{plural(count.groups, "group")} · {plural(count.conditions, "condition")} · {plural(count.topics, "topic")} · {plural(count.stories, "story", "stories")}</span>
             </div>
           </div>
           <AskWhichGroup section={section} />
@@ -129,11 +120,7 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
       </div>
     </section>
 
-    <section className="lib-wrap lib-block" aria-labelledby="lib-groups">
-      <div className="lib-row-head is-baseline">
-        <h2 id="lib-groups" className="lib-h2">Choose a group, then a condition</h2>
-        <span className="lib-sub">Each group opens into its own conditions; each condition has its own page.</span>
-      </div>
+    <section className="lib-wrap lib-block lib-groups-block" aria-label="Groups in this section">
       <div className="lib-grid lib-groups">
         {section.groups.map(group => <GroupCard key={group.id} group={group} />)}
       </div>

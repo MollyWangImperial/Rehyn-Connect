@@ -115,7 +115,6 @@ a.lib-card:hover, .lib-card:has(.lib-stretch:hover) { border-color:#C9D8CC; box-
 .lib-section-icon { width:52px; height:52px; display:inline-flex; align-items:center; justify-content:center; border-radius:16px; background:var(--lib-tint); color:var(--lib-ink); }
 /* The supplied symbols carry their own transparent margin, so they fill most of the tile. */
 .lib-section-img { display:block; width:86%; height:86%; object-fit:contain; }
-.lib-section-count { font-size:13px; font-weight:700; color:var(--lib-ink); }
 .lib-chips { display:flex; flex-wrap:wrap; gap:6px; font-size:12.5px; font-weight:600; color:#4C6157; }
 .lib-chips span { padding:5px 10px; border-radius:999px; background:#F4F1EA; }
 
@@ -140,7 +139,6 @@ a.lib-card:hover, .lib-card:has(.lib-stretch:hover) { border-color:#C9D8CC; box-
 .lib-section-hero-row { display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap; }
 .lib-section-hero-words { flex:999 1 480px; min-width:0; display:flex; gap:22px; align-items:flex-start; }
 .lib-section-hero-words > div { display:flex; flex-direction:column; gap:10px; min-width:0; }
-.lib-section-hero-icon { flex-shrink:0; width:84px; height:84px; display:inline-flex; align-items:center; justify-content:center; border-radius:26px; background:#FFFFFF; color:var(--lib-ink); box-shadow:0 8px 20px #4A3F9C1F; }
 .lib-section-hero h1 { margin:0; font:600 clamp(36px,4.4vw,50px)/1.05 "Newsreader",Georgia,serif; color:#2B2460; letter-spacing:-.8px; }
 .lib-section-hero p { margin:0; max-width:620px; font-size:17px; line-height:1.5; color:#3F3A66; }
 .lib-ask-group { flex:1 1 320px; display:flex; flex-direction:column; gap:10px; padding:18px; border-radius:20px; background:#FFFFFF; box-shadow:0 8px 20px #4A3F9C14; }
@@ -163,9 +161,6 @@ a.lib-card:hover, .lib-card:has(.lib-stretch:hover) { border-color:#C9D8CC; box-
 .lib-condition-pills { display:flex !important; flex-wrap:wrap; gap:8px; }
 .lib-condition-pill { display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:0 15px; border:1px solid #DCE3D8; border-radius:999px; background:#FFFEFA; color:#24362F; font-size:13.5px; font-weight:700; }
 .lib-condition-pill:hover { border-color:var(--lib-ink); background:var(--lib-tint); }
-.lib-pill-count { font-weight:600; color:#8A94A0; }
-.lib-group-stories { display:flex; align-items:center; gap:8px; margin-top:auto; font-size:13px; color:#5F7268; }
-.lib-group-stories a { display:inline-flex; align-items:center; min-height:44px; color:#B04B30; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
 
 .lib-filters { display:flex; gap:6px; flex-wrap:wrap; }
 .lib-filters button { min-height:44px; padding:0 15px; border:1px solid #DCE3D8; border-radius:999px; background:#FFFFFF; color:#4C6157; font:700 13px "Manrope",sans-serif; cursor:pointer; }
@@ -476,7 +471,6 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
   .lib-film-card { min-height:0; }
   .lib-film-quote { font-size:20px; }
   .lib-section-hero-words { flex-direction:column; gap:14px; }
-  .lib-section-hero-icon { width:60px; height:60px; border-radius:18px; }
   .lib-section-hero p { font-size:15px; }
   .lib-group { padding:18px; }
   .lib-group h3 { font-size:23px; }
@@ -576,7 +570,6 @@ section[aria-labelledby="lib-browse"] .lib-sub { max-width:560px; }
 .lib-section-card { border-radius:16px; }
 .lib-section-card .lib-card-title { font:800 18px/1.2 "Manrope",sans-serif; letter-spacing:-.3px; }
 .lib-section-icon { width:58px; height:58px; border-radius:18px; }
-.lib-section-count { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; }
 .lib-section-card .lib-card-go { color:var(--lib-ink); font-size:11px; letter-spacing:1.2px; text-transform:uppercase; }
 /* 02 Popular: big faint numerals; a piece that has just turned in fades up */
 .lib-mostread { background:#F3EEE3; }
