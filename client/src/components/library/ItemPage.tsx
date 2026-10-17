@@ -2,13 +2,18 @@ import { useEffect, useMemo } from "react";
 import { Link } from "wouter";
 import { DEFAULT_SOURCES, LIBRARY_NOTE } from "@/content/library";
 import { LEARN_CHECKED, type LearnArticle } from "@/content/my-time-learn";
-import { conditionHref, contentTitle, isReadable, itemHref, itemKey, itemMeta, learnArticle, type ItemPlace } from "@/lib/library";
+import { conditionHref, contentTitle, isReadable, itemHref, itemKey, itemMedia, itemMeta, learnArticle, type ItemPlace } from "@/lib/library";
 import { libraryStore } from "@/lib/library-store";
+import { Interactive, QuickCheck, TryThisWeek } from "./Interactives";
+import { MediaPieceView } from "./MediaPieces";
 import { BackIcon, ChevronIcon, Crumbs, ExternalIcon, KindBadge, SoonTag, SourceCard } from "./parts";
 import { ListenBar, useNarration, type Block } from "./Reading";
+import "@/pages/library-media.css";
 
-// One piece on a condition page. A piece linked to a checked answer (content/my-time-learn.ts)
-// shows it, for reading or listening; anything not written yet says so and offers trusted sources instead.
+// One piece on a condition page. A piece with a film, conversation or guide (content/ischaemic-media.ts)
+// shows it first; a piece linked to a checked answer (content/my-time-learn.ts) shows the answer, for
+// reading or listening, with its hands-on parts. Anything not written yet says so and offers trusted
+// sources instead.
 
 const WAITING: Record<string, string> = {
   article: "This article is coming soon.",
@@ -19,7 +24,8 @@ const WAITING: Record<string, string> = {
   audio: "This recording is coming soon.",
 };
 
-function LearnAnswer({ article }: { article: LearnArticle }) {
+/** `rich` adds the hook, the hands-on part, the quick check and three things to try this week. */
+function LearnAnswer({ article, rich }: { article: LearnArticle; rich: boolean }) {
   const blocks = useMemo<Block[]>(() => [
     { key: "question", text: article.question },
     { key: "short", text: article.short },
@@ -33,21 +39,31 @@ function LearnAnswer({ article }: { article: LearnArticle }) {
     { key: "ask", text: article.ask },
   ], [article]);
   const { narration, reading, say } = useNarration(blocks);
+  const half = Math.ceil(article.sections.length / 2);
+  const section = (at: number) => {
+    const part = article.sections[at];
+    return part && <section key={part.heading}>
+      <h3>{say(`h-${at}`)}</h3>
+      {part.paragraphs.map((_, index) => <p key={index}>{say(`p-${at}-${index}`)}</p>)}
+    </section>;
+  };
   return <article className="lib-answer-body" aria-labelledby="lib-answer-q">
     <ListenBar reading={reading} total={narration.lines.length} label="this answer" />
     <h2 id="lib-answer-q" className="lib-answer-q">{say("question")}</h2>
+    {rich && <p className="lib-answer-hook">{article.hook}</p>}
     <div className="lib-answer-short">
       <h3>The short answer</h3>
       <p>{say("short")}</p>
     </div>
-    {article.sections.map((section, at) => <section key={section.heading}>
-      <h3>{say(`h-${at}`)}</h3>
-      {section.paragraphs.map((_, index) => <p key={index}>{say(`p-${at}-${index}`)}</p>)}
-    </section>)}
+    {rich && article.interactive && <Interactive data={article.interactive} />}
+    {article.sections.slice(0, rich ? half : undefined).map((_, at) => section(at))}
+    {rich && article.quiz && <QuickCheck quiz={article.quiz} />}
+    {rich && article.sections.slice(half).map((_, at) => section(half + at))}
     <section className="lib-answer-helps">
       <h3>{say("helps")}</h3>
       <ul>{article.helps.map((_, index) => <li key={index}>{say(`help-${index}`)}</li>)}</ul>
     </section>
+    {rich && article.tryThisWeek.length > 0 && <TryThisWeek articleId={article.id} items={article.tryThisWeek} />}
     <section className="lib-answer-ask">
       <h3>{say("ask-title")}</h3>
       <p>{say("ask")}</p>
@@ -66,12 +82,15 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
   const { section, group, condition, item, type } = place;
   const key = itemKey(place);
   const learn = learnArticle(item);
+  const media = itemMedia(item);
   const content = condition.content;
-  const siblings = (content?.[type] ?? []).filter(candidate => candidate.id !== item.id).slice(0, 3);
+  // Pieces made here; the genuine resources elsewhere open from the condition page, in a new tab.
+  const siblings = (content?.[type] ?? []).filter(candidate => candidate.id !== item.id && !candidate.url).slice(0, 3);
   const sources = content?.sources.length ? content.sources : DEFAULT_SOURCES;
   useEffect(() => { libraryStore.markRead(key); }, [key]);
   const back = conditionHref(group.id, condition.id);
-  const notYet = item.kind !== "article";
+  const notYet = item.kind !== "article" && !media;
+  const rich = Boolean(media || learn?.interactive || learn?.quiz);
 
   return <div className="lib-page lib-item">
     <div className="lib-wrap lib-item-wrap">
@@ -87,10 +106,12 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
         {item.blurb && <p>{item.blurb}</p>}
       </header>
 
+      {media && <MediaPieceView piece={media} />}
       {learn ? <>
+        {media && <h2 className="lib-written-head">The written answer</h2>}
         {notYet && <p className="lib-item-note">{WAITING[item.kind]} Until then, here is the checked written answer.</p>}
-        <LearnAnswer article={learn} />
-      </> : <section className="lib-soon-panel" aria-labelledby="lib-item-soon">
+        <LearnAnswer article={learn} rich={rich} />
+      </> : !media && <section className="lib-soon-panel" aria-labelledby="lib-item-soon">
         <h2 id="lib-item-soon" className="lib-h2">{WAITING[item.kind]}</h2>
         <p>We're writing and checking it now; nothing goes up until it has been checked. Until then, these trusted sources cover the same ground.</p>
         <div className="lib-grid lib-sources is-three">{sources.map(source => <SourceCard key={source.name} source={source} />)}</div>

@@ -41,6 +41,8 @@ export type LibraryItem = {
   extra?: string;
   /** The checked answer (content/my-time-learn.ts) that this piece opens. */
   learnId?: string;
+  /** The narrated film, conversation, breathing guide or practice set (content/ischaemic-media.ts) shown above the written answer. */
+  mediaId?: string;
   isNew?: boolean;
   /** Words people search with that are not in the title. */
   keywords?: string[];
@@ -48,7 +50,14 @@ export type LibraryItem = {
   feltToo?: { storyIds: string[]; chapter: string; label: string; shortLabel: string };
 };
 
-export type TrustedSource = { name: string; note: string; url?: string; printable?: boolean };
+export type TrustedSource = {
+  name: string;
+  note: string;
+  url?: string;
+  printable?: boolean;
+  /** Something made in Rehyn that the card opens instead of a link: the printable stroke passport. */
+  tool?: "stroke-passport";
+};
 export type StoryLink = { storyId: string; chapter: string; label: string };
 export type ContentType = "understand" | "recover" | "liveWell" | "watch";
 
@@ -177,14 +186,15 @@ const ischaemicStroke: LibraryCondition = {
   keywords: ["clot", "cva", "blocked artery"],
   content: {
     understand: [
-      article("what-happens", "What actually happens in the brain", 4, { blurb: "Blood, oxygen, and why minutes mattered on the day. Why the left side of the brain affects the right side of the body.", keywords: ["oxygen", "blood supply"] }),
+      article("what-happens", "What actually happens in the brain", 4, { blurb: "Blood, oxygen, and why minutes mattered on the day. Why the left side of the brain affects the right side of the body.", learnId: "isch-what-happens", keywords: ["oxygen", "blood supply"] }),
       article("why-me", "Why it happened to me", 5, {
+        learnId: "isch-why-me",
         blurb: "Blood pressure, atrial fibrillation, cholesterol, diabetes, smoking, and the ones that are nobody's fault.",
         keywords: ["cause", "causes", "risk", "reason"],
         feltToo: { storyIds: ["li-wei", "tom"], chapter: "week-3", label: "Li Wei and Tom both asked this. Hear what they found", shortLabel: "Li Wei and Tom asked this too" },
       }),
-      article("types", "TIA, ischaemic, haemorrhagic: the difference", 3, { blurb: "Three words the ward used that nobody explained. A two-minute picture of each.", extra: "With a diagram", keywords: ["mini-stroke", "bleed"] }),
-      article("scans", "The scans and tests you had", 4, { blurb: "CT, MRI, carotid ultrasound, the heart monitor. What each one was looking for and how to ask for your results.", keywords: ["ct", "mri", "ultrasound", "results"] }),
+      article("types", "TIA, ischaemic, haemorrhagic: the difference", 3, { blurb: "Three words the ward used that nobody explained. A two-minute picture of each.", extra: "With a diagram", learnId: "isch-types", keywords: ["mini-stroke", "bleed"] }),
+      article("scans", "The scans and tests you had", 4, { blurb: "CT, MRI, carotid ultrasound, the heart monitor. What each one was looking for and how to ask for your results.", learnId: "isch-scans", keywords: ["ct", "mri", "ultrasound", "results"] }),
       article("heavy-side", "Why does one side feel heavier?", 3, { blurb: "The short answer about a hand and arm that won't do as they are told.", learnId: "hand", keywords: ["weakness", "heavy", "arm", "leg"] }),
       // Genuine resources elsewhere (review): each checked on 17 October 2026 for its title, publisher, date and address.
       { id: "sa-ischaemic", title: "Ischaemic stroke: symptoms, causes, diagnosis and treatment", kind: "article", url: "https://www.stroke.org.uk/stroke/types/ischaemic", publisher: "Stroke Association", blurb: "The charity's own guide, with a helpline and printed, large-print and braille versions.", keywords: ["stroke association", "guide"] },
@@ -196,33 +206,33 @@ const ischaemicStroke: LibraryCondition = {
       { id: "bridge-tnk", title: "Intravenous tenecteplase before thrombectomy in stroke (the BRIDGE-TNK trial)", kind: "research", url: "https://pubmed.ncbi.nlm.nih.gov/40396577/", publisher: "New England Journal of Medicine", date: "July 2025", blurb: "An emerging finding, not yet UK guidance: in one trial in China, a clot-busting drug given before clot removal left more people independent at 90 days (53% against 44%).", keywords: ["tenecteplase", "trial", "research", "thrombectomy"] },
     ],
     recover: [
-      { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 6, extra: "neuro-physiotherapist", learnId: "rewiring", keywords: ["neuroplasticity", "rewire"] },
-      { id: "arm-hand", title: "Arm and hand: the first twelve weeks", kind: "exercise", learnId: "hand", keywords: ["arm", "hand", "grip", "exercises"] },
-      article("first-three-months", "The first three months: what's typical, what's not", 6, { keywords: ["early", "weeks", "normal"] }),
-      { id: "walking", title: "Walking again: from frame to stick to nothing", kind: "video", minutes: 8, keywords: ["walk", "walking", "balance", "frame"] },
+      { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 2, extra: "narrated by Alira", learnId: "rewiring", mediaId: "film-rewiring", keywords: ["neuroplasticity", "rewire"] },
+      { id: "arm-hand", title: "Arm and hand: the first twelve weeks", kind: "exercise", extra: "with a practice tracker", learnId: "hand", mediaId: "practice-arm-hand", keywords: ["arm", "hand", "grip", "exercises"] },
+      article("first-three-months", "The first three months: what's typical, what's not", 6, { learnId: "isch-first-three-months", keywords: ["early", "weeks", "normal"] }),
+      { id: "walking", title: "Walking again: from frame to stick to nothing", kind: "video", minutes: 2, extra: "narrated by Alira", mediaId: "film-walking", learnId: "isch-walking", keywords: ["walk", "walking", "balance", "frame"] },
       article("words", "Finding words again: aphasia and speech", 5, { extra: "with practice prompts", learnId: "words", keywords: ["aphasia", "speech", "talking", "words"] }),
-      { id: "fatigue", title: "Fatigue: why rest doesn't fix it, and what does", kind: "video", minutes: 6, isNew: true, learnId: "fatigue", blurb: "A six-minute video on pacing your day, plus a printable energy diary.", keywords: ["tired", "tiredness", "exhausted", "energy", "fatigue", "sleepy"] },
+      { id: "fatigue", title: "Fatigue: why rest doesn't fix it, and what does", kind: "video", minutes: 2, isNew: true, learnId: "fatigue", mediaId: "film-fatigue", blurb: "A short narrated film on pacing your day, plus an energy diary you can fill in and print.", keywords: ["tired", "tiredness", "exhausted", "energy", "fatigue", "sleepy"] },
     ],
     liveWell: [
-      article("driving", "Can I drive again, and who decides?", 4, { keywords: ["car", "licence", "dvla"] }),
+      article("driving", "Can I drive again, and who decides?", 4, { learnId: "isch-driving", keywords: ["car", "licence", "dvla"] }),
       article("prevention", "Preventing another one: the tablets, the numbers, the habits", 7, { learnId: "again", keywords: ["another stroke", "again", "prevent", "tablets"] }),
-      article("work", "Going back to work, in stages", 5, { keywords: ["job", "employer"] }),
+      article("work", "Going back to work, in stages", 5, { learnId: "isch-work", keywords: ["job", "employer"] }),
       article("mood", "Low days, flat days: mood after stroke", 5, { learnId: "emotions", keywords: ["sad", "crying", "low", "emotions", "depression"] }),
-      article("swallowing", "Eating and swallowing safely", 4, { keywords: ["swallow", "food", "choking"] }),
-      article("carers", "For the person looking after you: a page for carers", 6, { keywords: ["carer", "family", "partner"] }),
+      article("swallowing", "Eating and swallowing safely", 4, { learnId: "isch-swallowing", keywords: ["swallow", "food", "choking"] }),
+      article("carers", "For the person looking after you: a page for carers", 6, { learnId: "isch-carers", keywords: ["carer", "family", "partner"] }),
     ],
     watch: [
-      { id: "first-year-podcast", title: "Two survivors talk about the first year", kind: "podcast", minutes: 24 },
-      { id: "in-pictures", title: "What a stroke does to the brain, in pictures", kind: "animation", minutes: 4 },
-      { id: "wind-down", title: "A ten-minute wind-down for stroke fatigue", kind: "audio", minutes: 10, extra: "read by Alira", keywords: ["relax", "calm"] },
+      { id: "first-year-podcast", title: "Two survivors talk about the first year", kind: "podcast", minutes: 4, extra: "both parts read by Alira", mediaId: "talk-first-year", keywords: ["survivors", "conversation"] },
+      { id: "in-pictures", title: "What a stroke does to the brain, in pictures", kind: "animation", minutes: 2, extra: "narrated by Alira", mediaId: "film-in-pictures", learnId: "isch-what-happens" },
+      { id: "wind-down", title: "A ten-minute wind-down for stroke fatigue", kind: "audio", minutes: 10, extra: "read by Alira", mediaId: "breathe-wind-down", keywords: ["relax", "calm", "breathing"] },
     ],
     sources: [
       source(NHS, "Stroke overview, treatment and recovery pages"),
       STROKE_ASSOCIATION,
       DIFFERENT_STROKES,
       CHSS,
-      { name: "Printable: my stroke passport", note: "One page to hand to a new doctor or physio", printable: true },
-      { name: "For the curious: the research", note: "Clinical guidelines and the studies behind this page, in plain summaries" },
+      { name: "Printable: my stroke passport", note: "One page to fill in and hand to a new doctor or physio", printable: true, tool: "stroke-passport" },
+      { name: "For the curious: the research", note: "The National Clinical Guideline for Stroke (2023), with a plain language summary for people affected by stroke", url: "https://www.strokeguideline.org/" },
     ],
     stories: ["li-wei", "tom", "rose"],
     askDoctor: [
@@ -565,7 +575,15 @@ export const libraryStories: LibraryStory[] = [
         "I was 42 and fit. I kept asking why it had happened to me, as if there had been a mistake in the paperwork.",
         "Some of my answers came from tests, and some never came at all. Meeting other people who'd had a stroke young helped more than any leaflet.",
       ] },
-      { id: "work", label: "Month 8", title: "Back to work, in stages", minutes: 4, week: 35, paragraphs: [] },
+      { id: "work", label: "Month 8", title: "Back to work, in stages", minutes: 4, week: 35, paragraphs: [
+        "I wanted to go back to the office after six weeks. My occupational therapist asked me to wait and make a plan first. She was right.",
+        "I phoned my manager from home in week two. I told her I'd had a stroke, that I was in rehabilitation, and when I'd be in touch again. She sent me the return-to-work policy the same day.",
+        "We agreed a phased return. Two short days a week to start, mornings only, and no driving to site. Then three days. Then longer ones.",
+        "The tiredness was the thing nobody at work could see. By two o'clock my head felt full of sand. I learnt to plan the hard jobs for the morning, and to take a proper break at lunch.",
+        "Some colleagues didn't know what to say, so they said nothing. I sent a short email explaining what had happened and what helped. After that, it was easier.",
+        "By month eight I was back to four days. Not quite the job I had before. A slightly different version of it, and a slightly different version of me.",
+        "If you're thinking about going back: don't rush, keep in touch, and remember you're the expert on what you need.",
+      ] },
     ],
   },
   {
@@ -584,7 +602,18 @@ export const libraryStories: LibraryStory[] = [
     carer: true,
     tint: SUN,
     pronoun: "her",
-    chapters: [{ id: "words", label: "Year 1", title: "The long way round", minutes: 6, paragraphs: [] }],
+    chapters: [{ id: "words", label: "Year 1", title: "The long way round", minutes: 6, paragraphs: [
+      "My daughter is writing this down for me. I tell her a sentence, she reads it back, and I say yes or no. It is slower that way, but it is mine.",
+      "The stroke came on a Sunday morning. I was making tea and the words went wrong. I said spoon when I meant kettle, and then I couldn't say anything at all.",
+      "My daughter knew the signs. She called 999 before I had sat down.",
+      "In hospital they called it aphasia. I understood most of what people said. Finding my own words was the hard part. They were in there. Some days they took the long way round.",
+      "People talked to my daughter instead of me. That was the worst bit. I wanted to say: I am still here. I still think the same.",
+      "The speech and language therapist gave me time. She asked questions I could answer with yes or no. She let me point, and write, and draw. She never finished my sentences for me.",
+      "At home, my daughter turned the radio off when we talked. One thing at a time. Short questions. It made a big difference.",
+      "Every evening we practised names. The grandchildren, the neighbours, the cat. Some nights I got them all. Some nights I got none, and we laughed anyway.",
+      "Eleven months in, I wrote a birthday card for my great-grandson. Every word myself. It took an hour. My daughter cried more than I did.",
+      "If you are near the start: let people help you, but not too much. Ask them to wait. The words may come.",
+    ] }],
   },
   {
     id: "hannah",

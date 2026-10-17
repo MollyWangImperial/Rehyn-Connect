@@ -13,7 +13,8 @@ describe("the checked answers", () => {
       expect(article.sections.length, article.id).toBeGreaterThan(0);
       expect(article.helps.length, article.id).toBeGreaterThan(2);
       expect(article.sources.length, article.id).toBeGreaterThan(0);
-      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk)\//);
+      // GOV.UK sets the driving rules, so it is the source for them.
+      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk)\//);
     }
     for (const place of trustedPlaces) expect(place.url).toMatch(/^https:\/\//);
   });

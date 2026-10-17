@@ -6,6 +6,9 @@
 // again, keep sentences short (they are read aloud one at a time) and update LEARN_CHECKED.
 // This is general information. It never replaces what a person's own stroke team tells them.
 
+import { ischaemicAnswers } from "./ischaemic-answers";
+import type { LearnInteractive, QuickCheck } from "./learn-interactive";
+
 export const LEARN_CHECKED = "October 2026";
 
 export type LearnSource = { label: string; url: string };
@@ -30,11 +33,15 @@ export type LearnArticle = {
   /** A question to take to the stroke team. */
   ask: string;
   sources: LearnSource[];
+  /** Something to try on the page, drawn by components/library/Interactives.tsx. */
+  interactive?: LearnInteractive;
+  /** One question to check the main point landed. */
+  quiz?: QuickCheck;
 };
 
 const strokeAssociation = (label: string, path: string): LearnSource => ({ label: `Stroke Association: ${label}`, url: `https://www.stroke.org.uk/stroke/${path}` });
 
-export const learnArticles: LearnArticle[] = [
+const coreArticles: LearnArticle[] = [
   {
     id: "rewiring",
     kicker: "Your brain",
@@ -293,6 +300,9 @@ export const learnArticles: LearnArticle[] = [
     ],
   },
 ];
+
+/** Every checked answer: the first six, then the Ischaemic stroke page's own (content/ischaemic-answers.ts). */
+export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers];
 
 export type TrustedPlace = { name: string; about: string; url: string };
 

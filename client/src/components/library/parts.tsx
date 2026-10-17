@@ -1,4 +1,5 @@
-import { Fragment, useMemo, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { Fragment, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { StrokePassport } from "./StrokePassport";
 import { Link } from "wouter";
 import AliraAvatar from "@/components/AliraAvatar";
 import { splitSentences, useReadAloud } from "@/lib/alira-read-aloud";
@@ -153,7 +154,19 @@ export function MetaLine({ item, read, readable, minutes = true }: { item: Libra
   </span>;
 }
 
+function PassportCard({ source, compact }: { source: TrustedSource; compact: boolean }) {
+  const [open, setOpen] = useState(false);
+  return <>
+    <button type="button" className={`lib-source is-tool${compact ? " is-compact" : ""}`} onClick={() => setOpen(true)} aria-haspopup="dialog">
+      <span className="lib-source-name">{source.name}<DocIcon size={14} /></span>
+      {!compact && <span className="lib-source-note">{source.note}</span>}
+    </button>
+    {open && <StrokePassport open={open} onClose={() => setOpen(false)} />}
+  </>;
+}
+
 export function SourceCard({ source, compact = false }: { source: TrustedSource; compact?: boolean }) {
+  if (source.tool === "stroke-passport") return <PassportCard source={source} compact={compact} />;
   if (!source.url) {
     return <div className={`lib-source is-soon${compact ? " is-compact" : ""}`}>
       <span className="lib-source-name">{source.name}{source.printable ? <DocIcon size={14} /> : null}</span>

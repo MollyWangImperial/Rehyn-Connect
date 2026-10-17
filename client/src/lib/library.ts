@@ -1,3 +1,4 @@
+import { findMedia } from "@/content/ischaemic-media";
 import { learnArticles, type LearnArticle } from "@/content/my-time-learn";
 import {
   libraryLetters,
@@ -83,8 +84,10 @@ export function storiesFor(condition: LibraryCondition): LibraryStory[] {
 export const sectionStories = (sectionId: string) => libraryStories.filter(story => story.sectionId === sectionId);
 export const groupStories = (groupId: string) => libraryStories.filter(story => story.groupId === groupId);
 
-/** Whether a piece has words to read yet: a checked answer from content/my-time-learn.ts. */
-export const isReadable = (item: LibraryItem) => Boolean(item.learnId && learnArticle(item));
+export const itemMedia = (item: LibraryItem) => findMedia(item.mediaId);
+
+/** Whether a piece is ready: a checked answer (content/my-time-learn.ts) or a film, conversation or guide (content/ischaemic-media.ts). */
+export const isReadable = (item: LibraryItem) => Boolean((item.learnId && learnArticle(item)) || itemMedia(item));
 
 export function sectionCounts(section: LibrarySection) {
   const conditions = section.groups.flatMap(group => group.conditions);

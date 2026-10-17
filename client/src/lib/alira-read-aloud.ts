@@ -37,7 +37,12 @@ export type ReadAloud = {
   done: boolean;
   toggle: () => void;
   setSlow: (slow: boolean) => void;
+  /** Moves to sentence `to`; `play` starts or stops reading there (left out, it keeps doing what it was). */
+  seek: (to: number, play?: boolean) => void;
 };
+
+// Only one thing on a page reads aloud at a time: starting one pauses the others.
+const READ_START = "rehyn:read-aloud-start";
 
 /**
  * Reads `lines` aloud in order. Pass the same array for the same page (memoise it): a new array
@@ -50,8 +55,18 @@ export function useReadAloud(lines: string[], active: boolean): ReadAloud {
   const [note, setNote] = useState("");
   const [done, setDone] = useState(false);
   const [canSpeak] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window);
+  const [me] = useState(() => ({}));
 
   useEffect(() => { if (!active) setPlaying(false); }, [active]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const other = (event: Event) => { if ((event as CustomEvent).detail !== me) setPlaying(false); };
+    window.addEventListener(READ_START, other);
+    return () => window.removeEventListener(READ_START, other);
+  }, [me]);
+  useEffect(() => {
+    if (playing && typeof window !== "undefined") window.dispatchEvent(new CustomEvent(READ_START, { detail: me }));
+  }, [playing, me]);
   useEffect(() => {
     setPlaying(false);
     setIndex(-1);
@@ -116,5 +131,11 @@ export function useReadAloud(lines: string[], active: boolean): ReadAloud {
     if (!playing && index < 0) setIndex(0);
     setPlaying(!playing);
   };
-  return { index, playing, slow, note, done, toggle, setSlow };
+  const seek = (to: number, play?: boolean) => {
+    setNote("");
+    setDone(false);
+    setIndex(Math.max(0, Math.min(lines.length - 1, to)));
+    if (play !== undefined) setPlaying(play);
+  };
+  return { index, playing, slow, note, done, toggle, setSlow, seek };
 }
