@@ -5,6 +5,8 @@ import { useReadAloud } from "@/lib/alira-read-aloud";
 import { conditionHref, groupStories, numberWord, sectionStories, storyHref } from "@/lib/library";
 import { searchLibrary } from "@/lib/library-search";
 import { ArrowIcon, Crumbs, HeadphonesIcon, hueStyle, Initial, jumpTo, PauseIcon } from "./parts";
+import { BentoHero, hasBento, SectionBento } from "./SectionBento";
+import "@/pages/library-bento.css";
 
 // One section of the Library: its groups, each opening into conditions, then stories from
 // people across the section (placement F), and a way to ask which group fits.
@@ -27,7 +29,8 @@ export function guessGroup(section: LibrarySection, words: string): Guess | unde
   return undefined;
 }
 
-function AskWhichGroup({ section }: { section: LibrarySection }) {
+/** `onGroup` (the bento page) opens the suggested group in the large tile instead of scrolling to it. */
+function AskWhichGroup({ section, onGroup, tile = false }: { section: LibrarySection; onGroup?: (groupId: string) => void; tile?: boolean }) {
   const [words, setWords] = useState("");
   const [answer, setAnswer] = useState<{ asked: string; guess?: Guess } | null>(null);
   const ask = (event: FormEvent) => {
@@ -36,7 +39,7 @@ function AskWhichGroup({ section }: { section: LibrarySection }) {
     setAnswer({ asked: words.trim(), guess: guessGroup(section, words) });
   };
   const guess = answer?.guess;
-  return <form className="lib-ask-group" onSubmit={ask}>
+  return <form className={`lib-ask-group${tile ? " is-tile" : ""}`} onSubmit={ask}>
     <span className="lib-ask-kicker">Not sure which group?</span>
     <label htmlFor="lib-ask-group" className="lib-ask-label">Describe what's happening in your own words and we'll point you to the right group.</label>
     <div className="lib-ask-row">
@@ -46,7 +49,9 @@ function AskWhichGroup({ section }: { section: LibrarySection }) {
     <div aria-live="polite">
       {answer && <p className="lib-ask-answer">
         {guess
-          ? <>Start with <a href={`#group-${guess.group.id}`} onClick={jumpTo(`group-${guess.group.id}`)}><b>{guess.group.title}</b></a>.
+          ? <>Start with {onGroup
+              ? <button type="button" className="lib-ask-open" onClick={() => onGroup(guess.group.id)}><b>{guess.group.title}</b></button>
+              : <a href={`#group-${guess.group.id}`} onClick={jumpTo(`group-${guess.group.id}`)}><b>{guess.group.title}</b></a>}.
             <Link href={conditionHref(guess.group.id, guess.condition.id)}>Open {guess.condition.title}<ArrowIcon size={14} /></Link></>
           : <>We couldn't tell from that. Try a symptom in a few words, or look through the groups below.</>}
       </p>}
@@ -103,8 +108,13 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
   const [filter, setFilter] = useState("all");
   const shown = stories.filter((filters.find(candidate => candidate.id === filter) ?? filters[0]).test);
 
-  return <div className="lib-page lib-section-page" style={hueStyle(section.hue)}>
-    <section className="lib-section-hero">
+  const bento = hasBento(section);
+
+  return <div className={`lib-page lib-section-page${bento ? " is-bento" : ""}`} style={hueStyle(section.hue)}>
+    {bento ? <>
+      <BentoHero section={section} />
+      <SectionBento section={section} ask={show => <AskWhichGroup section={section} onGroup={show} tile />} />
+    </> : <><section className="lib-section-hero">
       <div className="lib-wrap">
         <Crumbs trail={[{ label: "Library", href: "/" }, { label: section.title }]} />
         <div className="lib-section-hero-row">
@@ -124,7 +134,7 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
       <div className="lib-grid lib-groups">
         {section.groups.map(group => <GroupCard key={group.id} group={group} />)}
       </div>
-    </section>
+    </section></>}
 
     {stories.length > 0 && <section className="lib-wrap lib-block" aria-labelledby="lib-sec-stories">
       <div className="lib-row-head">

@@ -1,0 +1,92 @@
+/* The Brain & nervous system page as a bento (components/library/SectionBento.tsx,
+   brain-section-bento.html). Other sections keep the plain group grid. */
+
+.lib-section-page.is-bento { background:#FBF9F4; }
+
+/* ---- Header: dark indigo, drifting brain-fold lines, soft sparks ------------------------- */
+.lib-bento-hero { position:relative; overflow:hidden; padding:28px 24px 72px; background:#231C5C; color:#FFFFFF; }
+.lib-bento-hero-art { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.lib-bento-folds { animation:lib-bento-drift 14s ease-in-out infinite alternate; }
+.lib-bento-folds.is-slow { animation-duration:20s; animation-direction:alternate-reverse; }
+@keyframes lib-bento-drift { from { transform:translateX(-40px); } to { transform:translateX(40px); } }
+.lib-bento-spark { animation:lib-bento-spark 4s ease-in-out infinite; }
+@keyframes lib-bento-spark { 0%,100% { opacity:.15; } 50% { opacity:.85; } }
+.lib-bento-hero-inner { position:relative; max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+.lib-bento-hero .lib-crumbs { padding-top:0; color:#C9C2F2; }
+.lib-bento-hero .lib-crumbs a { color:#C9C2F2; }
+.lib-bento-hero .lib-crumbs a:hover { color:#FFFFFF; }
+.lib-bento-hero .lib-crumbs svg { color:#9C91E8; }
+.lib-bento-hero .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero h1 { margin:0; font:600 clamp(40px,6vw,64px)/1 "Newsreader",Georgia,serif; letter-spacing:-.01em; color:#FFFFFF; }
+.lib-bento-hero p { margin:0; max-width:600px; font-size:18px; line-height:1.55; color:#DCD7F7; }
+.lib-bento-stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.lib-bento-stats span { padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.12); font-size:13px; font-weight:700; }
+
+/* ---- The grid ---------------------------------------------------------------------------- */
+.lib-bento-wrap { position:relative; max-width:1180px; margin:-40px auto 0; padding:0 24px 56px; }
+.lib-bento { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:minmax(290px,auto); gap:18px; }
+
+.lib-bento-tile { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:10px; padding:24px; border-radius:24px; font-family:"Manrope",system-ui,sans-serif;
+  transition:transform .35s cubic-bezier(.3,1.3,.5,1), box-shadow .35s ease; }
+.lib-bento-tile:hover { transform:translateY(-6px) scale(1.015); box-shadow:0 26px 50px rgba(35,28,92,.18); }
+.lib-bento-sym { position:absolute; right:14px; top:14px; width:92px; height:92px; opacity:.45; pointer-events:none;
+  transition:transform .6s cubic-bezier(.3,1.3,.5,1), opacity .4s ease; }
+.lib-bento-tile:hover .lib-bento-sym { transform:rotate(-8deg) scale(1.14); opacity:.75; }
+.lib-bento-tile h3 { position:relative; margin:74px 0 0; font:600 26px/1.1 "Newsreader",Georgia,serif; }
+.lib-bento-tile p { position:relative; margin:0; font-size:14px; line-height:1.5; }
+.lib-bento-chips { position:relative; display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; pointer-events:none; }
+.lib-bento-chips span { padding:6px 11px; border-radius:999px; background:rgba(255,255,255,.75); font-size:13px; font-weight:700; }
+.lib-bento-more { position:relative; font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; opacity:0; transform:translateY(6px); transition:opacity .3s ease, transform .3s ease; }
+.lib-bento-tile:hover .lib-bento-more, .lib-bento-tile:focus-within .lib-bento-more { opacity:1; transform:none; }
+/* The whole small tile is one button, laid over everything in it. */
+.lib-bento-pick { position:absolute; inset:0; z-index:3; width:100%; height:100%; padding:0; border:0; border-radius:inherit; background:transparent; cursor:pointer; }
+.lib-bento-pick:focus-visible { outline:3px solid #231C5C; outline-offset:3px; }
+
+.lib-bento-tile.is-feature { grid-column:span 2; grid-row:span 2; gap:14px; padding:34px; border-radius:28px; color:#FFFFFF; }
+.lib-bento-tile.is-feature .lib-bento-sym { top:auto; right:-40px; bottom:-40px; width:380px; height:380px; opacity:.22; transition:transform .8s cubic-bezier(.3,1.3,.5,1); }
+.lib-bento-tile.is-feature:hover .lib-bento-sym { transform:rotate(-6deg) scale(1.06); opacity:.22; }
+.lib-bento-tags { position:relative; display:flex; flex-wrap:wrap; gap:8px; }
+.lib-bento-tags span { padding:6px 12px; border-radius:999px; background:rgba(255,255,255,.16); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.lib-bento-tags .is-hot { background:#F2B8A5; color:#5A2A1C; }
+.lib-bento-tile.is-feature h2 { position:relative; margin:0; font:600 52px/1 "Newsreader",Georgia,serif; color:#FFFFFF; outline:none; }
+/* Focus moves here after a choice so keyboard users land on it; the heading itself is not a control. */
+.lib-page .lib-bento-tile.is-feature h2:focus, .lib-page .lib-bento-tile.is-feature h2:focus-visible { outline:none; }
+.lib-bento-tile.is-feature p { max-width:400px; font-size:18px; line-height:1.55; color:rgba(255,255,255,.88); }
+.lib-bento-tile.is-feature ul { position:relative; display:flex; flex-direction:column; gap:8px; margin:auto 0 0; padding:0; max-width:320px; list-style:none; }
+.lib-bento-tile.is-feature li a { display:flex; justify-content:space-between; gap:12px; min-height:46px; align-items:center; padding:10px 16px; border-radius:14px; background:rgba(255,255,255,.16); color:#FFFFFF; font-size:15px; font-weight:700; text-decoration:none; transition:background .2s ease, color .2s ease; }
+.lib-bento-tile.is-feature li a:hover { background:#FFFFFF; color:#231C5C; }
+.lib-bento-tile.is-feature li a:focus-visible { outline:3px solid #FFFFFF; outline-offset:2px; }
+
+/* A group that has just moved in fades up; the small tiles follow, one after another. */
+.lib-bento-tile.is-entering { animation:lib-bento-tile-in .45s ease both; }
+.lib-bento-tile.is-feature.is-entering { animation:lib-bento-feature-in .55s cubic-bezier(.3,1.25,.5,1) both; }
+@keyframes lib-bento-tile-in { from { opacity:0; transform:translateY(14px); } }
+@keyframes lib-bento-feature-in { from { opacity:0; transform:scale(.9); } }
+
+/* "Not sure which group?" as the last tile */
+.lib-bento-ask { display:flex; }
+.lib-ask-group.is-tile { flex:1; gap:12px; padding:24px; border:1.5px dashed #C9C2E6; border-radius:24px; background:#FFFFFF; box-shadow:none; }
+.lib-ask-group.is-tile .lib-ask-kicker { font:600 26px/1.1 "Newsreader",Georgia,serif; letter-spacing:0; text-transform:none; color:#231C5C; }
+.lib-ask-group.is-tile .lib-ask-label { color:#4F5A6B; }
+.lib-ask-group.is-tile .lib-ask-row { flex-direction:column; }
+.lib-ask-group.is-tile .lib-ask-row input { border-color:#DCD5F2; }
+.lib-ask-group.is-tile .lib-button { width:100%; min-height:46px; background:#231C5C; }
+.lib-ask-open { min-height:44px; padding:0; border:0; background:none; color:#2F6851; font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+
+@media (max-width:1024px) {
+  .lib-bento { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .lib-bento-tile.is-feature { grid-column:span 2; grid-row:auto; min-height:520px; }
+}
+@media (max-width:600px) {
+  .lib-bento-hero { padding:16px 16px 64px; }
+  .lib-bento-wrap { padding:0 16px 40px; }
+  .lib-bento { grid-template-columns:minmax(0,1fr); grid-auto-rows:auto; }
+  .lib-bento-tile { min-height:260px; }
+  .lib-bento-tile.is-feature { grid-column:auto; padding:26px; }
+  .lib-bento-tile.is-feature h2 { font-size:40px; }
+  .lib-bento-tile.is-feature .lib-bento-sym { width:280px; height:280px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .lib-bento-hero *, .lib-bento-tile, .lib-bento-tile * { animation:none !important; transition:none !important; }
+  .lib-bento-tile:hover, .lib-bento-tile:hover .lib-bento-sym { transform:none; }
+}
