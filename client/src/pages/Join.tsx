@@ -79,7 +79,7 @@ export default function Join() {
     <main className="join-page">
       <div className="join-card">
         <p className="join-brand"><span className="join-brand-mark"><HeartRateMark size={22} /></span><span>Rehyn<em>: Connect</em></span></p>
-        <h1 className="join-title">{returning ? "Welcome back" : "Join Rehyn: Connect"}</h1>
+        <h1 className="join-title">{returning ? "Welcome back" : <>Join Rehyn: <em className="join-connect">Connect</em></>}</h1>
         <p className="join-lede">{returning
           ? "The Terms of Use or the Privacy Notice have changed since you agreed to them. Please look at these again: all three are needed to use Rehyn: Connect."
           : "A warm, safe community for people living with stroke, Parkinson's, MS and other conditions, and the people who care for them."}</p>

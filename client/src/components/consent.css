@@ -31,7 +31,8 @@
 .join-page *, .join-page *::before, .join-page *::after { box-sizing: border-box; }
 .join-card { width: min(720px, 100%); display: flex; flex-direction: column; gap: 16px; }
 .join-brand { display: flex; align-items: center; gap: 10px; margin: 0; color: #183d34; font: 800 20px/1 "Manrope", sans-serif; letter-spacing: -.6px; }
-.join-brand em { color: #b5522e; font-style: normal; }
+/* "Connect" in the brand's blue, as in the site header. */
+.join-brand em, .join-title .join-connect { color: #1F5FA8; font-style: normal; }
 .join-brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #183d34; color: #eff5ec; }
 .join-title { margin: 10px 0 0; color: #183d34; font: 400 clamp(38px, 6vw, 52px)/1.05 "Instrument Serif", Georgia, serif; }
 .join-lede { margin: 0; color: #4f6158; font-size: 17px; line-height: 1.5; }
