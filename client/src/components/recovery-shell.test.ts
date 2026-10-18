@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Route, Router } from "wouter";
 import { SettingsContext } from "@/components/settings-context";
 import RecoveryShell from "./RecoveryShell";
@@ -43,7 +43,12 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
   });
 
   it("shows your profile, friends, saved pages, events, alerts, the Library and two of your groups on the left; the care team only when switched on", () => {
-    const { html, text, hrefs } = draw("/community");
+    // Midday, outside the default quiet hours, when the Alerts row counts what is new.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 17, 12, 0));
+    const drawn = draw("/community");
+    vi.useRealTimers();
+    const { html, text, hrefs } = drawn;
     for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }

@@ -41,6 +41,8 @@ import {
   TickIcon,
   useLines,
 } from "./parts";
+import { ConditionBento, hasVersionTwo, useConditionVersion, VersionSwitch } from "./ConditionBento";
+import "@/pages/library-condition-v2.css";
 
 // One condition's page, built from its data. Every condition with content has the same parts
 // (Understand, Explore, Live well, Watch & listen, Trusted sources, Stories, Ask your doctor; Explore
@@ -336,7 +338,7 @@ function useCollapsed() {
 }
 
 /** The title, its line and the facts; the only action is Save (the read-aloud button was removed in review). */
-function ConditionHeader({ place, full, state }: { place: ConditionPlace; full: boolean; state: LibraryState }) {
+function ConditionHeader({ place, full, state, switcher }: { place: ConditionPlace; full: boolean; state: LibraryState; switcher?: ReactNode }) {
   const { condition, group } = place;
   const saved = state.saved.includes(conditionKey(place));
   const save = () => libraryStore.toggleSaved(conditionKey(place));
@@ -347,6 +349,7 @@ function ConditionHeader({ place, full, state }: { place: ConditionPlace; full: 
       {full && condition.facts && <ul className="lib-facts" role="list">{condition.facts.map(fact => <li key={fact}>{fact}</li>)}</ul>}
     </div>
     <div className="lib-condition-actions">
+      {switcher}
       <button type="button" className="lib-save lib-wide-only" aria-pressed={saved} onClick={save}><BookmarkIcon filled={saved} />{saved ? "Saved to my pages" : "Save to my pages"}</button>
     </div>
   </div>;
@@ -367,6 +370,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   const key = conditionKey(place);
   const state = useLibraryState();
   const understand = useCollapsed();
+  const { version, switchTo } = useConditionVersion(place);
   useEffect(() => { libraryStore.visit(key); }, [key]);
   const purpose = (part: keyof typeof PURPOSE) => content?.purpose?.[part] ?? PURPOSE[part](condition.title);
   const footer = content?.footer ?? LIBRARY_NOTE;
@@ -450,11 +454,24 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     </div>;
   }
 
+  const twoVersions = hasVersionTwo(place);
+  if (twoVersions && version === 2) {
+    return <ConditionBento place={place} state={state} onSwitch={switchTo} slots={{
+      companion: content.companion && <Companion storyId={content.companion.storyId} state={state} />,
+      sources: sourcesPart(false),
+      stories: <StoriesPanel place={place} />,
+      ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
+      related: <Related content={content} />,
+      footer,
+      purpose,
+    }} />;
+  }
+
   return <div className="lib-page lib-condition">
     <div className="lib-wrap">
       {mobileBar}
       {crumbs}
-      <ConditionHeader place={place} full state={state} />
+      <ConditionHeader place={place} full state={state} switcher={twoVersions ? <VersionSwitch to={2} onSwitch={switchTo} /> : undefined} />
     </div>
     <PartsBar parts={parts} />
     <div className="lib-wrap lib-condition-body">
