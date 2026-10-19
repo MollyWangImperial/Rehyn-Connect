@@ -2,7 +2,7 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "wouter";
 import { LIBRARY_NOTE } from "@/content/library";
 import { LEARN_CHECKED, type LearnArticle } from "@/content/my-time-learn";
-import { NEWS_EXTRAS, type NewsChart, type NewsReference } from "@/content/ischaemic-news";
+import { NEWS_EXTRAS, WRITTEN_ON, type NewsChart, type NewsReference } from "@/content/ischaemic-news";
 import { conditionHref, conditionKey, contentTitle, itemHref, isReadable, type ItemPlace } from "@/lib/library";
 import { libraryStore, useLibraryState } from "@/lib/library-store";
 import { Interactive, QuickCheck } from "./Interactives";
@@ -110,8 +110,7 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
   const references: NewsReference[][] = extras?.references ?? article.sources.map(source => [{ publisher: publisherOf(source.label), title: source.label.split(":").slice(1).join(":").trim() || source.label, url: source.url }]);
   const headline = extras?.headline ?? item.title;
   const standfirst = extras?.standfirst ?? article.short;
-  const kicker = extras?.kicker ?? [contentTitle(type, condition), article.kicker];
-  const neighbours = group.conditions.filter(other => other.content);
+  const kicker = [extras?.kicker ?? contentTitle(type, condition), condition.title];
 
   const blocks = useMemo<Block[]>(() => [
     { key: "headline", text: headline },
@@ -137,15 +136,6 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
   const quote = extras?.pullQuote && <blockquote className="lib-news-quote">{extras.pullQuote}</blockquote>;
 
   return <div className="lib-page lib-news">
-    <header className="lib-news-masthead">
-      <div className="lib-news-masthead-inner">
-        <Link href="/" className="lib-news-brand">Library</Link>
-        <nav aria-label={`More about ${group.title.toLowerCase()}`} className="lib-news-tabs">
-          {neighbours.map(other => <Link key={other.id} href={conditionHref(group.id, other.id)} aria-current={other.id === condition.id ? "page" : undefined} className={other.id === condition.id ? "is-current" : undefined}>{other.title}</Link>)}
-        </nav>
-      </div>
-    </header>
-
     <article aria-labelledby="lib-news-headline">
       <div className="lib-news-wrap lib-news-head">
         <nav aria-label="Breadcrumb" className="lib-news-kicker">
@@ -154,7 +144,7 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
         <h1 id="lib-news-headline">{say("headline")}</h1>
         <p className="lib-news-standfirst">{say("standfirst")}</p>
         <div className="lib-news-byline">
-          <span>Rehyn Library · {condition.title} · Facts checked {LEARN_CHECKED} · {references.length} {references.length === 1 ? "source" : "sources"}</span>
+          <span>Written by the Rehyn team on {WRITTEN_ON}</span>
           <span className="lib-news-byline-tools">
             <button type="button" className="lib-news-btn" onClick={reading.toggle} aria-pressed={reading.playing}>
               {reading.playing

@@ -2,7 +2,10 @@
 // adds to its checked answer (content/ischaemic-answers.ts). An answer without an entry here uses its
 // own question, short answer, headings and sources. The words of the feature are the answer's own.
 
-export type NewsReference = { publisher: string; title: string; url: string; extra?: string };
+/** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
+export const WRITTEN_ON = "17 October 2026";
+
+export type NewsReference ={ publisher: string; title: string; url: string; extra?: string };
 
 export type NewsChart =
   /** Horizontal bars, out of every 100. */
@@ -11,8 +14,8 @@ export type NewsChart =
   | { kind: "range"; title: string; subtitle: string; from: number; to: number; sources: string };
 
 export type NewsExtras = {
-  /** The line above the headline: "Understanding stroke | Inside the brain". */
-  kicker: [string, string];
+  /** The first part of the line above the headline, before the condition: "Understanding stroke | Ischaemic stroke". */
+  kicker: string;
   headline: string;
   standfirst: string;
   /** Numbered references; each number can cite more than one page. */
@@ -35,7 +38,7 @@ const SA_ISCHAEMIC: NewsReference = { publisher: "Stroke Association", title: "I
 
 export const NEWS_EXTRAS: Record<string, NewsExtras> = {
   "isch-what-happens": {
-    kicker: ["Understanding stroke", "Inside the brain"],
+    kicker: "Understanding stroke",
     headline: "A blocked supply line",
     standfirst: "What actually happens in the brain during an ischaemic stroke — and why minutes mattered on the day",
     references: [
