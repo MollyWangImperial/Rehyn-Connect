@@ -33,7 +33,7 @@ export const breastCancer: LibraryCondition = {
     watch: [
       piece("podcast", "after-treatment", "The year after treatment: two women talk", 24),
       piece("video", "exercises-video", "Arm exercises in five minutes", 5),
-      piece("audio", "rest", "A ten-minute rest for a tired body", 10, { extra: "read by Alira" }),
+      piece("audio", "rest", "A ten-minute rest for a tired body", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Breast cancer: treatment and living with it"), BREAST_CANCER_NOW, MACMILLAN, CANCER_RESEARCH_UK],
     stories: [],
@@ -169,7 +169,7 @@ export const cancerFatigue: LibraryCondition = {
     ],
     watch: [
       piece("podcast", "tired-talk", "Tired after treatment: two people talk", 20),
-      piece("audio", "rest", "A ten-minute rest for a tired body", 10, { extra: "read by Alira" }),
+      piece("audio", "rest", "A ten-minute rest for a tired body", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Cancer-related fatigue and life after cancer treatment"), MACMILLAN, CANCER_RESEARCH_UK],
     stories: [],
@@ -216,7 +216,7 @@ export const depression: LibraryCondition = {
     watch: [
       piece("podcast", "the-fog", "Coming through depression: two people talk", 22),
       piece("animation", "in-pictures", "Depression and the brain, in pictures", 3),
-      piece("audio", "gentle-morning", "A gentle ten minutes for a heavy morning", 10, { extra: "read by Alira" }),
+      piece("audio", "gentle-morning", "A gentle ten minutes for a heavy morning", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Depression: symptoms, treatment and support"), MIND, SAMARITANS],
     stories: [],
@@ -261,7 +261,7 @@ export const depressionAfterStroke: LibraryCondition = {
     ],
     watch: [
       piece("podcast", "low-days", "Low days after stroke: two people talk", 20),
-      piece("audio", "gentle-morning", "A gentle ten minutes for a heavy morning", 10, { extra: "read by Alira" }),
+      piece("audio", "gentle-morning", "A gentle ten minutes for a heavy morning", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Depression and emotional changes after stroke"), STROKE_ASSOCIATION, MIND, SAMARITANS],
     stories: ["li-wei"],
@@ -307,7 +307,7 @@ export const anxiety: LibraryCondition = {
     ],
     watch: [
       piece("podcast", "on-edge", "Living on edge: two people talk about anxiety", 20),
-      piece("audio", "grounding", "A ten-minute grounding practice", 10, { extra: "read by Alira" }),
+      piece("audio", "grounding", "A ten-minute grounding practice", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Anxiety: symptoms, treatment and self-help"), MIND, ANXIETY_UK],
     stories: [],
@@ -352,7 +352,7 @@ export const insomnia: LibraryCondition = {
       article("partner", "Sharing a bed with a poor sleeper", 2, { keywords: ["partner", "snoring"] }),
     ],
     watch: [
-      piece("audio", "wind-down", "A ten-minute wind-down for bed", 10, { extra: "read by Alira" }),
+      piece("audio", "wind-down", "A ten-minute wind-down for bed", 10, { extra: "read aloud" }),
       piece("video", "explained", "Insomnia explained in four minutes", 4),
     ],
     sources: [source(NHS, "Insomnia: causes and treatment"), SLEEP_CHARITY, MIND],
@@ -490,7 +490,7 @@ export const ibs: LibraryCondition = {
     ],
     watch: [
       piece("video", "explained", "IBS explained in four minutes", 4),
-      piece("audio", "gut-calm", "A ten-minute calm for a cramping gut", 10, { extra: "read by Alira" }),
+      piece("audio", "gut-calm", "A ten-minute calm for a cramping gut", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "IBS: symptoms, diet and treatment"), GUTS_UK],
     stories: [],

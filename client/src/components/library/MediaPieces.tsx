@@ -119,7 +119,7 @@ export function FilmPlayer({ film }: { film: Film }) {
         : <div className={`lib-movie-card${stage >= last ? " is-end" : ""}`} key={stage}>
           {stage >= last ? <><span className="lib-movie-done"><TickIcon size={26} /></span><p>{film.outro}</p></> : <><AliraMark reading={playing} /><p>{film.intro}</p></>}
         </div>}
-      {!started && <button type="button" className="lib-movie-big-play" onClick={play} aria-label="Play the film with Alira"><PlayIcon size={34} /></button>}
+      {!started && <button type="button" className="lib-movie-big-play" onClick={play} aria-label="Play the film with narration"><PlayIcon size={34} /></button>}
     </div>
     <p className="lib-movie-caption" aria-live={silent ? "polite" : "off"}>
       {sentences.map((sentence, index) => <Fragment key={index}>{index > 0 ? " " : null}<span className={index === lit ? "lib-sen is-current" : "lib-sen"}>{sentence}</span></Fragment>)}
@@ -132,12 +132,12 @@ export function FilmPlayer({ film }: { film: Film }) {
         {film.scenes.map((item, index) => <li key={index}><button type="button" className={index < stage ? "is-past" : index === stage ? "is-on" : ""} aria-current={index === stage ? "step" : undefined} onClick={() => goTo(index)} aria-label={`Scene ${index + 1}: ${item.title}`} /></li>)}
       </ol>
       <div className="lib-movie-switches">
-        <button type="button" role="switch" aria-checked={!silent} className="lib-switch" onClick={() => setSound(silent)}>Alira's voice<span className="lib-switch-track" aria-hidden="true"><i /></span></button>
+        <button type="button" role="switch" aria-checked={!silent} className="lib-switch" onClick={() => setSound(silent)}>Narration<span className="lib-switch-track" aria-hidden="true"><i /></span></button>
         {!silent && <button type="button" role="switch" aria-checked={reading.slow} className="lib-switch" onClick={() => reading.setSlow(!reading.slow)}>Slower<span className="lib-switch-track" aria-hidden="true"><i /></span></button>}
       </div>
     </div>
     {voiceFailed
-      ? <p className="lib-movie-note" role="status">Alira's voice did not start on this device, so the film plays with captions only.</p>
+      ? <p className="lib-movie-note" role="status">The narration did not start on this device, so the film plays with captions only.</p>
       : <p className="lib-sr" role="status">{silent ? "" : reading.note}</p>}
     {film.tool === "energy-diary" && <EnergyDiary />}
     <MediaSources sources={film.sources} note="A narrated animation made for Rehyn. The pictures are illustrations; the words are checked against the sources below." />
@@ -182,7 +182,7 @@ export function ConversationPlayer({ talk }: { talk: Conversation }) {
     <div className="lib-listen">
       <button type="button" className="lib-listen-play" onClick={play} aria-label={reading.playing ? "Pause" : visible > 0 ? "Carry on listening" : "Listen to the conversation"}>{reading.playing ? <PauseIcon size={22} /> : <PlayIcon size={22} />}</button>
       <div className="lib-listen-words">
-        <p className="lib-listen-title"><AliraMark reading={reading.playing} />{reading.playing ? `${who(talk.lines[speaking]?.who ?? "")?.name ?? "Alira"} is speaking` : visible >= lines.length ? "The whole conversation is below" : "Listen, or read it line by line"}</p>
+        <p className="lib-listen-title"><AliraMark reading={reading.playing} />{reading.playing ? `${who(talk.lines[speaking]?.who ?? "")?.name ?? "The narrator"} is speaking` : visible >= lines.length ? "The whole conversation is below" : "Listen, or read it line by line"}</p>
         <span className="lib-listen-track" aria-hidden="true"><i style={{ width: `${Math.round((visible / lines.length) * 100)}%` }} /></span>
       </div>
       <button type="button" role="switch" aria-checked={reading.slow} className="lib-switch" onClick={() => reading.setSlow(!reading.slow)}>Slower voice<span className="lib-switch-track" aria-hidden="true"><i /></span></button>
@@ -246,7 +246,7 @@ export function BreathingGuide({ piece }: { piece: Breathing }) {
   return <section className={`lib-breathe is-${state}`} aria-label="Breathing guide">
     <div className="lib-breathe-intro">
       <ol role="list">{piece.intro.map((line, index) => <li key={index} className={reading.playing && reading.index === index ? "is-current" : ""}>{line}</li>)}</ol>
-      <button type="button" className="lib-ghost" onClick={reading.toggle}>{reading.playing ? <><PauseIcon size={16} />Pause Alira</> : <><PlayIcon size={16} />Alira, read this to me</>}</button>
+      <button type="button" className="lib-ghost" onClick={reading.toggle}>{reading.playing ? <><PauseIcon size={16} />Pause reading</> : <><PlayIcon size={16} />Read this to me</>}</button>
       <p className="lib-sr" role="status">{reading.note}</p>
     </div>
     <div className="lib-breathe-stage">

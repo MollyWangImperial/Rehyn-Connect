@@ -53,11 +53,11 @@ function Lit({ narration, reading, block, text }: { narration: Narration; readin
 export function ListenBar({ reading, total, label }: { reading: ReadAloud; total: number; label: string }) {
   const progress = reading.index >= 0 && total ? (reading.index + 1) / total : reading.done ? 1 : 0;
   return <div className={`lib-listen${reading.playing ? " is-playing" : ""}`} role="group" aria-label={label}>
-    <button type="button" className="lib-listen-play" onClick={reading.toggle} aria-label={reading.playing ? "Pause Alira" : reading.index > 0 ? "Carry on listening" : `Listen: ${label}`}>
+    <button type="button" className="lib-listen-play" onClick={reading.toggle} aria-label={reading.playing ? "Pause reading" : reading.index > 0 ? "Carry on listening" : `Listen: ${label}`}>
       {reading.playing ? <PauseIcon size={22} /> : <PlayIcon size={22} />}
     </button>
     <div className="lib-listen-words">
-      <p className="lib-listen-title"><AliraMark reading={reading.playing} />{reading.playing ? "Alira is reading" : reading.index > 0 ? "Paused" : "Alira can read this to you"}</p>
+      <p className="lib-listen-title"><AliraMark reading={reading.playing} />{reading.playing ? "Reading aloud" : reading.index > 0 ? "Paused" : "Listen to this read aloud"}</p>
       <span className="lib-listen-track" aria-hidden="true"><i style={{ width: `${Math.round(progress * 100)}%` }} /></span>
     </div>
     <button type="button" role="switch" aria-checked={reading.slow} className="lib-switch" onClick={() => reading.setSlow(!reading.slow)}>

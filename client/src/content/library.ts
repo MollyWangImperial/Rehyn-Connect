@@ -208,10 +208,10 @@ const ischaemicStroke: LibraryCondition = {
       { id: "bridge-tnk", title: "Intravenous tenecteplase before thrombectomy in stroke (the BRIDGE-TNK trial)", kind: "research", url: "https://pubmed.ncbi.nlm.nih.gov/40396577/", publisher: "New England Journal of Medicine", date: "July 2025", blurb: "An emerging finding, not yet UK guidance: in one trial in China, a clot-busting drug given before clot removal left more people independent at 90 days (53% against 44%).", keywords: ["tenecteplase", "trial", "research", "thrombectomy"] },
     ],
     recover: [
-      { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 2, extra: "narrated by Alira", learnId: "rewiring", mediaId: "film-rewiring", keywords: ["neuroplasticity", "rewire"] },
+      { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 2, extra: "with narration", learnId: "rewiring", mediaId: "film-rewiring", keywords: ["neuroplasticity", "rewire"] },
       { id: "arm-hand", title: "Arm and hand: the first twelve weeks", kind: "exercise", extra: "with a practice tracker", learnId: "hand", mediaId: "practice-arm-hand", keywords: ["arm", "hand", "grip", "exercises"] },
       article("first-three-months", "The first three months: what's typical, what's not", 6, { learnId: "isch-first-three-months", keywords: ["early", "weeks", "normal"] }),
-      { id: "walking", title: "Walking again: from frame to stick to nothing", kind: "video", minutes: 2, extra: "narrated by Alira", mediaId: "film-walking", learnId: "isch-walking", keywords: ["walk", "walking", "balance", "frame"] },
+      { id: "walking", title: "Walking again: from frame to stick to nothing", kind: "video", minutes: 2, extra: "with narration", mediaId: "film-walking", learnId: "isch-walking", keywords: ["walk", "walking", "balance", "frame"] },
       article("words", "Finding words again: aphasia and speech", 5, { extra: "with practice prompts", learnId: "words", keywords: ["aphasia", "speech", "talking", "words"] }),
       { id: "fatigue", title: "Fatigue: why rest doesn't fix it, and what does", kind: "video", minutes: 2, isNew: true, learnId: "fatigue", mediaId: "film-fatigue", blurb: "A short narrated film on pacing your day, plus an energy diary you can fill in and print.", keywords: ["tired", "tiredness", "exhausted", "energy", "fatigue", "sleepy"] },
     ],
@@ -224,9 +224,9 @@ const ischaemicStroke: LibraryCondition = {
       article("carers", "For the person looking after you: a page for carers", 6, { learnId: "isch-carers", keywords: ["carer", "family", "partner"] }),
     ],
     watch: [
-      { id: "first-year-podcast", title: "Two survivors talk about the first year", kind: "podcast", minutes: 4, extra: "both parts read by Alira", mediaId: "talk-first-year", keywords: ["survivors", "conversation"] },
-      { id: "in-pictures", title: "What a stroke does to the brain, in pictures", kind: "animation", minutes: 2, extra: "narrated by Alira", mediaId: "film-in-pictures", learnId: "isch-what-happens" },
-      { id: "wind-down", title: "A ten-minute wind-down for stroke fatigue", kind: "audio", minutes: 10, extra: "read by Alira", mediaId: "breathe-wind-down", keywords: ["relax", "calm", "breathing"] },
+      { id: "first-year-podcast", title: "Two survivors talk about the first year", kind: "podcast", minutes: 4, extra: "both parts read aloud", mediaId: "talk-first-year", keywords: ["survivors", "conversation"] },
+      { id: "in-pictures", title: "What a stroke does to the brain, in pictures", kind: "animation", minutes: 2, extra: "with narration", mediaId: "film-in-pictures", learnId: "isch-what-happens" },
+      { id: "wind-down", title: "A ten-minute wind-down for stroke fatigue", kind: "audio", minutes: 10, extra: "read aloud", mediaId: "breathe-wind-down", keywords: ["relax", "calm", "breathing"] },
     ],
     sources: [
       source(NHS, "Stroke overview, treatment and recovery pages"),
@@ -296,7 +296,7 @@ const parkinsonsDisease: LibraryCondition = {
     watch: [
       { id: "two-voices", title: "Living with Parkinson's: two people talk", kind: "podcast", minutes: 22 },
       { id: "dopamine-pictures", title: "What dopamine does, in pictures", kind: "animation", minutes: 3 },
-      { id: "stiff-evenings", title: "A calm ten minutes for stiff evenings", kind: "audio", minutes: 10, extra: "read by Alira" },
+      { id: "stiff-evenings", title: "A calm ten minutes for stiff evenings", kind: "audio", minutes: 10, extra: "read aloud" },
     ],
     sources: [source(NHS, "Overview, symptoms and treatment"), PARKINSONS_UK, PARKINSONS_FOUNDATION, CURE_PARKINSONS],
     stories: ["margaret"],

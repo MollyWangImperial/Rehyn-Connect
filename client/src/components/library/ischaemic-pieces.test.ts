@@ -63,7 +63,7 @@ describe("the Ischaemic stroke page's pieces", () => {
   });
 
   it("shows a film above its written answer, and the hands-on part inside it", () => {
-    expect(render("fatigue")).toContain('aria-label="Play the film with Alira"');
+    expect(render("fatigue")).toContain('aria-label="Play the film with narration"');
     const fatigue = words(render("fatigue"));
     expect(fatigue).toContain("Your energy diary");
     expect(fatigue.indexOf("Your energy diary")).toBeLessThan(fatigue.indexOf("The written answer"));

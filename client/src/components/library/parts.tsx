@@ -89,10 +89,10 @@ export function jumpTo(id: string) {
  * "Alira, read this page to me". `lines` must be memoised: a new array starts the reading over.
  * While she reads, the sentence she is on is shown under the button.
  */
-export function ReadAloudButton({ lines, label = "Alira, read this page to me", className = "" }: { lines: string[]; label?: string; className?: string }) {
+export function ReadAloudButton({ lines, label = "Read this page to me", className = "" }: { lines: string[]; label?: string; className?: string }) {
   const reading = useReadAloud(lines, true);
   const now = reading.index >= 0 ? lines[reading.index] : "";
-  const buttonLabel = reading.playing ? "Pause Alira" : reading.index > 0 ? "Carry on reading" : label;
+  const buttonLabel = reading.playing ? "Pause reading" : reading.index > 0 ? "Carry on reading" : label;
   return <div className={`lib-read ${className}`}>
     <button type="button" className="lib-read-button" onClick={reading.toggle} aria-pressed={reading.playing}>
       <AliraMark reading={reading.playing} />

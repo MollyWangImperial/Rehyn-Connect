@@ -36,7 +36,7 @@ export const haemorrhagicStroke: LibraryCondition = {
     watch: [
       piece("podcast", "first-year-podcast", "Two survivors talk about the first year", 24),
       piece("animation", "in-pictures", "What a bleed does to the brain, in pictures", 4),
-      piece("audio", "wind-down", "A ten-minute wind-down for stroke fatigue", 10, { extra: "read by Alira" }),
+      piece("audio", "wind-down", "A ten-minute wind-down for stroke fatigue", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Stroke overview, treatment and recovery pages"), STROKE_ASSOCIATION, DIFFERENT_STROKES, CHSS],
     stories: ["li-wei"],
@@ -128,7 +128,7 @@ export const strokeUnder50: LibraryCondition = {
     watch: [
       piece("podcast", "young-voices", "Three people who had a stroke before 50", 26),
       piece("video", "back-to-work", "Back to work after a stroke: a manager and a survivor talk", 9),
-      piece("audio", "wind-down", "A ten-minute wind-down for stroke fatigue", 10, { extra: "read by Alira" }),
+      piece("audio", "wind-down", "A ten-minute wind-down for stroke fatigue", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Stroke overview, treatment and recovery pages"), DIFFERENT_STROKES, STROKE_ASSOCIATION],
     stories: ["tom"],
@@ -177,7 +177,7 @@ export const alzheimers: LibraryCondition = {
     watch: [
       piece("podcast", "early-days", "Two families talk about the first year after diagnosis", 24),
       piece("animation", "in-pictures", "What Alzheimer's does to the brain, in pictures", 4),
-      piece("audio", "calm-evening", "A calm ten minutes for a restless evening", 10, { extra: "read by Alira" }),
+      piece("audio", "calm-evening", "A calm ten minutes for a restless evening", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Alzheimer's disease: symptoms, diagnosis and treatment"), ALZHEIMERS_SOCIETY, DEMENTIA_UK],
     stories: ["hannah"],
@@ -454,7 +454,7 @@ export const relapsingRemittingMs: LibraryCondition = {
     watch: [
       piece("podcast", "first-year", "The first year with MS: two people talk", 24),
       piece("animation", "in-pictures", "Myelin and the nerves, in pictures", 3),
-      piece("audio", "cool-down", "A ten-minute rest for MS fatigue", 10, { extra: "read by Alira" }),
+      piece("audio", "cool-down", "A ten-minute rest for MS fatigue", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Multiple sclerosis: symptoms, diagnosis and treatment"), MS_SOCIETY, MS_TRUST],
     stories: [],
@@ -501,7 +501,7 @@ export const progressiveMs: LibraryCondition = {
     watch: [
       piece("podcast", "long-road", "Living with progressive MS: two people talk", 24),
       piece("animation", "in-pictures", "Myelin and the nerves, in pictures", 3),
-      piece("audio", "cool-down", "A ten-minute rest for MS fatigue", 10, { extra: "read by Alira" }),
+      piece("audio", "cool-down", "A ten-minute rest for MS fatigue", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Multiple sclerosis: symptoms, diagnosis and treatment"), MS_SOCIETY, MS_TRUST],
     stories: [],

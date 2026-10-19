@@ -171,7 +171,7 @@ export const traumaticBrainInjury: LibraryCondition = {
     watch: [
       piece("podcast", "hidden-injury", "Living with a hidden injury: two people talk", 24),
       piece("animation", "in-pictures", "A brain injury in pictures", 4),
-      piece("audio", "wind-down", "A ten-minute wind-down for a tired brain", 10, { extra: "read by Alira" }),
+      piece("audio", "wind-down", "A ten-minute wind-down for a tired brain", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Severe head injury: treatment and recovery"), HEADWAY, BRAIN_AND_SPINE],
     stories: [],
@@ -216,7 +216,7 @@ export const concussion: LibraryCondition = {
     ],
     watch: [
       piece("video", "explained", "Concussion explained in four minutes", 4),
-      piece("audio", "wind-down", "A ten-minute wind-down for a tired brain", 10, { extra: "read by Alira" }),
+      piece("audio", "wind-down", "A ten-minute wind-down for a tired brain", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Concussion: symptoms and recovery"), HEADWAY],
     stories: [],
@@ -309,7 +309,7 @@ export const migraine: LibraryCondition = {
     watch: [
       piece("podcast", "migraine-voices", "Living with migraine: two people talk", 20),
       piece("animation", "in-pictures", "A migraine attack, in pictures", 3),
-      piece("audio", "dark-room", "A quiet ten minutes for a dark room", 10, { extra: "read by Alira" }),
+      piece("audio", "dark-room", "A quiet ten minutes for a dark room", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Migraine: symptoms, causes and treatment"), MIGRAINE_TRUST],
     stories: [],
@@ -354,7 +354,7 @@ export const tensionHeadache: LibraryCondition = {
     ],
     watch: [
       piece("video", "explained", "Tension headache explained in three minutes", 3),
-      piece("audio", "unwind", "A ten-minute unwind for a tight head", 10, { extra: "read by Alira" }),
+      piece("audio", "unwind", "A ten-minute unwind for a tight head", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Tension headaches: symptoms and treatment"), MIGRAINE_TRUST],
     stories: [],
@@ -488,7 +488,7 @@ export const sciatica: LibraryCondition = {
     ],
     watch: [
       piece("video", "explained", "Sciatica explained in four minutes", 4),
-      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read by Alira" }),
+      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Sciatica: symptoms, treatment and exercises"), VERSUS_ARTHRITIS, BRAIN_AND_SPINE],
     stories: [],

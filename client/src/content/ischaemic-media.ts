@@ -146,7 +146,7 @@ export const ischaemicMedia: MediaPiece[] = [
     id: "talk-first-year",
     kind: "conversation",
     intro: "Li Wei and Rose compare notes on the first year after an ischaemic stroke: the ward, coming home, the tiredness, the tears and the words.",
-    note: "A conversation written for Rehyn from experiences people commonly describe. Li Wei and Rose are composites, not real people. Alira reads both parts.",
+    note: "A conversation written for Rehyn from experiences people commonly describe. Li Wei and Rose are composites, not real people. Both parts are read aloud.",
     speakers: [
       { id: "li-wei", name: "Li Wei", age: 58, detail: "Right-side weakness, back to cooking", tint: { tint: "#EEEBFA", ink: "#4A3F9C" } },
       { id: "rose", name: "Rose", age: 80, detail: "Aphasia, told with her daughter", tint: { tint: "#FBF0DC", ink: "#8A5A12" } },

@@ -267,7 +267,7 @@ export const osteoarthritis: LibraryCondition = {
     watch: [
       piece("video", "knee-exercises", "Five knee exercises in five minutes", 5),
       piece("podcast", "new-knee", "Before and after a new knee: two people talk", 20),
-      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read by Alira" }),
+      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Osteoarthritis: symptoms, treatment and living with it"), VERSUS_ARTHRITIS],
     stories: [],
@@ -406,7 +406,7 @@ export const backPain: LibraryCondition = {
     ],
     watch: [
       piece("video", "explained", "Back pain explained in four minutes", 4),
-      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read by Alira" }),
+      piece("audio", "pain-rest", "A ten-minute rest when the pain is loud", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Back pain: causes, treatment and exercises"), VERSUS_ARTHRITIS, BACKCARE],
     stories: [],

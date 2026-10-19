@@ -83,7 +83,7 @@ export const heartAttack: LibraryCondition = {
     watch: [
       piece("podcast", "alarm-clock", "The loudest alarm clock: two people talk about the year after", 24),
       piece("animation", "in-pictures", "A heart attack, in pictures", 4),
-      piece("audio", "calm-heart", "A ten-minute breathing practice for a racing mind", 10, { extra: "read by Alira" }),
+      piece("audio", "calm-heart", "A ten-minute breathing practice for a racing mind", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "Heart attack: symptoms, treatment and recovery"), BHF],
     stories: ["dev"],
@@ -226,7 +226,7 @@ export const copd: LibraryCondition = {
     watch: [
       piece("video", "breathing-video", "Pursed-lip breathing in three minutes", 3),
       piece("podcast", "lungs-talk", "Living with COPD: two people talk", 22),
-      piece("audio", "calm-breath", "A ten-minute calm for short-of-breath evenings", 10, { extra: "read by Alira" }),
+      piece("audio", "calm-breath", "A ten-minute calm for short-of-breath evenings", 10, { extra: "read aloud" }),
     ],
     sources: [source(NHS, "COPD: symptoms, treatment and living with it"), ASTHMA_LUNG_UK, BHF],
     stories: [],
