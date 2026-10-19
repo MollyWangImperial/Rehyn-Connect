@@ -280,29 +280,46 @@ function LetterBand({ letterId, state }: { letterId: string; state: LibraryState
 // ------------------------------------------------------------------------------------------------
 // The side rail and the shared closing parts.
 
+/** A side-rail heading that is a button: the panel's body shows only once it is opened. */
+function RailToggle({ id, title, note, open, onToggle }: { id: string; title: string; note: string; open: boolean; onToggle: () => void }) {
+  return <h2 id={`${id}-title`}>
+    <button type="button" className="lib-rail-toggle" aria-expanded={open} aria-controls={`${id}-body`} onClick={onToggle}>
+      <span className="lib-rail-toggle-words">{title}<small>{note}</small></span>
+      <svg className="lib-rail-chevron" aria-hidden="true" focusable="false" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 8l5 5 5-5" /></svg>
+    </button>
+  </h2>;
+}
+
 function AskDoctor({ place, questions, state }: { place: ConditionPlace; questions: string[]; state: LibraryState }) {
+  const [open, setOpen] = useState(false);
   const key = conditionKey(place);
   const ticked = state.asks[key] ?? [];
-  return <section id="ask" className="lib-ask-doctor" aria-labelledby="lib-ask-title">
-    <h2 id="lib-ask-title">Ask at your next appointment</h2>
-    <p>Tick the ones you want. They're kept here for your next appointment{ticked.length ? ` (${ticked.length} ticked)` : ""}.</p>
-    <div className="lib-ask-list">
-      {questions.map((question, index) => <label key={question}>
-        <input type="checkbox" checked={ticked.includes(index)} onChange={() => libraryStore.toggleAsk(key, index)} />
-        <span>{question}</span>
-      </label>)}
+  const note = `${questions.length} question${questions.length === 1 ? "" : "s"}${ticked.length ? ` · ${ticked.length} ticked` : ""}`;
+  return <section id="ask" className={`lib-ask-doctor${open ? " is-open" : ""}`} aria-labelledby="lib-ask-title">
+    <RailToggle id="lib-ask" title="Ask at your next appointment" note={note} open={open} onToggle={() => setOpen(was => !was)} />
+    <div id="lib-ask-body" className="lib-rail-body" hidden={!open}>
+      <p>Tick the ones you want. They're kept here for your next appointment{ticked.length ? ` (${ticked.length} ticked)` : ""}.</p>
+      <div className="lib-ask-list">
+        {questions.map((question, index) => <label key={question}>
+          <input type="checkbox" checked={ticked.includes(index)} onChange={() => libraryStore.toggleAsk(key, index)} />
+          <span>{question}</span>
+        </label>)}
+      </div>
     </div>
   </section>;
 }
 
 function Related({ content }: { content: ConditionContent }) {
+  const [open, setOpen] = useState(false);
   const related = content.related.map(link => ({ link, place: findCondition(link.groupId, link.conditionId) })).filter(entry => entry.place);
   if (!related.length) return null;
-  return <section className="lib-related" aria-labelledby="lib-related-title">
-    <h2 id="lib-related-title">Often read alongside</h2>
-    {related.map(({ link, place }) => <Link key={conditionKey(place!)} href={conditionHref(place!.group.id, place!.condition.id)}>
-      {link.label ?? place!.condition.title}<span style={{ color: place!.section.hue.ink }}>{place!.section.short}</span>
-    </Link>)}
+  return <section className={`lib-related${open ? " is-open" : ""}`} aria-labelledby="lib-related-title">
+    <RailToggle id="lib-related" title="Often read alongside" note={`${related.length} related page${related.length === 1 ? "" : "s"}`} open={open} onToggle={() => setOpen(was => !was)} />
+    <div id="lib-related-body" className="lib-rail-body" hidden={!open}>
+      {related.map(({ link, place }) => <Link key={conditionKey(place!)} href={conditionHref(place!.group.id, place!.condition.id)}>
+        {link.label ?? place!.condition.title}<span style={{ color: place!.section.hue.ink }}>{place!.section.short}</span>
+      </Link>)}
+    </div>
   </section>;
 }
 

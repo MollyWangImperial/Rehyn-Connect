@@ -317,11 +317,35 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
 .lib-ask-list label { display:flex; gap:10px; align-items:flex-start; min-height:44px; padding:6px 0; font-size:14px; line-height:1.4; color:#44382F; cursor:pointer; }
 .lib-ask-list input { flex-shrink:0; width:20px; height:20px; margin-top:1px; accent-color:#2F6851; }
 .lib-related { display:flex; flex-direction:column; gap:4px; padding:20px; border:1px solid #E6EBE1; border-radius:22px; background:#FFFFFF; }
-.lib-related h2 { color:#253D32; margin-bottom:6px; }
+.lib-related h2 { color:#253D32; }
 .lib-related a { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; border-bottom:1px solid #EEF1EA; font-size:14px; font-weight:700; color:#24362F; }
 .lib-related a:last-child { border-bottom:0; }
 .lib-related a:hover { color:#2F6851; }
 .lib-related a span { font-size:12px; }
+/* Both side panels open from their heading, a button. */
+.lib-rail-toggle { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:44px; padding:0; border:0; border-radius:8px; background:none; font:inherit; color:inherit; text-align:left; cursor:pointer; }
+.lib-rail-toggle-words { display:flex; flex-direction:column; gap:4px; }
+.lib-rail-toggle small { font:700 12px/1.3 "Manrope",system-ui,sans-serif; color:#65574C; }
+.lib-related .lib-rail-toggle small { color:#5B6B62; }
+.lib-rail-chevron { flex-shrink:0; width:22px; height:22px; transition:transform .2s ease; }
+.is-open > h2 .lib-rail-chevron { transform:rotate(180deg); }
+.lib-ask-doctor .lib-rail-body { display:flex; flex-direction:column; gap:12px; }
+.lib-related .lib-rail-body { display:flex; flex-direction:column; gap:4px; margin-top:2px; }
+.lib-rail-body[hidden] { display:none; }
+/* Beside the page, while both panels are closed, the side column is a slim vertical bar of two tabs,
+   giving the page the room; opening either widens it again. */
+@media (min-width:1100px) {
+  .lib-condition-body:not(.is-single), .lib-v2-layout { transition:grid-template-columns .25s ease; }
+  .lib-condition-body:not(.is-single):not(:has(> .lib-condition-aside .is-open)),
+  .lib-v2-layout:not(:has(> .lib-v2-aside .is-open)) { grid-template-columns:minmax(0,1fr) 60px; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) { gap:12px; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) > section { padding:14px 0; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) .lib-rail-toggle { flex-direction:column; justify-content:flex-start; gap:10px; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) .lib-rail-toggle-words { writing-mode:vertical-rl; font-size:16px; white-space:nowrap; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) .lib-rail-toggle small { display:none; }
+  :is(.lib-condition-aside, .lib-v2-aside):not(:has(.is-open)) .lib-rail-chevron { order:-1; transform:rotate(90deg); }
+}
+@media (prefers-reduced-motion: reduce) { .lib-rail-chevron, .lib-condition-body, .lib-v2-layout { transition:none !important; } }
 
 .lib-stories-panel { display:flex; flex-direction:column; gap:14px; padding:26px; border:1px solid #F3D9CF; border-radius:24px; background:#FBEDE7; scroll-margin-top:66px; }
 .lib-stories-panel ul { display:flex; flex-direction:column; gap:10px; }
