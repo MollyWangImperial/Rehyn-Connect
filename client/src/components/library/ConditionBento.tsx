@@ -4,6 +4,7 @@ import type { LibraryItem, LibraryStory } from "@/content/library";
 import { conditionKey, contentTitle, findStory, itemHref, itemMeta, sectionHref, storyHref, type ConditionPlace } from "@/lib/library";
 import { libraryStore, type LibraryState } from "@/lib/library-store";
 import { useLocal } from "@/lib/library-local";
+import { GoalCards } from "./GoalCards";
 import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
 
 // Version 2 of a condition page ("A · Bento, continued from the Brain page"): a dark header with
@@ -232,28 +233,7 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
 
 const contentKind = (item: LibraryItem) => itemMeta(item, true, false).split(" · ")[0];
 
-// ---- Explore, Live well, Watch & listen -------------------------------------------------------
-
-function ExploreCards({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
-  return <ul className="lib-v2-explore" role="list">
-    {items.map((item, index) => {
-      const look = lookFor(item, index);
-      const moving = item.kind === "video" || item.kind === "animation";
-      return <li key={item.id}>
-        <Link href={itemHref({ ...place, item })} className="lib-v2-ex">
-          <span className="lib-v2-plate" style={{ background: look.tint }}>
-            <SymbolArt name={look.sym} colour={look.ink} accent="#D9674A" width={6} className="lib-v2-plate-sym" />
-            {moving && <span className="lib-v2-play" aria-hidden="true" style={{ color: look.ink }}>▶</span>}
-          </span>
-          <span className="lib-v2-ex-words">
-            <b>{item.title}</b>
-            <span style={{ color: look.ink }}>{itemMeta(item)}</span>
-          </span>
-        </Link>
-      </li>;
-    })}
-  </ul>;
-}
+// ---- Live well, Watch & listen (Explore is GoalCards.tsx) -------------------------------------
 
 function LiveWellTiles({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   return <ul className="lib-v2-live" role="list">
@@ -335,7 +315,7 @@ export function ConditionBento({ place, state, onSwitch, slots }: { place: Condi
         </section>
         <section id="recover" aria-labelledby="h-recover" className="lib-v2-part">
           {head("recover", contentTitle("recover", condition), slots.purpose("recover"))}
-          <ExploreCards place={place} items={content.recover} />
+          <GoalCards place={place} items={content.recover} />
         </section>
         <section id="livewell" aria-labelledby="h-livewell" className="lib-v2-part">
           {head("livewell", "Live well", slots.purpose("liveWell"))}

@@ -36,8 +36,13 @@ describe("the Brain & nervous system bento", () => {
       expect(tile).toMatch(/<button[^>]*class="lib-bento-pick"[^>]*aria-label="Show [^"]+ in the large tile"/);
     }
     expect(html).toContain("Not sure which group?");
-    expect(html).toContain("8 groups");
+    // The header shows the section's short facts where it has them, and its counts otherwise.
     const brain = librarySections.find(section => section.id === "brain-nervous-system")!;
-    expect(html).toContain(`${brain.groups.reduce((sum, group) => sum + group.conditions.length, 0)} conditions`);
+    const header = html.split('class="lib-bento-stats"')[1].split("</div>")[0];
+    if (brain.facts) for (const fact of brain.facts) expect(header).toContain(fact.replace(/'/g, "&#x27;"));
+    else {
+      expect(header).toContain(`${brain.groups.length} groups`);
+      expect(header).toContain(`${brain.groups.reduce((sum, group) => sum + group.conditions.length, 0)} conditions`);
+    }
   });
 });
