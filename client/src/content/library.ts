@@ -252,7 +252,7 @@ const ischaemicStroke: LibraryCondition = {
     companion: { storyId: "li-wei" },
     purpose: {
       understand: "Understand ischaemic stroke, its causes and the tests used to diagnose it.",
-      recover: "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
+      recover: "General information about recovery and everyday activities, to read alongside your care team's advice.",
       liveWell: "Find practical support for everyday life after stroke.",
       watch: "Watch and listen to short films, talks and audio about life after stroke.",
       sources: "Find reliable information and guidance from trusted health organisations.",

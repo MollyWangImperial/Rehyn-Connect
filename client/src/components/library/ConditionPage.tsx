@@ -375,7 +375,7 @@ function ConditionHeader({ place, full, state, switcher }: { place: ConditionPla
 /** The line under each part's heading: the page's own, or a plain default. */
 const PURPOSE = {
   understand: (title: string) => `Understand ${title.toLowerCase()}, its causes and the tests used to diagnose it.`,
-  recover: () => "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
+  recover: () => "General information about recovery and everyday activities, to read alongside your care team's advice.",
   liveWell: () => "Find practical support for everyday life.",
   watch: () => "Short films, talks and audio to watch or listen to at your own pace.",
   sources: () => "Find reliable information and guidance from trusted health organisations.",
