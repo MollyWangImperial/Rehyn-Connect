@@ -191,7 +191,6 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
         <SymbolArt name={look.sym} colour="#FFFFFF" accent="#F2B8A5" width={5} className="lib-v2-sym" />
         <div className="lib-v2-tags">
           <span>{itemMeta(main)}</span>
-          {main.learnId && <span className="is-hot">Alira can read it</span>}
         </div>
         <h3 id="lib-v2-feature-title" tabIndex={-1}>{main.title}</h3>
         {main.blurb && <p>{main.blurb}</p>}
@@ -235,18 +234,46 @@ const contentKind = (item: LibraryItem) => itemMeta(item, true, false).split(" �
 
 // ---- Live well, Watch & listen (Explore is GoalCards.tsx) -------------------------------------
 
-function LiveWellTiles({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
-  return <ul className="lib-v2-live" role="list">
-    {items.map((item, index) => {
-      const look = lookFor(item, index);
-      return <li key={item.id}>
-        <Link href={itemHref({ ...place, item })} className="lib-v2-lw" style={{ ["--ink" as string]: look.ink, ["--tint" as string]: look.tint } as CSSProperties}>
-          <span className="lib-v2-lw-ico"><SymbolArt name={look.sym} colour="currentColor" accent="currentColor" width={10} className="lib-v2-lw-sym" /></span>
-          <span className="lib-v2-lw-words"><b>{item.title}</b>{item.minutes ? <span>{item.minutes} min read</span> : null}</span>
-          <span className="lib-v2-lw-go" aria-hidden="true">→</span>
-        </Link>
-      </li>;
-    })}
+// Live well: one row per piece, with a small icon, a line saying what is in it, and a tag or an
+// arrow. The carers' page is the dark row. The lines and tags are this page's own.
+
+const LW_ICON: Record<string, ReactNode> = {
+  driving: <path d="M5 16V11l2-4.5h10L19 11v5M5 16h14M5 16v2M19 16v2M5 11h14M8 13.5h.01M16 13.5h.01" />,
+  prevention: <><path d="M12 3l7.5 4.25v8.5L12 20l-7.5-4.25v-8.5Z" /><path d="M12 8.5v7M8.5 12h7" /></>,
+  work: <><rect x="4" y="7.5" width="16" height="11" rx="2" /><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5" /></>,
+  mood: <path d="M4 14c2.2-4 4.4-4 6.4 0s4.2 4 6.4 0c.9-1.6 1.9-2.4 3.2-2.4" />,
+  swallowing: <><path d="M4.5 10h15l-1.6 8.2a1.5 1.5 0 0 1-1.5 1.3H7.6a1.5 1.5 0 0 1-1.5-1.3Z" /><path d="M9 10l3-5.5 3 5.5M10 14v2.5M14 14v2.5" /></>,
+  carers: <><circle cx="9" cy="8.5" r="2.8" /><circle cx="16.5" cy="9.5" r="2.2" /><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.4c.6-.3 1.3-.4 2-.4 2.2 0 3.7 1.6 4 4.5" /></>,
+};
+
+type LiveWellLine = { line?: string; tag?: string; dark?: boolean };
+const LW_LINES: Record<string, LiveWellLine> = {
+  driving: { line: "DVLA, your doctor, and the form", tag: "Try this week" },
+  prevention: { line: "the one most people save", tag: "Most saved" },
+  work: { line: "phased returns and what to say" },
+  mood: { line: "read by many carers too" },
+  carers: { line: "share it with them", dark: true },
+};
+function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
+  return <ul className="lib-v2-lwell-list" role="list">
+      {items.map((item, index) => {
+        const lines = LW_LINES[item.id] ?? {};
+        const icon = LW_ICON[item.id];
+        return <li key={item.id}>
+          <Link href={itemHref({ ...place, item })} className={`lib-v2-lwell-row${lines.dark ? " is-dark" : ""}`}>
+            <span className="lib-v2-lwell-ico" aria-hidden="true">
+              {icon
+                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">{icon}</svg>
+                : <SymbolArt name={lookFor(item, index).sym} colour="currentColor" accent="currentColor" width={12} className="lib-v2-lwell-sym" />}
+            </span>
+            <span className="lib-v2-lwell-words">
+              <b>{item.title}</b>
+              <span>{[item.minutes ? `${item.minutes} min` : null, lines.line].filter(Boolean).join(" · ")}</span>
+            </span>
+            {lines.tag ? <span className="lib-v2-lwell-tag">{lines.tag}</span> : <span className="lib-v2-lwell-go" aria-hidden="true">→</span>}
+          </Link>
+        </li>;
+      })}
   </ul>;
 }
 
@@ -283,7 +310,7 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
 
 // ---- The page ---------------------------------------------------------------------------------
 
-type Slots = { companion?: ReactNode; sources: ReactNode; stories: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell") => string };
+type Slots = { companion?: ReactNode; sources: ReactNode; stories: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell" | "watch") => string };
 
 export function ConditionBento({ place, state, onSwitch, slots }: { place: ConditionPlace; state: LibraryState; onSwitch: (to: 1 | 2) => void; slots: Slots }) {
   const { condition } = place;
@@ -319,10 +346,10 @@ export function ConditionBento({ place, state, onSwitch, slots }: { place: Condi
         </section>
         <section id="livewell" aria-labelledby="h-livewell" className="lib-v2-part">
           {head("livewell", "Live well", slots.purpose("liveWell"))}
-          <LiveWellTiles place={place} items={content.liveWell} />
+          <LiveWell place={place} items={content.liveWell} />
         </section>
         <section id="watch" aria-labelledby="h-watch" className="lib-v2-part">
-          {head("watch", "Watch & listen")}
+          {head("watch", "Watch & listen", slots.purpose("watch"))}
           <WatchTiles place={place} items={content.watch} />
         </section>
         {slots.sources}

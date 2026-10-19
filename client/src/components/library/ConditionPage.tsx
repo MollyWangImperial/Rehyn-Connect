@@ -377,6 +377,7 @@ const PURPOSE = {
   understand: (title: string) => `Understand ${title.toLowerCase()}, its causes and the tests used to diagnose it.`,
   recover: () => "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
   liveWell: () => "Find practical support for everyday life.",
+  watch: () => "Short films, talks and audio to watch or listen to at your own pace.",
   sources: () => "Find reliable information and guidance from trusted health organisations.",
 };
 
@@ -474,7 +475,6 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   const twoVersions = hasVersionTwo(place);
   if (twoVersions && version === 2) {
     return <ConditionBento place={place} state={state} onSwitch={switchTo} slots={{
-      companion: content.companion && <Companion storyId={content.companion.storyId} state={state} />,
       sources: sourcesPart(false),
       stories: <StoriesPanel place={place} />,
       ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
@@ -493,12 +493,11 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     <PartsBar parts={parts} />
     <div className="lib-wrap lib-condition-body">
       <div className="lib-condition-main">
-        {content.companion && <Companion storyId={content.companion.storyId} state={state} />}
         {understandPart}
         {recoverPart}
         {liveWellPart}
         <section id={PANEL_IDS.watch} aria-labelledby="h-watch" className="lib-part">
-          <SectionHead id="watch" title="Watch & listen" />
+          <SectionHead id="watch" title="Watch & listen" note={purpose("watch")} />
           {watchList}
         </section>
         {sourcesPart(false)}

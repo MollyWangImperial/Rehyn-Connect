@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "wouter";
 import type { LibraryItem } from "@/content/library";
-import { itemHref, itemMeta, type ConditionPlace } from "@/lib/library";
+import { itemHref, type ConditionPlace } from "@/lib/library";
 
 // Explore as goal cards ("D · Goal cards, from your reference"): each piece is led by what a patient
 // wants back, in their own words, with a small moving illustration of it. The descriptions say only
@@ -107,16 +107,10 @@ export function GoalCards({ place, items }: { place: ConditionPlace; items: Libr
     {ordered.map((item, index) => {
       const goal = GOALS[item.id];
       const look = goal ?? PLAIN;
-      const moving = item.kind === "video" || item.kind === "animation";
       return <li key={item.id}>
         <Link href={itemHref({ ...place, item })} className="lib-v2-goal" style={{ background: look.tint, animationDelay: `${index * 0.09}s`, ["--ink" as string]: look.ink, ["--mark" as string]: look.mark } as CSSProperties}>
           <span className="lib-v2-goal-blob" aria-hidden="true" />
           {goal && <span className="lib-v2-goal-art" aria-hidden="true">{goal.art}</span>}
-          <span className="lib-v2-goal-meta">
-            {item.isNew && <span className="lib-v2-goal-new">New</span>}
-            {moving && <span className="lib-v2-goal-play" aria-hidden="true">▶</span>}
-            <span>{itemMeta(item)}</span>
-          </span>
           <span className="lib-v2-goal-want"><span>{goal ? `“${goal.want}”` : item.title}</span></span>
           {goal && <b className="lib-v2-goal-title">{item.title}</b>}
           {(goal?.desc ?? item.blurb) && <span className="lib-v2-goal-desc">{goal?.desc ?? item.blurb}</span>}

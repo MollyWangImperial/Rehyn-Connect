@@ -76,7 +76,7 @@ export type ConditionContent = {
   /** Placement C: a companion the reader can open at the top of the page, at the point they say they have reached. */
   companion?: { storyId: string };
   /** The line under each part's heading, saying what it is for; the page has plain defaults. */
-  purpose?: Partial<Record<"understand" | "recover" | "liveWell" | "sources", string>>;
+  purpose?: Partial<Record<"understand" | "recover" | "liveWell" | "watch" | "sources", string>>;
   /** The page's closing line, in place of the Library's general one. */
   footer?: string;
   /** Placement A: the story opens the page and the facts follow. */
@@ -254,6 +254,7 @@ const ischaemicStroke: LibraryCondition = {
       understand: "Understand ischaemic stroke, its causes and the tests used to diagnose it.",
       recover: "Explore recovery, rehabilitation and ways to rebuild everyday skills.",
       liveWell: "Find practical support for everyday life after stroke.",
+      watch: "Watch and listen to short films, talks and audio about life after stroke.",
       sources: "Find reliable information and guidance from trusted health organisations.",
     },
     footer: "This page helps you understand ischaemic stroke, explore recovery and find practical support for daily life. Your own care team knows your situation; follow their advice first.",

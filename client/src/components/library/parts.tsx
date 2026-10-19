@@ -149,7 +149,6 @@ export function MetaLine({ item, read, readable, minutes = true }: { item: Libra
   return <span className="lib-meta">
     {read && <ReadMark />}
     <span>{itemMeta(item, true, minutes)}</span>
-    {readable && item.kind === "article" && <span>Alira can read it</span>}
     {item.url && <span className="lib-sr">(opens in a new tab)</span>}
   </span>;
 }
