@@ -119,6 +119,8 @@ export type LibrarySection = {
   icon: SectionIcon;
   /** Three names shown on the section's card on the front page. */
   chips: string[];
+  /** Three short facts shown under the section's title, in place of its counts. */
+  facts?: string[];
   groups: LibraryGroup[];
 };
 
@@ -330,6 +332,7 @@ export const librarySections: LibrarySection[] = [
     hue: BRAIN,
     icon: "brain",
     chips: ["Stroke", "Dementia", "Parkinson's"],
+    facts: ["Affects more than 1 in 3 people worldwide", "The brain can rewire itself after damage", "Recovery stories from people who've lived it"],
     groups: [
       {
         id: "stroke",

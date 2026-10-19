@@ -89,9 +89,11 @@ export function BentoHero({ section }: { section: LibrarySection }) {
       <h1>{section.title}</h1>
       <p>{section.blurb}</p>
       <div className="lib-bento-stats">
+        {section.facts ? section.facts.map(fact => <span key={fact}>{fact}</span>) : <>
         <span>{plural(section.groups.length, "group")}</span>
         <span>{plural(conditions, "condition")}</span>
         {stories > 0 && <span>{stories} {stories === 1 ? "story" : "stories"}</span>}
+        </>}
       </div>
     </div>
   </header>;
