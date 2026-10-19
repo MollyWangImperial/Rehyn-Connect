@@ -8,6 +8,7 @@ import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { createAliraSpeaker, createAliraVoiceRouter } from "./server/alira-voice";
 import { createAliraSpeakRouter } from "./server/alira-speak";
 import { createLoungePhotoCheckRouter } from "./server/lounge-photo-check";
+import { createFeedbackRouter } from "./server/feedback";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -231,7 +232,13 @@ const loungePhotoCheckPlugin: Plugin = {
   configureServer(server) { server.middlewares.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: PROJECT_ROOT })); },
   configurePreviewServer(server) { server.middlewares.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: PROJECT_ROOT })); },
 };
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraSpeakPlugin, loungePhotoCheckPlugin];
+// The Library's Feedback button (server/feedback.ts).
+const feedbackPlugin: Plugin = {
+  name: "feedback",
+  configureServer(server) { server.middlewares.use("/api/feedback", createFeedbackRouter()); },
+  configurePreviewServer(server) { server.middlewares.use("/api/feedback", createFeedbackRouter()); },
+};
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraSpeakPlugin, loungePhotoCheckPlugin, feedbackPlugin];
 
 export default defineConfig({
   plugins,

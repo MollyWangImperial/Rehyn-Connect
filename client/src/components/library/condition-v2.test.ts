@@ -38,7 +38,7 @@ describe("Version 2 of the Ischaemic stroke page", () => {
     expect(feature).toContain(`href="/stroke/ischaemic/${ours[0].id}"`);
     expect(html.split('class="lib-v2-tile is-small').length - 1).toBe(ours.length - 1);
     for (const item of outside) expect(html).toContain(`href="${item.url}"`);
-    for (const item of [...content.recover, ...content.liveWell, ...content.watch]) expect(html).toContain(`href="/stroke/ischaemic/${item.id}"`);
+    for (const item of [...content.recover, ...content.liveWell, ...content.watch]) expect(html).toContain(item.url ? `href="${item.url}"` : `href="/stroke/ischaemic/${item.id}"`);
     expect(text).toContain("Trusted sources");
   });
 });

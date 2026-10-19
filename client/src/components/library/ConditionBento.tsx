@@ -4,6 +4,7 @@ import type { LibraryItem, LibraryStory } from "@/content/library";
 import { conditionKey, contentTitle, findStory, itemHref, itemMeta, sectionHref, storyHref, type ConditionPlace } from "@/lib/library";
 import { libraryStore, type LibraryState } from "@/lib/library-store";
 import { useLocal } from "@/lib/library-local";
+import { FeedbackButton } from "./FeedbackButton";
 import { GoalCards } from "./GoalCards";
 import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
 
@@ -296,13 +297,18 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
   return <ul className="lib-v2-watch" role="list">
     {items.map((item, index) => {
       const kind = contentKind(item);
+      const words = <>
+        <WatchArt item={item} />
+        <span className="lib-v2-wl-kind">{[kind, item.duration ?? (item.minutes ? `${item.minutes} min` : null)].filter(Boolean).join(" · ")}{item.url && <span aria-hidden="true"> ↗</span>}</span>
+        <b>{item.title}</b>
+        {item.extra && <span className="lib-v2-wl-extra">{item.extra.charAt(0).toUpperCase() + item.extra.slice(1)}</span>}
+        {item.publisher && <span className="lib-v2-wl-by">{item.url ? "On YouTube · " : ""}{item.publisher}</span>}
+      </>;
+      const style = { background: WATCH_BG[index % WATCH_BG.length] };
       return <li key={item.id}>
-        <Link href={itemHref({ ...place, item })} className="lib-v2-wl" style={{ background: WATCH_BG[index % WATCH_BG.length] }}>
-          <WatchArt item={item} />
-          <span className="lib-v2-wl-kind">{[kind, item.minutes ? `${item.minutes} min` : null].filter(Boolean).join(" · ")}</span>
-          <b>{item.title}</b>
-          {item.extra && <span className="lib-v2-wl-extra">{item.extra.charAt(0).toUpperCase() + item.extra.slice(1)}</span>}
-        </Link>
+        {item.url
+          ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="lib-v2-wl" style={style}>{words}<span className="lib-sr"> (opens YouTube in a new tab)</span></a>
+          : <Link href={itemHref({ ...place, item })} className="lib-v2-wl" style={style}>{words}</Link>}
       </li>;
     })}
   </ul>;
@@ -361,5 +367,6 @@ export function ConditionBento({ place, state, onSwitch, slots }: { place: Condi
       </aside>
     </div>
     <footer className="lib-wrap lib-foot"><span>{slots.footer}</span></footer>
+    <FeedbackButton />
   </div>;
 }

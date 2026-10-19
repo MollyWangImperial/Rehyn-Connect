@@ -123,7 +123,7 @@ export const kindLabel = (kind: ItemKind) => KIND_LABEL[kind];
 
 /** "Video · 6 min · neuro-physiotherapist", or without the minutes: "Video · neuro-physiotherapist". A resource elsewhere adds who published it and when. */
 export function itemMeta(item: LibraryItem, withKind = true, withMinutes = true): string {
-  return [withKind ? kindLabel(item.kind) : null, withMinutes && item.minutes ? `${item.minutes} min` : null, item.extra ?? null, item.publisher ?? null, item.date ?? null].filter(Boolean).join(" · ");
+  return [withKind ? kindLabel(item.kind) : null, withMinutes && item.duration ? item.duration : withMinutes && item.minutes ? `${item.minutes} min` : null, item.extra ?? null, item.publisher ?? null, item.date ?? null].filter(Boolean).join(" · ");
 }
 
 const NUMBER_WORDS = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];

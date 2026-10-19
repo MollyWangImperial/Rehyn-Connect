@@ -70,8 +70,21 @@ describe("the Ischaemic stroke page's pieces", () => {
     const types = words(render("types"));
     expect(types).toContain("Pick one to see it");
     expect(types).toContain("Quick check");
-    expect(types).toContain("Three things to try");
+    expect(types).toContain("Sources");
+    expect(types).toContain("More in Understand");
     expect(learnArticle(findItem("stroke", "ischaemic", "types")!.item)?.id).toBe("isch-types");
+  });
+
+  it("reads each written answer as a feature, with numbered references beside the words", () => {
+    const html = render("what-happens");
+    const text = words(html);
+    expect(html).toContain('class="lib-page lib-news"');
+    expect(text).toContain("A blocked supply line");
+    expect(text).toContain("Most strokes are caused by a blockage");
+    expect(html).toContain('href="#ref-5"');
+    expect(html).toContain('id="ref-5"');
+    expect(html).toContain('class="lib-news-notes"');
+    expect(text).toContain("Take this to your next appointment");
   });
 
   it("finishes every chapter of the stories on the page", () => {
@@ -82,6 +95,6 @@ describe("the Ischaemic stroke page's pieces", () => {
   it("makes the stroke passport and the research real", () => {
     const sources = page.condition.content!.sources;
     expect(sources.find(source => source.tool === "stroke-passport")).toBeDefined();
-    expect(sources.find(source => source.name.startsWith("For the curious"))?.url).toBe("https://www.strokeguideline.org/");
+    expect(sources.find(source => source.name === "Intercollegiate Stroke Working Party")?.url).toBe("https://www.strokeguideline.org/");
   });
 });

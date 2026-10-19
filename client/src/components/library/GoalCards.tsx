@@ -3,11 +3,11 @@ import { Link } from "wouter";
 import type { LibraryItem } from "@/content/library";
 import { itemHref, type ConditionPlace } from "@/lib/library";
 
-// Explore as goal cards ("D · Goal cards, from your reference"): each piece is led by what a patient
-// wants back, in their own words, with a small moving illustration of it. The descriptions say only
-// what each piece really contains. Pieces without a goal of their own fall back to a plain card.
+// Explore as cards: each piece is led by a plain topic label, with a small illustration that moves on
+// hover. The descriptions say only what each piece really contains, and each card names the
+// organisations its summary draws on. Pieces without a card of their own fall back to a plain card.
 
-type Goal = { want: string; desc: string; cta: string; ink: string; tint: string; mark: string; art: ReactNode };
+type Goal = { want: string; desc: string; source: string; cta: string; ink: string; tint: string; mark: string; art: ReactNode };
 
 const Cup = () => <svg viewBox="0 0 200 150">
   <path className="g-arc" d="M150 30 a50 50 0 0 1 4 76" fill="none" stroke="#D9A441" strokeWidth="5" strokeLinecap="round" />
@@ -88,18 +88,22 @@ const Months = () => <svg viewBox="0 0 200 150">
   <text x="173" y="19" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="10" fontWeight="800" fill="#FFFFFF">month 3</text>
 </svg>;
 
-/** The goals, keyed by the Explore piece they lead to, in the order the cards are shown. */
+/**
+ * The cards, keyed by the Explore piece they lead to, in the order they are shown. Each piece is a
+ * Rehyn-written summary; `source` names the organisations its facts come from (the piece itself links
+ * to each page under "Where this comes from").
+ */
 const GOALS: Record<string, Goal> = {
-  "arm-hand": { want: "I want to hold a cup in my own hand again.", desc: "Add the exercises your physiotherapist gave you, tap each one as you do it, and watch your twelve weeks fill in.", cta: "Start practising", ink: "#2F6851", tint: "#E3F0E7", mark: "#BFE0CB", art: <Cup /> },
-  walking: { want: "I want to walk to the front door without the frame.", desc: "Bed to chair, standing, balance, then walking with support. Six short scenes, and your physiotherapist decides when to change your aid.", cta: "Watch", ink: "#34509E", tint: "#E2E8F8", mark: "#C3D0F2", art: <Walk /> },
-  words: { want: "I want my words to come when I need them.", desc: "The word is in there. Why it won't come out, and what helps when you're stuck: spell it, draw it, point to it or talk around it.", cta: "Read", ink: "#6A3E9E", tint: "#EDE5F8", mark: "#D9C7F2", art: <Words /> },
-  fatigue: { want: "I want to get through a whole day without crashing.", desc: "Why rest alone does not fix it, how to pace, plan and prioritise, and a diary that shows you how much is right for you.", cta: "Watch", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Energy /> },
-  rewiring: { want: "I want to know the practice is actually doing something.", desc: "A blocked path, and a new one growing around it. Two minutes that show why repeating your exercises matters.", cta: "Watch", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0", art: <Rewire /> },
-  "first-three-months": { want: "I want to know if what I'm feeling is normal.", desc: "What is typical in the first days, weeks and months, what is not, and the review that comes after.", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Months /> },
+  "arm-hand": { want: "Arm and hand information after stroke", desc: "Information on arm and hand weakness after stroke, with a log where you can note any activities your own therapist has suggested.", source: "Stroke Association", cta: "Open the log", ink: "#2F6851", tint: "#E3F0E7", mark: "#BFE0CB", art: <Cup /> },
+  walking: { want: "Mobility and walking after stroke", desc: "A short narrated animation on balance, walking aids and the role of physiotherapy. Your own team advises on what suits you.", source: "Stroke Association", cta: "Watch", ink: "#34509E", tint: "#E2E8F8", mark: "#C3D0F2", art: <Walk /> },
+  words: { want: "Communication after stroke", desc: "Information on aphasia: why finding words can be hard after a stroke, and communication tips that some people find useful.", source: "Stroke Association", cta: "Read", ink: "#6A3E9E", tint: "#EDE5F8", mark: "#D9C7F2", art: <Words /> },
+  fatigue: { want: "Understanding fatigue after stroke", desc: "A short narrated animation on post-stroke fatigue and pacing, with an energy diary you can fill in and print.", source: "Stroke Association", cta: "Watch", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Energy /> },
+  rewiring: { want: "Neuroplasticity after stroke", desc: "A short narrated animation explaining how the brain can form new connections after a stroke.", source: "Stroke Association", cta: "Watch", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0", art: <Rewire /> },
+  "first-three-months": { want: "The early months after stroke", desc: "Information about the early weeks and months after a stroke, and the reviews that may follow.", source: "Stroke Association and NHS", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Months /> },
 };
 const ORDER = Object.keys(GOALS);
 
-const PLAIN: Omit<Goal, "want" | "desc" | "art"> = { cta: "Open", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0" };
+const PLAIN: Omit<Goal, "want" | "desc" | "source" | "art"> = { cta: "Open", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0" };
 
 export function GoalCards({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   const ordered = [...items].sort((a, b) => rank(a.id) - rank(b.id));
@@ -111,9 +115,10 @@ export function GoalCards({ place, items }: { place: ConditionPlace; items: Libr
         <Link href={itemHref({ ...place, item })} className="lib-v2-goal" style={{ background: look.tint, animationDelay: `${index * 0.09}s`, ["--ink" as string]: look.ink, ["--mark" as string]: look.mark } as CSSProperties}>
           <span className="lib-v2-goal-blob" aria-hidden="true" />
           {goal && <span className="lib-v2-goal-art" aria-hidden="true">{goal.art}</span>}
-          <span className="lib-v2-goal-want"><span>{goal ? `“${goal.want}”` : item.title}</span></span>
+          <span className="lib-v2-goal-want"><span>{goal ? goal.want : item.title}</span></span>
           {goal && <b className="lib-v2-goal-title">{item.title}</b>}
           {(goal?.desc ?? item.blurb) && <span className="lib-v2-goal-desc">{goal?.desc ?? item.blurb}</span>}
+          {goal && <span className="lib-v2-goal-source">Rehyn summary · Source: {goal.source}</span>}
           <span className="lib-v2-goal-cta">{look.cta} <i aria-hidden="true">→</i></span>
         </Link>
       </li>;

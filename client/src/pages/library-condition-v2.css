@@ -129,6 +129,7 @@
 .lib-v2-goal:hover .lib-v2-goal-want span, .lib-v2-goal:focus-visible .lib-v2-goal-want span { background-size:100% 34%, auto; }
 .lib-v2-goal-title { position:relative; font-size:16px; color:#1E2433; }
 .lib-v2-goal-desc { position:relative; font-size:14.5px; line-height:1.55; color:#4F5A6B; }
+.lib-v2-goal-source { position:relative; font-size:12.5px; font-weight:700; color:var(--ink); }
 .lib-v2-goal-cta { position:relative; align-self:flex-start; margin-top:auto; display:inline-flex; align-items:center; gap:8px; min-height:46px; padding:0 20px; border:1.5px solid var(--ink); border-radius:999px; background:#FFFFFF; color:var(--ink); font-size:15px; font-weight:800; transition:background .3s ease, color .3s ease, transform .3s ease; }
 .lib-v2-goal-cta i { font-style:normal; display:inline-block; transition:transform .3s ease; }
 .lib-v2-goal:hover .lib-v2-goal-cta { background:var(--ink); color:#FFFFFF; transform:translateX(4px); }
@@ -197,6 +198,8 @@
 .lib-v2-wl-kind { font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#C9C2F2; }
 .lib-v2-wl b { font:600 22px/1.2 "Newsreader",Georgia,serif; }
 .lib-v2-wl-extra { margin-top:auto; font-size:13px; color:#DCD7F7; }
+.lib-v2-wl-by { font-size:13px; font-weight:700; color:#FFFFFF; }
+.lib-v2-wl b + .lib-v2-wl-by { margin-top:auto; }
 .lib-v2-bar { transform-box:fill-box; transform-origin:bottom; animation:lib-v2-bar 1.1s ease-in-out infinite; }
 @keyframes lib-v2-bar { 0%,100% { transform:scaleY(.35); } 50% { transform:scaleY(1); } }
 .lib-v2-breath { transform-box:fill-box; transform-origin:center; animation:lib-v2-breath 8s ease-in-out infinite; }

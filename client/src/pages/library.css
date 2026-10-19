@@ -42,6 +42,7 @@
 @keyframes lib-alira-breathe { 0%,100% { transform:scale(1); } 50% { transform:scale(1.08); } }
 
 .lib-initial { flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; font-weight:800; }
+.lib-video-initial { width:40px; height:40px; background:#FBEDE7; color:#B04B30; }
 .lib-faces { display:inline-flex; }
 .lib-faces .lib-initial { border:2px solid #FFFFFF; font-size:10px !important; }
 .lib-faces .lib-initial + .lib-initial { margin-left:-8px; }
@@ -268,6 +269,30 @@ a.lib-source:hover { border-color:#D3CBB9; background:#EFEBE1; }
 .lib-source.is-soon .lib-soon { align-self:flex-start; }
 .lib-source.is-compact { flex-direction:row; align-items:center; padding:0 14px; border-radius:999px; }
 .lib-source.is-compact .lib-source-name { font-size:13px; }
+/* The Feedback button: bottom left of a condition page, clear of the Messages button on the right. */
+.lib-feedback-button { position:fixed; left:16px; bottom:20px; z-index:40; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 18px; border:1.5px solid #CFC6B4; border-radius:999px; background:#FFFFFF; color:#24362F; font:700 15px/1 "DM Sans",system-ui,sans-serif; box-shadow:0 8px 22px rgba(30,42,38,.14); cursor:pointer; }
+.lib-feedback-button:hover { border-color:#2F6851; color:#2F6851; }
+.lib-feedback-button:focus-visible { outline:3px solid #2F6851; outline-offset:3px; }
+.lib-feedback-form, .lib-feedback-done { display:flex; flex-direction:column; gap:10px; }
+.lib-feedback-form label { font-weight:700; }
+.lib-feedback-form textarea { width:100%; padding:12px 14px; border:1.5px solid #DED7C8; border-radius:14px; background:#FFFFFF; font:inherit; font-size:16px; line-height:1.5; resize:vertical; }
+.lib-feedback-form textarea:focus-visible { outline:3px solid #2F6851; outline-offset:2px; }
+.lib-feedback-hint { font-size:13.5px; line-height:1.45; color:#5E6A64; }
+.lib-feedback-error { font-size:14px; font-weight:700; color:#8F3520; }
+.lib-feedback-send { align-self:flex-start; min-height:46px; padding:0 22px; border:0; border-radius:999px; background:#173D2F; color:#FFFFFF; font:700 15px/1 "DM Sans",system-ui,sans-serif; cursor:pointer; }
+.lib-feedback-send:disabled { opacity:.55; cursor:not-allowed; }
+@media (max-width:640px) { .lib-feedback-button { left:12px; bottom:14px; padding:0 14px; } }
+
+/* Trusted sources on a condition page: a reference list, one source to a line, wrapping on small screens. */
+.lib-refs { display:flex; flex-direction:column; margin:0; padding:0; list-style:none; border-top:1px solid #E8E4DA; }
+.lib-ref { display:flex; flex-wrap:wrap; align-items:baseline; column-gap:8px; row-gap:2px; padding:12px 0; border-bottom:1px solid #E8E4DA; font-size:14.5px; line-height:1.5; color:#44382F; }
+.lib-ref-who { font-weight:800; color:#24362F; }
+.lib-ref-what { font-style:italic; }
+.lib-ref-sep { color:#A79A88; }
+.lib-ref-note { color:#65574C; }
+.lib-ref-link { display:inline-flex; align-items:center; gap:4px; min-height:32px; padding:0; border:0; background:none; font:inherit; font-weight:700; color:#2F6851; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.lib-ref-link svg { flex-shrink:0; }
+.lib-ref.is-tool .lib-ref-who { color:#8A5A12; }
 
 /* C: the companion, behind a button at the top of the page (review). Closed until opened. */
 .lib-companion-fold { display:flex; flex-direction:column; gap:12px; }

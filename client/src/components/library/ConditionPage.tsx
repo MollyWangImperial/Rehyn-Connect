@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "wouter";
-import { DEFAULT_SOURCES, LIBRARY_NOTE, STORIES_NOTE, type ConditionContent, type ContentType, type LibraryItem, type LibraryStory, type StoryLink } from "@/content/library";
+import { DEFAULT_SOURCES, LIBRARY_NOTE, STORIES_NOTE, type ConditionContent, type ContentType, type LibraryItem, type LibraryStory, type StoryLink, type VideoStory } from "@/content/library";
 import { useReadAloud } from "@/lib/alira-read-aloud";
 import {
   companionChapter,
@@ -37,11 +37,14 @@ import {
   KindBadge,
   MetaLine,
   PauseIcon,
+  PlayIcon,
   SourceCard,
+  SourceRow,
   TickIcon,
   useLines,
 } from "./parts";
 import { ConditionBento, hasVersionTwo, useConditionVersion, VersionSwitch } from "./ConditionBento";
+import { FeedbackButton } from "./FeedbackButton";
 import "@/pages/library-condition-v2.css";
 
 // One condition's page, built from its data. Every condition with content has the same parts
@@ -294,11 +297,11 @@ function AskDoctor({ place, questions, state }: { place: ConditionPlace; questio
   const [open, setOpen] = useState(false);
   const key = conditionKey(place);
   const ticked = state.asks[key] ?? [];
-  const note = `${questions.length} question${questions.length === 1 ? "" : "s"}${ticked.length ? ` · ${ticked.length} ticked` : ""}`;
+  const note = `${questions.length} question${questions.length === 1 ? "" : "s"} to ask${ticked.length ? ` · ${ticked.length} ticked` : ""}`;
   return <section id="ask" className={`lib-ask-doctor${open ? " is-open" : ""}`} aria-labelledby="lib-ask-title">
-    <RailToggle id="lib-ask" title="Ask at your next appointment" note={note} open={open} onToggle={() => setOpen(was => !was)} />
+    <RailToggle id="lib-ask" title="Tips" note={note} open={open} onToggle={() => setOpen(was => !was)} />
     <div id="lib-ask-body" className="lib-rail-body" hidden={!open}>
-      <p>Tick the ones you want. They're kept here for your next appointment{ticked.length ? ` (${ticked.length} ticked)` : ""}.</p>
+      <p>Questions some people find it useful to ask their care team. Tick any you'd like to keep; they're saved on this device{ticked.length ? ` (${ticked.length} ticked)` : ""}.</p>
       <div className="lib-ask-list">
         {questions.map((question, index) => <label key={question}>
           <input type="checkbox" checked={ticked.includes(index)} onChange={() => libraryStore.toggleAsk(key, index)} />
@@ -324,6 +327,8 @@ function Related({ content }: { content: ConditionContent }) {
 }
 
 function StoriesPanel({ place }: { place: ConditionPlace }) {
+  const videos = place.condition.content?.videoStories;
+  if (videos?.length) return <VideoStoriesPanel place={place} videos={videos} />;
   const stories = storiesFor(place.condition);
   if (!stories.length) return null;
   return <section id="stories" className="lib-stories-panel" aria-labelledby="h-stories">
@@ -344,6 +349,29 @@ function StoriesPanel({ place }: { place: ConditionPlace }) {
       </li>)}
     </ul>
     <Link href={STORIES_HREF} className="lib-pill-link is-coral">More stories<ArrowIcon /></Link>
+  </section>;
+}
+
+/** Real people's stories on YouTube, credited to the channel that published each one. */
+function VideoStoriesPanel({ place, videos }: { place: ConditionPlace; videos: VideoStory[] }) {
+  return <section id="stories" className="lib-stories-panel" aria-labelledby="h-stories">
+    <div className="lib-row-head">
+      <div>
+        <span className="lib-kicker is-coral">Stories · {place.condition.title.toLowerCase()}</span>
+        <h2 id="h-stories" className="lib-h2">{numberWord(videos.length)} {videos.length === 1 ? "person" : "people"}, in their own words</h2>
+      </div>
+      <span className="lib-film-note">Personal experiences shared on YouTube by the channels named. Everyone's stroke and recovery is different.</span>
+    </div>
+    <ul role="list">
+      {videos.map(video => <li key={video.id}>
+        <a href={video.url} target="_blank" rel="noopener noreferrer" className="lib-story-row">
+          <span className="lib-initial lib-video-initial" aria-hidden="true"><PlayIcon size={16} /></span>
+          <span className="lib-story-row-words"><strong>{video.person} · “{video.title}”</strong><span>{video.about} On YouTube · {video.channel}</span></span>
+          <span className="lib-list-time">{video.duration}</span>
+          <span className="lib-sr"> (opens YouTube in a new tab)</span>
+        </a>
+      </li>)}
+    </ul>
   </section>;
 }
 
@@ -431,13 +459,12 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     <ul className="lib-list" role="list">{content.liveWell.map(card(RowItem))}</ul>
   </section>;
   const watchList = <ul className="lib-grid lib-grid-cards is-three" role="list">{content.watch.map(card(WatchCard))}</ul>;
-  const sourcesPart = (two: boolean) => <section id="sources" aria-labelledby="h-sources" className="lib-part">
+  const sourcesPart = () => <section id="sources" aria-labelledby="h-sources" className="lib-part">
     <div className="lib-part-head is-stacked">
       <h2 id="h-sources" className="lib-h2">Trusted sources</h2>
       <span className="lib-sub">{purpose("sources")}</span>
     </div>
-    <div className={`lib-grid lib-sources${two ? " is-two" : " is-three"}`}>{content.sources.map(source => <SourceCard key={source.name} source={source} />)}</div>
-    <div className="lib-sources-pills">{content.sources.filter(source => source.url).map(source => <SourceCard key={source.name} source={source} compact />)}</div>
+    <ul className="lib-refs" role="list">{content.sources.map(source => <SourceRow key={source.name} source={source} />)}</ul>
   </section>;
 
   if (!woven) {
@@ -455,7 +482,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
         <div className="lib-grid lib-grid-2 lib-pair-parts">
           {liveWellPart}
           <div className="lib-part">
-            {sourcesPart(true)}
+            {sourcesPart()}
             <details id="watch" className="lib-folded">
               <summary><HeadphonesIcon /><span><b>Watch & listen:</b> {content.watch.length} to watch and listen to, folded in here to keep this page calm.</span></summary>
               {watchList}
@@ -469,13 +496,14 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
         {content.letterId && <LetterBand letterId={content.letterId} state={state} />}
       </div>
       <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
+      <FeedbackButton />
     </div>;
   }
 
   const twoVersions = hasVersionTwo(place);
   if (twoVersions && version === 2) {
     return <ConditionBento place={place} state={state} onSwitch={switchTo} slots={{
-      sources: sourcesPart(false),
+      sources: sourcesPart(),
       stories: <StoriesPanel place={place} />,
       ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
       related: <Related content={content} />,
@@ -500,7 +528,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
           <SectionHead id="watch" title="Watch & listen" note={purpose("watch")} />
           {watchList}
         </section>
-        {sourcesPart(false)}
+        {sourcesPart()}
         <StoriesPanel place={place} />
       </div>
       <aside className="lib-condition-aside" aria-label="Alongside this page">
@@ -509,6 +537,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
       </aside>
     </div>
     <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
+    <FeedbackButton />
   </div>;
 }
 

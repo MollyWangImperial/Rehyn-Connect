@@ -15,7 +15,11 @@ import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
 import { useOptionalSettings } from "./AccountSettings";
 import AccountResetControls from "./AccountResetControls";
+import { GamesIcon } from "./community/games/pieces";
 import { myGroups } from "./community/group-model";
+
+/** `&game=new-open` on the Groups page opens Play now (Groups.tsx). */
+const PLAY_NOW = "new-open";
 
 /** "GG" for Garden gang: the tile beside a group's name. */
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]!.toUpperCase()).join("");
@@ -108,6 +112,12 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
               {quiet ? <span className="site-row-note">{inQuietHours(memory.settings) ? `Quiet until ${hourLabel(memory.settings.quietUntil)}` : "Quiet"}</span>
                 : fresh > 0 ? <span className="site-row-badge is-new">{fresh}<span className="cm-sr"> new</span></span> : null}
             </button>
+          </li>
+          <li>
+            {/* Opens Play now on the Groups page: pick one of the community's games and play someone free. */}
+            <Link className="site-row" {...link(communityHref("groups", null, { game: PLAY_NOW }))}>
+              <span className="site-row-icon is-lilac"><GamesIcon size={17} /></span><span className="site-row-label">Game</span>
+            </Link>
           </li>
         </ul>
       </section>

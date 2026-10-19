@@ -31,6 +31,8 @@ export type LibraryItem = {
   blurb?: string;
   kind: ItemKind;
   minutes?: number;
+  /** An external video's exact running time as its page gives it ("29:14"), shown in place of minutes. */
+  duration?: string;
   /** A genuine resource elsewhere: the page opens it in a new tab instead of a page of its own. */
   url?: string;
   /** Who published it ("Stroke Association"), shown with the date on the card. */
@@ -53,12 +55,16 @@ export type LibraryItem = {
 export type TrustedSource = {
   name: string;
   note: string;
+  /** The resource's own title, shown after the organisation in the reference list. */
+  title?: string;
   url?: string;
   printable?: boolean;
   /** Something made in Rehyn that the card opens instead of a link: the printable stroke passport. */
   tool?: "stroke-passport";
 };
 export type StoryLink = { storyId: string; chapter: string; label: string };
+/** A real person's own stroke story, published on YouTube: only what the video's title and description say. */
+export type VideoStory = { id: string; person: string; title: string; channel: string; url: string; duration: string; about: string };
 export type ContentType = "understand" | "recover" | "liveWell" | "watch";
 
 export type ConditionContent = {
@@ -71,6 +77,8 @@ export type ConditionContent = {
   sources: TrustedSource[];
   /** Story ids, in the order they are listed. */
   stories: string[];
+  /** Real people's stories on YouTube; where given, the Stories list shows these instead. */
+  videoStories?: VideoStory[];
   askDoctor: string[];
   related: { groupId: string; conditionId: string; label?: string }[];
   /** Placement C: a companion the reader can open at the top of the page, at the point they say they have reached. */
@@ -209,11 +217,11 @@ const ischaemicStroke: LibraryCondition = {
     ],
     recover: [
       { id: "rewiring", title: "How the brain rewires: neuroplasticity, explained", kind: "video", minutes: 2, extra: "with narration", learnId: "rewiring", mediaId: "film-rewiring", keywords: ["neuroplasticity", "rewire"] },
-      { id: "arm-hand", title: "Arm and hand: the first twelve weeks", kind: "exercise", extra: "with a practice tracker", learnId: "hand", mediaId: "practice-arm-hand", keywords: ["arm", "hand", "grip", "exercises"] },
-      article("first-three-months", "The first three months: what's typical, what's not", 6, { learnId: "isch-first-three-months", keywords: ["early", "weeks", "normal"] }),
-      { id: "walking", title: "Walking again: from frame to stick to nothing", kind: "video", minutes: 2, extra: "with narration", mediaId: "film-walking", learnId: "isch-walking", keywords: ["walk", "walking", "balance", "frame"] },
-      article("words", "Finding words again: aphasia and speech", 5, { extra: "with practice prompts", learnId: "words", keywords: ["aphasia", "speech", "talking", "words"] }),
-      { id: "fatigue", title: "Fatigue: why rest doesn't fix it, and what does", kind: "video", minutes: 2, isNew: true, learnId: "fatigue", mediaId: "film-fatigue", blurb: "A short narrated film on pacing your day, plus an energy diary you can fill in and print.", keywords: ["tired", "tiredness", "exhausted", "energy", "fatigue", "sleepy"] },
+      { id: "arm-hand", title: "Arm and hand: an activity log", kind: "exercise", extra: "with an activity log", learnId: "hand", mediaId: "practice-arm-hand", keywords: ["arm", "hand", "grip", "exercises"] },
+      article("first-three-months", "The first weeks and months: what may happen", 6, { learnId: "isch-first-three-months", keywords: ["early", "weeks", "normal"] }),
+      { id: "walking", title: "Walking and balance: a narrated animation", kind: "video", minutes: 2, extra: "with narration", mediaId: "film-walking", learnId: "isch-walking", keywords: ["walk", "walking", "balance", "frame"] },
+      article("words", "Aphasia and speech: a guide", 5, { extra: "with communication tips", learnId: "words", keywords: ["aphasia", "speech", "talking", "words"] }),
+      { id: "fatigue", title: "Post-stroke fatigue: an animation and energy diary", kind: "video", minutes: 2, isNew: true, learnId: "fatigue", mediaId: "film-fatigue", blurb: "A short narrated film on pacing your day, plus an energy diary you can fill in and print.", keywords: ["tired", "tiredness", "exhausted", "energy", "fatigue", "sleepy"] },
     ],
     liveWell: [
       article("driving", "Can I drive again, and who decides?", 4, { learnId: "isch-driving", keywords: ["car", "licence", "dvla"] }),
@@ -224,19 +232,31 @@ const ischaemicStroke: LibraryCondition = {
       article("carers", "For the person looking after you: a page for carers", 6, { learnId: "isch-carers", keywords: ["carer", "family", "partner"] }),
     ],
     watch: [
-      { id: "first-year-podcast", title: "Two survivors talk about the first year", kind: "podcast", minutes: 4, extra: "both parts read aloud", mediaId: "talk-first-year", keywords: ["survivors", "conversation"] },
-      { id: "in-pictures", title: "What a stroke does to the brain, in pictures", kind: "animation", minutes: 2, extra: "with narration", mediaId: "film-in-pictures", learnId: "isch-what-happens" },
-      { id: "wind-down", title: "A ten-minute wind-down for stroke fatigue", kind: "audio", minutes: 10, extra: "read aloud", mediaId: "breathe-wind-down", keywords: ["relax", "calm", "breathing"] },
+      // Educational videos and podcasts on YouTube. Checked 19 October 2026: title and channel from
+      // YouTube's oEmbed, running time from the video's page, speakers from its own description.
+      { id: "yt-what-is-a-stroke", title: "What is a stroke? Explaining the symptoms, effects and life after stroke", kind: "video", duration: "2:44", url: "https://www.youtube.com/watch?v=e-hMH6jWIYs", publisher: "Stroke Association", keywords: ["symptoms", "effects"] },
+      { id: "yt-ted-ed-stroke", title: "What happens during a stroke? - Vaibhav Goswami", kind: "animation", duration: "4:59", url: "https://www.youtube.com/watch?v=-NJm4TJ2it0", extra: "lesson by Vaibhav Goswami", publisher: "TED-Ed", keywords: ["brain", "oxygen", "animation"] },
+      { id: "yt-aha-first-90-days", title: "Survived a stroke? How to heal in the first 90 days.", kind: "video", duration: "7:29", url: "https://www.youtube.com/watch?v=fq2RjVyJ2T8", extra: "with Dr Eduardo Sanchez", publisher: "American Heart Association", keywords: ["first months", "rehabilitation"] },
+      { id: "yt-stroke-matters-fatigue", title: "Episode 3: Post-Stroke Fatigue Explained with Libby Cunningham, Stroke Matters Podcast", kind: "podcast", duration: "29:14", url: "https://www.youtube.com/watch?v=DKzub5VAFcw", extra: "with Libby Cunningham, clinical specialist occupational therapist", publisher: "StrokeLINK", keywords: ["fatigue", "tired", "tiredness"] },
+      { id: "yt-health-compass-thrombectomy", title: "A new spin on stroke treatment | Ep.3: Health Compass Podcast", kind: "podcast", duration: "31:07", url: "https://www.youtube.com/watch?v=RzT-xef1j_A", extra: "with Jeremy Heit, MD, PhD, and Renee Zhao, PhD", publisher: "Stanford Medicine", keywords: ["clot removal", "thrombectomy", "research"] },
     ],
     sources: [
-      source(NHS, "Stroke overview, treatment and recovery pages"),
+      source(NHS, "Stroke overview, symptoms, treatment and recovery pages"),
       STROKE_ASSOCIATION,
       DIFFERENT_STROKES,
       CHSS,
+      // Checked 19 October 2026: title, publisher and edition as the guideline's own site gives them.
+      { name: "Intercollegiate Stroke Working Party", title: "National Clinical Guideline for Stroke for the UK and Ireland (2023 edition)", note: "The clinical guideline, with a plain language summary for people affected by stroke", url: "https://www.strokeguideline.org/" },
       { name: "Printable: my stroke passport", note: "One page to fill in and hand to a new doctor or physio", printable: true, tool: "stroke-passport" },
-      { name: "For the curious: the research", note: "The National Clinical Guideline for Stroke (2023), with a plain language summary for people affected by stroke", url: "https://www.strokeguideline.org/" },
     ],
     stories: ["li-wei", "tom", "rose"],
+    // Real people's ischaemic stroke stories. Checked 19 October 2026 (oEmbed title and channel,
+    // running time from the video page); each detail is from the video's own title or description.
+    videoStories: [
+      { id: "yt-anna", person: "Anna", title: "American Stroke Association - Stroke Survivor Story - Anna", channel: "American Heart Association", url: "https://www.youtube.com/watch?v=MiGd61rUoiA", duration: "2:57", about: "Anna talks about her life more than a decade after an ischemic stroke." },
+      { id: "yt-steve-rhyne", person: "Steve Rhyne", title: "A Stroke Survivor's Story - UF Health Neuroscience Institute", channel: "UF Health Jacksonville", url: "https://www.youtube.com/watch?v=C7wzgy3kZeI", duration: "3:33", about: "Steve describes his acute ischemic stroke and getting to hospital in time for clot-busting treatment." },
+      { id: "yt-joy", person: "Joy Hadji Alliy", title: "Sheelagh meets Joy, Ischemic Stroke aged 42", channel: "Different Strokes UK", url: "https://www.youtube.com/watch?v=8LDZRotvMb4", duration: "59:40", about: "A conversation with Joy about her ischaemic stroke in 2020 and the years since." },
+    ],
     askDoctor: [
       "Which artery was blocked, and does that explain my arm?",
       "What is my blood pressure target now?",
@@ -252,7 +272,7 @@ const ischaemicStroke: LibraryCondition = {
     companion: { storyId: "li-wei" },
     purpose: {
       understand: "Understand ischaemic stroke, its causes and the tests used to diagnose it.",
-      recover: "General information about recovery and everyday activities, to read alongside your care team's advice.",
+      recover: "Educational summaries written by Rehyn from information published by external organisations, named on each card. For general information only; not medical advice from Rehyn.",
       liveWell: "Find practical support for everyday life after stroke.",
       watch: "Watch and listen to short films, talks and audio about life after stroke.",
       sources: "Find reliable information and guidance from trusted health organisations.",

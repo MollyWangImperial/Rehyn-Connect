@@ -179,6 +179,34 @@ export function SourceCard({ source, compact = false }: { source: TrustedSource;
   </a>;
 }
 
+const hostOf = (url: string) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url; } };
+
+/**
+ * One trusted source as a line of a reference list: organisation — title — what it is — link. The
+ * stroke passport is Rehyn's own printable, so its line says so and opens it rather than a website.
+ */
+export function SourceRow({ source }: { source: TrustedSource }) {
+  const [open, setOpen] = useState(false);
+  if (source.tool === "stroke-passport") {
+    return <li className="lib-ref is-tool">
+      <span className="lib-ref-who">Rehyn printable</span>
+      <span className="lib-ref-sep" aria-hidden="true">—</span>
+      <span className="lib-ref-what">{source.name.replace(/^Printable:\s*/i, "")}</span>
+      <span className="lib-ref-sep" aria-hidden="true">—</span>
+      <span className="lib-ref-note">{source.note}</span>
+      <button type="button" className="lib-ref-link" onClick={() => setOpen(true)} aria-haspopup="dialog">Open the printable<DocIcon size={13} /></button>
+      {open && <StrokePassport open={open} onClose={() => setOpen(false)} />}
+    </li>;
+  }
+  return <li className="lib-ref">
+    <span className="lib-ref-who">{source.name}</span>
+    {source.title && <><span className="lib-ref-sep" aria-hidden="true">—</span><span className="lib-ref-what">{source.title}</span></>}
+    <span className="lib-ref-sep" aria-hidden="true">—</span>
+    <span className="lib-ref-note">{source.note}</span>
+    {source.url && <a className="lib-ref-link" href={source.url} target="_blank" rel="noopener noreferrer">{hostOf(source.url)}<ExternalIcon size={12} /><span className="lib-sr"> (opens in a new tab)</span></a>}
+  </li>;
+}
+
 // ------------------------------------------------------------------------------------------------
 // The envelope (placement E), with a flap that lifts gently unless motion is reduced.
 
