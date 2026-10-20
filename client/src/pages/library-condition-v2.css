@@ -211,44 +211,57 @@
 .lib-v2-playpulse { transform-box:fill-box; transform-origin:center; animation:lib-v2-pp 2.4s ease-in-out infinite; }
 @keyframes lib-v2-pp { 0%,100% { transform:scale(1); } 50% { transform:scale(1.15); } }
 
-/* ---- Dementia & memory: the light purples of its card on the Brain page ----------------- */
-.lib-v2.is-memory { background:#FBF8FE; }
-.lib-v2.is-memory .lib-v2-hero { background:#F1E9FB; color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-hero::after { background:linear-gradient(90deg, rgba(241,233,251,.95) 0%, rgba(241,233,251,.82) 42%, rgba(241,233,251,0) 74%); }
-.lib-v2.is-memory .lib-v2-hero h1 { color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-hero-words > p { color:#4E2C7A; }
-.lib-v2.is-memory .lib-v2-hero .lib-crumbs, .lib-v2.is-memory .lib-v2-hero .lib-crumbs a { color:#5B4A72; }
-.lib-v2.is-memory .lib-v2-hero .lib-crumbs a:hover, .lib-v2.is-memory .lib-v2-hero .lib-crumbs [aria-current] { color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-hero .lib-crumbs svg { color:#8A5BB8; }
-.lib-v2.is-memory .lib-v2-facts li { background:#FFFFFF; color:#4E2C7A; box-shadow:0 2px 0 rgba(106,62,158,.12); }
-.lib-v2.is-memory .lib-v2-save { border-color:#6A3E9E; color:#4E2C7A; }
-.lib-v2.is-memory .lib-v2-save:hover, .lib-v2.is-memory .lib-v2-save[aria-pressed="true"] { background:#E4D6F5; }
-.lib-v2.is-memory .lib-version-switch { border-color:#6A3E9E; color:#4E2C7A; }
-.lib-v2.is-memory .lib-version-switch:hover { background:#6A3E9E; color:#FFFFFF; }
+/* ---- Light themes: groups whose card on the Brain page is pale keep that colour ----------------
+   Dementia & memory in purples, Parkinson's & movement in blues. --t-ink is the strong colour,
+   --t-tint the pale one, --t-text the dark words, --t-muted the softer words, --t-line the borders. */
+.lib-v2.is-memory { --t-ink:#6A3E9E; --t-tint:#F1E9FB; --t-tint-rgb:241,233,251; --t-text:#3B1F5E; --t-body:#4E2C7A; --t-muted:#5B4A72; --t-soft:#8A5BB8; --t-line:#E6DAF5; --t-press:#E4D6F5; --t-shadow:106,62,158; --t-page:#FBF8FE; --t-on:#EFE6FA; }
+.lib-v2.is-movement { --t-ink:#34509E; --t-tint:#E7ECFB; --t-tint-rgb:231,236,251; --t-text:#1A2C5E; --t-body:#233A78; --t-muted:#3E4C78; --t-soft:#6F86C8; --t-line:#D6DFF5; --t-press:#D3DDF5; --t-shadow:52,80,158; --t-page:#F8FAFE; --t-on:#E4EAFA; }
+.lib-v2.is-light { background:var(--t-page); }
+.lib-v2.is-light .lib-v2-hero { background:var(--t-tint); color:var(--t-text); }
+.lib-v2.is-light .lib-v2-hero::after { background:linear-gradient(90deg, rgba(var(--t-tint-rgb),.95) 0%, rgba(var(--t-tint-rgb),.82) 42%, rgba(var(--t-tint-rgb),0) 74%); }
+.lib-v2.is-light .lib-v2-hero h1 { color:var(--t-text); }
+.lib-v2.is-light .lib-v2-hero-words > p { color:var(--t-body); }
+.lib-v2.is-light .lib-v2-hero .lib-crumbs, .lib-v2.is-light .lib-v2-hero .lib-crumbs a { color:var(--t-muted); }
+.lib-v2.is-light .lib-v2-hero .lib-crumbs a:hover, .lib-v2.is-light .lib-v2-hero .lib-crumbs [aria-current] { color:var(--t-text); }
+.lib-v2.is-light .lib-v2-hero .lib-crumbs svg { color:var(--t-soft); }
+.lib-v2.is-light .lib-v2-facts li { background:#FFFFFF; color:var(--t-body); box-shadow:0 2px 0 rgba(var(--t-shadow),.12); }
+.lib-v2.is-light .lib-v2-save { border-color:var(--t-ink); color:var(--t-body); }
+.lib-v2.is-light .lib-v2-save:hover, .lib-v2.is-light .lib-v2-save[aria-pressed="true"] { background:var(--t-press); }
 .lib-v2-link { animation:lib-v2-link 6s ease-in-out infinite; }
 .lib-v2-link.is-fading { animation:lib-v2-link-fade 7s ease-in-out infinite; }
 @keyframes lib-v2-link { 0%,100% { opacity:.55; } 50% { opacity:.9; } }
 @keyframes lib-v2-link-fade { 0%,30% { opacity:.7; } 55%,70% { opacity:.08; } 100% { opacity:.7; } }
 .lib-v2-node { transform-box:fill-box; transform-origin:center; animation:lib-v2-node 4.5s ease-in-out infinite; }
 @keyframes lib-v2-node { 0%,100% { transform:scale(1); opacity:.95; } 50% { transform:scale(1.5); opacity:.45; } }
-.lib-v2.is-memory .lib-v2-parts-inner { box-shadow:0 12px 30px rgba(106,62,158,.14); }
-.lib-v2.is-memory .lib-v2-parts a { color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-parts a:hover { background:#F1E9FB; }
-.lib-v2.is-memory .lib-v2-parts a.is-active { background:#6A3E9E; color:#FFFFFF; }
-.lib-v2.is-memory .lib-v2-head h2 { color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-head span { color:#5B4A72; }
-.lib-v2.is-memory .lib-v2-tile.is-count { border-color:#D2BDEB; color:#3B1F5E; }
-.lib-v2.is-memory .lib-v2-count, .lib-v2.is-memory .lib-v2-tile.is-count .lib-v2-more, .lib-v2.is-memory .lib-v2-src-kind { color:#6A3E9E; }
-.lib-v2.is-memory .lib-v2-src { border-color:#E6DAF5; }
-.lib-v2.is-memory .lib-v2-lwell-row { border-color:#E6DAF5; }
-.lib-v2.is-memory .lib-v2-lwell-row:hover { box-shadow:0 14px 30px rgba(106,62,158,.14); }
-.lib-v2.is-memory .lib-v2-lwell-ico, .lib-v2.is-memory .lib-v2-lwell-tag { background:#F1E9FB; color:#6A3E9E; }
-.lib-v2.is-memory .lib-v2-lwell-words span { color:#5B4A72; }
-.lib-v2.is-memory .lib-v2-lwell-go { color:#6A3E9E; }
-.lib-v2.is-memory .lib-v2-lwell-row.is-dark { border-color:#6A3E9E; background:#6A3E9E; color:#FFFFFF; }
-.lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-ico { background:rgba(255,255,255,.18); color:#FFFFFF; }
-.lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-words span, .lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-go { color:#EFE6FA; }
-.lib-v2.is-memory .lib-v2-wl-kind, .lib-v2.is-memory .lib-v2-wl-extra { color:#EFE6FA; }
+.lib-v2-wave { stroke-dasharray:6 10; animation:lib-v2-wave 3s linear infinite; }
+.lib-v2-wave.is-slow { animation-duration:5s; }
+@keyframes lib-v2-wave { to { stroke-dashoffset:-32; } }
+.lib-v2.is-light .lib-v2-parts-inner { box-shadow:0 12px 30px rgba(var(--t-shadow),.14); }
+.lib-v2.is-light .lib-v2-parts a { color:var(--t-text); }
+.lib-v2.is-light .lib-v2-parts a:hover { background:var(--t-tint); }
+.lib-v2.is-light .lib-v2-parts a.is-active { background:var(--t-ink); color:#FFFFFF; }
+.lib-v2.is-light .lib-v2-head h2 { color:var(--t-text); }
+.lib-v2.is-light .lib-v2-head span { color:var(--t-muted); }
+.lib-v2.is-light .lib-v2-tile.is-count { border-color:var(--t-line); color:var(--t-text); }
+.lib-v2.is-light .lib-v2-count, .lib-v2.is-light .lib-v2-tile.is-count .lib-v2-more, .lib-v2.is-light .lib-v2-src-kind { color:var(--t-ink); }
+.lib-v2.is-light .lib-v2-src { border-color:var(--t-line); }
+.lib-v2.is-light .lib-v2-lwell-row { border-color:var(--t-line); }
+.lib-v2.is-light .lib-v2-lwell-row:hover { box-shadow:0 14px 30px rgba(var(--t-shadow),.14); }
+.lib-v2.is-light .lib-v2-lwell-ico, .lib-v2.is-light .lib-v2-lwell-tag { background:var(--t-tint); color:var(--t-ink); }
+.lib-v2.is-light .lib-v2-lwell-words span { color:var(--t-muted); }
+.lib-v2.is-light .lib-v2-lwell-go { color:var(--t-ink); }
+.lib-v2.is-light .lib-v2-lwell-row.is-dark { border-color:var(--t-ink); background:var(--t-ink); color:#FFFFFF; }
+.lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-ico { background:rgba(255,255,255,.18); color:#FFFFFF; }
+.lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-words span, .lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-go { color:var(--t-on); }
+.lib-v2.is-light .lib-v2-wl-kind, .lib-v2.is-light .lib-v2-wl-extra { color:var(--t-on); }
+/* A story that opens the page, and a letter that closes it, sit inside the layout's main column. */
+.lib-v2 .lib-opening, .lib-v2 .lib-letter-band { margin:0; scroll-margin-top:96px; }
+/* On Parkinson's & movement the opening story is in the deep blues of its card. */
+.lib-v2.is-movement .lib-opening { background:#1A2C5E; }
+.lib-v2.is-movement .lib-opening-art { background:#34509E; }
+.lib-v2.is-movement .lib-opening-chapter, .lib-v2.is-movement .lib-opening-go { color:#1A2C5E !important; }
+.lib-v2.is-movement .lib-opening-who, .lib-v2.is-movement .lib-opening-skip { color:#D3DDF5 !important; }
+.lib-v2.is-movement .lib-opening-listen { border-color:#6F86C8; }
 
 /* ---- Narrower screens ---------------------------------------------------------------------- */
 @media (max-width:1100px) {

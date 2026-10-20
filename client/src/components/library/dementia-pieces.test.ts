@@ -34,7 +34,7 @@ describe("the Dementia & memory pages", () => {
         expect(figure?.art, item.id).toBe("custom");
         if (figure?.art === "custom") pictures.push(figure.id);
         const html = render(conditionId, item.id);
-        expect(html, item.id).toContain('class="lib-page lib-news is-memory"');
+        expect(html, item.id).toContain('class="lib-page lib-news is-light is-memory"');
         const text = words(html);
         expect(text, item.id).not.toMatch(/coming soon/i);
         expect(text, item.id).toContain(extras!.headline);

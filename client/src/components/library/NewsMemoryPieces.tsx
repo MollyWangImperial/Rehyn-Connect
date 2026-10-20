@@ -32,7 +32,7 @@ export function useSection(props: PieceProps, count: number, start = "0") {
 
 /** A light band: the picture, then the choices and the chosen section's words. */
 export function MemoryBand({ props, tone, kicker, title, credit, label, state, art }: {
-  props: PieceProps; tone: "lilac" | "heather" | "orchid" | "mist"; kicker: string; title: string; credit: string; label: string;
+  props: PieceProps; tone: "lilac" | "heather" | "orchid" | "mist" | "sky" | "ice" | "frost" | "steel"; kicker: string; title: string; credit: string; label: string;
   state: ReturnType<typeof useSection>; art: ReactNode;
 }) {
   return <Band tone={tone} kicker={kicker} title={title} credit={credit} art={art}>

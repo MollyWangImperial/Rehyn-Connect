@@ -5,7 +5,6 @@ import { LEARN_CHECKED, type LearnArticle } from "@/content/my-time-learn";
 import { conditionHref, contentTitle, isReadable, itemHref, itemKey, itemMedia, itemMeta, learnArticle, type ItemPlace } from "@/lib/library";
 import { libraryStore } from "@/lib/library-store";
 import { Interactive, QuickCheck, TryThisWeek } from "./Interactives";
-import { hasVersionTwo } from "./ConditionBento";
 import { MediaPieceView } from "./MediaPieces";
 import { NewsArticle } from "./NewsArticle";
 import { BackIcon, ChevronIcon, Crumbs, ExternalIcon, KindBadge, SoonTag, SourceCard } from "./parts";
@@ -94,8 +93,8 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
   const notYet = item.kind !== "article" && !media;
   const rich = Boolean(media || learn?.interactive || learn?.quiz);
 
-  // Every Ischaemic stroke piece reads as a feature; a film or the activity log sits in it, under the headline.
-  if (learn && hasVersionTwo(place)) return <NewsArticle place={place} article={learn} media={media} />;
+  // Every piece with a checked answer reads as a feature; a film or the activity log sits in it, under the headline.
+  if (learn) return <NewsArticle place={place} article={learn} media={media} />;
 
   return <div className="lib-page lib-item">
     <div className="lib-wrap lib-item-wrap">

@@ -8,6 +8,8 @@ import { isMemoryPiece, MemoryPieceView } from "./NewsMemoryPieces";
 import { isLewyPiece, LewyPieceView } from "./NewsLewyPieces";
 import { AlzPieceView, isAlzPiece } from "./NewsAlzPieces";
 import { isMciPiece, MciPieceView } from "./NewsMciPieces";
+import { isPdPiece, PdPieceView } from "./NewsPdPieces";
+import { isTremorPiece, TremorPieceView } from "./NewsTremorPieces";
 import { Band, Choices, para, useStill, type PieceProps } from "./NewsPieceParts";
 
 // The pieces made for one Ischaemic stroke card each (content/ischaemic-news.ts `figure` and
@@ -407,6 +409,8 @@ export function NewsPieceView({ piece, article, place }: { piece: NewsPiece } & 
   if (isLewyPiece(piece)) return <LewyPieceView piece={piece} {...props} />;
   if (isAlzPiece(piece)) return <AlzPieceView piece={piece} {...props} />;
   if (isMciPiece(piece)) return <MciPieceView piece={piece} {...props} />;
+  if (isPdPiece(piece)) return <PdPieceView piece={piece} {...props} />;
+  if (isTremorPiece(piece)) return <TremorPieceView piece={piece} {...props} />;
   switch (piece) {
     case "signal": return <SignalHero {...props} />;
     case "ideas": return <IdeasHero {...props} />;

@@ -152,6 +152,18 @@ const MemKeys = () => <svg viewBox="0 0 200 150"><path d="M50 40 H150" stroke={P
 const MemEar = () => <svg viewBox="0 0 200 150"><path d="M70 34 C100 18, 128 40, 120 70 C116 86, 98 90, 98 108 C98 126, 76 130, 66 118" fill="none" stroke={P} strokeWidth="8" strokeLinecap="round" />{[0, 1, 2].map(index => <path key={index} className="g-fade" style={{ animationDelay: `${index * 0.3}s` }} d={`M${140 + index * 16} 50 C${152 + index * 16} 70, ${152 + index * 16} 90, ${140 + index * 16} 110`} fill="none" stroke={P} strokeWidth="4" strokeLinecap="round" />)}</svg>;
 const MemCalendar = () => <svg viewBox="0 0 200 150"><rect x="40" y="24" width="120" height="104" rx="10" fill="#FFFFFF" stroke={P} strokeWidth="4" /><path d="M40 48 H160" stroke={P} strokeWidth="4" />{Array.from({ length: 12 }, (_, index) => <rect key={index} x={52 + (index % 4) * 26} y={58 + Math.floor(index / 4) * 22} width="18" height="14" rx="3" fill={index === 5 || index === 11 ? P : L} className={index === 5 || index === 11 ? "g-twinkle" : undefined} />)}</svg>;
 
+// The Parkinson's & movement cards' pictures, in its blues.
+const B = "#34509E";
+const BL = "#C3D0F2";
+const MoveWave = () => <svg viewBox="0 0 200 150"><path className="g-draw" pathLength={100} d="M10 110 C30 40, 50 40, 70 100 C90 40, 110 40, 130 100 C150 40, 170 40, 190 100" fill="none" stroke={B} strokeWidth="6" strokeLinecap="round" />{[20, 80, 140].map(x => <circle key={x} cx={x} cy="130" r="7" fill={BL} />)}</svg>;
+const MoveRing = () => <svg viewBox="0 0 200 150"><circle cx="100" cy="75" r="50" fill="none" stroke={BL} strokeWidth="14" /><circle className="g-draw" pathLength={100} cx="100" cy="75" r="50" fill="none" stroke={B} strokeWidth="14" strokeLinecap="round" transform="rotate(-90 100 75)" /></svg>;
+const MoveMeter = () => <svg viewBox="0 0 200 150">{[0, 1, 2, 3, 4, 5].map(index => <rect key={index} className="g-pop" style={{ animationDelay: `${index * 0.12}s` }} x={30 + index * 24} y={120 - index * 16} width="16" height={20 + index * 16} rx="4" fill={index > 3 ? "#D9A441" : B} />)}</svg>;
+const MoveLead = () => <svg viewBox="0 0 200 150"><circle cx="70" cy="46" r="30" fill="#FFFFFF" stroke={B} strokeWidth="5" /><path className="g-draw" pathLength={100} d="M70 46 C100 60, 110 90, 96 120" stroke="#D9A441" strokeWidth="4" fill="none" /><rect x="88" y="116" width="22" height="16" rx="5" fill="#D9A441" /></svg>;
+const MoveScale = () => <svg viewBox="0 0 200 150"><path d="M100 30 V130 M70 136 H130" stroke={B} strokeWidth="5" strokeLinecap="round" /><g className="g-float"><path d="M40 46 H160" stroke={B} strokeWidth="5" strokeLinecap="round" /><path d="M30 46 l14 28 h-28 Z M170 46 l-14 28 h28 Z" fill={BL} /></g></svg>;
+const MoveBeam = () => <svg viewBox="0 0 200 150"><ellipse cx="100" cy="75" rx="56" ry="62" fill="#FFFFFF" stroke={B} strokeWidth="5" />{[-50, -20, 10, 40].map(angle => <path key={angle} className="g-fade" d={`M${100 + Math.sin((angle * Math.PI) / 180) * 90} ${75 - Math.cos((angle * Math.PI) / 180) * 90} L88 80`} stroke="#D9A441" strokeWidth="3" />)}<circle cx="88" cy="80" r="6" fill="#D9674A" /></svg>;
+const MoveCup = () => <svg viewBox="0 0 200 150"><g className="g-lift"><path d="M70 50 H130 L124 120 H76 Z" fill="#FFFFFF" stroke={B} strokeWidth="5" /><rect x="76" y="90" width="48" height="28" fill={BL} /><path d="M66 70 h-10 a10 10 0 0 0 0 24 h12 M134 70 h10 a10 10 0 0 1 0 24 h-12" stroke={B} strokeWidth="5" fill="none" /></g></svg>;
+const MoveSteps = () => <svg viewBox="0 0 200 150"><path d="M20 130 H180" stroke={BL} strokeWidth="4" /><g className="g-walk" fill="none" stroke={B} strokeWidth="5" strokeLinecap="round"><circle cx="80" cy="50" r="9" /><path d="M80 59 V92 M80 70 L66 84 M80 70 L94 84" /><path className="g-leg" d="M80 92 L80 128" /><path className="g-leg is-back" d="M80 92 L80 128" /></g></svg>;
+
 /**
  * The cards, keyed by the Explore piece they lead to, in the order they are shown. Each piece is a
  * Rehyn-written summary; `source` names the organisations its facts come from (the piece itself links
@@ -187,19 +199,39 @@ const GOALS: Record<string, Goal> = {
   "mild-cognitive-impairment/brain-health": memory("Protecting the brain", "Information on the 14 risk factors that can be changed, from activity to blood pressure, and why it is never too late.", "Alzheimer's Society and NHS", <MemWheel />),
   "mild-cognitive-impairment/memory-aids": memory("Memory aids that get used", "Information on simple habits and aids: one thing at a time, keys on a hook, reminders and checklists.", "Alzheimer's Society", <MemKeys />),
   "mild-cognitive-impairment/hearing": memory("Hearing and the brain", "Information on how hearing loss is linked with dementia risk, hearing aids, and where to get a hearing test.", "Alzheimer's Society and NHS", <MemEar />),
+  "parkinsons-disease/levodopa": movement("Medicines and timing", "Information on levodopa, 'on' and 'off' periods, wearing off, and why taking medicines on time matters.", "Parkinson's UK and NICE", <MoveWave />),
+  "parkinsons-disease/exercise": movement("Exercise and Parkinson's", "Information on being active for two and a half hours a week, and on physiotherapy with someone who knows Parkinson's. Your own team advises on what suits you.", "Parkinson's UK and NICE", <MoveRing />),
+  "parkinsons-disease/voice": movement("Voice and swallowing", "Information on speech and language therapy for a quieter voice, and the signs of a swallowing problem.", "Parkinson's UK and NICE", <MoveMeter />),
+  "parkinsons-disease/dbs": movement("Deep brain stimulation", "Information on who it may suit, what it can improve, and what it cannot change.", "Parkinson's UK and NICE", <MoveLead />),
+  "essential-tremor/tablets": movement("Tablets for tremor", "Information on the medicines that can reduce essential tremor, and their trade-offs.", "NHS and the National Tremor Foundation", <MoveScale />),
+  "essential-tremor/procedures": movement("Procedures for severe tremor", "Information on focused ultrasound and deep brain stimulation, and where the NICE guidance stands.", "NICE, Parkinson's UK and the National Tremor Foundation", <MoveBeam />),
+  "essential-tremor/steadier-hands": movement("Steadier hands", "Information on cutlery, cups and pens that can make eating, drinking and writing easier.", "National Tremor Foundation", <MoveCup />),
+  "dystonia/botox": movement("Botulinum toxin injections", "Information on how the injections work, how often they are given, and the side effects to know about.", "NHS and Dystonia UK", <MoveRing />),
+  "dystonia/tablets": movement("Tablets for dystonia", "Information on when tablets are used, and the rare type that responds to levodopa.", "NHS and Dystonia UK", <MoveScale />),
+  "dystonia/physio": movement("Physiotherapy for dystonia", "Information on why the right physiotherapist matters, and how occupational therapy can help. Your own team advises on what suits you.", "NHS and Dystonia UK", <MoveSteps />),
+  "dystonia/dbs": movement("Deep brain stimulation", "Information on when it may be offered for dystonia, and what to expect afterwards.", "NHS, Dystonia UK and NICE", <MoveLead />),
   "mild-cognitive-impairment/follow-up": memory("Being followed up", "Information on reviews after an MCI diagnosis, what to watch for, and when to go back to the GP.", "Alzheimer's Society", <MemCalendar />),
 };
 /** A Dementia & memory card: the purples of the Dementia card on the Brain page. */
 function memory(want: string, desc: string, source: string, art: ReactNode): Goal {
   return { want, desc, source, cta: "Read", ink: "#6A3E9E", tint: "#F1E9FB", mark: "#D9C7F2", art };
 }
+/** A Parkinson's & movement card: the blues of its card on the Brain page. */
+function movement(want: string, desc: string, source: string, art: ReactNode): Goal {
+  return { want, desc, source, cta: "Read", ink: "#34509E", tint: "#E7ECFB", mark: "#C3D0F2", art };
+}
 const ORDER = Object.keys(GOALS);
-const goalKey = (conditionId: string, itemId: string) => GOALS[`${conditionId}/${itemId}`] ? `${conditionId}/${itemId}` : itemId;
+/**
+ * A card keyed "<condition>/<piece>" is that page's own. A card keyed by the piece alone was written for
+ * the stroke pages, so only they use it; any other page with a piece of the same name gets a plain card.
+ */
+const goalKey = (groupId: string, conditionId: string, itemId: string) =>
+  GOALS[`${conditionId}/${itemId}`] ? `${conditionId}/${itemId}` : groupId === "stroke" ? itemId : `${conditionId}/${itemId}`;
 
 const PLAIN: Omit<Goal, "want" | "desc" | "source" | "art"> = { cta: "Open", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0" };
 
 export function GoalCards({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
-  const key = (item: LibraryItem) => goalKey(place.condition.id, item.id);
+  const key = (item: LibraryItem) => goalKey(place.group.id, place.condition.id, item.id);
   const ordered = [...items].sort((a, b) => rank(key(a)) - rank(key(b)));
   return <ul className="lib-v2-goals" role="list">
     {ordered.map((item, index) => {

@@ -1,13 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "wouter";
-import { DEFAULT_SOURCES, LIBRARY_NOTE, STORIES_NOTE, type ConditionContent, type ContentType, type LibraryItem, type LibraryStory, type StoryLink, type VideoStory } from "@/content/library";
+import { DEFAULT_SOURCES, LIBRARY_NOTE, STORIES_NOTE, type ConditionContent, type LibraryItem, type LibraryStory, type StoryLink, type VideoStory } from "@/content/library";
 import { useReadAloud } from "@/lib/alira-read-aloud";
 import {
-  companionChapter,
-  companionChapters,
   conditionHref,
   conditionKey,
-  contentTitle,
   findCondition,
   findLetter,
   findStory,
@@ -33,71 +30,21 @@ import {
   HeadphonesIcon,
   Initial,
   jumpTo,
-  KindArt,
-  KindBadge,
   MetaLine,
   PauseIcon,
   PlayIcon,
   SourceCard,
   SourceRow,
-  TickIcon,
   useLines,
 } from "./parts";
-import { ConditionBento, hasVersionTwo, useConditionVersion, VersionSwitch } from "./ConditionBento";
-import { FeedbackButton } from "./FeedbackButton";
+import { ConditionBento } from "./ConditionBento";
 import "@/pages/library-condition-v2.css";
 
-// One condition's page, built from its data. Every condition with content has the same parts
-// (Understand, Explore, Live well, Watch & listen, Trusted sources, Stories, Ask your doctor; Explore
-// is "recover" in the data, and some conditions name it differently); `storyLayout` decides where the stories sit:
-//   "woven"   a story band between Understand and Explore (B), a companion in the side rail
-//             matched to the reader's week (C), and a prompt on the topic people worry about (D)
-//   "opening" the story opens the page with a "skip to the facts" link (A), a letter closes it (E)
-// A condition without content yet says so plainly and points to trusted sources.
-
-const sentence = (text: string) => (/[.!?…”]$/.test(text) ? text : `${text}.`);
-const PANEL_IDS: Record<ContentType, string> = { understand: "understand", recover: "recover", liveWell: "livewell", watch: "watch" };
-
-/** Which part of the page is in view, for the "On this page" bar. */
-function useActivePart(ids: string[]) {
-  const [active, setActive] = useState(ids[0]);
-  const key = ids.join(",");
-  useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return;
-    const seen = new Map<string, boolean>();
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => seen.set(entry.target.id, entry.isIntersecting));
-      const first = ids.find(id => seen.get(id));
-      if (first) setActive(first);
-    }, { rootMargin: "-20% 0px -65% 0px" });
-    ids.forEach(id => { const node = document.getElementById(id); if (node) observer.observe(node); });
-    return () => observer.disconnect();
-  }, [key]);
-  return active;
-}
-
-type Part = { id: string; label: string; count: number; story?: boolean };
-
-/** The names of the page's parts, without counts (review). A part with nothing in it is left out. */
-function PartsBar({ parts }: { parts: Part[] }) {
-  const active = useActivePart(parts.map(part => part.id));
-  const bar = useRef<HTMLElement>(null);
-  // On a phone the bar scrolls sideways; keep the part in view showing.
-  useEffect(() => {
-    const nav = bar.current;
-    const link = nav?.querySelector<HTMLElement>(".is-active");
-    if (!nav || !link || nav.scrollWidth <= nav.clientWidth) return;
-    nav.scrollTo({ left: link.offsetLeft - nav.clientWidth / 2 + link.offsetWidth / 2 });
-  }, [active]);
-  // Sticky as a direct child of the page, so it stays in view the whole way down.
-  return <div className="lib-parts-sticky">
-    <nav ref={bar} aria-label="On this page" className="lib-wrap lib-parts">
-      {parts.map(part => <a key={part.id} href={`#${part.id}`} onClick={jumpTo(part.id)} className={`${active === part.id ? "is-active" : ""}${part.story ? " is-story" : ""}`} aria-current={active === part.id ? "true" : undefined}>
-        {part.label}
-      </a>)}
-    </nav>
-  </div>;
-}
+// One condition's page, built from its data. Every condition with content uses the same layout
+// (ConditionBento.tsx): Understand as a bento, Explore (or Treat & manage), Live well, Watch & listen,
+// Trusted sources, Stories and Ask your doctor. A story-led page (`storyLayout: "opening"`) opens with
+// its story (placement A) and closes with a letter (E). A condition without content yet says so plainly
+// and points to trusted sources.
 
 // ------------------------------------------------------------------------------------------------
 // The pieces.
@@ -133,36 +80,6 @@ function TextCard({ place, item, state }: CardProps) {
   </li>;
 }
 
-function MediaCard({ place, item, state }: CardProps) {
-  return <li className="lib-card lib-media-card">
-    <KindArt item={item} />
-    <PieceLink place={place} item={item} className="lib-stretch"><strong>{item.title}</strong></PieceLink>
-    <Meta place={place} item={item} state={state} />
-  </li>;
-}
-
-function RowItem({ place, item, state }: CardProps) {
-  return <li>
-    <PieceLink place={place} item={item} className="lib-list-row">
-      <span className="lib-list-words">
-        <span className="lib-list-title">{item.title}</span>
-        {isRead(state, place, item) && <span className="lib-readmark"><TickIcon />Read</span>}
-      </span>
-      <span className="lib-list-time">{item.minutes ? `${item.minutes} min` : ""}</span>
-      <ChevronIcon />
-    </PieceLink>
-  </li>;
-}
-
-function WatchCard({ place, item, state }: CardProps) {
-  return <li>
-    <PieceLink place={place} item={item} className="lib-card lib-watch-card">
-      <KindBadge kind={item.kind} />
-      <span className="lib-watch-words"><strong>{item.title}</strong><Meta place={place} item={item} state={state} minutes /></span>
-    </PieceLink>
-  </li>;
-}
-
 function SectionHead({ id, title, note, story, action }: { id: string; title: string; note?: string; story?: StoryLink; action?: ReactNode }) {
   const person = story && findStory(story.storyId);
   return <div className="lib-part-head">
@@ -175,61 +92,6 @@ function SectionHead({ id, title, note, story, action }: { id: string; title: st
 
 // ------------------------------------------------------------------------------------------------
 // The story placements.
-
-/**
- * C: someone further on. The reader says roughly where they are now, and their chapter is offered.
- * It sits at the top of the page behind a button of its own, closed until it is opened (review), so
- * the page's words have the full width until then.
- */
-function Companion({ storyId, state }: { storyId: string; state: LibraryState }) {
-  const story = findStory(storyId);
-  const [open, setOpen] = useState(false);
-  if (!story) return null;
-  const chosen = state.companion[story.id];
-  const chapter = companionChapter(story, chosen);
-  const timed = companionChapters(story);
-  const at = timed.indexOf(chapter);
-  const he = story.pronoun === "his" ? "He's" : "She's";
-  const label = chapter.label.toLowerCase();
-  return <div className={`lib-companion-fold${open ? " is-open" : ""}`}>
-    <button type="button" className="lib-companion-toggle" aria-expanded={open} aria-controls="companion" onClick={() => setOpen(value => !value)}>
-      <Initial story={story} size={32} />
-      <span className="lib-companion-toggle-words"><b>Walk the first year with {story.name}</b><span>{story.tag} · {story.when}</span></span>
-      <span className="lib-companion-toggle-state">{open ? "Close" : "Open"}<ChevronIcon /></span>
-    </button>
-    <section id="companion" className="lib-companion" aria-labelledby="companion-title" hidden={!open}>
-    <span className="lib-kicker is-coral">Someone {story.when.replace(/ on$/, "")} ahead</span>
-    <div className="lib-companion-who">
-      <Initial story={story} size={52} />
-      <div>
-        <h2 id="companion-title">{story.name}, {story.age}</h2>
-        <span>{story.tag}. {he} {story.when.replace(/ on$/, "")} ahead.</span>
-      </div>
-    </div>
-    <label className="lib-companion-where">
-      <span>Where are you now?</span>
-      <select value={chapter.id} onChange={event => libraryStore.setCompanion(story.id, event.target.value)}>
-        {timed.map(candidate => <option key={candidate.id} value={candidate.id}>Around {candidate.label.toLowerCase()}</option>)}
-      </select>
-    </label>
-    <p className="lib-companion-match" aria-live="polite">
-      {chosen ? <>You're around <b>{label}</b>. {story.name}'s {label} chapter is “{chapter.title}”.</> : <>Start where {story.name} did: {label}, “{chapter.title}”.</>}
-    </p>
-    <ol className="lib-companion-list" role="list">
-      {timed.map((candidate, index) => {
-        const read = state.read.includes(`story:${story.id}:${candidate.id}`);
-        const current = index === at;
-        return <li key={candidate.id} className={current ? "is-current" : read ? "is-read" : undefined}>
-          <span className="lib-dot" aria-hidden="true" />
-          <Link href={storyHref(story.id, candidate.id)}>{candidate.label} · {candidate.title}</Link>
-          <span className="lib-companion-time">{read ? "Read" : `${candidate.minutes} min`}</span>
-        </li>;
-      })}
-    </ol>
-    <Link href={storyHref(story.id, chapter.id)} className="lib-companion-go"><span>Read {label}<span className="lib-narrow-only"> · {chapter.minutes} min</span></span><ArrowIcon /></Link>
-    </section>
-  </div>;
-}
 
 /** A: the story opens the page; the facts follow, with a way straight to them. */
 function OpeningStory({ storyId, quote }: { storyId: string; quote: string }) {
@@ -377,11 +239,6 @@ function VideoStoriesPanel({ place, videos }: { place: ConditionPlace; videos: V
 
 // ------------------------------------------------------------------------------------------------
 
-function useCollapsed() {
-  const [open, setOpen] = useState(false);
-  return { open, toggle: () => setOpen(value => !value) };
-}
-
 /** The title, its line and the facts; the only action is Save (the read-aloud button was removed in review). */
 function ConditionHeader({ place, full, state, switcher }: { place: ConditionPlace; full: boolean; state: LibraryState; switcher?: ReactNode }) {
   const { condition, group } = place;
@@ -415,8 +272,6 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
   const full = Boolean(content && condition.summary);
   const key = conditionKey(place);
   const state = useLibraryState();
-  const understand = useCollapsed();
-  const { version, switchTo } = useConditionVersion(place);
   useEffect(() => { libraryStore.visit(key); }, [key]);
   const purpose = (part: keyof typeof PURPOSE) => content?.purpose?.[part] ?? PURPOSE[part](condition.title);
   const footer = content?.footer ?? LIBRARY_NOTE;
@@ -431,35 +286,11 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
 
   if (!full || !content) return <PlaceholderCondition place={place} mobileBar={mobileBar} crumbs={crumbs} state={state} />;
 
-  const woven = condition.storyLayout !== "opening";
-  const card = (Card: (props: CardProps) => ReactNode) => (item: LibraryItem) => <Card key={item.id} place={place} item={item} state={state} />;
-  const stories = storiesFor(condition);
-  const parts: Part[] = [
-    { id: "understand", label: "Understand", count: content.understand.length },
-    { id: "recover", label: contentTitle("recover", condition), count: content.recover.length },
-    { id: "livewell", label: "Live well", count: content.liveWell.length },
-    { id: "watch", label: "Watch & listen", count: content.watch.length },
-    { id: "sources", label: "Trusted sources", count: content.sources.length },
-    { id: woven ? "stories" : "story", label: "Stories", count: stories.length, story: true },
-  ].filter(part => part.count > 0);
-
-  const understandPart = <section id={PANEL_IDS.understand} aria-labelledby="h-understand" className="lib-part">
-    <SectionHead id="understand" title="Understand" note={purpose("understand")} story={content.sectionStory?.understand} />
-    <ul className={`lib-grid lib-grid-cards${woven ? " is-two" : " is-four"}${understand.open ? "" : " is-collapsed"}`} role="list">{content.understand.map(card(TextCard))}</ul>
-    {content.understand.length > 2 && <button type="button" className="lib-more lib-narrow-only" aria-expanded={understand.open} onClick={understand.toggle}>
-      {understand.open ? "Show fewer" : `${numberWord(content.understand.length - 2)} more`} →
-    </button>}
-  </section>;
-  const recoverPart = <section id={PANEL_IDS.recover} aria-labelledby="h-recover" className="lib-part">
-    <SectionHead id="recover" title={contentTitle("recover", condition)} note={purpose("recover")} story={content.sectionStory?.recover} />
-    <ul className={`lib-grid lib-media-grid${woven ? " is-three" : " is-four"}`} role="list">{content.recover.map(card(MediaCard))}</ul>
-  </section>;
-  const liveWellPart = <section id={PANEL_IDS.liveWell} aria-labelledby="h-livewell" className="lib-part">
-    <SectionHead id="livewell" title="Live well" note={purpose("liveWell")} />
-    <ul className="lib-list" role="list">{content.liveWell.map(card(RowItem))}</ul>
-  </section>;
-  const watchList = <ul className="lib-grid lib-grid-cards is-three" role="list">{content.watch.map(card(WatchCard))}</ul>;
-  const sourcesPart = () => <section id="sources" aria-labelledby="h-sources" className="lib-part">
+  // Every written condition uses the bento layout. A story-led page opens with its story and closes
+  // with its letter.
+  const storyLed = condition.storyLayout === "opening";
+  const hasStories = Boolean(content.videoStories?.length) || storiesFor(condition).length > 0;
+  const sourcesPart = <section id="sources" aria-labelledby="h-sources" className="lib-part">
     <div className="lib-part-head is-stacked">
       <h2 id="h-sources" className="lib-h2">Trusted sources</h2>
       <span className="lib-sub">{purpose("sources")}</span>
@@ -467,78 +298,16 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     <ul className="lib-refs" role="list">{content.sources.map(source => <SourceRow key={source.name} source={source} />)}</ul>
   </section>;
 
-  if (!woven) {
-    return <div className="lib-page lib-condition is-story-led">
-      <div className="lib-wrap">
-        {mobileBar}
-        {crumbs}
-        {content.opening && <OpeningStory storyId={content.opening.storyId} quote={content.opening.quote} />}
-        <ConditionHeader place={place} full state={state} />
-      </div>
-      <PartsBar parts={parts} />
-      <div className="lib-wrap lib-condition-body is-single">
-        {understandPart}
-        {recoverPart}
-        <div className="lib-grid lib-grid-2 lib-pair-parts">
-          {liveWellPart}
-          <div className="lib-part">
-            {sourcesPart()}
-            <details id="watch" className="lib-folded">
-              <summary><HeadphonesIcon /><span><b>Watch & listen:</b> {content.watch.length} to watch and listen to, folded in here to keep this page calm.</span></summary>
-              {watchList}
-            </details>
-          </div>
-        </div>
-        <div className="lib-grid lib-grid-2">
-          <AskDoctor place={place} questions={content.askDoctor} state={state} />
-          <Related content={content} />
-        </div>
-        {content.letterId && <LetterBand letterId={content.letterId} state={state} />}
-      </div>
-      <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
-      <FeedbackButton />
-    </div>;
-  }
-
-  const twoVersions = hasVersionTwo(place);
-  if (twoVersions && version === 2) {
-    return <ConditionBento place={place} state={state} onSwitch={switchTo} slots={{
-      sources: sourcesPart(),
-      stories: <StoriesPanel place={place} />,
-      ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
-      related: <Related content={content} />,
-      footer,
-      purpose,
-    }} />;
-  }
-
-  return <div className="lib-page lib-condition">
-    <div className="lib-wrap">
-      {mobileBar}
-      {crumbs}
-      <ConditionHeader place={place} full state={state} switcher={twoVersions ? <VersionSwitch to={2} onSwitch={switchTo} /> : undefined} />
-    </div>
-    <PartsBar parts={parts} />
-    <div className="lib-wrap lib-condition-body">
-      <div className="lib-condition-main">
-        {understandPart}
-        {recoverPart}
-        {liveWellPart}
-        <section id={PANEL_IDS.watch} aria-labelledby="h-watch" className="lib-part">
-          <SectionHead id="watch" title="Watch & listen" note={purpose("watch")} />
-          {watchList}
-        </section>
-        {sourcesPart()}
-        <StoriesPanel place={place} />
-      </div>
-      <aside className="lib-condition-aside" aria-label="Alongside this page">
-        <AskDoctor place={place} questions={content.askDoctor} state={state} />
-        <Related content={content} />
-      </aside>
-    </div>
-    <footer className="lib-wrap lib-foot"><span>{footer}</span></footer>
-    <FeedbackButton />
-  </div>;
+  return <ConditionBento place={place} state={state} slots={{
+    opening: storyLed && content.opening ? <OpeningStory storyId={content.opening.storyId} quote={content.opening.quote} /> : undefined,
+    sources: sourcesPart,
+    stories: hasStories ? <StoriesPanel place={place} /> : null,
+    letter: content.letterId ? <LetterBand letterId={content.letterId} state={state} /> : undefined,
+    ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
+    related: <Related content={content} />,
+    footer,
+    purpose,
+  }} />;
 }
 
 /** A condition whose page is still being written: what there is, said plainly. */

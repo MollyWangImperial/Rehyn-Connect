@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import type { LibraryItem, LibraryStory } from "@/content/library";
 import { conditionKey, contentTitle, findStory, itemHref, itemMeta, sectionHref, storyHref, type ConditionPlace } from "@/lib/library";
 import { libraryStore, type LibraryState } from "@/lib/library-store";
-import { useLocal } from "@/lib/library-local";
+import { themeOf, type LightTheme } from "@/lib/library-theme";
 import { FeedbackButton } from "./FeedbackButton";
 import { GoalCards } from "./GoalCards";
 import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
@@ -12,37 +12,8 @@ import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
 // blood flowing through branching arteries and one branch stopped by a clot, a floating bar of the
 // page's parts, the Understand pieces as a bento (choose a small tile to move it into the large one),
 // the outside resources as a strip, symbol cards for Explore, Live well and Watch & listen, then the
-// page's own trusted sources and stories. The stroke pages have it for now; a button at the top right
-// switches between the two versions, and the choice is remembered on this device.
+// page's own trusted sources and stories. Every written condition page uses it.
 
-// ---- Which version a reader sees ----------------------------------------------------------------
-
-const VERSIONS_KEY = "rehyn.library-condition-version.v1";
-
-/** The conditions with a Version 2 page: the stroke pages, and Dementia & memory in its own light purples. */
-export const VERSION_TWO = [
-  "stroke/ischaemic", "stroke/haemorrhagic", "stroke/tia", "stroke/under-50",
-  "dementia/alzheimers", "dementia/vascular", "dementia/lewy-body", "dementia/mild-cognitive-impairment",
-];
-export const hasVersionTwo = (place: ConditionPlace) => VERSION_TWO.includes(conditionKey(place));
-
-/** The version a reader chose for this condition (1 unless they switched), and a way to switch. */
-export function useConditionVersion(place: ConditionPlace) {
-  const [versions, setVersions] = useLocal<Record<string, number>>(VERSIONS_KEY, {});
-  const key = conditionKey(place);
-  const version = hasVersionTwo(place) && versions[key] === 2 ? 2 : 1;
-  const switchTo = (next: 1 | 2) => {
-    setVersions(previous => ({ ...previous, [key]: next }));
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-  };
-  return { version, switchTo };
-}
-
-export function VersionSwitch({ to, onSwitch, dark = false }: { to: 1 | 2; onSwitch: (to: 1 | 2) => void; dark?: boolean }) {
-  return <button type="button" className={`lib-version-switch${dark ? " is-dark" : ""}`} onClick={() => onSwitch(to)}>
-    Switch to Version {to}
-  </button>;
-}
 
 // ---- Symbols ------------------------------------------------------------------------------------
 
@@ -119,17 +90,25 @@ const LOOKS: Record<string, Look> = {
   relationships: { sym: "care", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
 };
 const LOOK_CYCLE: Look[] = [LOOKS["what-happens"], LOOKS["why-me"], LOOKS.types, LOOKS.scans, LOOKS["heavy-side"]];
-/** Dementia & memory pages keep to the light purples of their card on the Brain page. */
-const MEMORY_LOOKS: Omit<Look, "sym">[] = [
-  { ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A" },
-  { ink: "#4E2C7A", tint: "#EAE1F7", text: "#3B1F5E" },
-  { ink: "#8A5BB8", tint: "#F6F0FC", text: "#4E2C7A" },
-  { ink: "#5B3F8C", tint: "#EDE6F8", text: "#3B1F5E" },
-];
-const MEMORY_SYMS: Record<string, string> = { "what-happens": "brain", diagnosis: "scan", stages: "steps", "not-just-memory": "words", steps: "steps", "thinking-not-memory": "rewire", fluctuations: "battery", hallucinations: "mood", "forgetting-words": "words", "what-mci-is": "brain", tests: "scan", "other-causes": "heart" };
-const isMemory = (place: { group: { id: string } }) => place.group.id === "dementia";
-const lookFor = (item: LibraryItem, index: number, memory = false): Look => memory
-  ? { ...MEMORY_LOOKS[index % MEMORY_LOOKS.length], sym: MEMORY_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page" }
+/** The tiles of a light-themed page, in the colours of its card on the Brain page. */
+const THEME_LOOKS: Record<LightTheme, Omit<Look, "sym">[]> = {
+  memory: [
+    { ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A" },
+    { ink: "#4E2C7A", tint: "#EAE1F7", text: "#3B1F5E" },
+    { ink: "#8A5BB8", tint: "#F6F0FC", text: "#4E2C7A" },
+    { ink: "#5B3F8C", tint: "#EDE6F8", text: "#3B1F5E" },
+  ],
+  movement: [
+    { ink: "#34509E", tint: "#E7ECFB", text: "#233A78" },
+    { ink: "#233A78", tint: "#DFE6F8", text: "#1A2C5E" },
+    { ink: "#4F6BB8", tint: "#EEF2FD", text: "#233A78" },
+    { ink: "#2D4C8C", tint: "#E3EAF8", text: "#1A2C5E" },
+  ],
+};
+const THEME_SYMS: Record<string, string> = { "what-happens": "brain", diagnosis: "scan", stages: "steps", "not-just-memory": "words", steps: "steps", "thinking-not-memory": "rewire", fluctuations: "battery", hallucinations: "mood", "forgetting-words": "words", "what-mci-is": "brain", tests: "scan", "other-causes": "heart",
+  dopamine: "brain", "unexpected-symptoms": "mood", "tremor-types": "hand", "morning-shaking": "calendar", "what-it-is": "brain", "not-parkinsons": "types", families: "care", "worse-days": "battery", types: "types", "sensory-trick": "hand" };
+const lookFor = (item: LibraryItem, index: number, theme?: LightTheme): Look => theme
+  ? { ...THEME_LOOKS[theme][index % THEME_LOOKS[theme].length], sym: THEME_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page" }
   : LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
 
 function SymbolArt({ name, colour, accent, width, className }: { name: string; colour: string; accent: string; width: number; className: string }) {
@@ -143,13 +122,14 @@ function SymbolArt({ name, colour, accent, width, className }: { name: string; c
 
 // ---- The header -------------------------------------------------------------------------------
 
-function Hero({ place, state, onSwitch }: { place: ConditionPlace; state: LibraryState; onSwitch: (to: 1 | 2) => void }) {
+function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) {
   const { section, group, condition } = place;
   const key = conditionKey(place);
   const saved = state.saved.includes(key);
-  const memory = isMemory(place);
+  const theme = themeOf(group.id);
+  const stroke = group.id === "stroke";
   return <header className="lib-v2-hero">
-    {memory ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "memory" ? <MemoryArt /> : theme === "movement" ? <MovementArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -164,17 +144,16 @@ function Hero({ place, state, onSwitch }: { place: ConditionPlace; state: Librar
         <path className="lib-v2-flow is-slow" d="M700 220 C740 160, 820 120, 900 100 S1040 70, 1100 40" />
         <path className="lib-v2-flow is-slow" d="M300 300 C360 360, 440 400, 560 420" />
       </g>
-      <circle className="lib-v2-ring" cx="1166" cy="238" r="10" fill="none" stroke="#F2B8A5" strokeWidth="2" />
-      {/* Ischaemic: a clot stops the branch. Haemorrhagic: the branch leaks, and the bleed spreads.
-          TIA: the clot forms, then clears. */}
-      {place.condition.id === "haemorrhagic"
+      {/* Stroke pages only. Ischaemic: a clot stops the branch. Haemorrhagic: the branch leaks, and the
+          bleed spreads. TIA: the clot forms, then clears. */}
+      {stroke && <circle className="lib-v2-ring" cx="1166" cy="238" r="10" fill="none" stroke="#F2B8A5" strokeWidth="2" />}
+      {stroke && (place.condition.id === "haemorrhagic"
         ? <g fill="#9E2A2A"><ellipse className="lib-v2-bleed" cx="1166" cy="252" rx="46" ry="28" opacity=".85" /><circle cx="1150" cy="290" r="6" opacity=".7" /><circle cx="1190" cy="296" r="4" opacity=".6" /></g>
-        : <circle className={`lib-v2-clot${place.condition.id === "tia" ? " is-passing" : ""}`} cx="1166" cy="238" r="11" fill="#7A2A1C" />}
+        : <circle className={`lib-v2-clot${place.condition.id === "tia" ? " is-passing" : ""}`} cx="1166" cy="238" r="11" fill="#7A2A1C" />)}
     </svg>}
     <div className="lib-v2-hero-inner">
       <div className="lib-v2-hero-top">
         <Crumbs trail={[{ label: "Library", href: "/" }, { label: section.title, href: sectionHref(section) }, { label: group.title, href: `${sectionHref(section)}#group-${group.id}` }, { label: condition.title }]} />
-        <VersionSwitch to={1} onSwitch={onSwitch} dark={!memory} />
       </div>
       <div className="lib-v2-hero-row">
         <div className="lib-v2-hero-words">
@@ -203,6 +182,27 @@ function MemoryArt() {
       <circle cx={x} cy={y} r={index % 3 === 0 ? 14 : 9} fill="#B99BE0" opacity=".55" />
       <circle className="lib-v2-node" style={{ animationDelay: `${-index * 0.9}s` }} cx={x} cy={y} r={index % 3 === 0 ? 7 : 5} fill="#6A3E9E" />
     </g>)}
+  </svg>;
+}
+
+/**
+ * The Parkinson's & movement header: lines that waver like a tremor on the left, and settle into
+ * smooth, steady waves towards the right.
+ */
+function MovementArt() {
+  const line = (y: number, wobble: number) => {
+    let d = `M560 ${y}`;
+    for (let x = 560; x < 1300; x += 20) {
+      const settle = Math.max(0, 1 - (x - 560) / 420);
+      d += ` Q${x + 10} ${y + (((x / 20) % 2) ? wobble : -wobble) * settle + Math.sin(x / 90) * 10} ${x + 20} ${y + Math.sin((x + 20) / 90) * 10}`;
+    }
+    return d;
+  };
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {[110, 190, 270, 350].map((y, index) => <path key={y} className={index % 2 ? "lib-v2-wave is-slow" : "lib-v2-wave"} d={line(y, 14 - index * 2)} stroke={index === 1 ? "#34509E" : "#A9BBE8"} strokeWidth={index === 1 ? 5 : 3} opacity={index === 1 ? 0.75 : 0.8} />)}
+    </g>
+    <circle className="lib-v2-node" cx="1180" cy="190" r="7" fill="#34509E" />
   </svg>;
 }
 
@@ -238,8 +238,8 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
   const [said, setSaid] = useState("");
   const main = items.find(item => item.id === active) ?? items[0];
   if (!main) return null;
-  const memory = isMemory(place);
-  const look = lookFor(main, items.indexOf(main), memory);
+  const theme = themeOf(place.group.id);
+  const look = lookFor(main, items.indexOf(main), theme);
   const rest = items.filter(item => item.id !== main.id);
   const felt = main.feltToo;
   const feltStories = felt ? felt.storyIds.map(id => findStory(id)).filter((story): story is LibraryStory => Boolean(story)) : [];
@@ -266,7 +266,7 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
       </article>
 
       {rest.map((item, index) => {
-        const tile = lookFor(item, items.indexOf(item), memory);
+        const tile = lookFor(item, items.indexOf(item), theme);
         return <article key={`${item.id}-${moves}`} className={`lib-v2-tile is-small${entering}`} style={{ background: tile.tint, color: tile.text, animationDelay: `${index * 0.05}s` } as CSSProperties}>
           <button type="button" className="lib-v2-pick" onClick={() => show(item)} aria-label={`Show ${item.title} in the large tile`} />
           <SymbolArt name={tile.sym} colour={tile.ink} accent="#D9674A" width={7} className="lib-v2-sym" />
@@ -326,6 +326,14 @@ const LW_ICON: Record<string, ReactNode> = {
   home: <><path d="M4 11 12 4l8 7v9H4Z" /><path d="M10 20v-5h4v5" /></>,
   responding: <><path d="M4 6h16v9H9l-5 4Z" /><path d="M8 10.5h8" /></>,
   sleep: <path d="M16 4a7 7 0 1 0 4 12 6 6 0 1 1-4-12Z" />,
+  // Parkinson's & movement's own.
+  freezing: <><path d="M7 19c-2 0-3-1.5-3-3s1-2.5 3-2.5 3 1 3 2.5-1 3-3 3Z" /><path d="M16 11c-2 0-3-1.5-3-3s1-2.5 3-2.5 3 1 3 2.5-1 3-3 3Z" /><path d="M4 21h16" /></>,
+  falls: <><path d="M4 20h16" /><path d="M7 20V9h10v11" /><path d="M12 9V4" /></>,
+  "driving-work": <path d="M5 16V11l2-4.5h10L19 11v5M5 16h14M5 16v2M19 16v2M5 11h14" />,
+  "out-and-about": <><circle cx="12" cy="12" r="7" /><path d="M5 12h14M12 5v14" /></>,
+  alcohol: <><path d="M8 4h8l-1 7a3 3 0 0 1-6 0Z" /><path d="M12 14v6M9 20h6" /></>,
+  voice: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
+  pain: <path d="M13 3 6 13h5l-1 8 7-10h-5Z" />,
 };
 
 type LiveWellLine = { line?: string; tag?: string; dark?: boolean };
@@ -358,7 +366,21 @@ const LW_LINES: Record<string, LiveWellLine> = {
   responding: { line: "reassure, don't argue" },
   "mild-cognitive-impairment/worry": { line: "relief, uncertainty, and support" },
   "mild-cognitive-impairment/telling-people": { line: "whether, and how, to tell people" },
-  sleep: { line: "seven to nine hours, and why it matters" },
+  "mild-cognitive-impairment/sleep": { line: "seven to nine hours, and why it matters" },
+  // Parkinson's & movement's own lines.
+  freezing: { line: "stop, think, plan, do" },
+  "parkinsons-disease/sleep": { line: "a regular wake-up time and short naps" },
+  falls: { line: "clear the clutter, light the stairs" },
+  "driving-work": { line: "DVLA, insurance and your rights at work" },
+  "parkinsons-disease/carers": { line: "a carer's assessment, nurses and a helpline", dark: true },
+  "out-and-about": { line: "eating out, signatures and alert cards" },
+  alcohol: { line: "a short dip, then a rebound" },
+  "essential-tremor/voice": { line: "injections and speech therapy" },
+  "essential-tremor/telling-people": { line: "your choice, and when to tell DVLA", dark: true },
+  pain: { line: "positioning, therapies and treatment" },
+  "dystonia/work": { line: "adjustments, Access to Work and DVLA" },
+  "dystonia/mood": { line: "stress, anxiety and support" },
+  "dystonia/telling-people": { line: "a few clear words", dark: true },
   "alzheimers/carers": { line: "a carer's assessment, and helplines", dark: true },
   "vascular/carers": { line: "a carer's assessment, and helplines", dark: true },
   "lewy-body/carers": { line: "a carer's assessment, and helplines", dark: true },
@@ -366,14 +388,16 @@ const LW_LINES: Record<string, LiveWellLine> = {
 function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   return <ul className="lib-v2-lwell-list" role="list">
       {items.map((item, index) => {
-        const lines = LW_LINES[`${place.condition.id}/${item.id}`] ?? LW_LINES[item.id] ?? {};
+        // A line keyed by the piece alone was written for these groups' pages; elsewhere only a page's own line shows.
+        const shared = ["stroke", "dementia", "parkinsons"].includes(place.group.id);
+        const lines = LW_LINES[`${place.condition.id}/${item.id}`] ?? (shared ? LW_LINES[item.id] : undefined) ?? {};
         const icon = LW_ICON[item.id];
         return <li key={item.id}>
           <Link href={itemHref({ ...place, item })} className={`lib-v2-lwell-row${lines.dark ? " is-dark" : ""}`}>
             <span className="lib-v2-lwell-ico" aria-hidden="true">
               {icon
                 ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">{icon}</svg>
-                : <SymbolArt name={lookFor(item, index, isMemory(place)).sym} colour="currentColor" accent="currentColor" width={12} className="lib-v2-lwell-sym" />}
+                : <SymbolArt name={lookFor(item, index, themeOf(place.group.id)).sym} colour="currentColor" accent="currentColor" width={12} className="lib-v2-lwell-sym" />}
             </span>
             <span className="lib-v2-lwell-words">
               <b>{item.title}</b>
@@ -387,7 +411,10 @@ function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[
 }
 
 const WATCH_BG = ["#231C5C", "#2F2770", "#1F4A5C"];
-const MEMORY_WATCH_BG = ["#6A3E9E", "#4E2C7A", "#7B4FAE", "#5B3F8C"];
+const THEME_WATCH_BG: Record<LightTheme, string[]> = {
+  memory: ["#6A3E9E", "#4E2C7A", "#7B4FAE", "#5B3F8C"],
+  movement: ["#34509E", "#233A78", "#4F6BB8", "#2D4C8C"],
+};
 function WatchArt({ item }: { item: LibraryItem }) {
   if (item.kind === "podcast") return <svg className="lib-v2-wl-art" aria-hidden="true" focusable="false" viewBox="0 0 120 60"><g fill="#F2B8A5">
     {[4, 24, 44, 64, 84].map((x, index) => <rect key={x} className="lib-v2-bar" x={x} y="10" width="10" height="50" rx="5" style={{ animationDelay: `${-index * 0.18}s` }} />)}
@@ -413,7 +440,8 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
         {item.extra && <span className="lib-v2-wl-extra">{item.extra.charAt(0).toUpperCase() + item.extra.slice(1)}</span>}
         {item.publisher && <span className="lib-v2-wl-by">{item.url ? "On YouTube · " : ""}{item.publisher}</span>}
       </>;
-      const backgrounds = isMemory(place) ? MEMORY_WATCH_BG : WATCH_BG;
+      const theme = themeOf(place.group.id);
+      const backgrounds = theme ? THEME_WATCH_BG[theme] : WATCH_BG;
       const style = { background: backgrounds[index % backgrounds.length] };
       return <li key={item.id}>
         {item.url
@@ -426,32 +454,38 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
 
 // ---- The page ---------------------------------------------------------------------------------
 
-type Slots = { companion?: ReactNode; sources: ReactNode; stories: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell" | "watch") => string };
+/**
+ * What the page fills in around the bento: `opening` is a story that opens the page (it sits above
+ * Understand), `letter` a letter that closes it; `stories` is left out of the parts bar when empty.
+ */
+type Slots = { opening?: ReactNode; sources: ReactNode; stories: ReactNode; letter?: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell" | "watch") => string };
 
-export function ConditionBento({ place, state, onSwitch, slots }: { place: ConditionPlace; state: LibraryState; onSwitch: (to: 1 | 2) => void; slots: Slots }) {
+export function ConditionBento({ place, state, slots }: { place: ConditionPlace; state: LibraryState; slots: Slots }) {
   const { condition } = place;
   const content = condition.content!;
+  const theme = themeOf(place.group.id);
   const ours = content.understand.filter(item => !item.url);
   const outside = content.understand.filter(item => item.url);
   const parts: Part[] = [
+    ...(slots.opening ? [{ id: "story", label: "Story", story: true }] : []),
     { id: "understand", label: "Understand" },
     { id: "recover", label: contentTitle("recover", condition) },
     { id: "livewell", label: "Live well" },
     { id: "watch", label: "Watch & listen" },
     { id: "sources", label: "Trusted sources" },
-    { id: "stories", label: "Stories", story: true },
-  ];
+    ...(slots.stories ? [{ id: "stories", label: "Stories", story: true }] : []),
+  ].filter(part => part.id !== "watch" || content.watch.length > 0);
   const head = (id: string, title: string, note?: string) => <div className="lib-v2-head">
     <h2 id={`h-${id}`}>{title}</h2>
     {note && <span>{note}</span>}
   </div>;
 
-  return <div className={`lib-page lib-condition lib-v2${isMemory(place) ? " is-memory" : ""}`}>
-    <Hero place={place} state={state} onSwitch={onSwitch} />
+  return <div className={`lib-page lib-condition lib-v2${theme ? ` is-light is-${theme}` : ""}`}>
+    <Hero place={place} state={state} />
     <PartsBar parts={parts} />
     <div className="lib-v2-layout">
       <main className="lib-v2-main">
-        {slots.companion}
+        {slots.opening}
         <section id="understand" aria-labelledby="h-understand" className="lib-v2-part">
           {head("understand", "Understand", slots.purpose("understand"))}
           <Understand place={place} items={ours} outside={outside} />
@@ -464,12 +498,13 @@ export function ConditionBento({ place, state, onSwitch, slots }: { place: Condi
           {head("livewell", "Live well", slots.purpose("liveWell"))}
           <LiveWell place={place} items={content.liveWell} />
         </section>
-        <section id="watch" aria-labelledby="h-watch" className="lib-v2-part">
+        {content.watch.length > 0 && <section id="watch" aria-labelledby="h-watch" className="lib-v2-part">
           {head("watch", "Watch & listen", slots.purpose("watch"))}
           <WatchTiles place={place} items={content.watch} />
-        </section>
+        </section>}
         {slots.sources}
         {slots.stories}
+        {slots.letter}
       </main>
       <aside className="lib-v2-aside" aria-label="Alongside this page">
         {slots.ask}

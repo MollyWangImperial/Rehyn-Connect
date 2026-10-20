@@ -25,7 +25,7 @@ const BRAIN: Record<string, BentoStyle> = {
     <path d="M82 176 V142 L56 136 L70 110 C44 70, 70 32, 112 32 C152 32, 172 64, 162 104 L172 124 L152 130 L148 176" />
     <path d="M114 86 a8 8 0 1 1 8 8 a16 16 0 1 1 -16 -16 a24 24 0 1 1 24 24" />
   </> },
-  parkinsons: { ink: "#34509E", tint: "#E7ECFB", text: "#233A78", muted: "#3E4C78", short: "Tremor, stiffness and slowness, and what helps.", chips: ["Parkinson's disease", "Essential tremor", "Dystonia"], symbol: <>
+  parkinsons: { light: true, ink: "#34509E", tint: "#E7ECFB", text: "#233A78", muted: "#3E4C78", short: "Tremor, stiffness and slowness, and what helps.", chips: ["Parkinson's disease", "Essential tremor", "Dystonia"], symbol: <>
     <path d="M70 112 V58 a9 9 0 0 1 18 0 V104 M88 100 V44 a9 9 0 0 1 18 0 V100 M106 100 V50 a9 9 0 0 1 18 0 V104 M124 106 V70 a9 9 0 0 1 18 0 V140 C142 162, 132 176, 112 176 H92 C78 176, 70 166, 64 156 L40 120 a9 9 0 0 1 14 -10 L70 128 Z" />
     <path d="M28 60 q-8 10 0 20 M16 50 q-12 20 0 40 M168 60 q8 10 0 20 M180 50 q12 20 0 40" />
   </> },

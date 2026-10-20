@@ -2,38 +2,54 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Router } from "wouter";
+import { librarySections } from "@/content/library";
 import { findCondition } from "@/lib/library";
 import { readLibraryState } from "@/lib/library-store";
-import { ConditionBento, hasVersionTwo } from "./ConditionBento";
+import { ConditionBento } from "./ConditionBento";
 import ConditionPage from "./ConditionPage";
 
-// The Ischaemic stroke page has a Version 2 ("A · Bento, continued from the Brain page"), reached by
-// a button at the top right; the other condition pages do not.
+// Every written condition page uses one layout ("A · Bento, continued from the Brain page"). There is
+// no older version and no switch between versions. Groups with a pale card keep its colour.
 
 const ischaemic = findCondition("stroke", "ischaemic")!;
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
-const inRouter = (child: ReturnType<typeof createElement>) => renderToStaticMarkup(createElement(Router, { ssrPath: "/stroke/ischaemic" }, child));
+const inRouter = (child: ReturnType<typeof createElement>, path = "/stroke/ischaemic") => renderToStaticMarkup(createElement(Router, { ssrPath: path }, child));
 
-describe("Version 2 of the Ischaemic stroke page", () => {
-  it("is offered on the stroke and dementia pages, not elsewhere yet, by a button in the page's header", () => {
-    expect(hasVersionTwo(ischaemic)).toBe(true);
-    expect(hasVersionTwo(findCondition("stroke", "haemorrhagic")!)).toBe(true);
-    expect(hasVersionTwo(findCondition("stroke", "tia")!)).toBe(true);
-    expect(hasVersionTwo(findCondition("dementia", "alzheimers")!)).toBe(true);
-    expect(hasVersionTwo(findCondition("parkinsons", "parkinsons-disease")!)).toBe(false);
-    const html = inRouter(createElement(ConditionPage, { place: ischaemic }));
-    expect(html).toMatch(/class="lib-condition-actions"><button[^>]*class="lib-version-switch"[^>]*>Switch to Version 2<\/button>/);
-    expect(inRouter(createElement(ConditionPage, { place: findCondition("parkinsons", "parkinsons-disease")! }))).not.toContain("Switch to Version");
+describe("the condition pages", () => {
+  it("all use the bento layout, with no switch between versions", () => {
+    let written = 0;
+    for (const section of librarySections) for (const group of section.groups) for (const condition of group.conditions) {
+      if (!condition.content || !condition.summary) continue;
+      written++;
+      const place = findCondition(group.id, condition.id)!;
+      const html = inRouter(createElement(ConditionPage, { place }), `/${group.id}/${condition.id}`);
+      expect(html, `${group.id}/${condition.id}`).toContain("lib-v2-hero");
+      expect(html, `${group.id}/${condition.id}`).not.toContain("Switch to Version");
+    }
+    expect(written).toBeGreaterThan(20);
+  });
+
+  it("keeps the pale colours of the Dementia and Parkinson's cards", () => {
+    const memory = inRouter(createElement(ConditionPage, { place: findCondition("dementia", "alzheimers")! }), "/dementia/alzheimers");
+    expect(memory).toContain("lib-v2 is-light is-memory");
+    const movement = inRouter(createElement(ConditionPage, { place: findCondition("parkinsons", "essential-tremor")! }), "/parkinsons/essential-tremor");
+    expect(movement).toContain("lib-v2 is-light is-movement");
+    expect(inRouter(createElement(ConditionPage, { place: ischaemic }))).not.toContain("is-light");
+  });
+
+  it("opens a story-led page with its story", () => {
+    const html = inRouter(createElement(ConditionPage, { place: findCondition("parkinsons", "parkinsons-disease")! }), "/parkinsons/parkinsons-disease");
+    expect(html).toContain('id="story"');
+    expect(html).toContain("lib-v2-hero");
   });
 
   it("puts the first Understand piece in the large tile, the others small, and the outside resources in a strip", () => {
     const content = ischaemic.condition.content!;
     const html = inRouter(createElement(ConditionBento, {
-      place: ischaemic, state: readLibraryState(null), onSwitch: () => {},
+      place: ischaemic, state: readLibraryState(null),
       slots: { sources: createElement("section", { id: "sources" }, "Trusted sources"), stories: null, ask: null, related: null, footer: "Footer", purpose: () => "" },
     }));
     const text = words(html);
-    expect(text).toContain("Switch to Version 1");
     const ours = content.understand.filter(item => !item.url);
     const outside = content.understand.filter(item => item.url);
     const feature = html.split('class="lib-v2-tile is-feature')[1].split("</article>")[0];

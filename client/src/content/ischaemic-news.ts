@@ -74,7 +74,12 @@ export type NewsPiece =
   // Alzheimer's disease's own, and those every Dementia page shares (components/library/NewsAlzPieces.tsx).
   | "plaques-tangles" | "clinic-path" | "three-stages" | "beyond-memory" | "tablet-truth" | "cst-circle" | "other-checks" | "good-days" | "lpa-keys" | "dvla-letter" | "care-circle" | "telling-circles"
   // Mild cognitive impairment's own (components/library/NewsMciPieces.tsx).
-  | "forget-scale" | "mci-paths" | "test-desk" | "mimic-list" | "risk-wheel" | "key-hook" | "sound-waves" | "review-calendar" | "worry-clouds" | "sleep-moon";
+  | "forget-scale" | "mci-paths" | "test-desk" | "mimic-list" | "risk-wheel" | "key-hook" | "sound-waves" | "review-calendar" | "worry-clouds" | "sleep-moon"
+  // Parkinson's disease's own (components/library/NewsPdPieces.tsx).
+  | "dopamine-relay" | "symptom-orbit" | "clinic-tests" | "rest-or-move" | "night-to-morning" | "on-off-wave" | "activity-ring" | "voice-meter" | "dbs-lead" | "freeze-cues" | "sleep-routine" | "home-route" | "licence-card" | "care-team"
+  // Essential tremor's and dystonia's own (components/library/NewsTremorPieces.tsx).
+  | "tremor-trace" | "rest-action" | "family-tree" | "trigger-dial" | "pill-scale" | "ultrasound-beam" | "steady-table" | "signature" | "alcohol-rebound" | "voice-head" | "tremor-support"
+  | "signal-pull" | "dystonia-map" | "referral-path" | "touch-trick" | "injection-cycle" | "tablet-reach" | "physio-care" | "dbs-chest" | "pillow-ease" | "desk-drive" | "calm-meter" | "explain-card";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -737,6 +742,60 @@ NEWS_EXTRAS["mild-cognitive-impairment/follow-up"] = mci("Keeping an eye on it",
 NEWS_EXTRAS["mild-cognitive-impairment/worry"] = mci("Relief, and not knowing", "Many people feel relief at an MCI diagnosis, and many feel unsettled. Both are normal, and support helps.", "worry-clouds", "Be as kind to yourself as you would be to others.", "Living with MCI");
 NEWS_EXTRAS["mild-cognitive-impairment/telling-people"] = mci("Whether, and how, to tell people", "A diagnosis can help people understand. Those close to you may notice things you do not.", "telling-circles", "You may need to listen to the people close to you.", "Living with MCI");
 NEWS_EXTRAS["mild-cognitive-impairment/sleep"] = mci("Seven to nine hours", "Poor sleep is linked with a higher dementia risk, and sleep apnoea most of all. Help is there for sleep problems.", "sleep-moon", "Try to get enough sleep, ideally at least seven hours each night.", "Living with MCI");
+
+// Parkinson's & movement (content/parkinsons-answers.ts, tremor-answers.ts, dystonia-answers.ts).
+const move = (kicker: string) => (headline: string, standfirst: string, id: NewsPiece, pullQuote: string, more: Partial<NewsExtras> = {}): NewsExtras =>
+  ({ kicker, headline, standfirst, figure: { art: "custom", id }, pullQuote, ...more });
+const pdU = move("Understanding Parkinson's");
+const pdT = move("Treat and manage");
+const pdL = move("Living with Parkinson's");
+NEWS_EXTRAS["parkinsons-disease/dopamine"] = pdU("The messenger that keeps movement smooth", "Parkinson's is caused by losing the nerve cells that make dopamine. Symptoms show once about half their activity has gone.", "dopamine-relay", "Dopamine acts as a messenger for movement.",
+  { stats: { 3: [{ value: "166,000", label: "people live with Parkinson's in the UK, says Parkinson's UK.", ref: 2 }] } });
+NEWS_EXTRAS["parkinsons-disease/unexpected-symptoms"] = pdU("The symptoms nobody expects", "Smell, sleep, mood, constipation and a quieter voice, sometimes years before a tremor.", "symptom-orbit", "There are over 40 symptoms of Parkinson's.");
+NEWS_EXTRAS["parkinsons-disease/diagnosis"] = pdU("No single test", "A specialist watches how you move, write and speak, and sometimes how you respond to medicine.", "clinic-tests", "There is currently no single or definitive test for Parkinson's.");
+NEWS_EXTRAS["parkinsons-disease/tremor-types"] = pdU("At rest, or on the move", "A Parkinson's tremor is most obvious at rest. Essential tremor shows when your hands are busy.", "rest-or-move", "You can have both kinds of tremor at the same time.");
+NEWS_EXTRAS["parkinsons-disease/morning-shaking"] = pdU("When medicine wears off in the night", "If medicines wear off overnight, stiffness, tremor or painful cramps can greet the morning.", "night-to-morning", "You may not be able to get out of bed until your first dose starts to work.");
+NEWS_EXTRAS["parkinsons-disease/levodopa"] = pdT("On, off, and on time", "Levodopa becomes dopamine. When it wears off before the next dose, symptoms return, so timing matters.", "on-off-wave", "People with Parkinson's need their medicine on time, every time.");
+NEWS_EXTRAS["parkinsons-disease/exercise"] = pdT("Part of the treatment", "Being active for two and a half hours a week can help, and can matter as much as getting the dose right.", "activity-ring", "Being active is most effective when you push yourself.");
+NEWS_EXTRAS["parkinsons-disease/voice"] = pdT("Loud enough, and safe to swallow", "Speech and language therapy can help both, and is best started soon after diagnosis.", "voice-meter", "You might not realise that you are talking more quietly.");
+NEWS_EXTRAS["parkinsons-disease/dbs"] = pdT("Deep brain stimulation, honestly", "For people whose medicines no longer control movement symptoms well. It is not a cure.", "dbs-lead", "It is not a cure and does not stop Parkinson's from progressing.");
+NEWS_EXTRAS["parkinsons-disease/freezing"] = pdL("Unsticking your feet", "Stop, think, plan, do. Counting, a rhythm or a line on the floor can get you moving.", "freeze-cues", "Count 'one, two, three, step' to get moving again.");
+NEWS_EXTRAS["parkinsons-disease/sleep"] = pdL("A steadier night", "Sleep problems are common at any stage. A regular wake-up time and short naps can help.", "sleep-routine", "Speaking with your GP is a good first step.");
+NEWS_EXTRAS["parkinsons-disease/falls"] = pdL("A clear way through", "Clear the clutter, light the stairs, add rails, and take your time.", "home-route", "Try not to rush, even if the phone is ringing.");
+NEWS_EXTRAS["parkinsons-disease/driving-work"] = pdL("Tell DVLA, keep going", "You must tell DVLA, but it does not necessarily affect your licence. At work, the law protects you.", "licence-card", "Having the condition does not necessarily mean your licence will be affected.");
+NEWS_EXTRAS["parkinsons-disease/carers"] = pdL("Support for both of you", "A free carer's assessment, Parkinson's nurses, and a helpline for both of you.", "care-team", "A carer's assessment does not cost anything.");
+
+const etU = move("Understanding tremor");
+const etT = move("Treat and manage");
+const etL = move("Living with tremor");
+NEWS_EXTRAS["essential-tremor/what-it-is"] = etU("A rhythm the body didn't choose", "A rhythmic shaking, most often of the hands and arms. For many people it changes little over the years.", "tremor-trace", "Tremors usually disappear during sleep.");
+NEWS_EXTRAS["essential-tremor/not-parkinsons"] = etU("Moving, or resting", "Essential tremor usually shows when you move. A Parkinson's tremor usually shows at rest.", "rest-action", "Essential tremor is different from a Parkinson's tremor.");
+NEWS_EXTRAS["essential-tremor/families"] = etU("Sometimes it runs in the family", "Some tremors run in families, especially when they start young. The genes are not yet known.", "family-tree", "Some types of tremor run in families.");
+NEWS_EXTRAS["essential-tremor/worse-days"] = etU("Why some days are shakier", "Stress, tiredness, caffeine, temperature and being watched can all make a tremor more noticeable.", "trigger-dial", "Say if you feel anxious: it is key to getting help.");
+NEWS_EXTRAS["essential-tremor/tablets"] = etT("Help, with trade-offs", "Medicines do not cure the tremor, but they often reduce it. Some are taken every day, some only when needed.", "pill-scale", "Medicine will not cure the tremor, but it often helps to reduce the shaking.");
+NEWS_EXTRAS["essential-tremor/procedures"] = etT("When tablets aren't enough", "For a severe tremor, focused ultrasound or deep brain stimulation may be options.", "ultrasound-beam", "Focused ultrasound treats the tremor on one side of the body.");
+NEWS_EXTRAS["essential-tremor/steadier-hands"] = etT("Steadier at the table", "Angled or weighted cutlery, a half-filled mug, elbows on the table, and thicker pens.", "steady-table", "Placing your elbows on the table can help steady your hands.");
+NEWS_EXTRAS["essential-tremor/out-and-about"] = etL("Public moments, made easier", "Keep going out. A shorter signature, an alert card and a little help can make it easier.", "signature", "Do not avoid eating out: keep up your social activities.");
+NEWS_EXTRAS["essential-tremor/alcohol"] = etL("A short dip, then a rebound", "Alcohol can briefly lessen a tremor, but it can rebound the next morning, and regular use carries real risks.", "alcohol-rebound", "There is often a rebound that makes the tremor worse the next morning.");
+NEWS_EXTRAS["essential-tremor/voice"] = etL("When it reaches the voice", "Injections can relax the muscles involved, and a speech and language therapist can help with the voice.", "voice-head", "Voice quality can be affected by a stooped posture.");
+NEWS_EXTRAS["essential-tremor/telling-people"] = etL("Your story, your choice", "How much you share is up to you. Children often just ask, and support groups can help.", "tremor-support", "How much you tell those close to you is a personal decision.");
+
+const dyU = move("Understanding dystonia");
+const dyT = move("Treat and manage");
+const dyL = move("Living with dystonia");
+NEWS_EXTRAS["dystonia/what-it-is"] = dyU("A signal that pulls too hard", "Uncontrolled, sometimes painful muscle spasms, caused by a problem in the part of the brain that controls movement.", "signal-pull", "The spasms are caused by incorrect signals from the brain.",
+  { stats: { 3: [{ value: "100,000+", label: "people in the UK are estimated to have dystonia, says Dystonia UK.", ref: 2 }] } });
+NEWS_EXTRAS["dystonia/types"] = dyU("Where it shows", "It can affect one part of the body, or more. Neck and eye dystonia are the most common.", "dystonia-map", "Neck dystonia and eye dystonia are the two most common types.");
+NEWS_EXTRAS["dystonia/diagnosis"] = dyU("From the GP to a neurologist", "Often after ruling out other conditions that can look similar.", "referral-path", "Only a medical professional can confirm if you have dystonia.");
+NEWS_EXTRAS["dystonia/sensory-trick"] = dyU("A touch that can help", "A simple touch or gesture that, for some people, briefly eases the spasms.", "touch-trick", "Some people find a touch can briefly relieve their dystonia.");
+NEWS_EXTRAS["dystonia/botox"] = dyT("A three-month rhythm", "Injections into the affected muscles, usually repeated about every 3 months.", "injection-cycle", "When first starting, it can take several rounds to get relief.");
+NEWS_EXTRAS["dystonia/tablets"] = dyT("When more of the body is involved", "Tablets work best in more generalised dystonia, and one rare type responds very well to levodopa.", "tablet-reach", "Dopa-responsive dystonia is rare but highly treatable.");
+NEWS_EXTRAS["dystonia/physio"] = dyT("The right kind of help", "From a physiotherapist who knows dystonia. The wrong exercises can make it worse.", "physio-care", "The results can be significant, but it is not a quick fix.");
+NEWS_EXTRAS["dystonia/dbs"] = dyT("A pacemaker for movement", "Offered when other treatments have not helped enough. NICE supports it.", "dbs-chest", "Many people still need injections or tablets.");
+NEWS_EXTRAS["dystonia/pain"] = dyL("Easing the ache", "Pain is common. Treating the dystonia, some therapies, and pillows and positioning can help.", "pillow-ease", "Pillow arrangement and positioning are especially important to reduce discomfort.");
+NEWS_EXTRAS["dystonia/work"] = dyL("Adjustments that help", "Ask about reasonable adjustments and Access to Work, and tell DVLA if driving may be affected.", "desk-drive", "Explain what you can do, as well as what you cannot do.");
+NEWS_EXTRAS["dystonia/mood"] = dyL("Stress turns it up", "Anxiety and depression are more common with dystonia, and stress can make symptoms worse. Help is there.", "calm-meter", "Living with dystonia can feel isolating, but you are not alone.");
+NEWS_EXTRAS["dystonia/telling-people"] = dyL("A few clear words", "Explain what you find hard, and what you can still do.", "explain-card", "In a support group you can just be yourself and be understood.");
 
 // Pieces whose answer is the same for every kind of stroke share the same feature.
 for (const id of ["rewiring", "walking", "fatigue", "mood", "carers"]) NEWS_EXTRAS[`haemorrhagic/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];
