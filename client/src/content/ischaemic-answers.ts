@@ -244,7 +244,7 @@ export const ischaemicAnswers: LearnArticle[] = [
         heading: "Looking for the cause",
         paragraphs: [
           "Your blood pressure is checked, and blood tests look for conditions linked to stroke, such as diabetes and high cholesterol.",
-          "An ECG checks for an irregular heartbeat. A scan of the neck checks for narrowed arteries, which cause around 15 in every 100 ischaemic strokes.",
+          "An ECG checks for an irregular heartbeat. A scan of the neck checks for narrowed arteries, which may cause up to 15 in every 100 ischaemic strokes.",
         ],
       },
       {
@@ -276,7 +276,7 @@ export const ischaemicAnswers: LearnArticle[] = [
         { id: "swallow", front: "Swallowing test", when: "Within four hours", back: "Checks it is safe to eat, drink and take tablets, so nothing goes into your lungs." },
         { id: "bloods", front: "Blood pressure and blood tests", when: "Early on", back: "Look for conditions linked to stroke, such as high blood pressure, diabetes and high cholesterol." },
         { id: "ecg", front: "ECG", when: "During your stay", back: "Checks your heart rhythm for atrial fibrillation, an irregular heartbeat that can cause clots." },
-        { id: "neck", front: "Neck artery scan", when: "During your stay", back: "Looks for narrowed arteries in the neck, behind around 15 in 100 ischaemic strokes." },
+        { id: "neck", front: "Neck artery scan", when: "During your stay", back: "Looks for narrowed arteries in the neck, which may be behind up to 15 in 100 ischaemic strokes." },
       ],
     },
     quiz: {

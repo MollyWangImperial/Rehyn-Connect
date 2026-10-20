@@ -8,32 +8,64 @@ export const WRITTEN_ON = "17 October 2026";
 export type NewsReference ={ publisher: string; title: string; url: string; extra?: string };
 
 export type NewsChart =
-  /** Horizontal bars, out of every 100. */
-  | { kind: "bars"; title: string; subtitle: string; bars: { label: string; value: number; strong?: boolean }[]; sources: string }
+  /** Horizontal bars, out of every 100 unless `max` says otherwise; `unit` follows each value ("×"). */
+  | { kind: "bars"; title: string; subtitle: string; bars: { label: string; value: number; strong?: boolean }[]; sources: string; max?: number; ticks?: number[]; unit?: string }
   /** A range on a line from 0 to 100. */
-  | { kind: "range"; title: string; subtitle: string; from: number; to: number; sources: string };
+  | { kind: "range"; title: string; subtitle: string; from: number; to: number; sources: string }
+  /** A hundred squares, coloured by group: "out of every 100". */
+  | { kind: "waffle"; title: string; subtitle: string; groups: { label: string; count: number; tone: "green" | "clay" | "dark" }[]; sources: string }
+  /** How long a TIA's symptoms last, on a line from the first minute to the weeks after. */
+  | { kind: "tia-clock"; title: string; subtitle: string; sources: string }
+  /** One share of a whole, as a ring: "up to 15 in 100". */
+  | { kind: "donut"; title: string; subtitle: string; value: number; prefix?: string; label: string; sources: string };
 
 export type NewsExtras = {
   /** The first part of the line above the headline, before the condition: "Understanding stroke | Ischaemic stroke". */
   kicker: string;
   headline: string;
   standfirst: string;
-  /** Numbered references; each number can cite more than one page. */
-  references: NewsReference[][];
-  /** Reference numbers beside each paragraph: `sectionRefs[i][j]` for section i, paragraph j. */
-  sectionRefs: number[][][];
+  /** Numbered references; each number can cite more than one page. Without them, the answer's own sources, in order. */
+  references?: NewsReference[][];
+  /** Reference numbers beside each paragraph: `sectionRefs[i][j]` for section i, paragraph j. Left out where no paragraph-by-paragraph check was made. */
+  sectionRefs?: number[][][];
   /** Reference numbers beside each "What helps now" line. */
-  helpRefs: number[][];
-  /** Headings in place of the answer's own, by section (the first section has none). */
+  helpRefs?: number[][];
+  /** Headings in place of the answer's own, by section; an empty first heading lets the story run on from the picture. */
   headings?: string[];
-  /** The full-width illustration under the headline. */
-  figure?: { art: "clot"; words: [string, string] };
+  /**
+   * The full-width picture under the headline: the clot illustration, or the three routes to a
+   * blockage, a picture the reader steers (each route opens the section it names).
+   */
+  figure?: { art: "clot"; words: [string, string] } | { art: "routes"; routes: NewsRoute[] } | { art: "types"; panels: NewsTypePanel[] } | { art: "scans"; milestones: NewsMilestone[] } | { art: "custom"; id: NewsPiece };
+  /** A card's own pieces placed after a section, by section index (components/library/NewsPieces.tsx). */
+  inserts?: Record<number, NewsPiece>;
+  /** Big figures after a section, by section index, each with its reference number. */
+  stats?: Record<number, NewsStat[]>;
   /** Charts after a section, by section index. */
   charts?: Record<number, NewsChart>;
   pullQuote?: string;
 };
 
-const NHS_STROKE: NewsReference = { publisher: "NHS", title: "Stroke: overview", url: "https://www.nhs.uk/conditions/stroke/" };
+/** One of the three routes in the routes picture: where it starts, and the section that explains it. */
+export type NewsRoute = { id: "neck" | "brain" | "heart"; label: string; section: number };
+/**
+ * One step on the hospital clock: how many hours after arriving, what happens, and the answer's own
+ * words for it (a paragraph of a section, or a "What helps now" line).
+ */
+export type NewsMilestone = { id: string; hours: number; label: string; when: string; from: { section: number; paragraph: number } | { help: number } };
+/** One panel of the three-word picture: the word, what it means, how common it is, and its section. */
+export type NewsTypePanel = { id: "ischaemic" | "haemorrhagic" | "tia"; word: string; meaning: string; share: string; section: number };
+/** A big figure with a small picture of it: half a circle, five bars against one, or one in N people (`of`). */
+export type NewsStat = { value: string; label: string; ref: number; picture?: "half" | "times" | "one-in-four" | "one-in" | "hours" | "calendar"; of?: number };
+/** The pieces made for one card each: pictures under the headline, and pieces placed after a section. */
+export type NewsPiece =
+  | "signal" | "ideas" | "road" | "words" | "road-signs" | "odds" | "stones" | "weather" | "swallow" | "wins"
+  | "recovery-curve" | "balance-wheel" | "energy-day" | "thickness";
+
+/** A card's feature: by the piece's own id first (two pieces can share one answer), then by its answer. */
+export const newsExtrasFor = (itemId: string, articleId: string): NewsExtras | undefined => NEWS_EXTRAS[itemId] ?? NEWS_EXTRAS[articleId];
+
+const NHS_STROKE: NewsReference ={ publisher: "NHS", title: "Stroke: overview", url: "https://www.nhs.uk/conditions/stroke/" };
 const SA_ISCHAEMIC: NewsReference = { publisher: "Stroke Association", title: "Ischaemic stroke", url: "https://www.stroke.org.uk/stroke/types/ischaemic" };
 
 export const NEWS_EXTRAS: Record<string, NewsExtras> = {
@@ -68,5 +100,253 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
       1: { kind: "range", title: "A narrow window", subtitle: "People able to have clot-busting or clot removal, out of every 100", from: 10, to: 15, sources: "Sources: Stroke Association; Sentinel Stroke National Audit Programme" },
     },
     pullQuote: "The brain cells that died do not grow back. But the brain can rewire itself.",
+  },
+
+  // Figures checked on 19 October 2026 against the Stroke Association pages cited for each.
+  "isch-why-me": {
+    kicker: "Understanding stroke",
+    headline: "Three roads to a blockage",
+    standfirst: "Why did this happen to me? Sometimes there is one clear reason, sometimes several, and sometimes the tests never find one.",
+    references: [
+      [{ publisher: "Stroke Association", title: "Ischaemic stroke causes", url: "https://www.stroke.org.uk/stroke/types/ischaemic/causes" }],
+      [{ publisher: "Stroke Association", title: "High blood pressure", url: "https://www.stroke.org.uk/stroke/managing-risk/high-blood-pressure" }],
+      [{ publisher: "Stroke Association", title: "Atrial fibrillation", url: "https://www.stroke.org.uk/stroke/managing-risk/atrial-fibrillation" }],
+      [{ publisher: "Stroke Association", title: "Types and causes of stroke", url: "https://www.stroke.org.uk/stroke/types" }],
+      [{ publisher: "Stroke Association", title: "Ischaemic stroke treatments", url: "https://www.stroke.org.uk/stroke/types/ischaemic/treatments" }],
+    ],
+    sectionRefs: [
+      [[1], [1, 2]],
+      [[1], [1, 2]],
+      [[1, 3], [1]],
+      [[1], [1, 4], [4]],
+    ],
+    helpRefs: [[1], [1], [5]],
+    headings: ["1 · Narrowed arteries", "2 · Tiny vessels deep in the brain", "3 · The heart", "Other reasons, and none"],
+    figure: {
+      art: "routes",
+      routes: [
+        { id: "neck", label: "Narrowed arteries", section: 0 },
+        { id: "brain", label: "Tiny vessels deep in the brain", section: 1 },
+        { id: "heart", label: "The heart", section: 2 },
+      ],
+    },
+    stats: {
+      0: [
+        { value: "About half", label: "of all strokes have high blood pressure playing a part. It is the biggest single risk factor.", ref: 2, picture: "half" },
+        { value: "1 in 4", label: "strokes in the UK happen to people of working age.", ref: 4, picture: "one-in-four" },
+      ],
+      2: [
+        { value: "1 in 4", label: "people have a small gap in the heart, a PFO. Most never have a stroke.", ref: 1, picture: "one-in-four" },
+      ],
+    },
+    charts: {
+      2: { kind: "bars", title: "An irregular heartbeat raises the odds", subtitle: "How likely a stroke is with atrial fibrillation, compared with without it", bars: [{ label: "Without AF", value: 1 }, { label: "With AF", value: 5, strong: true }], max: 5, ticks: [0, 1, 2, 3, 4, 5], unit: "×", sources: "Source: Stroke Association, Atrial fibrillation (AF can make a stroke five times more likely)" },
+    },
+    pullQuote: "Anyone can have a stroke.",
+  },
+
+  // Figures checked on 19 October 2026 against the Stroke Association pages cited for each.
+  "isch-types": {
+    kicker: "Understanding stroke",
+    headline: "Three words from the ward",
+    standfirst: "Ischaemic, haemorrhagic, TIA. The words nobody explained, with a picture of each.",
+    references: [
+      [{ publisher: "Stroke Association", title: "Types and causes of stroke", url: "https://www.stroke.org.uk/stroke/types" }],
+      [SA_ISCHAEMIC],
+      [{ publisher: "Stroke Association", title: "Haemorrhagic stroke", url: "https://www.stroke.org.uk/stroke/types/haemorrhagic" }],
+      [{ publisher: "Stroke Association", title: "Transient ischaemic attack (TIA)", url: "https://www.stroke.org.uk/stroke/type/tia" }],
+      [{ publisher: "Stroke Association", title: "Diagnosing ischaemic stroke", url: "https://www.stroke.org.uk/stroke/types/ischaemic/diagnosis" }],
+    ],
+    sectionRefs: [
+      [[2]],
+      [[3], [3]],
+      [[4], [4]],
+      [[1, 5], [1]],
+    ],
+    helpRefs: [[4], [4], [1]],
+    headings: ["Ischaemic: a blockage", "Haemorrhagic: a bleed", "TIA: a warning", "Why the type matters"],
+    figure: {
+      art: "types",
+      panels: [
+        { id: "ischaemic", word: "Ischaemic", meaning: "A blockage cuts off the blood supply.", share: "About 85 in 100 strokes", section: 0 },
+        { id: "haemorrhagic", word: "Haemorrhagic", meaning: "A blood vessel bleeds in or around the brain.", share: "About 15 in 100 strokes", section: 1 },
+        { id: "tia", word: "TIA", meaning: "A blockage that clears by itself.", share: "A warning sign", section: 2 },
+      ],
+    },
+    charts: {
+      1: { kind: "waffle", title: "Out of every 100 strokes in the UK", subtitle: "By what caused them", groups: [{ label: "Ischaemic: a blockage", count: 85, tone: "green" }, { label: "A bleed inside the brain", count: 10, tone: "clay" }, { label: "A bleed on the surface of the brain", count: 5, tone: "dark" }], sources: "Source: Stroke Association, Ischaemic stroke and Haemorrhagic stroke. About 15 in 100 strokes are bleeds; about two in three bleeds are inside the brain, and about 5 in 100 strokes are bleeds on the surface. All figures are approximate." },
+      2: { kind: "tia-clock", title: "How long a TIA lasts", subtitle: "The signs come and go; the risk does not", sources: "Source: Stroke Association, Transient ischaemic attack (TIA)" },
+    },
+    pullQuote: "A TIA is a warning. It is a medical emergency all the same.",
+  },
+
+  // Times and figures checked on 19 October 2026 against the Stroke Association pages cited for each.
+  "isch-scans": {
+    kicker: "Understanding stroke",
+    headline: "The first day, test by test",
+    standfirst: "CT, MRI, an ECG, a neck scan, a sip of water. Each one was looking for something.",
+    references: [
+      [{ publisher: "Stroke Association", title: "Diagnosing ischaemic stroke", url: "https://www.stroke.org.uk/stroke/types/ischaemic/diagnosis" }],
+      [{ publisher: "Stroke Association", title: "Ischaemic stroke treatments", url: "https://www.stroke.org.uk/stroke/types/ischaemic/treatments" }],
+      [{ publisher: "Stroke Association", title: "Swallowing problems", url: "https://www.stroke.org.uk/stroke/effects/physical/swallowing-problems" }],
+      [{ publisher: "Stroke Association", title: "Carotid artery disease", url: "https://www.stroke.org.uk/stroke/types/ischaemic/carotid-artery-disease" }],
+    ],
+    sectionRefs: [
+      [[1], [1], [1, 2]],
+      [[1]],
+      [[1], [1, 4]],
+      [[2, 3]],
+    ],
+    helpRefs: [[2], [2], [1]],
+    headings: ["The brain scan", "Scans with a dye", "Looking for the cause", "The swallowing test"],
+    figure: {
+      art: "scans",
+      milestones: [
+        { id: "scan", hours: 1, label: "Brain scan", when: "Within 1 hour of arriving", from: { section: 0, paragraph: 0 } },
+        { id: "swallow", hours: 4, label: "Swallowing test", when: "Within 4 hours", from: { section: 3, paragraph: 0 } },
+        { id: "team", hours: 24, label: "Full assessment by the stroke team", when: "After 24 hours, if effects remain", from: { help: 1 } },
+      ],
+    },
+    charts: {
+      2: { kind: "donut", title: "Narrowed neck arteries", subtitle: "Ischaemic strokes in the UK that may be due to them, out of every 100", value: 15, prefix: "Up to", label: "may be due to narrowed arteries in the neck: the reason for the neck scan", sources: "Source: Stroke Association, Carotid artery disease" },
+    },
+    pullQuote: "Nothing to eat, drink or swallow by mouth until the swallowing test is done.",
+  },
+
+  // ---- The rest of the Ischaemic stroke page, keyed by piece. Each has a picture or interactive of
+  // its own (components/library/NewsPieces.tsx). Figures checked on 20 October 2026 against the page
+  // each one cites; references without a list here are the answer's own sources, in order.
+
+  "heavy-side": {
+    kicker: "Understanding stroke",
+    headline: "A message that is not getting through",
+    standfirst: "Your muscles are still there. The trouble is higher up, and that is good news for getting movement back.",
+    figure: { art: "custom", id: "signal" },
+    pullQuote: "The muscles are waiting for a signal that is not getting through clearly yet.",
+  },
+
+  rewiring: {
+    kicker: "Recovery after stroke",
+    headline: "New roads around a broken bridge",
+    standfirst: "The cells a stroke destroyed will not grow back. So how do people learn to walk and talk again?",
+    references: [
+      [{ publisher: "Stroke Association", title: "Neuroplasticity, re-wiring the brain", url: "https://www.stroke.org.uk/stroke/effects/neuroplasticity-rewiring-the-brain" }],
+      [{ publisher: "Stroke Association", title: "Physiotherapy after a stroke", url: "https://www.stroke.org.uk/stroke/life-after-stroke/physiotherapy" }],
+      [{ publisher: "Stroke Association", title: "Stroke recovery", url: "https://www.stroke.org.uk/stroke/recovery" }],
+    ],
+    inserts: { 2: "recovery-curve" },
+    pullQuote: "There is no time limit on the brain's ability to rewire.",
+  },
+
+  "arm-hand": {
+    kicker: "Recovery after stroke",
+    headline: "Practise the exact thing",
+    standfirst: "Everyday ways to use your arm and hand, and a log to keep track of the practice your physiotherapist gives you.",
+    figure: { art: "custom", id: "ideas" },
+    pullQuote: "Do your exercises on the affected side, even when the other side would be quicker.",
+  },
+
+  "first-three-months": {
+    kicker: "Recovery after stroke",
+    headline: "Day one to month six",
+    standfirst: "What is typical, what is not, and the review that comes after.",
+    figure: { art: "custom", id: "road" },
+    stats: {
+      1: [
+        { value: "3 hours", label: "of therapy for movement goals, at least five days a week, is what stroke guidelines recommend, if you are able to.", ref: 2, picture: "hours" },
+        { value: "Up to 6 weeks", label: "is how long early supported discharge, therapy at home, typically lasts.", ref: 2, picture: "calendar" },
+        { value: "About 6 months", label: "after a stroke, everyone should be offered a review of their progress.", ref: 3, picture: "calendar" },
+      ],
+    },
+    pullQuote: "Every stroke is different, and every recovery is too.",
+  },
+
+  walking: {
+    kicker: "Recovery after stroke",
+    headline: "Small steps to walking",
+    standfirst: "From the bed, to a chair, to your feet: walking usually comes back in small steps, not one big one.",
+    inserts: { 0: "balance-wheel" },
+    pullQuote: "A big goal like walking is broken into smaller steps.",
+  },
+
+  words: {
+    kicker: "Recovery after stroke",
+    headline: "The thought is there. The word is stuck.",
+    standfirst: "You know exactly what you want to say. It just will not come out. Around a third of people find this after a stroke.",
+    figure: { art: "custom", id: "words" },
+    stats: { 0: [{ value: "1 in 3", label: "people who have a stroke will experience aphasia. It does not affect intelligence.", ref: 1, picture: "one-in", of: 3 }] },
+    pullQuote: "People with aphasia still think in the same way.",
+  },
+
+  fatigue: {
+    kicker: "Recovery after stroke",
+    headline: "Not ordinary tiredness",
+    standfirst: "It is not laziness, and a nap will not fix it. Tiredness after a stroke is its own thing.",
+    inserts: { 0: "energy-day" },
+    pullQuote: "It can follow any stroke, big or small.",
+  },
+
+  driving: {
+    kicker: "Life after stroke",
+    headline: "Off the road, for now",
+    standfirst: "The rules are clearer than most people think. Your doctor says when, and sometimes DVLA needs to know.",
+    figure: { art: "custom", id: "road-signs" },
+    stats: { 3: [{ value: "Up to £1,000", label: "fine if you do not tell DVLA about a medical condition that affects your driving.", ref: 1 }] },
+    pullQuote: "Restart only when your doctor or healthcare professional tells you it is safe.",
+  },
+
+  prevention: {
+    kicker: "Life after stroke",
+    headline: "Lowering the odds",
+    standfirst: "The honest answer, and the handful of things that really do lower the odds.",
+    figure: { art: "custom", id: "odds" },
+    stats: { 0: [{ value: "1 in 4", label: "stroke survivors will have a second stroke within the next five years.", ref: 5, picture: "one-in", of: 4 }] },
+    pullQuote: "Remember the word FAST. Face, arms, speech, and time to call 999.",
+  },
+
+  work: {
+    kicker: "Life after stroke",
+    headline: "Back to work, at your own pace",
+    standfirst: "Some people go back within weeks, some after months or years. A plan with your employer makes the difference.",
+    references: [
+      [{ publisher: "Stroke Association", title: "Work after a stroke", url: "https://www.stroke.org.uk/stroke/life-after/work" }],
+      [{ publisher: "Stroke Association", title: "Muscle weakness", url: "https://www.stroke.org.uk/stroke/effects/physical/muscle-weakness" }],
+      [{ publisher: "Stroke Association", title: "Types and causes of stroke", url: "https://www.stroke.org.uk/stroke/types" }],
+    ],
+    figure: { art: "custom", id: "stones" },
+    stats: { 0: [{ value: "1 in 4", label: "strokes in the UK happen to people of working age.", ref: 3, picture: "one-in", of: 4 }] },
+    pullQuote: "You are the expert in your own needs.",
+  },
+
+  mood: {
+    kicker: "Life after stroke",
+    headline: "Tears out of nowhere",
+    standfirst: "Tears, or laughter, that arrive out of nowhere have a name. About one in five people get them.",
+    figure: { art: "custom", id: "weather" },
+    stats: {
+      1: [
+        { value: "1 in 5", label: "people have emotionalism in the first few months after a stroke.", ref: 1, picture: "one-in", of: 5 },
+        { value: "1 in 3", label: "stroke survivors will have some form of depression within the first year.", ref: 2, picture: "one-in", of: 3 },
+        { value: "1 in 4", label: "people who have a stroke will experience anxiety within the first five years.", ref: 2, picture: "one-in", of: 4 },
+      ],
+    },
+    pullQuote: "You are not becoming a different person. It is an effect of the stroke.",
+  },
+
+  swallowing: {
+    kicker: "Life after stroke",
+    headline: "Swallowing safely again",
+    standfirst: "Swallowing is one of the most complicated things the brain does. Here is what helps while it recovers.",
+    figure: { art: "custom", id: "swallow" },
+    inserts: { 2: "thickness" },
+    pullQuote: "Most people can swallow safely again within the first few weeks.",
+  },
+
+  carers: {
+    kicker: "Life after stroke",
+    headline: "Doing it with them, not for them",
+    standfirst: "Patience, encouragement, and knowing when not to help. A page for the person alongside.",
+    figure: { art: "custom", id: "wins" },
+    pullQuote: "Recovery is slow, so praise every sign of progress, however small.",
   },
 };

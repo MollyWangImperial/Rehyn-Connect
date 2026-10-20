@@ -2,10 +2,15 @@ import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "wouter";
 import { LIBRARY_NOTE } from "@/content/library";
 import { LEARN_CHECKED, type LearnArticle } from "@/content/my-time-learn";
-import { NEWS_EXTRAS, WRITTEN_ON, type NewsChart, type NewsReference } from "@/content/ischaemic-news";
+import { newsExtrasFor, WRITTEN_ON, type NewsChart, type NewsReference } from "@/content/ischaemic-news";
+import { NewsPieceView } from "./NewsPieces";
 import { conditionHref, conditionKey, contentTitle, itemHref, isReadable, type ItemPlace } from "@/lib/library";
 import { libraryStore, useLibraryState } from "@/lib/library-store";
+import type { MediaPiece } from "@/content/ischaemic-media";
 import { Interactive, QuickCheck } from "./Interactives";
+import { MediaPieceView } from "./MediaPieces";
+import { DonutChart, RoutesHero, ScansHero, StatRow, TiaClock, TypesHero, WaffleChart } from "./NewsFeatures";
+import "@/pages/library-media.css";
 import { useNarration, type Block } from "./Reading";
 import "@/pages/library-news.css";
 
@@ -62,25 +67,33 @@ function ClotFigure({ words }: { words: [string, string] }) {
 }
 
 function Chart({ chart }: { chart: NewsChart }) {
+  if (chart.kind === "waffle") return <WaffleChart chart={chart} />;
+  if (chart.kind === "tia-clock") return <TiaClock chart={chart} />;
+  if (chart.kind === "donut") return <DonutChart chart={chart} />;
+  const max = chart.kind === "bars" ? chart.max ?? 100 : 100;
+  const unit = chart.kind === "bars" ? chart.unit ?? "" : "";
+  const ticks = chart.kind === "bars" ? chart.ticks ?? [0, 25, 50, 75, 100] : [];
+  const scale = 440 / max;
+  const said = (value: number) => unit ? `${value}${unit}` : `${value} in 100`;
   const label = chart.kind === "bars"
-    ? `Bar chart: ${chart.bars.map(bar => `${bar.label}, ${bar.value} in 100`).join("; ")}`
+    ? `Bar chart: ${chart.bars.map(bar => `${bar.label}, ${said(bar.value)}`).join("; ")}`
     : `Range: between ${chart.from} and ${chart.to} of every 100`;
   return <figure className="lib-news-chart">
     <div className="lib-news-chart-title">{chart.title}</div>
     <div className="lib-news-chart-sub">{chart.subtitle}</div>
     {chart.kind === "bars"
       ? <svg viewBox={`0 0 660 ${70 + chart.bars.length * 50}`} role="img" aria-label={label}>
-          {[0, 25, 50, 75, 100].map(tick => <g key={tick}>
-            <line x1={180 + tick * 4.4} y1="36" x2={180 + tick * 4.4} y2={44 + chart.bars.length * 50} stroke={tick === 0 ? "#9AA89F" : "#E2DFD5"} strokeWidth="1" />
-            <text x={180 + tick * 4.4} y={62 + chart.bars.length * 50} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">{tick}</text>
+          {ticks.map(tick => <g key={tick}>
+            <line x1={180 + tick * scale} y1="36" x2={180 + tick * scale} y2={44 + chart.bars.length * 50} stroke={tick === 0 ? "#9AA89F" : "#E2DFD5"} strokeWidth="1" />
+            <text x={180 + tick * scale} y={62 + chart.bars.length * 50} textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">{`${tick}${unit}`}</text>
           </g>)}
           {chart.bars.map((bar, index) => {
             const y = 50 + index * 50;
-            const end = 180 + bar.value * 4.4;
+            const end = 180 + bar.value * scale;
             return <g key={bar.label}>
               <text x="170" y={y + 20} textAnchor="end" fontFamily="DM Sans, sans-serif" fontSize="14" fontWeight="600" fill="#141413">{bar.label}</text>
-              <path d={`M180 ${y} H${end - 4} Q${end} ${y} ${end} ${y + 4} V${y + 26} Q${end} ${y + 30} ${end - 4} ${y + 30} H180 Z`} fill={bar.strong ? "#2F6851" : "#9AA89F"}><title>{`${bar.label}: ${bar.value} in 100`}</title></path>
-              <text x={end + 8} y={y + 21} fontFamily="DM Sans, sans-serif" fontSize="15" fontWeight="700" fill="#141413">{bar.value}</text>
+              <path d={`M180 ${y} H${end - 4} Q${end} ${y} ${end} ${y + 4} V${y + 26} Q${end} ${y + 30} ${end - 4} ${y + 30} H180 Z`} fill={bar.strong ? "#2F6851" : "#9AA89F"}><title>{`${bar.label}: ${said(bar.value)}`}</title></path>
+              <text x={end + 8} y={y + 21} fontFamily="DM Sans, sans-serif" fontSize="15" fontWeight="700" fill="#141413">{`${bar.value}${unit}`}</text>
             </g>;
           })}
         </svg>
@@ -99,9 +112,9 @@ const Ornament = () => <div className="lib-news-ornament" aria-hidden="true">
   <svg width="40" height="12" viewBox="0 0 40 12"><path d="M20 0l6 6-6 6-6-6z" fill="#B4532A" /><path d="M0 6h10M30 6h10" stroke="#9AA89F" /></svg>
 </div>;
 
-export function NewsArticle({ place, article }: { place: ItemPlace; article: LearnArticle }) {
+export function NewsArticle({ place, article, media }: { place: ItemPlace; article: LearnArticle; media?: MediaPiece }) {
   const { group, condition, item, type } = place;
-  const extras = NEWS_EXTRAS[article.id];
+  const extras = newsExtrasFor(item.id, article.id);
   const library = useLibraryState();
   const back = conditionHref(group.id, condition.id);
   const saved = library.saved.includes(conditionKey(place));
@@ -111,18 +124,20 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
   const headline = extras?.headline ?? item.title;
   const standfirst = extras?.standfirst ?? article.short;
   const kicker = [extras?.kicker ?? contentTitle(type, condition), condition.title];
+  // A feature whose first heading is empty runs on from its picture, opening in small capitals.
+  const quietFirst = Boolean(extras && extras.headings?.[0] === "");
 
   const blocks = useMemo<Block[]>(() => [
     { key: "headline", text: headline },
     { key: "standfirst", text: standfirst },
     ...article.sections.flatMap((section, at) => [
-      ...(at === 0 && extras ? [] : [{ key: `h-${at}`, text: extras?.headings?.[at] || section.heading }]),
+      ...(at === 0 && quietFirst ? [] : [{ key: `h-${at}`, text: extras?.headings?.[at] || section.heading }]),
       ...section.paragraphs.map((paragraph, index) => ({ key: `p-${at}-${index}`, text: paragraph })),
     ]),
     { key: "helps", text: "What helps now" },
     ...article.helps.map((help, index) => ({ key: `help-${index}`, text: help })),
     { key: "ask", text: article.ask },
-  ], [article, extras, headline, standfirst]);
+  ], [article, extras, headline, standfirst, quietFirst]);
   const { reading, say } = useNarration(blocks);
 
   // The hands-on band and the pull quote come before the last section, as in the design.
@@ -134,6 +149,22 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
     </div>
   </div>;
   const quote = extras?.pullQuote && <blockquote className="lib-news-quote">{extras.pullQuote}</blockquote>;
+  const sectionAt = (at: number) => {
+    const section = article.sections[at];
+    const quiet = at === 0 && quietFirst;
+    return <Fragment key={section.heading}>
+      {at > 0 && at !== bandBefore && extras && <Ornament />}
+      <section id={`lib-news-s-${at}`} className="lib-news-section" aria-label={quiet ? section.heading : undefined}>
+        {!quiet && <h2>{say(`h-${at}`)}</h2>}
+        {section.paragraphs.map((_, index) => <WithNotes key={index} numbers={extras?.sectionRefs?.[at]?.[index]} references={references}>
+          <p className={at === 0 && index === 0 && extras ? "lib-news-lede" : undefined}>{say(`p-${at}-${index}`)}<Refs numbers={extras?.sectionRefs?.[at]?.[index]} /></p>
+        </WithNotes>)}
+      </section>
+      {extras?.inserts?.[at] && <NewsPieceView piece={extras.inserts[at]} article={article} place={place} />}
+      {extras?.stats?.[at] && <StatRow stats={extras.stats[at]} />}
+      {extras?.charts?.[at] && <Chart chart={extras.charts[at]} />}
+    </Fragment>;
+  };
 
   return <div className="lib-page lib-news">
     <article aria-labelledby="lib-news-headline">
@@ -157,39 +188,29 @@ export function NewsArticle({ place, article }: { place: ItemPlace; article: Lea
         </div>
       </div>
 
-      {extras?.figure && <ClotFigure words={extras.figure.words} />}
+      {extras?.figure?.art === "clot" && <ClotFigure words={extras.figure.words} />}
+      {extras?.figure?.art === "routes" && <RoutesHero routes={extras.figure.routes} article={article} />}
+      {extras?.figure?.art === "types" && <TypesHero panels={extras.figure.panels} />}
+      {extras?.figure?.art === "scans" && <ScansHero milestones={extras.figure.milestones} article={article} />}
+      {extras?.figure?.art === "custom" && <NewsPieceView piece={extras.figure.id} article={article} place={place} />}
+      {media && <section className="lib-news-media" aria-label={media.kind === "practice" ? "Your activity log" : "Watch"}>
+        <div className="lib-news-media-inner"><MediaPieceView piece={media} /></div>
+      </section>}
 
       <div className="lib-news-wrap lib-news-body">
-        {article.sections.slice(0, bandBefore).map((section, at) => <Fragment key={section.heading}>
-          {at > 0 && extras && <Ornament />}
-          <section className="lib-news-section" aria-label={at === 0 && extras ? section.heading : undefined}>
-            {!(at === 0 && extras) && <h2>{say(`h-${at}`)}</h2>}
-            {section.paragraphs.map((_, index) => <WithNotes key={index} numbers={extras?.sectionRefs[at]?.[index]} references={references}>
-              <p className={at === 0 && index === 0 && extras ? "lib-news-lede" : undefined}>{say(`p-${at}-${index}`)}<Refs numbers={extras?.sectionRefs[at]?.[index]} /></p>
-            </WithNotes>)}
-          </section>
-          {extras?.charts?.[at] && <Chart chart={extras.charts[at]} />}
-        </Fragment>)}
+        {article.sections.slice(0, bandBefore).map((_, at) => sectionAt(at))}
       </div>
 
       {band}
 
       <div className="lib-news-wrap lib-news-body">
         {quote}
-        {article.sections.map((section, at) => at < bandBefore ? null : <Fragment key={section.heading}>
-          <section className="lib-news-section">
-            <h2>{say(`h-${at}`)}</h2>
-            {section.paragraphs.map((_, index) => <WithNotes key={index} numbers={extras?.sectionRefs[at]?.[index]} references={references}>
-              <p>{say(`p-${at}-${index}`)}<Refs numbers={extras?.sectionRefs[at]?.[index]} /></p>
-            </WithNotes>)}
-          </section>
-          {extras?.charts?.[at] && <Chart chart={extras.charts[at]} />}
-        </Fragment>)}
+        {article.sections.map((_, at) => at < bandBefore ? null : sectionAt(at))}
 
         <section className="lib-news-section lib-news-helps" aria-labelledby="lib-news-helps">
           <h2 id="lib-news-helps">{say("helps")}</h2>
-          {article.helps.map((_, index) => <WithNotes key={index} numbers={extras?.helpRefs[index]} references={references}>
-            <p className="lib-news-help">{say(`help-${index}`)}<Refs numbers={extras?.helpRefs[index]} />{index === article.helps.length - 1 && <span className="lib-news-endmark" role="img" aria-label="End of article" />}</p>
+          {article.helps.map((_, index) => <WithNotes key={index} numbers={extras?.helpRefs?.[index]} references={references}>
+            <p className="lib-news-help">{say(`help-${index}`)}<Refs numbers={extras?.helpRefs?.[index]} />{index === article.helps.length - 1 && <span className="lib-news-endmark" role="img" aria-label="End of article" />}</p>
           </WithNotes>)}
         </section>
 

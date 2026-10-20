@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Router } from "wouter";
 import { ischaemicMedia } from "@/content/ischaemic-media";
+import { newsExtrasFor } from "@/content/ischaemic-news";
 import { learnArticles } from "@/content/my-time-learn";
 import { conditionItems, findCondition, findItem, findStory, isReadable, itemMedia, learnArticle, storiesFor } from "@/lib/library";
 import { splitSentences } from "@/lib/alira-read-aloud";
@@ -26,7 +27,9 @@ describe("the Ischaemic stroke page's pieces", () => {
       expect(isReadable(item), item.id).toBe(true);
       const text = words(render(item.id));
       expect(text, item.id).not.toMatch(/coming soon/i);
-      expect(text, item.id).toContain(item.title);
+      // A feature can carry a headline of its own in place of the piece's title.
+      const learn = learnArticle(item);
+      expect(text, item.id).toContain((learn && newsExtrasFor(item.id, learn.id)?.headline) ?? item.title);
     }
   });
 
@@ -66,13 +69,59 @@ describe("the Ischaemic stroke page's pieces", () => {
     expect(render("fatigue")).toContain('aria-label="Play the film with narration"');
     const fatigue = words(render("fatigue"));
     expect(fatigue).toContain("Your energy diary");
-    expect(fatigue.indexOf("Your energy diary")).toBeLessThan(fatigue.indexOf("The written answer"));
+    expect(render("fatigue")).toContain('class="lib-page lib-news"');
+    expect(fatigue.indexOf("Your energy diary")).toBeLessThan(fatigue.indexOf("What helps now"));
     const types = words(render("types"));
     expect(types).toContain("Pick one to see it");
     expect(types).toContain("Quick check");
     expect(types).toContain("Sources");
     expect(types).toContain("More in Understand");
     expect(learnArticle(findItem("stroke", "ischaemic", "types")!.item)?.id).toBe("isch-types");
+  });
+
+  it("gives Why it happened to me a picture of its own, with checked figures and an AF chart", () => {
+    const html = render("why-me");
+    const text = words(html);
+    expect(text).toContain("Three roads to a blockage");
+    expect(html).toContain('class="lib-why-hero"');
+    for (const road of ["Narrowed arteries", "Tiny vessels deep in the brain", "The heart"]) expect(text).toContain(road);
+    expect(text).toContain("About half");
+    expect(text).toContain("An irregular heartbeat raises the odds");
+    expect(html).toContain('id="lib-news-s-2"');
+  });
+
+  it("gives TIA, ischaemic, haemorrhagic a picture for each word, a 100-square chart and a TIA timeline", () => {
+    const html = render("types");
+    const text = words(html);
+    expect(text).toContain("Three words from the ward");
+    expect(html).toContain('class="lib-types-hero"');
+    for (const word of ["Ischaemic", "Haemorrhagic", "TIA"]) expect(text).toContain(word);
+    expect(html.split('class="lib-news-chart lib-waffle"').length - 1).toBe(1);
+    expect(html.match(/<rect[^>]*rx="4" fill="#(2F6851|C7553E|7A2E2E)"/g)?.length).toBe(100);
+    expect(text).toContain("Fully gone within 24 hours");
+  });
+
+  it("gives The scans and tests you had a scanner, the hospital clock and the neck-artery ring", () => {
+    const html = render("scans");
+    const text = words(html);
+    expect(text).toContain("The first day, test by test");
+    expect(html).toContain('class="lib-scans-hero"');
+    for (const step of ["Within 1 hour of arriving", "Within 4 hours", "After 24 hours, if effects remain"]) expect(text).toContain(step);
+    expect(text).toContain("Up to 15 in 100");
+    expect(text).not.toContain("around 15 in every 100 ischaemic");
+  });
+
+  it("gives every Ischaemic stroke card a feature of its own: a picture, an interactive or a chart no other card has", () => {
+    const seen = new Set<string>();
+    for (const { item } of own) {
+      const learn = learnArticle(item);
+      const extras = learn && newsExtrasFor(item.id, learn.id);
+      expect(extras, item.id).toBeDefined();
+      const own = [extras!.figure?.art === "custom" ? extras!.figure.id : extras!.figure?.art, ...Object.values(extras!.inserts ?? {})].filter(Boolean) as string[];
+      expect(own.length + Object.keys(extras!.charts ?? {}).length, item.id).toBeGreaterThan(0);
+      for (const piece of own) { expect(seen.has(piece), `${item.id}: ${piece}`).toBe(false); seen.add(piece); }
+      expect(words(render(item.id)), item.id).toContain(extras!.headline);
+    }
   });
 
   it("reads each written answer as a feature, with numbered references beside the words", () => {

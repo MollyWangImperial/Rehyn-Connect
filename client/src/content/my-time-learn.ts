@@ -263,7 +263,7 @@ const coreArticles: LearnArticle[] = [
     kicker: "Looking ahead",
     question: "Could it happen again?",
     hook: "The honest answer, and the handful of things that really do lower the odds.",
-    short: "Your risk is higher once you have had a stroke: nearly one in four survivors will have another. But you can reduce that risk, mainly by treating the condition that caused it and taking the medicines you are prescribed.",
+    short: "Your risk is higher once you have had a stroke: about one in four stroke survivors will have another within five years. But you can reduce that risk, mainly by treating the condition that caused it and taking the medicines you are prescribed.",
     sections: [
       {
         heading: "Why the risk is higher",
@@ -297,6 +297,8 @@ const coreArticles: LearnArticle[] = [
       { label: "American Stroke Association: Preventing another stroke", url: "https://www.stroke.org/en/life-after-stroke/preventing-another-stroke" },
       strokeAssociation("Ischaemic stroke", "types/ischaemic"),
       { label: "NHS: Symptoms of a stroke", url: "https://www.nhs.uk/conditions/stroke/symptoms/" },
+      // Checked 20 October 2026: "One in four stroke survivors will have a second stroke within the next five years."
+      { label: "Stroke Association: ERFOS Cymru research project", url: "https://www.stroke.org.uk/about-us/research/projects/erfos-cymru-evaluation-risk-factor-management-frailty-and-outcomes-post" },
     ],
   },
 ];

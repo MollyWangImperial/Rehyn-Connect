@@ -94,8 +94,8 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
   const notYet = item.kind !== "article" && !media;
   const rich = Boolean(media || learn?.interactive || learn?.quiz);
 
-  // The Ischaemic stroke page's written answers read as three-column news stories.
-  if (learn && !media && hasVersionTwo(place)) return <NewsArticle place={place} article={learn} />;
+  // Every Ischaemic stroke piece reads as a feature; a film or the activity log sits in it, under the headline.
+  if (learn && hasVersionTwo(place)) return <NewsArticle place={place} article={learn} media={media} />;
 
   return <div className="lib-page lib-item">
     <div className="lib-wrap lib-item-wrap">

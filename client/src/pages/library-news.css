@@ -29,6 +29,171 @@
 .lib-news-figure-art svg { display:block; width:100%; height:auto; }
 .lib-news-figure figcaption { max-width:1000px; margin:0 auto; padding:10px 24px 14px; font-size:13px; color:#CFE0D7; }
 
+/* "Three roads to a blockage" (Why it happened to me): a night-blue band with the picture on the
+   left and the reader's choices on the right. */
+.lib-why-hero { margin-top:40px; background:#221D4F; color:#FFFEFA; }
+.lib-why-hero-inner { display:flex; flex-wrap:wrap; align-items:center; gap:24px 48px; max-width:1100px; margin:0 auto; padding:36px 24px 8px; }
+.lib-why-art { flex:1 1 320px; max-width:460px; height:auto; }
+.lib-why-pulse { transform-box:fill-box; transform-origin:center; animation:lib-why-pulse 2.4s ease-in-out infinite; }
+@keyframes lib-why-pulse { 0%,100% { transform:scale(.7); opacity:.6; } 50% { transform:scale(1.25); opacity:1; } }
+.lib-why-panel { flex:1 1 320px; min-width:0; max-width:460px; }
+.lib-why-kicker { font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#F2A488; }
+.lib-news .lib-why-title { margin:6px 0 0; font:600 34px/1.15 "Newsreader",Georgia,serif; color:#FFFEFA; }
+.lib-why-choices { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+.lib-why-choice { display:flex; align-items:center; gap:12px; min-height:52px; padding:0 16px; border:2px solid #5B54A6; background:transparent; color:#FFFEFA; font:700 16px "DM Sans",system-ui,sans-serif; text-align:left; cursor:pointer; transition:background .2s ease, border-color .2s ease; }
+.lib-why-choice:hover { border-color:#B3ACEE; }
+.lib-why-choice[aria-pressed="true"] { border-color:#F2A488; background:#F2A488; color:#221D4F; }
+.lib-why-num { display:inline-flex; flex:none; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:#FFFEFA; color:#221D4F; font-size:14px; }
+.lib-why-say { min-height:132px; margin-top:16px; }
+.lib-why-say p { margin:0; font:400 20px/1.5 "Newsreader",Georgia,serif; color:#ECE9FF; }
+.lib-news .lib-why-more { display:inline-flex; align-items:center; gap:6px; min-height:44px; margin-top:6px; color:#F2A488; font-weight:700; }
+.lib-news .lib-why-more:hover { color:#FFD3BF; }
+.lib-why-choice:focus-visible, .lib-news .lib-why-more:focus-visible { outline:3px solid #FFD3BF; outline-offset:2px; }
+.lib-why-credit { max-width:1100px; margin:0 auto; padding:6px 24px 14px; font-size:13px; color:#B3ACEE; }
+
+/* "One picture for each word" (TIA, ischaemic, haemorrhagic): three cards on a deep teal band, each
+   a small moving scene of what happens in the blood vessel. */
+.lib-types-hero { margin-top:40px; background:#0F3B44; color:#FFFEFA; }
+.lib-types-hero-inner { max-width:1100px; margin:0 auto; padding:32px 24px 8px; }
+.lib-news .lib-types-hero-title { margin:0 0 18px; font:600 30px/1.15 "Newsreader",Georgia,serif; color:#FFFEFA; }
+.lib-types-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin:0; padding:0; list-style:none; }
+.lib-types-cards li { display:flex; }
+.lib-news .lib-types-card { flex:1; display:flex; flex-direction:column; gap:6px; padding:16px 18px 18px; border-top:5px solid #2F6851; background:#FBFAF6; color:var(--news-ink); text-decoration:none; transition:transform .25s ease, box-shadow .25s ease; }
+.lib-news .lib-types-card.is-haemorrhagic { border-top-color:#C7553E; }
+.lib-news .lib-types-card.is-tia { border-top-color:#D9A441; }
+.lib-news .lib-types-card:hover { transform:translateY(-4px); box-shadow:0 16px 30px rgba(0,0,0,.25); color:var(--news-ink); }
+.lib-news .lib-types-card:focus-visible { outline:3px solid #F2C9A6; outline-offset:3px; }
+.lib-types-scene { display:block; width:100%; height:auto; margin-bottom:6px; }
+.lib-types-word { font:600 32px/1.05 "Newsreader",Georgia,serif; }
+.lib-types-meaning { font:400 18px/1.4 "Newsreader",Georgia,serif; color:var(--news-text); }
+.lib-types-share { align-self:flex-start; margin-top:4px; padding:4px 10px; background:var(--news-sand); font-size:13px; font-weight:700; color:var(--news-ink); }
+.lib-types-go { margin-top:auto; padding-top:8px; font-size:14px; font-weight:700; color:#2F6851; }
+.lib-types-credit { max-width:1100px; margin:0 auto; padding:10px 24px 14px; font-size:13px; color:#A9CBD1; }
+.lib-types-flow { animation:lib-types-flow 1.2s linear infinite; }
+@keyframes lib-types-flow { to { stroke-dashoffset:-18; } }
+.lib-types-bleed { transform-box:fill-box; transform-origin:center top; animation:lib-types-bleed 3.2s ease-in-out infinite; }
+@keyframes lib-types-bleed { 0% { transform:scale(.25); opacity:.4; } 60%,100% { transform:scale(1); opacity:.9; } }
+.lib-types-dim { opacity:.55; animation:lib-types-dim 2.4s ease-in-out infinite; }
+@keyframes lib-types-dim { 50% { opacity:.75; } }
+/* The TIA: the clot comes, the flow beyond it stops and the tissue dims, then it all clears. */
+.lib-types-tia-clot { animation:lib-types-tia-clot 6s ease-in-out infinite; }
+@keyframes lib-types-tia-clot { 0%,10% { opacity:0; } 20%,60% { opacity:1; } 75%,100% { opacity:0; } }
+.lib-types-tia-dim { animation:lib-types-tia-dim 6s ease-in-out infinite; }
+@keyframes lib-types-tia-dim { 0%,15% { opacity:0; } 25%,60% { opacity:.6; } 75%,100% { opacity:0; } }
+.lib-types-tia-flow { animation:lib-types-flow 1.2s linear infinite, lib-types-tia-flow 6s ease-in-out infinite; }
+@keyframes lib-types-tia-flow { 0%,15% { opacity:1; } 25%,60% { opacity:0; } 75%,100% { opacity:1; } }
+
+/* "Your first day in hospital" (The scans and tests you had): a slate band with a CT scanner at work
+   on the left and the hospital clock on the right. */
+.lib-scans-hero { margin-top:40px; background:#13314A; color:#FFFEFA; }
+.lib-scans-hero-inner { display:flex; flex-wrap:wrap; align-items:center; gap:24px 48px; max-width:1100px; margin:0 auto; padding:36px 24px 8px; }
+.lib-scan-art { flex:1 1 320px; max-width:480px; height:auto; }
+.lib-scan-spin { animation:lib-scan-spin 3.2s linear infinite; }
+@keyframes lib-scan-spin { to { transform:rotate(360deg); } }
+.lib-scan-slice { opacity:0; animation:lib-scan-slice 4.8s ease-in-out infinite; }
+@keyframes lib-scan-slice { 0%,8% { opacity:0; transform:translateY(6px); } 20%,80% { opacity:1; transform:translateY(0); } 100% { opacity:0; } }
+.lib-scans-panel { flex:1 1 360px; min-width:0; max-width:480px; }
+.lib-scans-hero .lib-why-kicker { color:#8FE3C6; }
+.lib-scans-row { display:flex; flex-wrap:wrap; align-items:center; gap:16px 24px; margin-top:18px; }
+.lib-scans-dial { flex:none; width:150px; height:150px; }
+.lib-scans-arc { transition:stroke-dasharray .8s ease; }
+.lib-scans-hand { transition:transform .8s cubic-bezier(.3,1.3,.5,1); }
+.lib-scans-row .lib-why-choices { flex:1 1 220px; margin-top:0; }
+.lib-scans-choice { min-height:58px; border-color:#2B4F6B; }
+.lib-scans-choice[aria-pressed="true"] { border-color:#8FE3C6; background:#8FE3C6; color:#0F2A3F; }
+.lib-scans-when { display:block; font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.8; }
+.lib-scans-say { min-height:96px; margin:18px 0 0; font:400 20px/1.5 "Newsreader",Georgia,serif; color:#E4EEF5; }
+.lib-scans-credit { color:#9DB8CC; }
+
+/* The pictures made for one card each (components/library/NewsPieces.tsx): a band in the card's own
+   colour, the picture on the left and its controls on the right. */
+.lib-piece-band { --band:#221D4F; --band-line:#5B54A6; --band-soft:#ECE9FF; --band-accent:#F2A488; margin-top:40px; background:var(--band); color:#FFFEFA; }
+.lib-piece-band.is-plum { --band:#2A1838; --band-line:#6B4A87; --band-soft:#EEDFFA; --band-accent:#F2A488; }
+.lib-piece-band.is-sage { --band:#E3F0E7; --band-line:#9CC5B0; --band-soft:#24362F; --band-accent:#2F6851; color:#141413; }
+.lib-piece-band.is-dawn { --band:#3B2A18; --band-line:#8A6A44; --band-soft:#FBEBD3; --band-accent:#F2A488; }
+.lib-piece-band.is-violet { --band:#2A1F5C; --band-line:#6A5BB8; --band-soft:#E7E2FF; --band-accent:#B9A9F2; }
+.lib-piece-band.is-night { --band:#1B2230; --band-line:#4A5568; --band-soft:#E4E9F2; --band-accent:#8FC7E6; }
+.lib-piece-band.is-forest { --band:#0E2A20; --band-line:#2F6851; --band-soft:#DDF3E8; --band-accent:#8FE3C6; }
+.lib-piece-band.is-sea { --band:#123E4A; --band-line:#3F7F90; --band-soft:#DDF0F4; --band-accent:#F7E3B5; }
+.lib-piece-band.is-storm { --band:#2B3142; --band-line:#5A6378; --band-soft:#E6E9F0; --band-accent:#F2C94C; }
+.lib-piece-band.is-rose { --band:#4A1F2A; --band-line:#8A4656; --band-soft:#FBE3E8; --band-accent:#FFB7A3; }
+.lib-piece-band.is-honey { --band:#5A3C0E; --band-line:#9A7A3E; --band-soft:#FFF3D6; --band-accent:#F2C94C; }
+.lib-piece-inner { display:flex; flex-wrap:wrap; align-items:center; gap:24px 48px; max-width:1100px; margin:0 auto; padding:36px 24px 8px; }
+.lib-piece-inner.is-stack { flex-direction:column; flex-wrap:nowrap; align-items:stretch; }
+.lib-piece-inner.is-stack > * { flex:none; max-width:none; }
+.lib-piece-inner.is-stack > .lib-piece-panel { max-width:760px; }
+.lib-piece-art { flex:1 1 320px; max-width:460px; }
+.lib-piece-art svg { display:block; width:100%; height:auto; }
+.lib-piece-panel { flex:1 1 320px; min-width:0; max-width:460px; }
+.lib-piece-panel.is-wide { max-width:760px; }
+.lib-piece-band .lib-why-kicker { color:var(--band-accent); }
+.lib-news .lib-piece-band .lib-why-title { color:inherit; }
+.lib-piece-band .lib-why-choice { border-color:var(--band-line); color:inherit; }
+.lib-piece-band .lib-why-choice:hover { border-color:var(--band-accent); }
+.lib-piece-band .lib-why-choice[aria-pressed="true"] { border-color:var(--band-accent); background:var(--band-accent); color:#141413; }
+.lib-piece-band .lib-why-choice:disabled { opacity:.5; cursor:default; }
+.lib-piece-band .lib-why-say p, .lib-piece-say { margin:16px 0 0; font:400 20px/1.5 "Newsreader",Georgia,serif; color:var(--band-soft); }
+.lib-piece-band .lib-why-credit { color:var(--band-soft); opacity:.75; }
+.lib-piece-buttons { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+.lib-piece-buttons .lib-why-choice { flex:1 1 160px; justify-content:center; }
+.lib-piece-lede { margin:10px 0 0; font:400 20px/1.5 "Newsreader",Georgia,serif; }
+.lib-piece-help { margin:14px 0 0; padding-top:12px; border-top:1px solid var(--band-line); font-size:15px; line-height:1.5; color:var(--band-soft); }
+.lib-signal-detour { transition:stroke-width .5s ease, opacity .5s ease; }
+.lib-signal-hand.is-moving { transform-box:fill-box; transform-origin:left center; animation:lib-signal-hand .8s ease-in-out 1.5s 2; }
+@keyframes lib-signal-hand { 50% { transform:rotate(-14deg); } }
+.lib-road-walker { transition:transform .9s cubic-bezier(.3,1.2,.5,1); }
+.lib-rain { animation:lib-rain 1s linear infinite; }
+@keyframes lib-rain { from { transform:translateY(-6px); opacity:0; } 40% { opacity:1; } to { transform:translateY(14px); opacity:0; } }
+.lib-flap { transform-box:fill-box; transform-origin:left center; transition:transform .5s ease; }
+.lib-flap.is-closed { transform:rotate(28deg); }
+.lib-odds-part { transition:fill .4s ease; }
+.lib-odds-item { align-items:flex-start; padding:12px 16px; font-weight:600; line-height:1.4; }
+.lib-star { transform-box:fill-box; transform-origin:center; animation:lib-star .6s cubic-bezier(.3,1.6,.5,1) backwards; }
+@keyframes lib-star { from { transform:scale(0) rotate(-40deg); } }
+.lib-ideas { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
+.lib-ideas li { display:flex; }
+.lib-idea { flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-height:44px; padding:14px; border:2px solid var(--band-line); background:#FBFAF6; color:#141413; font:600 15px/1.35 "DM Sans",system-ui,sans-serif; text-align:left; cursor:pointer; transition:transform .2s ease; }
+.lib-idea:hover { transform:translateY(-3px); }
+.lib-idea[aria-pressed="true"] { border-color:var(--band-accent); box-shadow:inset 0 0 0 2px var(--band-accent); }
+.lib-idea svg { width:80px; height:60px; }
+.lib-piece-band.is-sage .lib-piece-say { color:#24362F; }
+
+/* Small interactives inside the story: the balance wheel, a day's energy, drink textures. */
+.lib-balance-list { display:flex; flex-wrap:wrap; gap:8px; flex:1 1 220px; }
+.lib-balance-list button { min-height:44px; padding:0 14px; border:1.5px solid #C9C5B8; background:#FFFFFF; color:var(--news-ink); font:600 14px "DM Sans",system-ui,sans-serif; cursor:pointer; }
+.lib-balance-list button[aria-pressed="true"] { border-color:#2F6851; background:#2F6851; color:#FFFEFA; }
+.lib-balance svg, .lib-energy svg { flex:0 0 200px; width:200px; max-width:100%; height:auto; }
+.lib-energy svg { flex-basis:110px; width:110px; }
+.lib-energy-list { display:flex; flex:1 1 260px; flex-direction:column; gap:12px; }
+.lib-energy-rest { display:flex; flex-wrap:wrap; gap:8px; }
+.lib-energy-fill { transition:y .5s ease, height .5s ease, fill .5s ease; }
+.lib-thickness svg, .lib-curve svg { display:block; width:100%; height:auto; margin-top:10px; }
+
+/* One share, as a ring. */
+.lib-donut svg { flex:0 0 160px; width:160px; }
+.lib-donut-label { flex:1 1 220px; margin:0; font-size:16px; line-height:1.5; color:var(--news-text); }
+.lib-donut-label strong { color:var(--news-ink); }
+
+/* A hundred squares, and the key beside them. */
+.lib-waffle-row { display:flex; flex-wrap:wrap; align-items:center; gap:20px 32px; margin-top:12px; }
+.lib-waffle-row svg { flex:0 1 240px; width:240px; max-width:100%; height:auto; }
+.lib-waffle-key { display:flex; flex:1 1 220px; flex-direction:column; gap:10px; margin:0; padding:0; list-style:none; font-size:15px; line-height:1.4; color:var(--news-text); }
+.lib-waffle-key li { display:flex; align-items:baseline; gap:8px; }
+.lib-waffle-key strong { flex:none; color:var(--news-ink); }
+.lib-waffle-swatch { flex:none; width:14px; height:14px; border-radius:3px; transform:translateY(2px); }
+.lib-tia-clock svg { overflow:visible; }
+
+/* Big figures, each with a small picture of itself. */
+.lib-news-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; max-width:660px; margin:36px 0 0; padding:0; list-style:none; }
+.lib-news-stat { display:flex; flex-direction:column; gap:6px; padding:18px 18px 20px; border-top:3px solid var(--news-clay); background:#FFFFFF; box-shadow:0 1px 0 var(--news-rule); }
+.lib-news-stat-pic svg { display:block; height:44px; width:auto; }
+.lib-news-stat-value { font:600 40px/1 "Newsreader",Georgia,serif; color:var(--news-ink); }
+.lib-news-stat-label { font-size:15px; line-height:1.45; color:var(--news-muted); }
+
+/* A film or the activity log, in a band of its own under the headline. */
+.lib-news-media { margin-top:40px; padding:36px 0; border-top:1px solid var(--news-rule); border-bottom:1px solid var(--news-rule); background:var(--news-sand); }
+.lib-news-media-inner { max-width:1000px; margin:0 auto; padding:0 24px; }
+
 /* The reading column and its margin. */
 .lib-news-body { padding-top:48px; }
 .lib-news-body + .lib-news-band-try { margin-top:36px; }
@@ -96,6 +261,15 @@
   .lib-news-quote { font-size:28px; padding-left:18px; }
   .lib-news-notes { max-width:none; }
 }
+@media (prefers-reduced-motion:reduce) {
+  .lib-scan-spin, .lib-scans-arc, .lib-scans-hand { animation:none; transition:none; }
+  .lib-signal-detour, .lib-signal-hand, .lib-road-walker, .lib-rain, .lib-flap, .lib-odds-part, .lib-star, .lib-idea, .lib-energy-fill { animation:none !important; transition:none !important; }
+  .lib-scan-slice { animation:none; opacity:1; }
+  .lib-why-pulse, .lib-types-flow, .lib-types-bleed, .lib-types-dim, .lib-types-tia-clot, .lib-types-tia-dim, .lib-types-tia-flow { animation:none; }
+  .lib-types-tia-dim { opacity:.6; }
+  .lib-why-choice, .lib-news .lib-types-card { transition:none; }
+}
+@media (max-width:860px) { .lib-types-cards { grid-template-columns:minmax(0,1fr); } }
 @media print {
   .lib-news-byline-tools, .lib-news-band-try, .lib-news-more { display:none; }
 }
