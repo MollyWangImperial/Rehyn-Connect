@@ -6,7 +6,7 @@ import { newsExtrasFor, WRITTEN_ON, type NewsChart, type NewsReference } from "@
 import { NewsPieceView } from "./NewsPieces";
 import { conditionHref, conditionKey, contentTitle, itemHref, isReadable, type ItemPlace } from "@/lib/library";
 import { libraryStore, useLibraryState } from "@/lib/library-store";
-import { themeOf } from "@/lib/library-theme";
+import { paletteFor, themeOf, themeVars } from "@/lib/library-theme";
 import type { MediaPiece } from "@/content/ischaemic-media";
 import { Interactive, QuickCheck } from "./Interactives";
 import { MediaPieceView } from "./MediaPieces";
@@ -168,7 +168,8 @@ export function NewsArticle({ place, article, media }: { place: ItemPlace; artic
   };
 
   const theme = themeOf(group.id);
-  return <div className={`lib-page lib-news${theme ? ` is-light is-${theme}` : ""}`}>
+  const palette = paletteFor(place);
+  return <div className={`lib-page lib-news${palette ? " is-light" : ""}${theme ? ` is-${theme}` : ""}`} style={palette ? themeVars(palette) : undefined}>
     <article aria-labelledby="lib-news-headline">
       <div className="lib-news-wrap lib-news-head">
         <nav aria-label="Breadcrumb" className="lib-news-kicker">

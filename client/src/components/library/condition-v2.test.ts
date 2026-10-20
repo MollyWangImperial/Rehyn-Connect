@@ -37,6 +37,14 @@ describe("the condition pages", () => {
     expect(inRouter(createElement(ConditionPage, { place: ischaemic }))).not.toContain("is-light");
   });
 
+  it("gives every other group's pages the colours of its own card", () => {
+    const focal = inRouter(createElement(ConditionPage, { place: findCondition("epilepsy", "focal")! }), "/epilepsy/focal");
+    expect(focal).toContain("lib-v2 is-light");
+    expect(focal).toContain("--t-ink:#A8402B");
+    const migraine = inRouter(createElement(ConditionPage, { place: findCondition("headache", "migraine")! }), "/headache/migraine");
+    expect(migraine).toContain("--t-ink:#8A5A12");
+  });
+
   it("opens a story-led page with its story", () => {
     const html = inRouter(createElement(ConditionPage, { place: findCondition("parkinsons", "parkinsons-disease")! }), "/parkinsons/parkinsons-disease");
     expect(html).toContain('id="story"');

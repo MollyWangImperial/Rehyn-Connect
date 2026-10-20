@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import type { LibraryItem, LibraryStory } from "@/content/library";
 import { conditionKey, contentTitle, findStory, itemHref, itemMeta, sectionHref, storyHref, type ConditionPlace } from "@/lib/library";
 import { libraryStore, type LibraryState } from "@/lib/library-store";
-import { themeOf, type LightTheme } from "@/lib/library-theme";
+import { paletteFor, themeOf, themeVars, tileLooks, watchBackgrounds, type ThemePalette } from "@/lib/library-theme";
 import { FeedbackButton } from "./FeedbackButton";
 import { GoalCards } from "./GoalCards";
 import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
@@ -90,25 +90,11 @@ const LOOKS: Record<string, Look> = {
   relationships: { sym: "care", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
 };
 const LOOK_CYCLE: Look[] = [LOOKS["what-happens"], LOOKS["why-me"], LOOKS.types, LOOKS.scans, LOOKS["heavy-side"]];
-/** The tiles of a light-themed page, in the colours of its card on the Brain page. */
-const THEME_LOOKS: Record<LightTheme, Omit<Look, "sym">[]> = {
-  memory: [
-    { ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A" },
-    { ink: "#4E2C7A", tint: "#EAE1F7", text: "#3B1F5E" },
-    { ink: "#8A5BB8", tint: "#F6F0FC", text: "#4E2C7A" },
-    { ink: "#5B3F8C", tint: "#EDE6F8", text: "#3B1F5E" },
-  ],
-  movement: [
-    { ink: "#34509E", tint: "#E7ECFB", text: "#233A78" },
-    { ink: "#233A78", tint: "#DFE6F8", text: "#1A2C5E" },
-    { ink: "#4F6BB8", tint: "#EEF2FD", text: "#233A78" },
-    { ink: "#2D4C8C", tint: "#E3EAF8", text: "#1A2C5E" },
-  ],
-};
 const THEME_SYMS: Record<string, string> = { "what-happens": "brain", diagnosis: "scan", stages: "steps", "not-just-memory": "words", steps: "steps", "thinking-not-memory": "rewire", fluctuations: "battery", hallucinations: "mood", "forgetting-words": "words", "what-mci-is": "brain", tests: "scan", "other-causes": "heart",
   dopamine: "brain", "unexpected-symptoms": "mood", "tremor-types": "hand", "morning-shaking": "calendar", "what-it-is": "brain", "not-parkinsons": "types", families: "care", "worse-days": "battery", types: "types", "sensory-trick": "hand" };
-const lookFor = (item: LibraryItem, index: number, theme?: LightTheme): Look => theme
-  ? { ...THEME_LOOKS[theme][index % THEME_LOOKS[theme].length], sym: THEME_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page" }
+/** A tile's look: on a light-themed page, the palette's family; on the stroke pages, its own colour. */
+const lookFor = (item: LibraryItem, index: number, palette?: ThemePalette): Look => palette
+  ? { ...tileLooks(palette)[index % 4], sym: THEME_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page" }
   : LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
 
 function SymbolArt({ name, colour, accent, width, className }: { name: string; colour: string; accent: string; width: number; className: string }) {
@@ -127,9 +113,9 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const key = conditionKey(place);
   const saved = state.saved.includes(key);
   const theme = themeOf(group.id);
-  const stroke = group.id === "stroke";
+  const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "memory" ? <MemoryArt /> : theme === "movement" ? <MovementArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -168,19 +154,19 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
 }
 
 /**
- * The Dementia & memory header: a soft network of connections, like the links between memories. Some
- * points glow and fade, some links come and go, and the rest hold steady.
+ * The header of a light-themed page: a soft network of connections, in the page's own colours (the
+ * --t-… variables). Some points glow and fade, some links come and go, and the rest hold steady.
  */
 function MemoryArt() {
   const nodes = [[760, 120], [860, 70], [930, 170], [1040, 110], [1120, 210], [1010, 260], [880, 300], [1180, 90], [1230, 300], [700, 260], [820, 210], [1100, 350]];
   const links = [[0, 1], [1, 3], [0, 10], [10, 2], [2, 3], [3, 7], [3, 4], [4, 5], [5, 2], [5, 6], [6, 9], [9, 10], [4, 8], [5, 11], [8, 11], [7, 4]];
   return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
-    <g stroke="#C9B3E8" strokeWidth="3" strokeLinecap="round">
+    <g style={{ stroke: "var(--t-soft)" }} strokeWidth="3" strokeLinecap="round" opacity=".7">
       {links.map(([a, b], index) => <line key={index} className={index % 4 === 1 ? "lib-v2-link is-fading" : "lib-v2-link"} style={{ animationDelay: `${-index * 0.7}s` }} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} />)}
     </g>
     {nodes.map(([x, y], index) => <g key={index}>
-      <circle cx={x} cy={y} r={index % 3 === 0 ? 14 : 9} fill="#B99BE0" opacity=".55" />
-      <circle className="lib-v2-node" style={{ animationDelay: `${-index * 0.9}s` }} cx={x} cy={y} r={index % 3 === 0 ? 7 : 5} fill="#6A3E9E" />
+      <circle cx={x} cy={y} r={index % 3 === 0 ? 14 : 9} style={{ fill: "var(--t-soft)" }} opacity=".45" />
+      <circle className="lib-v2-node" style={{ animationDelay: `${-index * 0.9}s`, fill: "var(--t-ink)" }} cx={x} cy={y} r={index % 3 === 0 ? 7 : 5} />
     </g>)}
   </svg>;
 }
@@ -238,8 +224,8 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
   const [said, setSaid] = useState("");
   const main = items.find(item => item.id === active) ?? items[0];
   if (!main) return null;
-  const theme = themeOf(place.group.id);
-  const look = lookFor(main, items.indexOf(main), theme);
+  const palette = paletteFor(place);
+  const look = lookFor(main, items.indexOf(main), palette);
   const rest = items.filter(item => item.id !== main.id);
   const felt = main.feltToo;
   const feltStories = felt ? felt.storyIds.map(id => findStory(id)).filter((story): story is LibraryStory => Boolean(story)) : [];
@@ -266,7 +252,7 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
       </article>
 
       {rest.map((item, index) => {
-        const tile = lookFor(item, items.indexOf(item), theme);
+        const tile = lookFor(item, items.indexOf(item), palette);
         return <article key={`${item.id}-${moves}`} className={`lib-v2-tile is-small${entering}`} style={{ background: tile.tint, color: tile.text, animationDelay: `${index * 0.05}s` } as CSSProperties}>
           <button type="button" className="lib-v2-pick" onClick={() => show(item)} aria-label={`Show ${item.title} in the large tile`} />
           <SymbolArt name={tile.sym} colour={tile.ink} accent="#D9674A" width={7} className="lib-v2-sym" />
@@ -397,7 +383,7 @@ function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[
             <span className="lib-v2-lwell-ico" aria-hidden="true">
               {icon
                 ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">{icon}</svg>
-                : <SymbolArt name={lookFor(item, index, themeOf(place.group.id)).sym} colour="currentColor" accent="currentColor" width={12} className="lib-v2-lwell-sym" />}
+                : <SymbolArt name={lookFor(item, index, paletteFor(place)).sym} colour="currentColor" accent="currentColor" width={12} className="lib-v2-lwell-sym" />}
             </span>
             <span className="lib-v2-lwell-words">
               <b>{item.title}</b>
@@ -411,10 +397,6 @@ function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[
 }
 
 const WATCH_BG = ["#231C5C", "#2F2770", "#1F4A5C"];
-const THEME_WATCH_BG: Record<LightTheme, string[]> = {
-  memory: ["#6A3E9E", "#4E2C7A", "#7B4FAE", "#5B3F8C"],
-  movement: ["#34509E", "#233A78", "#4F6BB8", "#2D4C8C"],
-};
 function WatchArt({ item }: { item: LibraryItem }) {
   if (item.kind === "podcast") return <svg className="lib-v2-wl-art" aria-hidden="true" focusable="false" viewBox="0 0 120 60"><g fill="#F2B8A5">
     {[4, 24, 44, 64, 84].map((x, index) => <rect key={x} className="lib-v2-bar" x={x} y="10" width="10" height="50" rx="5" style={{ animationDelay: `${-index * 0.18}s` }} />)}
@@ -440,8 +422,8 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
         {item.extra && <span className="lib-v2-wl-extra">{item.extra.charAt(0).toUpperCase() + item.extra.slice(1)}</span>}
         {item.publisher && <span className="lib-v2-wl-by">{item.url ? "On YouTube · " : ""}{item.publisher}</span>}
       </>;
-      const theme = themeOf(place.group.id);
-      const backgrounds = theme ? THEME_WATCH_BG[theme] : WATCH_BG;
+      const palette = paletteFor(place);
+      const backgrounds = palette ? watchBackgrounds(palette) : WATCH_BG;
       const style = { background: backgrounds[index % backgrounds.length] };
       return <li key={item.id}>
         {item.url
@@ -464,6 +446,7 @@ export function ConditionBento({ place, state, slots }: { place: ConditionPlace;
   const { condition } = place;
   const content = condition.content!;
   const theme = themeOf(place.group.id);
+  const palette = paletteFor(place);
   const ours = content.understand.filter(item => !item.url);
   const outside = content.understand.filter(item => item.url);
   const parts: Part[] = [
@@ -480,7 +463,7 @@ export function ConditionBento({ place, state, slots }: { place: ConditionPlace;
     {note && <span>{note}</span>}
   </div>;
 
-  return <div className={`lib-page lib-condition lib-v2${theme ? ` is-light is-${theme}` : ""}`}>
+  return <div className={`lib-page lib-condition lib-v2${palette ? " is-light" : ""}${theme ? ` is-${theme}` : ""}`} style={palette ? themeVars(palette) : undefined}>
     <Hero place={place} state={state} />
     <PartsBar parts={parts} />
     <div className="lib-v2-layout">

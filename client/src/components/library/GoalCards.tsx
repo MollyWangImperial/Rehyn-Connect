@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { Link } from "wouter";
 import type { LibraryItem } from "@/content/library";
 import { itemHref, type ConditionPlace } from "@/lib/library";
+import { mix, paletteFor } from "@/lib/library-theme";
 
 // Explore as cards: each piece is led by a plain topic label, with a small illustration that moves on
 // hover. The descriptions say only what each piece really contains, and each card names the
@@ -232,11 +233,12 @@ const PLAIN: Omit<Goal, "want" | "desc" | "source" | "art"> = { cta: "Open", ink
 
 export function GoalCards({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   const key = (item: LibraryItem) => goalKey(place.group.id, place.condition.id, item.id);
+  const palette = paletteFor(place);
   const ordered = [...items].sort((a, b) => rank(key(a)) - rank(key(b)));
   return <ul className="lib-v2-goals" role="list">
     {ordered.map((item, index) => {
       const goal = GOALS[key(item)];
-      const look = goal ?? PLAIN;
+      const look = goal ?? (palette ? { cta: "Open", ink: palette.ink, tint: palette.tint, mark: mix(palette.tint, palette.ink, 0.2) } : PLAIN);
       return <li key={item.id}>
         <Link href={itemHref({ ...place, item })} className="lib-v2-goal" style={{ background: look.tint, animationDelay: `${index * 0.09}s`, ["--ink" as string]: look.ink, ["--mark" as string]: look.mark } as CSSProperties}>
           <span className="lib-v2-goal-blob" aria-hidden="true" />

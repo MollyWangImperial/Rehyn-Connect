@@ -192,6 +192,8 @@
 .lib-news.is-memory { --news-clay:#6A3E9E; --news-forest:#4E2C7A; --t-ink:#6A3E9E; --t-text:#3B1F5E; background:#FCFAFE; }
 /* Parkinson's & movement features: the light blues of its card. */
 .lib-news.is-movement { --news-clay:#34509E; --news-forest:#233A78; --t-ink:#34509E; --t-text:#1A2C5E; background:#FAFBFE; }
+/* Every other light-themed feature takes its card's colours from inline --t-… variables (library-theme.ts). */
+.lib-news.is-light { background:var(--t-page, #FCFAFE); }
 .lib-news.is-light a { color:var(--t-ink); }
 .lib-news.is-light a:hover { color:var(--t-text); }
 .lib-news.is-light .lib-news-ornament path:first-child { fill:var(--t-ink); }

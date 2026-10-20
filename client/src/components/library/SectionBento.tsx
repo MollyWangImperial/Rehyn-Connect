@@ -130,7 +130,8 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
   const main = section.groups.find(group => group.id === active) ?? section.groups[0];
   if (!main) return null;
   const rest = section.groups.filter(group => group.id !== main.id);
-  const mainStyle = styles[main.id];
+  // Every large tile keeps its small card's pale colour, except Stroke's deep purple.
+  const mainStyle = { ...styles[main.id], light: main.id !== "stroke" };
 
   const show = (groupId: string) => {
     const group = section.groups.find(candidate => candidate.id === groupId);

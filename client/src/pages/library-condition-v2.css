@@ -256,12 +256,12 @@
 .lib-v2.is-light .lib-v2-wl-kind, .lib-v2.is-light .lib-v2-wl-extra { color:var(--t-on); }
 /* A story that opens the page, and a letter that closes it, sit inside the layout's main column. */
 .lib-v2 .lib-opening, .lib-v2 .lib-letter-band { margin:0; scroll-margin-top:96px; }
-/* On Parkinson's & movement the opening story is in the deep blues of its card. */
-.lib-v2.is-movement .lib-opening { background:#1A2C5E; }
-.lib-v2.is-movement .lib-opening-art { background:#34509E; }
-.lib-v2.is-movement .lib-opening-chapter, .lib-v2.is-movement .lib-opening-go { color:#1A2C5E !important; }
-.lib-v2.is-movement .lib-opening-who, .lib-v2.is-movement .lib-opening-skip { color:#D3DDF5 !important; }
-.lib-v2.is-movement .lib-opening-listen { border-color:#6F86C8; }
+/* On a light-themed page the opening story is in the deep shades of its card. */
+.lib-v2.is-light .lib-opening { background:var(--t-text); }
+.lib-v2.is-light .lib-opening-art { background:var(--t-ink); }
+.lib-v2.is-light .lib-opening-chapter, .lib-v2.is-light .lib-opening-go { color:var(--t-text) !important; }
+.lib-v2.is-light .lib-opening-who, .lib-v2.is-light .lib-opening-skip { color:var(--t-press) !important; }
+.lib-v2.is-light .lib-opening-listen { border-color:var(--t-soft); }
 
 /* ---- Narrower screens ---------------------------------------------------------------------- */
 @media (max-width:1100px) {
