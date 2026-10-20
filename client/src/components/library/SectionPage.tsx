@@ -43,7 +43,7 @@ function AskWhichGroup({ section, onGroup, tile = false }: { section: LibrarySec
     <span className="lib-ask-kicker">Not sure which group?</span>
     <label htmlFor="lib-ask-group" className="lib-ask-label">Describe what's happening in your own words and we'll point you to the right group.</label>
     <div className="lib-ask-row">
-      <input id="lib-ask-group" type="text" value={words} onChange={event => setWords(event.target.value)} placeholder="e.g. “Dad keeps losing his words and repeating himself”" />
+      <input id="lib-ask-group" type="text" value={words} onChange={event => setWords(event.target.value)} placeholder={section.id === "heart-lungs" ? "e.g. “Mum gets breathless on the stairs”" : "e.g. “Dad keeps losing his words and repeating himself”"} />
       <button type="submit" className="lib-button is-small">Ask</button>
     </div>
     <div aria-live="polite">
@@ -110,7 +110,7 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
 
   const bento = hasBento(section);
 
-  return <div className={`lib-page lib-section-page${bento ? " is-bento" : ""}`} style={hueStyle(section.hue)}>
+  return <div className={`lib-page lib-section-page${bento ? ` is-bento is-${section.id}` : ""}`} style={hueStyle(section.hue)}>
     {bento ? <>
       <BentoHero section={section} />
       <SectionBento section={section} ask={show => <AskWhichGroup section={section} onGroup={show} tile />} />

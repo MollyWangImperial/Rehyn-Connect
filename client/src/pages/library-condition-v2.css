@@ -236,6 +236,11 @@
 .lib-v2-wave { stroke-dasharray:6 10; animation:lib-v2-wave 3s linear infinite; }
 .lib-v2-wave.is-slow { animation-duration:5s; }
 @keyframes lib-v2-wave { to { stroke-dashoffset:-32; } }
+.lib-v2-trace { stroke-dasharray:22 100; animation:lib-v2-trace 4s linear infinite; }
+@keyframes lib-v2-trace { from { stroke-dashoffset:22; } to { stroke-dashoffset:-100; } }
+.lib-v2-breathe { transform-box:fill-box; transform-origin:center; animation:lib-v2-breathe 6s ease-in-out infinite; }
+.lib-v2-breathe.is-slow { animation-duration:8s; }
+@keyframes lib-v2-breathe { 0%,100% { transform:scaleY(.6); } 50% { transform:scaleY(1.15); } }
 .lib-v2.is-light .lib-v2-parts-inner { box-shadow:0 12px 30px rgba(var(--t-shadow),.14); }
 .lib-v2.is-light .lib-v2-parts a { color:var(--t-text); }
 .lib-v2.is-light .lib-v2-parts a:hover { background:var(--t-tint); }
@@ -254,6 +259,11 @@
 .lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-ico { background:rgba(255,255,255,.18); color:#FFFFFF; }
 .lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-words span, .lib-v2.is-light .lib-v2-lwell-row.is-dark .lib-v2-lwell-go { color:var(--t-on); }
 .lib-v2.is-light .lib-v2-wl-kind, .lib-v2.is-light .lib-v2-wl-extra { color:var(--t-on); }
+/* The stories panel in the card's own colours, not the stroke pages' coral. */
+.lib-v2.is-light .lib-stories-panel { border-color:var(--t-line); background:var(--t-tint); }
+.lib-v2.is-light .lib-stories-panel .lib-kicker.is-coral, .lib-v2.is-light .lib-stories-panel .lib-pill-link.is-coral { color:var(--t-ink); }
+.lib-v2.is-light .lib-stories-panel .lib-video-initial { background:var(--t-press); color:var(--t-ink); }
+.lib-v2.is-light .lib-stories-panel .lib-h2 { color:var(--t-text); }
 /* A story that opens the page, and a letter that closes it, sit inside the layout's main column. */
 .lib-v2 .lib-opening, .lib-v2 .lib-letter-band { margin:0; scroll-margin-top:96px; }
 /* On a light-themed page the opening story is in the deep shades of its card. */

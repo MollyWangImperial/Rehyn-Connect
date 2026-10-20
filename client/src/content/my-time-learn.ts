@@ -18,6 +18,13 @@ import { mciAnswers } from "./mci-answers";
 import { parkinsonsAnswers } from "./parkinsons-answers";
 import { tremorAnswers } from "./tremor-answers";
 import { dystoniaAnswers } from "./dystonia-answers";
+import { hbpAnswers } from "./hbp-answers";
+import { afAnswers } from "./af-answers";
+import { heartAttackAnswers } from "./heart-attack-answers";
+import { anginaAnswers } from "./angina-answers";
+import { copdAnswers } from "./copd-answers";
+import { asthmaAnswers } from "./asthma-answers";
+import { apnoeaAnswers } from "./apnoea-answers";
 import type { LearnInteractive, QuickCheck } from "./learn-interactive";
 
 export const LEARN_CHECKED = "October 2026";
@@ -315,7 +322,7 @@ const coreArticles: LearnArticle[] = [
 ];
 
 /** Every checked answer: the first six, then the Ischaemic stroke page's own (content/ischaemic-answers.ts). */
-export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers, ...dementiaSharedAnswers, ...vascularAnswers, ...lewyAnswers, ...alzheimersAnswers, ...mciAnswers, ...parkinsonsAnswers, ...tremorAnswers, ...dystoniaAnswers];
+export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers, ...dementiaSharedAnswers, ...vascularAnswers, ...lewyAnswers, ...alzheimersAnswers, ...mciAnswers, ...parkinsonsAnswers, ...tremorAnswers, ...dystoniaAnswers, ...hbpAnswers, ...afAnswers, ...heartAttackAnswers, ...anginaAnswers, ...copdAnswers, ...asthmaAnswers, ...apnoeaAnswers];
 
 export type TrustedPlace = { name: string; about: string; url: string };
 

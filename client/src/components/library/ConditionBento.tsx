@@ -93,9 +93,12 @@ const LOOK_CYCLE: Look[] = [LOOKS["what-happens"], LOOKS["why-me"], LOOKS.types,
 const THEME_SYMS: Record<string, string> = { "what-happens": "brain", diagnosis: "scan", stages: "steps", "not-just-memory": "words", steps: "steps", "thinking-not-memory": "rewire", fluctuations: "battery", hallucinations: "mood", "forgetting-words": "words", "what-mci-is": "brain", tests: "scan", "other-causes": "heart",
   dopamine: "brain", "unexpected-symptoms": "mood", "tremor-types": "hand", "morning-shaking": "calendar", "what-it-is": "brain", "not-parkinsons": "types", families: "care", "worse-days": "battery", types: "types", "sensory-trick": "hand" };
 /** A tile's look: on a light-themed page, the palette's family; on the stroke pages, its own colour. */
-const lookFor = (item: LibraryItem, index: number, palette?: ThemePalette): Look => palette
-  ? { ...tileLooks(palette)[index % 4], sym: THEME_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page" }
-  : LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
+const lookFor = (item: LibraryItem, index: number, palette?: ThemePalette, heart = false): Look => {
+  if (!palette) return LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
+  const sym = THEME_SYMS[item.id] ?? LOOKS[item.id]?.sym ?? "page";
+  // The Heart & lungs pages show a heart where a brain page would show a brain.
+  return { ...tileLooks(palette)[index % 4], sym: heart && sym === "brain" ? "heart" : sym };
+};
 
 function SymbolArt({ name, colour, accent, width, className }: { name: string; colour: string; accent: string; width: number; className: string }) {
   const sym = SYM[name] ?? SYM.page;
@@ -108,6 +111,8 @@ function SymbolArt({ name, colour, accent, width, className }: { name: string; c
 
 // ---- The header -------------------------------------------------------------------------------
 
+const BREATH_GROUPS = ["long-term-lung", "sleep-breathing"];
+
 function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) {
   const { section, group, condition } = place;
   const key = conditionKey(place);
@@ -115,7 +120,7 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const theme = themeOf(group.id);
   const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "movement" ? <MovementArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -192,6 +197,28 @@ function MovementArt() {
   </svg>;
 }
 
+/** The heart groups' header: a heartbeat trace that draws itself across, again and again. */
+function PulseArt() {
+  const beats = Array.from({ length: 4 }, (_, index) => {
+    const x = 560 + index * 190;
+    return `L${x + 90} 220 L${x + 104} 196 L${x + 118} 250 L${x + 132} 120 L${x + 148} 290 L${x + 162} 220`;
+  }).join(" ");
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <path d={`M540 220 ${beats} L1320 220`} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity=".45" />
+    <path className="lib-v2-trace" pathLength={100} d={`M540 220 ${beats} L1320 220`} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>;
+}
+
+/** The breathing groups' header: soft waves that rise and fall slowly, like a breath. */
+function BreathArt() {
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <g fill="none" strokeLinecap="round">
+      {[150, 220, 290].map((y, index) => <path key={y} className={`lib-v2-breathe${index === 1 ? " is-slow" : ""}`} d={`M560 ${y} C640 ${y - 60}, 720 ${y - 60}, 800 ${y} S960 ${y + 60}, 1040 ${y} S1200 ${y - 60}, 1300 ${y}`}
+        style={{ stroke: index === 1 ? "var(--t-ink)" : "var(--t-soft)", animationDelay: `${-index * 1.2}s` }} strokeWidth={index === 1 ? 5 : 3} opacity={index === 1 ? 0.7 : 0.6} />)}
+    </g>
+  </svg>;
+}
+
 // ---- The bar of the page's parts --------------------------------------------------------------
 
 type Part = { id: string; label: string; story?: boolean };
@@ -225,7 +252,8 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
   const main = items.find(item => item.id === active) ?? items[0];
   if (!main) return null;
   const palette = paletteFor(place);
-  const look = lookFor(main, items.indexOf(main), palette);
+  const heart = place.section.id === "heart-lungs";
+  const look = lookFor(main, items.indexOf(main), palette, heart);
   const rest = items.filter(item => item.id !== main.id);
   const felt = main.feltToo;
   const feltStories = felt ? felt.storyIds.map(id => findStory(id)).filter((story): story is LibraryStory => Boolean(story)) : [];
@@ -252,7 +280,7 @@ function Understand({ place, items, outside }: { place: ConditionPlace; items: L
       </article>
 
       {rest.map((item, index) => {
-        const tile = lookFor(item, items.indexOf(item), palette);
+        const tile = lookFor(item, items.indexOf(item), palette, heart);
         return <article key={`${item.id}-${moves}`} className={`lib-v2-tile is-small${entering}`} style={{ background: tile.tint, color: tile.text, animationDelay: `${index * 0.05}s` } as CSSProperties}>
           <button type="button" className="lib-v2-pick" onClick={() => show(item)} aria-label={`Show ${item.title} in the large tile`} />
           <SymbolArt name={tile.sym} colour={tile.ink} accent="#D9674A" width={7} className="lib-v2-sym" />
@@ -320,6 +348,26 @@ const LW_ICON: Record<string, ReactNode> = {
   alcohol: <><path d="M8 4h8l-1 7a3 3 0 0 1-6 0Z" /><path d="M12 14v6M9 20h6" /></>,
   voice: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
   pain: <path d="M13 3 6 13h5l-1 8 7-10h-5Z" />,
+  // Heart & lungs' own.
+  "alcohol-weight": <><path d="M8 4h8l-1 7a3 3 0 0 1-6 0Z" /><path d="M12 14v6M9 20h6" /></>,
+  "alcohol-caffeine": <><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z" /><path d="M16 11h2a2 2 0 0 1 0 4h-2M9 4v2M12 4v2" /></>,
+  "missed-dose": <><rect x="4" y="9" width="16" height="7" rx="3.5" /><path d="M12 9v7" /></>,
+  "white-coat": <><path d="M6 4v5a4 4 0 0 0 8 0V4" /><path d="M10 13v3a4 4 0 0 0 8 0v-2" /><circle cx="18" cy="12" r="2" /></>,
+  "stress-sleep": <path d="M16 4a7 7 0 1 0 4 12 6 6 0 1 1-4-12Z" />,
+  bleeding: <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />,
+  exercise: <><circle cx="14" cy="5" r="2" /><path d="M10 21l2-6 3 2v4M7 12l3-3 4 1 3 3M12 15l-2-5" /></>,
+  food: <><circle cx="12" cy="13" r="7" /><path d="M12 9v4l3 2" /></>,
+  sex: <path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19Z" />,
+  smoking: <><rect x="3" y="12" width="14" height="4" rx="1" /><path d="M17 12v4M20 12v4M18 4c0 2 2 2 2 4" /></>,
+  "smoking-vaping": <><rect x="3" y="12" width="14" height="4" rx="1" /><path d="M17 12v4M20 12v4M18 4c0 2 2 2 2 4" /></>,
+  "food-smoking": <><circle cx="12" cy="13" r="7" /><path d="M8 13h8" /></>,
+  "cold-meals": <path d="M12 3v18M4.5 7.5l15 9M19.5 7.5l-15 9M9 4.5l3 2 3-2M9 19.5l3-2 3 2" />,
+  breathing: <path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8" />,
+  vaccines: <><path d="M18 3l3 3M15 6l3 3M6 18l-3 3M8 10l6 6M16 8l-8 8-3-3 8-8Z" /></>,
+  energy: <><rect x="3" y="8" width="16" height="9" rx="2" /><path d="M21 11v3M6 11v3M9 11v3" /></>,
+  "hay-fever": <><circle cx="12" cy="10" r="2.5" /><path d="M12 4.5a3 3 0 0 1 0 3M12 12.5a3 3 0 0 1 0 3M6.5 10a3 3 0 0 1 3 0M14.5 10a3 3 0 0 1 3 0M12 15v6" /></>,
+  travel: <path d="M3 13l18-6-4 12-4-5-4 3v-4Z" />,
+  partner: <><circle cx="9" cy="8.5" r="2.8" /><circle cx="16" cy="8.5" r="2.8" /><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M12 15c.9-.7 2.2-1 4-1 2.7 0 4.9 1.8 5.5 5" /></>,
 };
 
 type LiveWellLine = { line?: string; tag?: string; dark?: boolean };
@@ -370,6 +418,37 @@ const LW_LINES: Record<string, LiveWellLine> = {
   "alzheimers/carers": { line: "a carer's assessment, and helplines", dark: true },
   "vascular/carers": { line: "a carer's assessment, and helplines", dark: true },
   "lewy-body/carers": { line: "a carer's assessment, and helplines", dark: true },
+  // Heart & lungs' own lines.
+  "high-blood-pressure/alcohol-weight": { line: "14 units a week, and a little weight off" },
+  "high-blood-pressure/missed-dose": { line: "never double up; check the leaflet", dark: true },
+  "high-blood-pressure/white-coat": { line: "home and 24-hour readings" },
+  "high-blood-pressure/stress-sleep": { line: "short rises, and the night-time dip" },
+  "atrial-fibrillation/alcohol-caffeine": { line: "alcohol, caffeine and other triggers" },
+  "atrial-fibrillation/bleeding": { line: "alert cards, dentists and bleeding checks", dark: true },
+  "atrial-fibrillation/exercise": { line: "build it up gradually" },
+  "atrial-fibrillation/worry": { line: "talking it through helps" },
+  "heart-attack/driving-work": { line: "when to drive, work and fly again" },
+  "heart-attack/food": { line: "Mediterranean, not a strict diet" },
+  "heart-attack/sex": { line: "usually after about 4 weeks" },
+  "heart-attack/mood": { line: "fear and low mood are common" },
+  "heart-attack/smoking": { line: "free NHS support to stop", dark: true },
+  "angina/cold-meals": { line: "cold, big meals and stress" },
+  "angina/driving-work": { line: "car drivers needn't tell DVLA" },
+  "angina/food-smoking": { line: "salt, alcohol and smoking" },
+  "angina/worry": { line: "a warning, not a life sentence", dark: true },
+  "copd/breathing": { line: "pursed lips, positions and a fan" },
+  "copd/smoking": { line: "never too late, even now" },
+  "copd/vaccines": { line: "flu before the end of October" },
+  "copd/energy": { line: "rests between tasks" },
+  "copd/mood": { line: "breathlessness, anxiety and support", dark: true },
+  "asthma/exercise": { line: "breathing harder is normal" },
+  "asthma/home": { line: "damp, dust mites and pets" },
+  "asthma/smoking-vaping": { line: "smoke-free airways" },
+  "asthma/hay-fever": { line: "start treatment early", dark: true },
+  "sleep-apnoea/driving": { line: "when to tell DVLA" },
+  "sleep-apnoea/travel": { line: "CPAP in your hand luggage" },
+  "sleep-apnoea/partner": { line: "they may notice it first", dark: true },
+  "sleep-apnoea/energy": { line: "feeling more refreshed" },
 };
 function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   return <ul className="lib-v2-lwell-list" role="list">

@@ -196,7 +196,7 @@ function StoriesPanel({ place }: { place: ConditionPlace }) {
   return <section id="stories" className="lib-stories-panel" aria-labelledby="h-stories">
     <div className="lib-row-head">
       <div>
-        <span className="lib-kicker is-coral">Stories · {place.condition.title.toLowerCase()}</span>
+        <span className="lib-kicker is-coral">Stories · {lowerTitle(place.condition.title)}</span>
         <h2 id="h-stories" className="lib-h2">{numberWord(stories.length)} {stories.length === 1 ? "person" : "people"}, told in their own words</h2>
       </div>
       <span className="lib-film-note">{STORIES_NOTE}</span>
@@ -219,10 +219,10 @@ function VideoStoriesPanel({ place, videos }: { place: ConditionPlace; videos: V
   return <section id="stories" className="lib-stories-panel" aria-labelledby="h-stories">
     <div className="lib-row-head">
       <div>
-        <span className="lib-kicker is-coral">Stories · {place.condition.title.toLowerCase()}</span>
+        <span className="lib-kicker is-coral">Stories · {lowerTitle(place.condition.title)}</span>
         <h2 id="h-stories" className="lib-h2">{numberWord(videos.length)} {videos.length === 1 ? "person" : "people"}, in their own words</h2>
       </div>
-      <span className="lib-film-note">Personal experiences shared on YouTube by the channels named. Everyone's stroke and recovery is different.</span>
+      <span className="lib-film-note">Personal experiences shared on YouTube by the channels named. {place.group.id === "stroke" ? "Everyone's stroke and recovery is different." : "Everyone's experience is different."}</span>
     </div>
     <ul role="list">
       {videos.map(video => <li key={video.id}>
@@ -257,9 +257,12 @@ function ConditionHeader({ place, full, state, switcher }: { place: ConditionPla
   </div>;
 }
 
+/** A title in running text: lower case, except an abbreviation such as COPD. */
+const lowerTitle = (title: string) => /^[A-Z]{2,}\b/.test(title) ? title : title.toLowerCase();
+
 /** The line under each part's heading: the page's own, or a plain default. */
 const PURPOSE = {
-  understand: (title: string) => `Understand ${title.toLowerCase()}, its causes and the tests used to diagnose it.`,
+  understand: (title: string) => `Understand ${lowerTitle(title)}, its causes and the tests used to diagnose it.`,
   recover: () => "General information about recovery and everyday activities, to read alongside your care team's advice.",
   liveWell: () => "Find practical support for everyday life.",
   watch: () => "Short films, talks and audio to watch or listen to at your own pace.",

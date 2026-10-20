@@ -193,7 +193,12 @@
 /* Parkinson's & movement features: the light blues of its card. */
 .lib-news.is-movement { --news-clay:#34509E; --news-forest:#233A78; --t-ink:#34509E; --t-text:#1A2C5E; background:#FAFBFE; }
 /* Every other light-themed feature takes its card's colours from inline --t-… variables (library-theme.ts). */
-.lib-news.is-light { background:var(--t-page, #FCFAFE); }
+.lib-news.is-light { background:var(--t-page, #FCFAFE); --news-bar:var(--t-ink); --news-bar-soft:var(--t-soft); --news-w-green:var(--t-soft); --news-w-clay:var(--t-ink); --news-w-dark:var(--t-text); }
+.lib-news.is-light .lib-news-band-try { border-color:var(--t-line); background:var(--t-tint);
+  --m-green:var(--t-ink); --m-green-soft:var(--t-tint); --m-coral:var(--t-ink); --m-ink:var(--t-ink); --m-tint:var(--t-tint); --m-line:var(--t-line); --m-text:var(--t-text); --m-muted:var(--t-muted); }
+.lib-news.is-light .lib-news-band-try :is(.lib-try-box h3, .lib-flip-face.is-front b, .lib-timeline-card h4, .lib-scenario-q) { color:var(--t-text); }
+.lib-news.is-light .lib-news-band-try .lib-try-result { color:var(--t-text); }
+.lib-news.is-light .lib-news-band-try .lib-flip-face.is-front { border-color:var(--t-line); }
 .lib-news.is-light a { color:var(--t-ink); }
 .lib-news.is-light a:hover { color:var(--t-text); }
 .lib-news.is-light .lib-news-ornament path:first-child { fill:var(--t-ink); }
@@ -205,10 +210,13 @@
 .lib-piece-band.is-ice { --band:#DFE6F8; --band-line:#A9BBE8; --band-soft:#1A2C5E; --band-accent:#233A78; color:#14234A; }
 .lib-piece-band.is-frost { --band:#EEF2FD; --band-line:#C2CFF0; --band-soft:#233A78; --band-accent:#4F6BB8; color:#14234A; }
 .lib-piece-band.is-steel { --band:#E3EAF4; --band-line:#B1C1DB; --band-soft:#1F3352; --band-accent:#2D4C8C; color:#14234A; }
-:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel) .lib-why-choice[aria-pressed="true"] { color:#FFFFFF; }
-:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel) .lib-why-num { background:var(--band-accent); color:#FFFFFF; }
-:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel) .lib-why-choice[aria-pressed="true"] .lib-why-num { background:#FFFFFF; color:var(--band-accent); }
-:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel) .lib-why-credit { opacity:.85; }
+/* Bands in the page's own card colours (the --t-… variables): `theme` pale, `theme-deep` a shade deeper. */
+.lib-piece-band.is-theme { --band:var(--t-tint); --band-line:var(--t-soft); --band-soft:var(--t-text); --band-accent:var(--t-ink); color:var(--t-text); }
+.lib-piece-band.is-theme-deep { --band:var(--t-press); --band-line:var(--t-soft); --band-soft:var(--t-text); --band-accent:var(--t-ink); color:var(--t-text); }
+:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel, .lib-piece-band.is-theme, .lib-piece-band.is-theme-deep) .lib-why-choice[aria-pressed="true"] { color:#FFFFFF; }
+:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel, .lib-piece-band.is-theme, .lib-piece-band.is-theme-deep) .lib-why-num { background:var(--band-accent); color:#FFFFFF; }
+:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel, .lib-piece-band.is-theme, .lib-piece-band.is-theme-deep) .lib-why-choice[aria-pressed="true"] .lib-why-num { background:#FFFFFF; color:var(--band-accent); }
+:is(.lib-piece-band.is-lilac, .lib-piece-band.is-heather, .lib-piece-band.is-orchid, .lib-piece-band.is-mist, .lib-piece-band.is-sky, .lib-piece-band.is-ice, .lib-piece-band.is-frost, .lib-piece-band.is-steel, .lib-piece-band.is-theme, .lib-piece-band.is-theme-deep) .lib-why-credit { opacity:.85; }
 
 /* Stroke under 50's own pieces (components/library/NewsYoungPieces.tsx). */
 .lib-piece-band.is-ink { --band:#14213D; --band-line:#3C5A8A; --band-soft:#E2EAF7; --band-accent:#F2A488; }

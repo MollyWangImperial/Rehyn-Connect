@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import type { LibraryGroup, LibrarySection } from "@/content/library";
 import { conditionHref, sectionStories } from "@/lib/library";
 import { readLocal } from "@/lib/library-local";
+import { HEART_PALETTES } from "@/lib/library-theme";
 import { Crumbs } from "./parts";
 
 // The Brain & nervous system page as a "bento" (brain-section-bento.html): a dark header with
@@ -54,7 +55,38 @@ const BRAIN: Record<string, BentoStyle> = {
   </> },
 };
 
-const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN };
+// The Heart & lungs page: the same bento, in reds for the heart and blues for breathing. Each group's
+// colours are its pages' colours too (lib/library-theme.ts).
+const HEART: Record<string, BentoStyle> = {
+  "blood-pressure": { ...HEART_PALETTES["blood-pressure"], short: "The numbers, the tablets and the everyday habits.", chips: ["High blood pressure"], symbol: <>
+    <path d="M36 132 A64 64 0 0 1 164 132" />
+    <path d="M52 132 A48 48 0 0 1 60 106 M140 106 A48 48 0 0 1 148 132" strokeDasharray="4 10" />
+    <path d="M100 132 L134 92" />
+    <circle cx="100" cy="132" r="9" />
+    <path d="M50 166 H150" />
+  </> },
+  "heart-attack": { ...HEART_PALETTES["heart-attack"], short: "Chest pain, the days in hospital and the months after.", chips: ["Heart attack", "Angina"], symbol: <>
+    <path d="M100 174 C44 134, 22 100, 32 70 C42 40, 82 36, 100 64 C118 36, 158 40, 168 70 C178 100, 156 134, 100 174 Z" />
+    <path d="M124 58 C112 86, 132 104, 118 136" />
+    <circle cx="124" cy="96" r="7" />
+  </> },
+  "heart-rhythm": { ...HEART_PALETTES["heart-rhythm"], short: "When the heart beats too fast, too slow or out of step.", chips: ["Atrial fibrillation"], symbol: <>
+    <path d="M14 112 H44 L54 92 L62 132 L74 66 L86 146 L94 112 H108 L114 100 L120 124 L128 104 L134 118 L140 112 H186" />
+    <path d="M100 56 C86 40, 64 50, 70 66 C74 76, 100 90, 100 90 C100 90, 126 76, 130 66 C136 50, 114 40, 100 56 Z" />
+  </> },
+  "long-term-lung": { ...HEART_PALETTES["long-term-lung"], short: "Living with breathlessness, and the inhalers that help.", chips: ["COPD", "Asthma"], symbol: <>
+    <path d="M100 26 V96 M100 96 C92 104, 84 108, 76 110 M100 96 C108 104, 116 108, 124 110" />
+    <path d="M86 58 C58 48, 30 88, 34 138 C36 164, 58 172, 78 160 C88 150, 90 118, 86 58 Z" />
+    <path d="M114 58 C142 48, 170 88, 166 138 C164 164, 142 172, 122 160 C112 150, 110 118, 114 58 Z" />
+  </> },
+  "sleep-breathing": { ...HEART_PALETTES["sleep-breathing"], short: "Snoring, pauses in breathing at night, and tiredness.", chips: ["Sleep apnoea"], symbol: <>
+    <path d="M112 34 A58 58 0 1 0 166 120 A46 46 0 1 1 112 34 Z" />
+    <path d="M138 38 h20 l-20 22 h20" />
+    <path d="M22 172 q16 -18 32 0 t32 0 t32 0 t32 0" />
+  </> },
+};
+
+const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART };
 
 /** Whether a section has the bento layout: every one of its groups has a style. */
 export const hasBento = (section: LibrarySection) => Boolean(BENTO[section.id]) && section.groups.every(group => BENTO[section.id][group.id]);
@@ -67,8 +99,8 @@ const plural = (count: number, word: string) => `${count} ${word}${count === 1 ?
 export function BentoHero({ section }: { section: LibrarySection }) {
   const conditions = section.groups.reduce((sum, group) => sum + group.conditions.length, 0);
   const stories = sectionStories(section.id).length;
-  return <header className="lib-bento-hero">
-    <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+  return <header className={`lib-bento-hero is-${section.id}`}>
+    {section.id === "heart-lungs" ? <HeartArt /> : <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
       <g className="lib-bento-folds" fill="none" stroke="#9C91E8" strokeOpacity=".22" strokeWidth="2" strokeLinecap="round">
         <path d="M-60 40 C40 10, 80 70, 160 40 S300 10, 380 50 S520 90, 600 40 S760 0, 840 50 S1000 90, 1080 40 S1240 10, 1340 50" />
         <path d="M-60 100 C30 70, 90 130, 180 100 S320 60, 400 110 S560 150, 640 100 S800 60, 880 110 S1040 150, 1120 100 S1280 70, 1340 110" />
@@ -85,7 +117,7 @@ export function BentoHero({ section }: { section: LibrarySection }) {
         {[[300, 100, 3, 0], [640, 40, 3, -1], [880, 230, 4, -2.2], [1120, 100, 3, -3], [1000, 300, 3, -1.6], [760, 150, 2.5, -.6]].map(([cx, cy, r, delay]) =>
           <circle key={`${cx}-${cy}`} className="lib-bento-spark" cx={cx} cy={cy} r={r} style={{ animationDelay: `${delay}s` }} />)}
       </g>
-    </svg>
+    </svg>}
     <div className="lib-bento-hero-inner">
       <Crumbs className="lib-bento-crumbs" trail={[{ label: "Library", href: "/" }, { label: section.title }]} />
       <h1>{section.title}</h1>
@@ -99,6 +131,28 @@ export function BentoHero({ section }: { section: LibrarySection }) {
       </div>
     </div>
   </header>;
+}
+
+/** The Heart & lungs header: a heartbeat trace drifting across, and slow breathing waves under it. */
+function HeartArt() {
+  const beat = (y: number) => Array.from({ length: 6 }, (_, index) => {
+    const x = -60 + index * 240;
+    return `M${x} ${y} H${x + 120} L${x + 134} ${y - 18} L${x + 146} ${y + 22} L${x + 160} ${y - 64} L${x + 174} ${y + 40} L${x + 186} ${y} H${x + 240}`;
+  }).join(" ");
+  return <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    <g className="lib-bento-folds" fill="none" stroke="#F2A0A0" strokeOpacity=".24" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d={beat(110)} />
+      <path d={beat(250)} strokeOpacity=".5" />
+    </g>
+    <g className="lib-bento-folds is-slow" fill="none" stroke="#9FC8E0" strokeOpacity=".2" strokeWidth="1.6" strokeLinecap="round">
+      <path d="M-60 180 C60 140, 140 220, 260 180 S460 140, 580 180 S780 220, 900 180 S1100 140, 1340 180" />
+      <path d="M-60 320 C60 280, 140 360, 260 320 S460 280, 580 320 S780 360, 900 320 S1100 280, 1340 320" />
+    </g>
+    <g fill="#F2B8A5">
+      {[[300, 60, 3, 0], [700, 40, 3, -1], [880, 300, 4, -2.2], [1120, 70, 3, -3], [520, 330, 3, -1.6]].map(([cx, cy, r, delay]) =>
+        <circle key={`${cx}-${cy}`} className="lib-bento-spark" cx={cx} cy={cy} r={r} style={{ animationDelay: `${delay}s` }} />)}
+    </g>
+  </svg>;
 }
 
 // The group last moved into the large tile, by section, kept in this browser so coming back to the
@@ -154,7 +208,7 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
 
   return <section className="lib-bento-wrap" aria-label="Groups in this section">
     <p className="lib-sr" aria-live="polite">{said}</p>
-    <div className="lib-bento">
+    <div className={`lib-bento${rest.length === 4 ? " is-few" : ""}`}>
       <article key={`${main.id}-${moves}`} id={`group-${main.id}`} className={`lib-bento-tile is-feature${mainStyle.light ? " is-light" : ""}${entering}`}
         style={mainStyle.light ? { background: mainStyle.tint, ["--ink" as string]: mainStyle.ink, ["--text" as string]: mainStyle.text, ["--muted" as string]: mainStyle.muted } as CSSProperties : { background: mainStyle.ink }} aria-labelledby="lib-bento-feature-title">
         <GroupSymbol style={mainStyle} colour={mainStyle.light ? mainStyle.ink : "#FFFFFF"} width={5} className="lib-bento-sym" />

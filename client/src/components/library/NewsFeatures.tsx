@@ -142,7 +142,7 @@ export function TypesHero({ panels }: { panels: NewsTypePanel[] }) {
   </section>;
 }
 
-const WAFFLE_TONES = { green: "#2F6851", clay: "#C7553E", dark: "#7A2E2E" } as const;
+const WAFFLE_TONES = { green: "var(--news-w-green, #2F6851)", clay: "var(--news-w-clay, #C7553E)", dark: "var(--news-w-dark, #7A2E2E)" } as const;
 
 /** A hundred squares, filled in order: "out of every 100". */
 export function WaffleChart({ chart }: { chart: Extract<NewsChart, { kind: "waffle" }> }) {
@@ -151,7 +151,7 @@ export function WaffleChart({ chart }: { chart: Extract<NewsChart, { kind: "waff
     <div className="lib-news-chart-title">{chart.title}</div>
     <div className="lib-news-chart-sub">{chart.subtitle}</div>
     <div className="lib-waffle-row">
-      <svg viewBox="0 0 260 260" role="img" aria-label={`Of every 100 strokes in the UK: ${chart.groups.map(group => `about ${group.count}, ${group.label.toLowerCase()}`).join("; ")}`}>
+      <svg viewBox="0 0 260 260" role="img" aria-label={`${chart.subtitle}: ${chart.groups.map(group => `about ${group.count}, ${group.label.toLowerCase()}`).join("; ")}`}>
         {squares.map((tone, index) => <rect key={index} x={(index % 10) * 26} y={Math.floor(index / 10) * 26} width="22" height="22" rx="4" fill={WAFFLE_TONES[tone]} />)}
       </svg>
       <ul className="lib-waffle-key" role="list">
@@ -176,7 +176,7 @@ export function TiaClock({ chart }: { chart: Extract<NewsChart, { kind: "tia-clo
         <line x1={tick.x} y1="90" x2={tick.x} y2="102" stroke="#5B6B63" strokeWidth="1.5" />
         <text x={tick.x} y="122" textAnchor={tick.x === 20 ? "start" : tick.x === 620 ? "end" : "middle"} fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">{tick.t}</text>
       </g>)}
-      <rect x="20" y="66" width="230" height="22" rx="4" fill="#B4532A" />
+      <rect x="20" y="66" width="230" height="22" rx="4" fill="var(--news-clay, #B4532A)" />
       <text x="24" y="56" fontFamily="DM Sans, sans-serif" fontSize="13" fontWeight="700" fill="#141413">Signs usually last a few minutes to a few hours</text>
       <line x1="330" y1="40" x2="330" y2="104" stroke="#141413" strokeWidth="2" strokeDasharray="4 4" />
       <text x="336" y="36" fontFamily="DM Sans, sans-serif" fontSize="13" fontWeight="700" fill="#141413">Fully gone within 24 hours</text>
@@ -260,7 +260,7 @@ export function DonutChart({ chart }: { chart: Extract<NewsChart, { kind: "donut
     <div className="lib-waffle-row">
       <svg viewBox="0 0 160 160" role="img" aria-label={`${chart.prefix ? `${chart.prefix} ` : ""}${chart.value} in 100 ${chart.label}`}>
         <circle cx="80" cy="80" r="56" fill="none" stroke="#E2DFD5" strokeWidth="22" />
-        <circle cx="80" cy="80" r="56" fill="none" stroke="#B4532A" strokeWidth="22" strokeDasharray={`${ring * chart.value / 100} ${ring}`} transform="rotate(-90 80 80)" />
+        <circle cx="80" cy="80" r="56" fill="none" stroke="var(--news-clay, #B4532A)" strokeWidth="22" strokeDasharray={`${ring * chart.value / 100} ${ring}`} transform="rotate(-90 80 80)" />
         {chart.prefix && <text x="80" y="66" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="13" fontWeight="700" fill="#5B6B63">{chart.prefix}</text>}
         <text x="80" y="92" textAnchor="middle" fontFamily="Newsreader, Georgia, serif" fontSize="34" fontWeight="600" fill="#141413">{chart.value}</text>
         <text x="80" y="110" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">in 100</text>
@@ -273,25 +273,25 @@ export function DonutChart({ chart }: { chart: Extract<NewsChart, { kind: "donut
 
 function StatPicture({ stat }: { stat: NewsStat }) {
   const picture = stat.picture;
-  if (picture === "hours") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><circle cx="28" cy="28" r="24" fill="none" stroke="#B4532A" strokeWidth="3" /><path d="M28 28 L28 4 A24 24 0 0 1 52 28 Z" fill="#B4532A" /><path d="M28 28 V12 M28 28 H40" stroke="#141413" strokeWidth="3" strokeLinecap="round" /></svg>;
-  if (picture === "calendar") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><rect x="5" y="9" width="46" height="42" rx="6" fill="none" stroke="#B4532A" strokeWidth="3" /><path d="M5 20 H51 M17 4 V14 M39 4 V14" stroke="#B4532A" strokeWidth="3" strokeLinecap="round" /><path d="M18 34 l6 6 l12 -12" stroke="#141413" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>;
+  if (picture === "hours") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><circle cx="28" cy="28" r="24" fill="none" stroke="var(--news-clay, #B4532A)" strokeWidth="3" /><path d="M28 28 L28 4 A24 24 0 0 1 52 28 Z" fill="var(--news-clay, #B4532A)" /><path d="M28 28 V12 M28 28 H40" stroke="#141413" strokeWidth="3" strokeLinecap="round" /></svg>;
+  if (picture === "calendar") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><rect x="5" y="9" width="46" height="42" rx="6" fill="none" stroke="var(--news-clay, #B4532A)" strokeWidth="3" /><path d="M5 20 H51 M17 4 V14 M39 4 V14" stroke="var(--news-clay, #B4532A)" strokeWidth="3" strokeLinecap="round" /><path d="M18 34 l6 6 l12 -12" stroke="#141413" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>;
   if (picture === "one-in") {
     const of = Math.max(2, Math.min(6, stat.of ?? 4));
     return <svg viewBox={`0 0 ${of * 24} 56`} aria-hidden="true" focusable="false">
       {Array.from({ length: of }, (_, at) => <g key={at} transform={`translate(${at * 24} 0)`}>
-        <circle cx="12" cy="14" r="8" fill={at === 0 ? "#B4532A" : "none"} stroke="#B4532A" strokeWidth="2.5" />
-        <path d="M2 54 C 2 36, 22 36, 22 54" fill={at === 0 ? "#B4532A" : "none"} stroke="#B4532A" strokeWidth="2.5" />
+        <circle cx="12" cy="14" r="8" fill={at === 0 ? "var(--news-clay, #B4532A)" : "none"} stroke="var(--news-clay, #B4532A)" strokeWidth="2.5" />
+        <path d="M2 54 C 2 36, 22 36, 22 54" fill={at === 0 ? "var(--news-clay, #B4532A)" : "none"} stroke="var(--news-clay, #B4532A)" strokeWidth="2.5" />
       </g>)}
     </svg>;
   }
   if (!picture) return null;
-  if (picture === "half") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><circle cx="28" cy="28" r="24" fill="none" stroke="#B4532A" strokeWidth="3" /><path d="M28 4 A24 24 0 0 1 28 52 Z" fill="#B4532A" /></svg>;
-  if (picture === "times") return <svg viewBox="0 0 70 56" aria-hidden="true" focusable="false"><rect x="2" y="40" width="10" height="14" rx="2" fill="#9AA89F" />{[0, 1, 2, 3, 4].map(at => <rect key={at} x={20 + at * 10} y={40 - at * 0} width="8" height="14" rx="2" fill="#B4532A" />)}</svg>;
+  if (picture === "half") return <svg viewBox="0 0 56 56" aria-hidden="true" focusable="false"><circle cx="28" cy="28" r="24" fill="none" stroke="var(--news-clay, #B4532A)" strokeWidth="3" /><path d="M28 4 A24 24 0 0 1 28 52 Z" fill="var(--news-clay, #B4532A)" /></svg>;
+  if (picture === "times") return <svg viewBox="0 0 70 56" aria-hidden="true" focusable="false"><rect x="2" y="40" width="10" height="14" rx="2" fill="#9AA89F" />{[0, 1, 2, 3, 4].map(at => <rect key={at} x={20 + at * 10} y={40 - at * 0} width="8" height="14" rx="2" fill="var(--news-clay, #B4532A)" />)}</svg>;
   // one in four people: the first filled in
   return <svg viewBox="0 0 96 56" aria-hidden="true" focusable="false">
     {[0, 1, 2, 3].map(at => <g key={at} transform={`translate(${at * 24} 0)`}>
-      <circle cx="12" cy="14" r="8" fill={at === 0 ? "#B4532A" : "none"} stroke="#B4532A" strokeWidth="2.5" />
-      <path d="M2 54 C 2 36, 22 36, 22 54" fill={at === 0 ? "#B4532A" : "none"} stroke="#B4532A" strokeWidth="2.5" />
+      <circle cx="12" cy="14" r="8" fill={at === 0 ? "var(--news-clay, #B4532A)" : "none"} stroke="var(--news-clay, #B4532A)" strokeWidth="2.5" />
+      <path d="M2 54 C 2 36, 22 36, 22 54" fill={at === 0 ? "var(--news-clay, #B4532A)" : "none"} stroke="var(--news-clay, #B4532A)" strokeWidth="2.5" />
     </g>)}
   </svg>;
 }

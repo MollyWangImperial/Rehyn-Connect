@@ -17,8 +17,9 @@ describe("the checked answers", () => {
       // national guidance on treatment. Stroke under 50 also draws on Different Strokes (run for younger
       // survivors), NHS inform, Citizens Advice, Headway and the Stroke Association's own newsroom. The
       // Dementia pages draw on the Alzheimer's Society, Alzheimer's Research UK, the Lewy Body Society and
-      // Parkinson's UK.
-      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association|alzheimers\.org\.uk|alzheimersresearchuk\.org|lewybody\.org|parkinsons\.org\.uk|dementiauk\.org|tremor\.org\.uk|dystonia\.org\.uk)\//);
+      // Parkinson's UK. The Heart & lungs pages draw on the British Heart Foundation, Blood Pressure UK, the
+      // Arrhythmia Alliance, Asthma + Lung UK and the Sleep Apnoea Trust.
+      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association|alzheimers\.org\.uk|alzheimersresearchuk\.org|lewybody\.org|parkinsons\.org\.uk|dementiauk\.org|tremor\.org\.uk|dystonia\.org\.uk|bhf\.org\.uk|bloodpressureuk\.org|heartrhythmalliance\.org|asthmaandlung\.org\.uk|sleep-apnoea-trust\.org)\//);
     }
     for (const place of trustedPlaces) expect(place.url).toMatch(/^https:\/\//);
   });

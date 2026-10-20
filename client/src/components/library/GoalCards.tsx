@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "wouter";
 import type { LibraryItem } from "@/content/library";
-import { itemHref, type ConditionPlace } from "@/lib/library";
+import { itemHref, learnArticle, type ConditionPlace } from "@/lib/library";
 import { mix, paletteFor } from "@/lib/library-theme";
 
 // Explore as cards: each piece is led by a plain topic label, with a small illustration that moves on
@@ -239,14 +239,18 @@ export function GoalCards({ place, items }: { place: ConditionPlace; items: Libr
     {ordered.map((item, index) => {
       const goal = GOALS[key(item)];
       const look = goal ?? (palette ? { cta: "Open", ink: palette.ink, tint: palette.tint, mark: mix(palette.tint, palette.ink, 0.2) } : PLAIN);
+      // A plain card with a checked answer shows the answer's own hook and the organisations it draws on.
+      const learn = goal ? undefined : learnArticle(item);
+      const desc = goal?.desc ?? learn?.hook ?? item.blurb;
+      const source = goal?.source ?? (learn ? learn.sources.map(entry => entry.label.split(":")[0]).filter((name, at, all) => all.indexOf(name) === at).slice(0, 3).join(", ") : undefined);
       return <li key={item.id}>
         <Link href={itemHref({ ...place, item })} className="lib-v2-goal" style={{ background: look.tint, animationDelay: `${index * 0.09}s`, ["--ink" as string]: look.ink, ["--mark" as string]: look.mark } as CSSProperties}>
           <span className="lib-v2-goal-blob" aria-hidden="true" />
           {goal && <span className="lib-v2-goal-art" aria-hidden="true">{goal.art}</span>}
           <span className="lib-v2-goal-want"><span>{goal ? goal.want : item.title}</span></span>
           {goal && <b className="lib-v2-goal-title">{item.title}</b>}
-          {(goal?.desc ?? item.blurb) && <span className="lib-v2-goal-desc">{goal?.desc ?? item.blurb}</span>}
-          {goal && <span className="lib-v2-goal-source">Rehyn summary · Source: {goal.source}</span>}
+          {desc && <span className="lib-v2-goal-desc">{desc}</span>}
+          {source && <span className="lib-v2-goal-source">Rehyn summary · Source: {source}</span>}
           <span className="lib-v2-goal-cta">{look.cta} <i aria-hidden="true">→</i></span>
         </Link>
       </li>;

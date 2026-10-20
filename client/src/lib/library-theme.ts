@@ -21,6 +21,16 @@ export const BRAIN_PALETTES: Record<string, ThemePalette> = {
   nerves: { ink: "#4B7A2E", tint: "#EAF3E4", text: "#36591F", muted: "#46603A" },
 };
 
+/** The Heart & lungs groups, as their cards on the Heart page show them (SectionBento.tsx). */
+export const HEART_PALETTES: Record<string, ThemePalette> = {
+  "blood-pressure": { ink: "#B03A3A", tint: "#FBE9E7", text: "#7F2424", muted: "#7A4444" },
+  "heart-attack": { ink: "#9C2F55", tint: "#F9E6EE", text: "#6E1F3C", muted: "#6E4655" },
+  "heart-rhythm": { ink: "#B8562A", tint: "#FCEDE3", text: "#833A18", muted: "#7A4A33" },
+  "long-term-lung": { ink: "#2B6C8F", tint: "#E3F0F7", text: "#1C4E6B", muted: "#3A5A6B" },
+  "sleep-breathing": { ink: "#4A4F9C", tint: "#ECEDFA", text: "#30347A", muted: "#4A4E7A" },
+};
+const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES };
+
 /** The groups whose own pieces have pictures drawn for them: the Dementia purples and the movement blues. */
 export type LightTheme = "memory" | "movement";
 const THEMES: Record<string, LightTheme> = { dementia: "memory", parkinsons: "movement" };
@@ -30,11 +40,11 @@ type Place = { section: { hue: { tint: string; ink: string } }; group: { id: str
 
 /**
  * The palette for a condition's pages, or none for stroke (which keeps its deep purple header). A group
- * on the Brain page uses its card's colours; any other group uses its section's colour.
+ * on a bento section page (Brain, Heart) uses its card's colours; any other group its section's colour.
  */
 export function paletteFor(place: Place): ThemePalette | undefined {
   if (place.group.id === "stroke") return undefined;
-  const own = BRAIN_PALETTES[place.group.id];
+  const own = GROUP_PALETTES[place.group.id];
   if (own) return own;
   const { ink, tint } = place.section.hue;
   return { ink, tint, text: mix(ink, "#000000", 0.25), muted: mix(ink, "#5A5A5A", 0.35) };

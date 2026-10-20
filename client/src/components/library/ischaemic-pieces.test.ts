@@ -97,7 +97,7 @@ describe("the Ischaemic stroke page's pieces", () => {
     expect(html).toContain('class="lib-types-hero"');
     for (const word of ["Ischaemic", "Haemorrhagic", "TIA"]) expect(text).toContain(word);
     expect(html.split('class="lib-news-chart lib-waffle"').length - 1).toBe(1);
-    expect(html.match(/<rect[^>]*rx="4" fill="#(2F6851|C7553E|7A2E2E)"/g)?.length).toBe(100);
+    expect(html.match(/<rect[^>]*rx="4" fill="var\(--news-w-(green|clay|dark), #(2F6851|C7553E|7A2E2E)\)"/g)?.length).toBe(100);
     expect(text).toContain("Fully gone within 24 hours");
   });
 

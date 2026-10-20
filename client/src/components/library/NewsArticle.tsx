@@ -78,7 +78,7 @@ function Chart({ chart }: { chart: NewsChart }) {
   const said = (value: number) => unit ? `${value}${unit}` : `${value} in 100`;
   const label = chart.kind === "bars"
     ? `Bar chart: ${chart.bars.map(bar => `${bar.label}, ${said(bar.value)}`).join("; ")}`
-    : `Range: between ${chart.from} and ${chart.to} of every 100`;
+    : `Range: between ${chart.from} and ${chart.to} ${chart.unit ?? "of every 100"}`;
   return <figure className="lib-news-chart">
     <div className="lib-news-chart-title">{chart.title}</div>
     <div className="lib-news-chart-sub">{chart.subtitle}</div>
@@ -93,14 +93,14 @@ function Chart({ chart }: { chart: NewsChart }) {
             const end = 180 + bar.value * scale;
             return <g key={bar.label}>
               <text x="170" y={y + 20} textAnchor="end" fontFamily="DM Sans, sans-serif" fontSize="14" fontWeight="600" fill="#141413">{bar.label}</text>
-              <path d={`M180 ${y} H${end - 4} Q${end} ${y} ${end} ${y + 4} V${y + 26} Q${end} ${y + 30} ${end - 4} ${y + 30} H180 Z`} fill={bar.strong ? "#2F6851" : "#9AA89F"}><title>{`${bar.label}: ${said(bar.value)}`}</title></path>
+              <path d={`M180 ${y} H${end - 4} Q${end} ${y} ${end} ${y + 4} V${y + 26} Q${end} ${y + 30} ${end - 4} ${y + 30} H180 Z`} fill={bar.strong ? "var(--news-bar, #2F6851)" : "var(--news-bar-soft, #9AA89F)"}><title>{`${bar.label}: ${said(bar.value)}`}</title></path>
               <text x={end + 8} y={y + 21} fontFamily="DM Sans, sans-serif" fontSize="15" fontWeight="700" fill="#141413">{`${bar.value}${unit}`}</text>
             </g>;
           })}
         </svg>
       : <svg viewBox="0 0 660 90" role="img" aria-label={label}>
           <rect x="20" y="30" width="600" height="20" rx="4" fill="#E2DFD5" />
-          <rect x={20 + chart.from * 6} y="30" width={(chart.to - chart.from) * 6} height="20" rx="4" fill="#B4532A"><title>{`${chart.from} to ${chart.to} in 100`}</title></rect>
+          <rect x={20 + chart.from * 6} y="30" width={(chart.to - chart.from) * 6} height="20" rx="4" fill="var(--news-clay, #B4532A)"><title>{`${chart.from} to ${chart.to} ${chart.unit ?? "in 100"}`}</title></rect>
           <text x={20 + (chart.from + chart.to) * 3} y="20" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="15" fontWeight="700" fill="#141413">{`${chart.from}–${chart.to}`}</text>
           <text x="20" y="72" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">0</text>
           <text x="620" y="72" textAnchor="end" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">100</text>

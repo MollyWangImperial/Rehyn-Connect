@@ -279,13 +279,13 @@ function EmployerNote({ title, intro, policyAsk }: Extract<LearnInteractive, { k
 
 // ---- Signs to tell the team about --------------------------------------------------------------
 
-function SignsChecklist({ title, intro, signs, after }: Extract<LearnInteractive, { kind: "signs" }>) {
+function SignsChecklist({ title, intro, signs, after, copyHeading = "Things we have noticed" }: Extract<LearnInteractive, { kind: "signs" }>) {
   const [ticked, setTicked] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const toggle = (sign: string) => { setCopied(false); setTicked(list => list.includes(sign) ? list.filter(other => other !== sign) : [...list, sign]); };
   const chosen = signs.filter(sign => ticked.includes(sign));
   const copy = async () => {
-    try { await navigator.clipboard.writeText(["Swallowing: things we have noticed", ...chosen.map(sign => `- ${sign}`)].join("\n")); setCopied(true); } catch { setCopied(false); }
+    try { await navigator.clipboard.writeText([copyHeading, ...chosen.map(sign => `- ${sign}`)].join("\n")); setCopied(true); } catch { setCopied(false); }
   };
   return <Box title={title}>
     <p className="lib-try-intro">{intro}</p>

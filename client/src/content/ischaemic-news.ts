@@ -2,6 +2,15 @@
 // adds to its checked answer (content/ischaemic-answers.ts). An answer without an entry here uses its
 // own question, short answer, headings and sources. The words of the feature are the answer's own.
 
+// The Heart & lungs features' reference numbers, charts and figures, by condition (content/heart-news/).
+import { extras as hbpNews } from "./heart-news/high-blood-pressure";
+import { extras as heartAttackNews } from "./heart-news/heart-attack";
+import { extras as anginaNews } from "./heart-news/angina";
+import { extras as afNews } from "./heart-news/atrial-fibrillation";
+import { extras as copdNews } from "./heart-news/copd";
+import { extras as asthmaNews } from "./heart-news/asthma";
+import { extras as apnoeaNews } from "./heart-news/sleep-apnoea";
+
 /** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
 export const WRITTEN_ON = "17 October 2026";
 
@@ -10,8 +19,8 @@ export type NewsReference ={ publisher: string; title: string; url: string; extr
 export type NewsChart =
   /** Horizontal bars, out of every 100 unless `max` says otherwise; `unit` follows each value ("×"). */
   | { kind: "bars"; title: string; subtitle: string; bars: { label: string; value: number; strong?: boolean }[]; sources: string; max?: number; ticks?: number[]; unit?: string }
-  /** A range on a line from 0 to 100. */
-  | { kind: "range"; title: string; subtitle: string; from: number; to: number; sources: string }
+  /** A range on a line from 0 to 100: "of every 100" unless `unit` names what is counted ("beats per minute"). */
+  | { kind: "range"; title: string; subtitle: string; from: number; to: number; sources: string; unit?: string }
   /** A hundred squares, coloured by group: "out of every 100". */
   | { kind: "waffle"; title: string; subtitle: string; groups: { label: string; count: number; tone: "green" | "clay" | "dark" }[]; sources: string }
   /** How long a TIA's symptoms last, on a line from the first minute to the weeks after. */
@@ -79,7 +88,15 @@ export type NewsPiece =
   | "dopamine-relay" | "symptom-orbit" | "clinic-tests" | "rest-or-move" | "night-to-morning" | "on-off-wave" | "activity-ring" | "voice-meter" | "dbs-lead" | "freeze-cues" | "sleep-routine" | "home-route" | "licence-card" | "care-team"
   // Essential tremor's and dystonia's own (components/library/NewsTremorPieces.tsx).
   | "tremor-trace" | "rest-action" | "family-tree" | "trigger-dial" | "pill-scale" | "ultrasound-beam" | "steady-table" | "signature" | "alcohol-rebound" | "voice-head" | "tremor-support"
-  | "signal-pull" | "dystonia-map" | "referral-path" | "touch-trick" | "injection-cycle" | "tablet-reach" | "physio-care" | "dbs-chest" | "pillow-ease" | "desk-drive" | "calm-meter" | "explain-card";
+  | "signal-pull" | "dystonia-map" | "referral-path" | "touch-trick" | "injection-cycle" | "tablet-reach" | "physio-care" | "dbs-chest" | "pillow-ease" | "desk-drive" | "calm-meter" | "explain-card"
+  // Heart & lungs pages' own, in each page's card colours (components/library/NewsHeartPieces.tsx).
+  | "hbp-two-numbers" | "hbp-stroke-link" | "hbp-causes" | "hbp-targets" | "hbp-home-cuff" | "hbp-tablets" | "hbp-side-fork" | "hbp-salt" | "hbp-week" | "hbp-units" | "hbp-pillbox" | "hbp-white-coat" | "hbp-day-curve"
+  | "af-chambers" | "af-clot-path" | "af-types" | "af-tests" | "af-feelings" | "af-scale" | "af-reset" | "af-ablation" | "af-pulse" | "af-triggers" | "af-card" | "af-steps" | "af-support"
+  | "mi-statin-days" | "mi-artery-stent" | "mi-stemi" | "mi-test-tiles" | "mi-risk-balance" | "mi-rehab-stones" | "mi-pill-jobs" | "mi-six-weeks" | "mi-gtn-flow" | "mi-road-weeks" | "mi-plate" | "mi-stairs" | "mi-weather" | "mi-quit-line"
+  | "ang-supply" | "ang-traffic" | "ang-test-panels" | "ang-pain-map" | "ang-spray-clock" | "ang-two-jobs" | "ang-road-detour" | "ang-threshold" | "ang-triggers" | "ang-travel" | "ang-clear-artery" | "ang-calm"
+  | "copd-airways" | "copd-spiro" | "copd-flare-signs" | "copd-cycle" | "copd-inhalers" | "copd-rehab-weeks" | "copd-rescue" | "copd-oxygen-gauge" | "copd-candle" | "copd-never-late" | "copd-jab-calendar" | "copd-pace-day" | "copd-worry-loop"
+  | "ast-three-changes" | "ast-trigger-ring" | "ast-three-tests" | "ast-life-line" | "ast-two-inhalers" | "ast-plan-sheet" | "ast-attack-steps" | "ast-review-check" | "ast-runner" | "ast-home-rooms" | "ast-smoke-free" | "ast-pollen"
+  | "osa-throat" | "osa-links" | "osa-study" | "osa-ahi" | "osa-cpap-kit" | "osa-jaw" | "osa-side-sleep" | "osa-dvla-path" | "osa-cabin-bag" | "osa-partner-bed" | "osa-day-energy";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -796,6 +813,134 @@ NEWS_EXTRAS["dystonia/pain"] = dyL("Easing the ache", "Pain is common. Treating 
 NEWS_EXTRAS["dystonia/work"] = dyL("Adjustments that help", "Ask about reasonable adjustments and Access to Work, and tell DVLA if driving may be affected.", "desk-drive", "Explain what you can do, as well as what you cannot do.");
 NEWS_EXTRAS["dystonia/mood"] = dyL("Stress turns it up", "Anxiety and depression are more common with dystonia, and stress can make symptoms worse. Help is there.", "calm-meter", "Living with dystonia can feel isolating, but you are not alone.");
 NEWS_EXTRAS["dystonia/telling-people"] = dyL("A few clear words", "Explain what you find hard, and what you can still do.", "explain-card", "In a support group you can just be yourself and be understood.");
+
+// ---- Heart & lungs ----------------------------------------------------------------------------------
+
+const hbpU = move("Understanding blood pressure");
+const hbpT = move("Treat and manage");
+const hbpL = move("Living with high blood pressure");
+NEWS_EXTRAS["high-blood-pressure/numbers"] = hbpU("Two numbers, one simple story", "The top number is the pressure as your heart beats, the bottom as it rests. Either one can be too high.", "hbp-two-numbers", "Only one of your numbers needs to be higher than it should be.");
+NEWS_EXTRAS["high-blood-pressure/after-stroke"] = hbpU("The number that protects your brain", "High blood pressure is the biggest risk factor for stroke, and lowering it after a stroke or TIA helps prevent another.", "hbp-stroke-link", "It plays a part in about half of all strokes.");
+NEWS_EXTRAS["high-blood-pressure/why-high"] = hbpU("What pushes the numbers up", "Often there is no single cause. Some things you can change, and some you cannot.", "hbp-causes", "Blood pressure tends to rise with age.");
+NEWS_EXTRAS["high-blood-pressure/targets"] = hbpU("Your target depends on you", "Targets differ with age and other conditions, and home targets are lower than clinic ones.", "hbp-targets", "Some people have a different target, so ask what yours is.");
+NEWS_EXTRAS["high-blood-pressure/home-monitor"] = hbpU("Five quiet minutes, then measure", "The right monitor, a calm start, the cuff in the right place, and a week of readings written down.", "hbp-home-cuff", "Place the cuff just above your elbow.");
+NEWS_EXTRAS["high-blood-pressure/tablets"] = hbpT("Different tablets, different jobs", "Some relax the blood vessels, some widen the arteries, some help the body lose water. Many people take more than one.", "hbp-tablets", "Most have names ending in ‘pine’, such as amlodipine.");
+NEWS_EXTRAS["high-blood-pressure/side-effects"] = hbpT("Talk, don't stop", "Many people have no side effects. If you do, there are other doses and other medicines to try.", "hbp-side-fork", "Cough medicines do not usually help this cough.");
+NEWS_EXTRAS["high-blood-pressure/salt"] = hbpT("Most salt hides in shopping", "No more than 6g a day, and around three quarters of it is already in the food we buy.", "hbp-salt", "If food tastes bland at first, do not give up.");
+NEWS_EXTRAS["high-blood-pressure/moving"] = hbpT("Build it up to 150 minutes", "Walking, cycling, swimming and dancing help the heart and blood vessels most. Start small and build up.", "hbp-week", "You can still talk, but not sing.");
+NEWS_EXTRAS["high-blood-pressure/alcohol-weight"] = hbpL("Less drink, less weight, lower numbers", "Keeping to 14 units a week, and losing even a little weight, can make a big difference.", "hbp-units", "Avoid drinking more than six units in six hours.");
+NEWS_EXTRAS["high-blood-pressure/missed-dose"] = hbpL("Missed one? Don't double up", "What to do depends on the medicine, so check its leaflet. Never take two doses together.", "hbp-pillbox", "Never take two doses to make up for a missed one.");
+NEWS_EXTRAS["high-blood-pressure/white-coat"] = hbpL("Why clinic readings can run high", "Being in a clinic can push the numbers up. Home and 24-hour readings show the everyday picture.", "hbp-white-coat", "Most people are more tense than usual in medical settings.");
+NEWS_EXTRAS["high-blood-pressure/stress-sleep"] = hbpL("Stress spikes, sleep dips", "Stress raises blood pressure for a while, and it normally dips at night while you sleep.", "hbp-day-curve", "This is normal and is called nocturnal dipping.");
+
+const afU = move("Understanding AF");
+const afT = move("Treat and manage");
+const afL = move("Living with AF");
+NEWS_EXTRAS["atrial-fibrillation/what-it-is"] = afU("When the top chambers twitch", "Extra, uncoordinated signals make the heartbeat irregular, and often fast.", "af-chambers", "These extra impulses are uncoordinated and cause your heart to twitch.");
+NEWS_EXTRAS["atrial-fibrillation/stroke-link"] = afU("From a pooled clot to a stroke", "AF is not usually life-threatening, but it raises the risk of a clot, and of a stroke.", "af-clot-path", "If the blood clot travels from your heart to your brain, it can cause a stroke.");
+NEWS_EXTRAS["atrial-fibrillation/types"] = afU("Comes and goes, lasts, or stays", "Some AF stops on its own, some lasts longer, and some is there all the time.", "af-types", "They usually stop without treatment.");
+NEWS_EXTRAS["atrial-fibrillation/tests"] = afU("The tests that find the rhythm", "An ECG, a scan of the heart, and sometimes a monitor you wear for a day or more.", "af-tests", "You'll wear a small monitor for 24 hours or more.");
+NEWS_EXTRAS["atrial-fibrillation/symptoms"] = afU("Pounding, fluttering, or nothing at all", "Palpitations, breathlessness, dizziness and tiredness, though some people feel nothing.", "af-feelings", "Some people with atrial fibrillation have symptoms, and some do not.");
+NEWS_EXTRAS["atrial-fibrillation/anticoagulants"] = afT("Weighing clot risk against bleeding", "Blood thinners lower the risk of a stroke. The main side effect is bleeding more easily.", "af-scale", "The main side effect is that you can bleed too easily.");
+NEWS_EXTRAS["atrial-fibrillation/rate-rhythm"] = afT("Slowing the beat, resetting the rhythm", "Medicines, cardioversion, and for some people a pill in the pocket or a pacemaker.", "af-reset", "This is called a pill in the pocket.");
+NEWS_EXTRAS["atrial-fibrillation/ablation"] = afT("Blocking the stray signals", "A thin tube reaches the heart and blocks the signals that cause AF, when medicines have not helped.", "af-ablation", "You will not feel any pain with either option.");
+NEWS_EXTRAS["atrial-fibrillation/checking-pulse"] = afT("Two fingers, thirty seconds, double it", "Checking your own pulse can show whether your heartbeat is regular.", "af-pulse", "If your pulse feels irregular, you should check for a full 60 seconds.");
+NEWS_EXTRAS["atrial-fibrillation/alcohol-caffeine"] = afL("Know what sets yours off", "Alcohol, caffeine, spicy food, smoking, stress and too little water can all play a part.", "af-triggers", "Common triggers include alcohol, dehydration, caffeine, spicy food, smoking and stress.");
+NEWS_EXTRAS["atrial-fibrillation/bleeding"] = afL("Cards, dentists and bleeding checks", "Carry your alert card, tell your dentist, and know which bleeding needs help.", "af-card", "Tell your dentist that you take anticoagulants.");
+NEWS_EXTRAS["atrial-fibrillation/exercise"] = afL("Moving well with AF", "Exercise can help. Keep it at a level where you can still talk, and build up slowly.", "af-steps", "Build exercise up gradually over time.");
+NEWS_EXTRAS["atrial-fibrillation/worry"] = afL("When worry gets in the way", "Feeling anxious about your heart is common, and there are people who can help.", "af-support", "Talking it through can help you and your loved ones.");
+
+const miU = move("Understanding heart attack");
+const miT = move("Treat and recover");
+const miL = move("Living well after a heart attack");
+NEWS_EXTRAS["heart-attack/statins"] = miU("A daily tablet that guards your arteries", "Statins lower cholesterol, and most people take one every day for life.", "mi-statin-days", "Most people will take a statin every day for the rest of their life.");
+NEWS_EXTRAS["heart-attack/what-happened"] = miU("One artery, one clot, one fix", "A clot cut off the blood supply to part of the heart. Opening the artery again saves heart muscle.", "mi-artery-stent", "A heart attack is not the same as a cardiac arrest.");
+NEWS_EXTRAS["heart-attack/types"] = miU("Two letters on the ECG", "STEMI and NSTEMI describe how blocked the artery is, and what the ECG shows.", "mi-stemi", "In an NSTEMI, the coronary artery is partially blocked.");
+NEWS_EXTRAS["heart-attack/tests"] = miU("Four tests, four questions", "An ECG, a troponin blood test, an angiogram and an echo each show something different.", "mi-test-tiles", "It's usually quick and painless.");
+NEWS_EXTRAS["heart-attack/why-me"] = miU("What you can change, and what you can't", "Most heart attacks come from coronary heart disease, and many of the risks can be changed.", "mi-risk-balance", "Most heart attacks are caused by coronary heart disease.");
+NEWS_EXTRAS["heart-attack/rehab"] = miT("Rehab: part of the treatment", "Exercise, information and support, offered to everyone after a heart attack.", "mi-rehab-stones", "It also has a positive impact on your wellbeing and quality of life.");
+NEWS_EXTRAS["heart-attack/tablets"] = miT("Five medicines, five jobs", "Each tablet has its own job, from stopping clots to easing chest pain.", "mi-pill-jobs", "Most people are also prescribed lifelong aspirin.");
+NEWS_EXTRAS["heart-attack/first-weeks"] = miT("Small steps, week by week", "Build up gradually, rest, and accept support. Feeling low or scared is common.", "mi-six-weeks", "Feeling scared or low is natural, and your GP can help.");
+NEWS_EXTRAS["heart-attack/chest-pain"] = miT("GTN first, 999 if it stays", "Sit down and use your GTN. If the pain is still there 5 minutes after a second dose, call 999.", "mi-gtn-flow", "If you're unsure, it's always safest to call 999.");
+NEWS_EXTRAS["heart-attack/driving-work"] = miL("Back behind the wheel, safely", "When you can drive depends on your treatment and your licence. Work and flying come back too.", "mi-road-weeks", "It's safe to use your GTN spray on the plane.");
+NEWS_EXTRAS["heart-attack/food"] = miL("Mediterranean, not miserable", "More fruit, vegetables and fibre, less saturated fat and salt, and no strict diets.", "mi-plate", "Strict diets are hard to sustain long term.");
+NEWS_EXTRAS["heart-attack/sex"] = miL("Intimacy after a heart attack", "Sex carries no greater risk once you feel comfortable, usually after a few weeks.", "mi-stairs", "Chest pain during sex is very uncommon.");
+NEWS_EXTRAS["heart-attack/mood"] = miL("The low weeks are common", "Fear, anger and low mood are common, and help is there if they don't pass.", "mi-weather", "With the right help, things can get better.");
+NEWS_EXTRAS["heart-attack/smoking"] = miL("Stopping smoking: the big one", "The benefits start within minutes, and free help makes quitting more likely.", "mi-quit-line", "It's never too late to benefit from stopping smoking.");
+
+const angU = move("Understanding angina");
+const angT = move("Treat and manage");
+const angL = move("Living with angina");
+NEWS_EXTRAS["angina/what-it-is"] = angU("When the heart asks for more", "Narrowed arteries let enough blood through at rest, but not when the heart works harder.", "ang-supply", "Angina attacks usually last less than 10 minutes.");
+NEWS_EXTRAS["angina/stable-unstable"] = angU("Know your pattern, spot the change", "Stable angina follows a pattern. Angina that changes, or comes at rest, needs help.", "ang-traffic", "Stable angina is the most common type.");
+NEWS_EXTRAS["angina/tests"] = angU("Tests that find the narrowing", "An ECG, a CT scan of the heart's arteries, a stress test, and sometimes an angiogram.", "ang-test-panels", "A normal resting ECG does not rule out stable angina.");
+NEWS_EXTRAS["angina/not-angina"] = angU("Not every chest pain is angina", "Heartburn, muscles and anxiety can all cause chest pain. If you're unsure, get help.", "ang-pain-map", "It can be hard to tell the cause of chest pain.");
+NEWS_EXTRAS["angina/spray"] = angT("The two-dose rule", "Sit down, use your spray, and know when to call 999.", "ang-spray-clock", "Do not use more than 2 doses during an angina attack.");
+NEWS_EXTRAS["angina/tablets"] = angT("Tablets that prevent attacks", "Some tablets prevent angina; others protect you from a heart attack or stroke.", "ang-two-jobs", "Your doctor will advise you on which is the best medicine for you.");
+NEWS_EXTRAS["angina/stents-bypass"] = angT("Widen the road, or build a detour", "When medicines are not enough, a stent can hold an artery open, or a bypass can go around it.", "ang-road-detour", "Angioplasty has a quicker recovery, but the artery may narrow again.");
+NEWS_EXTRAS["angina/rehab"] = angT("Moving more, safely", "Warm up, keep it at a level where you can talk, cool down, and carry your GTN.", "ang-threshold", "Most people with angina can still exercise safely.");
+NEWS_EXTRAS["angina/cold-meals"] = angL("Know your triggers, plan around them", "Cold, big meals, stress and effort can bring it on. A little planning helps.", "ang-triggers", "Stress can bring on angina symptoms.");
+NEWS_EXTRAS["angina/driving-work"] = angL("Driving on with angina", "Most car drivers can keep driving. Bus, coach and lorry drivers tell DVLA.", "ang-travel", "It's safe to use your GTN spray on the plane.");
+NEWS_EXTRAS["angina/food-smoking"] = angL("Kind to your arteries", "Stopping smoking, eating well and keeping to a healthy weight help protect the arteries.", "ang-clear-artery", "Aim for no more than 6g of salt a day.");
+NEWS_EXTRAS["angina/worry"] = angL("A warning, not a life sentence", "Worry is common with angina, and life can carry on. Talking it through helps.", "ang-calm", "It's normal to experience anxiety if you have a heart problem.");
+
+const copdU = move("Understanding COPD");
+const copdT = move("Treat and manage");
+const copdL = move("Living with COPD");
+NEWS_EXTRAS["copd/what-it-is"] = copdU("Narrow airways, trapped air", "The airways narrow and the air sacs are damaged, so breathing out quickly gets hard.", "copd-airways", "So it is harder to breathe out quickly, and air gets trapped in your chest.");
+NEWS_EXTRAS["copd/tests"] = copdU("One big breath out, measured", "Spirometry measures how much air you can breathe out, and how fast.", "copd-spiro", "This shows whether your airways are obstructed.");
+NEWS_EXTRAS["copd/flare-ups"] = copdU("Spot a flare-up early", "More breathless, more coughing, more phlegm, or a change in its colour. Your plan says what to do.", "copd-flare-signs", "A flare-up is when your COPD symptoms suddenly get worse.");
+NEWS_EXTRAS["copd/breathless-why"] = copdU("Breathless is normal; stillness isn't safer", "Getting out of breath when active is normal. Doing less can make breathlessness worse over time.", "copd-cycle", "Getting out of breath when you are active is completely normal.");
+NEWS_EXTRAS["copd/inhalers"] = copdT("The right puff, the right way", "Relievers for breathless moments, long-acting inhalers for every day, and the technique that makes them work.", "copd-inhalers", "Correct technique matters so the medicine works properly.");
+NEWS_EXTRAS["copd/rehab"] = copdT("Weeks that build your breath", "Exercise and education over six to eight weeks, tailored to you.", "copd-rehab-weeks", "Getting out of breath is part of the therapy.");
+NEWS_EXTRAS["copd/rescue-pack"] = copdT("Rescue pack: start, then tell", "Tablets kept at home for a flare-up, and a call to your team when you use them.", "copd-rescue", "Always tell your healthcare professional if you use your rescue pack.");
+NEWS_EXTRAS["copd/oxygen"] = copdT("Oxygen treats low oxygen, not breathlessness", "Home oxygen is for people whose oxygen levels are low, after an assessment.", "copd-oxygen-gauge", "Oxygen is only useful for people with low oxygen levels.");
+NEWS_EXTRAS["copd/breathing"] = copdL("Breathe out like a candle", "Breathing control, pursed lips, positions to recover, and a handheld fan.", "copd-candle", "Purse your lips as if you are going to blow out a candle.");
+NEWS_EXTRAS["copd/smoking"] = copdL("Never too late to stop", "Stopping smoking helps at any stage, and support makes it much more likely to work.", "copd-never-late", "It is never too late, and people with advanced COPD still benefit.");
+NEWS_EXTRAS["copd/vaccines"] = copdL("Your jabs before winter", "Flu every year, a pneumococcal jab, and COVID-19 and RSV for some.", "copd-jab-calendar", "It is best to have it before the end of October.");
+NEWS_EXTRAS["copd/energy"] = copdL("Pace the day, save your breath", "Plan the day, rest between tasks, and use the small things that save effort.", "copd-pace-day", "Plan your day and pace yourself, leaving plenty of time to rest.");
+NEWS_EXTRAS["copd/mood"] = copdL("When breath and worry feed each other", "Breathlessness and anxiety can feed each other. Low mood is common, and help is there.", "copd-worry-loop", "Breathlessness can make you feel more anxious, which can make breathlessness worse.");
+
+const astU = move("Understanding asthma");
+const astT = move("Treat and manage");
+const astL = move("Living with asthma");
+NEWS_EXTRAS["asthma/what-it-is"] = astU("Tight, swollen, sticky", "Sensitive airways react to triggers: the muscles tighten, the lining swells and mucus builds up.", "ast-three-changes", "In asthma, the airways are more sensitive.");
+NEWS_EXTRAS["asthma/triggers"] = astU("Know what sets you off", "Colds, pollen, cold air, exercise, smoke, pets and feelings can all be triggers.", "ast-trigger-ring", "Triggers vary between people.");
+NEWS_EXTRAS["asthma/tests"] = astU("Three tests, three different answers", "Peak flow, spirometry and FeNO each measure something different.", "ast-three-tests", "A high level can show that your airways are inflamed.");
+NEWS_EXTRAS["asthma/adult-onset"] = astU("Asthma can start at any age", "Some people are first diagnosed as adults, and childhood asthma can come back.", "ast-life-line", "Asthma often starts in childhood, but some people are first diagnosed as adults.");
+NEWS_EXTRAS["asthma/inhalers"] = astT("A preventer every day", "A preventer calms the swelling over time; a reliever opens the airway when you need it.", "ast-two-inhalers", "A blue reliever contains no steroid, so it cannot treat inflammation.");
+NEWS_EXTRAS["asthma/action-plan"] = astT("One page that tells you what to do", "Every day, when it gets worse, and in an attack, written down.", "ast-plan-sheet", "Give copies to friends and family, so they know how to help in an attack.");
+NEWS_EXTRAS["asthma/attack"] = astT("Sit up, puff, call 999", "The steps for an attack, and when to call 999.", "ast-attack-steps", "Call 999 if you feel worse at any point, or if you do not improve after 10 puffs.");
+NEWS_EXTRAS["asthma/reviews"] = astT("The check-up worth having when well", "A yearly review of your symptoms, medicines, technique and plan.", "ast-review-check", "Most people have one at least once a year.");
+NEWS_EXTRAS["asthma/exercise"] = astL("Exercise is fine; symptoms are a signal", "Breathing harder is normal. Coughing or wheezing during exercise is a sign to review your asthma.", "ast-runner", "It is normal to breathe faster or more deeply during exercise.");
+NEWS_EXTRAS["asthma/home"] = astL("Cut the triggers in your house", "Damp, dust mites, pets, smoke and sprays, and the preventer that helps most.", "ast-home-rooms", "Wash bedding and soft furnishings at 60°C, which kills dust mites.");
+NEWS_EXTRAS["asthma/smoking-vaping"] = astL("Smoke-free airways, smoke-free home", "Smoke irritates the airways, including other people's. Vaping is not risk-free.", "ast-smoke-free", "Quitting is the best thing you can do for your asthma.");
+NEWS_EXTRAS["asthma/hay-fever"] = astL("Start early, before pollen season", "Pollen can trigger asthma. Starting hay fever treatment early helps.", "ast-pollen", "Having hay fever and asthma can increase your risk of an asthma attack.");
+
+const osaU = move("Understanding sleep apnoea");
+const osaT = move("Treat and manage");
+const osaL = move("Living with sleep apnoea");
+NEWS_EXTRAS["sleep-apnoea/what-happens"] = osaU("The throat that closes at night", "Relaxed muscles narrow the airway, breathing stops, and you wake briefly to start again.", "osa-throat", "You can stop and start breathing like this hundreds of times.");
+NEWS_EXTRAS["sleep-apnoea/why-it-matters"] = osaU("More than snoring", "Untreated, it can affect the heart, blood pressure, driving and mood.", "osa-links", "Sleep apnoea can be serious if it's not diagnosed and treated.");
+NEWS_EXTRAS["sleep-apnoea/tests"] = osaU("A sleep study in your own bed", "A questionnaire, then usually a study at home overnight.", "osa-study", "You can usually do this at home.");
+NEWS_EXTRAS["sleep-apnoea/severity"] = osaU("Mild, moderate, severe: your AHI", "The number of pauses an hour sets the band, and the band guides treatment.", "osa-ahi", "An AHI over 30 is severe.");
+NEWS_EXTRAS["sleep-apnoea/cpap"] = osaT("Getting comfortable with CPAP", "Masks, leaks, dry mouth and the first weeks, and why every night counts.", "osa-cpap-kit", "It works best if you use it every night.");
+NEWS_EXTRAS["sleep-apnoea/mouthpiece"] = osaT("Holding the jaw forward", "A device made for your teeth that holds the jaw forward, for some people.", "osa-jaw", "It fits over your teeth and holds your jaw forward.");
+NEWS_EXTRAS["sleep-apnoea/weight-position"] = osaT("Small changes, easier breathing", "Weight, alcohol, smoking, sleeping pills and sleeping position can all make a difference.", "osa-side-sleep", "Alcohol relaxes the muscles in the throat and can make OSA worse.");
+NEWS_EXTRAS["sleep-apnoea/driving"] = osaL("Sleepiness, driving and the DVLA", "When to tell DVLA, and when to hold off driving.", "osa-dvla-path", "Ask your doctor if you are not sure.");
+NEWS_EXTRAS["sleep-apnoea/travel"] = osaL("Packing CPAP for a trip", "Power, flying, letters, insurance and water.", "osa-cabin-bag", "You should carry your CPAP machine as hand luggage.");
+NEWS_EXTRAS["sleep-apnoea/partner"] = osaL("The person next to you", "Partners often notice first, and treatment can help you both.", "osa-partner-bed", "If they have seen the symptoms, bring them with you to the GP.");
+NEWS_EXTRAS["sleep-apnoea/energy"] = osaL("Getting your days back", "With treatment, many people feel more refreshed.", "osa-day-energy", "Treatment can bring more refreshed mornings.");
+
+// Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
+const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
+  "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
+  copd: copdNews, asthma: asthmaNews, "sleep-apnoea": apnoeaNews,
+};
+for (const [condition, pieces] of Object.entries(HEART_NEWS)) for (const [piece, more] of Object.entries(pieces)) {
+  const key = `${condition}/${piece}`;
+  if (NEWS_EXTRAS[key]) NEWS_EXTRAS[key] = { ...NEWS_EXTRAS[key], ...more };
+}
 
 // Pieces whose answer is the same for every kind of stroke share the same feature.
 for (const id of ["rewiring", "walking", "fatigue", "mood", "carers"]) NEWS_EXTRAS[`haemorrhagic/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];

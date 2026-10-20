@@ -16,11 +16,21 @@ const render = (id: string) => {
 const tiles = (html: string, kind: string) => html.split(`class="lib-bento-tile ${kind}`).slice(1).map(part => part.split("</article>")[0]);
 
 describe("the Brain & nervous system bento", () => {
-  it("is on for the Brain section only", () => {
-    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system"]);
-    const heart = render("heart-lungs");
-    expect(heart).toContain("lib-group");
-    expect(heart).not.toContain("lib-bento");
+  it("is on for the Brain and Heart sections only", () => {
+    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs"]);
+    const diabetes = render("diabetes-metabolism");
+    expect(diabetes).toContain("lib-group");
+    expect(diabetes).not.toContain("lib-bento");
+  });
+
+  it("opens Heart & lungs with Blood pressure large and in its own pale colour", () => {
+    const html = render("heart-lungs");
+    const [feature] = tiles(html, "is-feature");
+    expect(feature).toContain(">Blood pressure</h2>");
+    expect(feature).toContain("is-light");
+    expect(feature).toContain('href="/blood-pressure/high-blood-pressure"');
+    expect(tiles(html, "is-small")).toHaveLength(4);
+    expect(html).toContain("lib-bento is-few");
   });
 
   it("opens with Stroke large, its conditions as links, and every other group small", () => {

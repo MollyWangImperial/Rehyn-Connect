@@ -544,6 +544,7 @@ export const ischaemicAnswers: LearnArticle[] = [
     sources: [SA_SWALLOWING, SA_TREATMENTS],
     interactive: {
       kind: "signs",
+      copyHeading: "Swallowing: things we have noticed",
       title: "Have you noticed any of these?",
       intro: "Swallowing problems are not always obvious. Tick anything you or your family have noticed.",
       signs: [

@@ -19,6 +19,12 @@
 .lib-bento-hero .lib-crumbs [aria-current] { color:#FFFFFF; }
 .lib-bento-hero h1 { margin:0; font:600 clamp(40px,6vw,64px)/1 "Newsreader",Georgia,serif; letter-spacing:-.01em; color:#FFFFFF; }
 .lib-bento-hero p { margin:0; max-width:600px; font-size:18px; line-height:1.55; color:#DCD7F7; }
+/* Heart & lungs: a deep wine header. */
+.lib-bento-hero.is-heart-lungs { background:#4A1422; }
+.lib-bento-hero.is-heart-lungs .lib-crumbs, .lib-bento-hero.is-heart-lungs .lib-crumbs a { color:#F2C9CC; }
+.lib-bento-hero.is-heart-lungs .lib-crumbs svg { color:#E39AA0; }
+.lib-bento-hero.is-heart-lungs .lib-crumbs a:hover, .lib-bento-hero.is-heart-lungs .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-heart-lungs p { color:#F6DCDD; }
 .lib-bento-stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 .lib-bento-stats span { padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.12); font-size:13px; font-weight:700; }
 
@@ -80,12 +86,24 @@
 .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; }
 .lib-ask-group.is-tile .lib-ask-row input { border-color:#DCD5F2; }
 .lib-ask-group.is-tile .lib-button { width:100%; min-height:46px; background:#231C5C; }
+.is-heart-lungs .lib-ask-group.is-tile { border-color:#E8C4C8; }
+.is-heart-lungs .lib-ask-group.is-tile .lib-ask-kicker { color:#4A1422; }
+.is-heart-lungs .lib-ask-group.is-tile .lib-ask-row input { border-color:#F0D6D8; }
+.is-heart-lungs .lib-ask-group.is-tile .lib-button { background:#4A1422; }
+.is-heart-lungs .lib-bento-pick:focus-visible { outline-color:#4A1422; }
+/* With four small tiles (Heart & lungs) the question runs along the bottom as a wide strip. */
+.lib-bento.is-few { grid-template-rows:repeat(2,minmax(290px,auto)) auto; }
+.lib-bento.is-few .lib-bento-ask { grid-column:1 / -1; }
+.lib-bento.is-few .lib-ask-group.is-tile .lib-ask-row { flex-direction:row; }
+.lib-bento.is-few .lib-ask-group.is-tile .lib-button { width:auto; padding:0 28px; }
 .lib-ask-open { min-height:44px; padding:0; border:0; background:none; color:#2F6851; font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 
 @media (max-width:1024px) {
   .lib-bento { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .lib-bento-tile.is-feature { grid-column:span 2; grid-row:auto; min-height:520px; }
+  .lib-bento.is-few { grid-template-rows:none; }
 }
+@media (max-width:600px) { .lib-bento.is-few .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; } .lib-bento.is-few .lib-ask-group.is-tile .lib-button { width:100%; } }
 @media (max-width:600px) {
   .lib-bento-hero { padding:16px 16px 64px; }
   .lib-bento-wrap { padding:0 16px 40px; }

@@ -32,7 +32,7 @@ export type LearnInteractive =
   | { kind: "driving"; title: string; rules: DrivingRules }
   /** Three dates in, a short note to your employer out, ready to copy. */
   | { kind: "employer-note"; title: string; intro: string; policyAsk: string }
-  /** Signs to tick; the ones ticked become a list to tell the team. */
-  | { kind: "signs"; title: string; intro: string; signs: string[]; after: string }
+  /** Signs to tick; the ones ticked become a list to tell the team, copied under `copyHeading`. */
+  | { kind: "signs"; title: string; intro: string; signs: string[]; after: string; copyHeading?: string }
   /** Everyday moments, each with a choice and what helps most. */
   | { kind: "scenarios"; title: string; scenarios: { id: string; situation: string; options: { text: string; best?: boolean }[]; why: string }[] };
