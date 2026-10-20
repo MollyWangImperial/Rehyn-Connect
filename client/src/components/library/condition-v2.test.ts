@@ -15,12 +15,13 @@ const words = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&#x27;/g,
 const inRouter = (child: ReturnType<typeof createElement>) => renderToStaticMarkup(createElement(Router, { ssrPath: "/stroke/ischaemic" }, child));
 
 describe("Version 2 of the Ischaemic stroke page", () => {
-  it("is offered on Ischaemic stroke only, by a button in the page's header", () => {
+  it("is offered on Ischaemic and Haemorrhagic stroke only, by a button in the page's header", () => {
     expect(hasVersionTwo(ischaemic)).toBe(true);
-    expect(hasVersionTwo(findCondition("stroke", "haemorrhagic")!)).toBe(false);
+    expect(hasVersionTwo(findCondition("stroke", "haemorrhagic")!)).toBe(true);
+    expect(hasVersionTwo(findCondition("stroke", "tia")!)).toBe(false);
     const html = inRouter(createElement(ConditionPage, { place: ischaemic }));
     expect(html).toMatch(/class="lib-condition-actions"><button[^>]*class="lib-version-switch"[^>]*>Switch to Version 2<\/button>/);
-    expect(inRouter(createElement(ConditionPage, { place: findCondition("stroke", "haemorrhagic")! }))).not.toContain("Switch to Version");
+    expect(inRouter(createElement(ConditionPage, { place: findCondition("stroke", "tia")! }))).not.toContain("Switch to Version");
   });
 
   it("puts the first Understand piece in the large tile, the others small, and the outside resources in a strip", () => {

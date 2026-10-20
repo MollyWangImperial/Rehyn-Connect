@@ -60,10 +60,16 @@ export type NewsStat = { value: string; label: string; ref: number; picture?: "h
 /** The pieces made for one card each: pictures under the headline, and pieces placed after a section. */
 export type NewsPiece =
   | "signal" | "ideas" | "road" | "words" | "road-signs" | "odds" | "stones" | "weather" | "swallow" | "wins"
-  | "recovery-curve" | "balance-wheel" | "energy-day" | "thickness";
+  | "recovery-curve" | "balance-wheel" | "energy-day" | "thickness"
+  // Haemorrhagic stroke's own (components/library/NewsBleedPieces.tsx).
+  | "pressure" | "leaks" | "two-kinds" | "repair" | "headache-sort" | "bp-gauge" | "weighing" | "dvla";
 
-/** A card's feature: by the piece's own id first (two pieces can share one answer), then by its answer. */
-export const newsExtrasFor = (itemId: string, articleId: string): NewsExtras | undefined => NEWS_EXTRAS[itemId] ?? NEWS_EXTRAS[articleId];
+/**
+ * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
+ * answer, and two conditions can share a piece id), then by its answer.
+ */
+export const newsExtrasFor = (conditionId: string, itemId: string, articleId: string): NewsExtras | undefined =>
+  NEWS_EXTRAS[`${conditionId}/${itemId}`] ?? NEWS_EXTRAS[articleId];
 
 const NHS_STROKE: NewsReference ={ publisher: "NHS", title: "Stroke: overview", url: "https://www.nhs.uk/conditions/stroke/" };
 const SA_ISCHAEMIC: NewsReference = { publisher: "Stroke Association", title: "Ischaemic stroke", url: "https://www.stroke.org.uk/stroke/types/ischaemic" };
@@ -217,7 +223,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
   // its own (components/library/NewsPieces.tsx). Figures checked on 20 October 2026 against the page
   // each one cites; references without a list here are the answer's own sources, in order.
 
-  "heavy-side": {
+  "ischaemic/heavy-side": {
     kicker: "Understanding stroke",
     headline: "A message that is not getting through",
     standfirst: "Your muscles are still there. The trouble is higher up, and that is good news for getting movement back.",
@@ -225,7 +231,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "The muscles are waiting for a signal that is not getting through clearly yet.",
   },
 
-  rewiring: {
+  "ischaemic/rewiring": {
     kicker: "Recovery after stroke",
     headline: "New roads around a broken bridge",
     standfirst: "The cells a stroke destroyed will not grow back. So how do people learn to walk and talk again?",
@@ -238,7 +244,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "There is no time limit on the brain's ability to rewire.",
   },
 
-  "arm-hand": {
+  "ischaemic/arm-hand": {
     kicker: "Recovery after stroke",
     headline: "Practise the exact thing",
     standfirst: "Everyday ways to use your arm and hand, and a log to keep track of the practice your physiotherapist gives you.",
@@ -246,7 +252,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "Do your exercises on the affected side, even when the other side would be quicker.",
   },
 
-  "first-three-months": {
+  "ischaemic/first-three-months": {
     kicker: "Recovery after stroke",
     headline: "Day one to month six",
     standfirst: "What is typical, what is not, and the review that comes after.",
@@ -261,7 +267,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "Every stroke is different, and every recovery is too.",
   },
 
-  walking: {
+  "ischaemic/walking": {
     kicker: "Recovery after stroke",
     headline: "Small steps to walking",
     standfirst: "From the bed, to a chair, to your feet: walking usually comes back in small steps, not one big one.",
@@ -269,7 +275,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "A big goal like walking is broken into smaller steps.",
   },
 
-  words: {
+  "ischaemic/words": {
     kicker: "Recovery after stroke",
     headline: "The thought is there. The word is stuck.",
     standfirst: "You know exactly what you want to say. It just will not come out. Around a third of people find this after a stroke.",
@@ -278,7 +284,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "People with aphasia still think in the same way.",
   },
 
-  fatigue: {
+  "ischaemic/fatigue": {
     kicker: "Recovery after stroke",
     headline: "Not ordinary tiredness",
     standfirst: "It is not laziness, and a nap will not fix it. Tiredness after a stroke is its own thing.",
@@ -286,7 +292,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "It can follow any stroke, big or small.",
   },
 
-  driving: {
+  "ischaemic/driving": {
     kicker: "Life after stroke",
     headline: "Off the road, for now",
     standfirst: "The rules are clearer than most people think. Your doctor says when, and sometimes DVLA needs to know.",
@@ -295,7 +301,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "Restart only when your doctor or healthcare professional tells you it is safe.",
   },
 
-  prevention: {
+  "ischaemic/prevention": {
     kicker: "Life after stroke",
     headline: "Lowering the odds",
     standfirst: "The honest answer, and the handful of things that really do lower the odds.",
@@ -304,7 +310,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "Remember the word FAST. Face, arms, speech, and time to call 999.",
   },
 
-  work: {
+  "ischaemic/work": {
     kicker: "Life after stroke",
     headline: "Back to work, at your own pace",
     standfirst: "Some people go back within weeks, some after months or years. A plan with your employer makes the difference.",
@@ -318,7 +324,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "You are the expert in your own needs.",
   },
 
-  mood: {
+  "ischaemic/mood": {
     kicker: "Life after stroke",
     headline: "Tears out of nowhere",
     standfirst: "Tears, or laughter, that arrive out of nowhere have a name. About one in five people get them.",
@@ -333,7 +339,7 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "You are not becoming a different person. It is an effect of the stroke.",
   },
 
-  swallowing: {
+  "ischaemic/swallowing": {
     kicker: "Life after stroke",
     headline: "Swallowing safely again",
     standfirst: "Swallowing is one of the most complicated things the brain does. Here is what helps while it recovers.",
@@ -342,11 +348,95 @@ export const NEWS_EXTRAS: Record<string, NewsExtras> = {
     pullQuote: "Most people can swallow safely again within the first few weeks.",
   },
 
-  carers: {
+  "ischaemic/carers": {
     kicker: "Life after stroke",
     headline: "Doing it with them, not for them",
     standfirst: "Patience, encouragement, and knowing when not to help. A page for the person alongside.",
     figure: { art: "custom", id: "wins" },
     pullQuote: "Recovery is slow, so praise every sign of progress, however small.",
   },
+
+  // ---- Haemorrhagic stroke (content/haemorrhagic-answers.ts). Figures checked on 20 October 2026
+  // against the Stroke Association pages each answer cites; references are the answer's own sources.
+
+  "haemorrhagic/what-happens": {
+    kicker: "Understanding stroke",
+    headline: "A bleed in a closed box",
+    standfirst: "The blood itself damages brain cells, and the pressure it builds can do harm too.",
+    figure: { art: "custom", id: "pressure" },
+    pullQuote: "If a bleed inside the brain is large, pressure can build up inside the skull.",
+  },
+
+  "haemorrhagic/why-me": {
+    kicker: "Understanding stroke",
+    headline: "Weak spots under pressure",
+    standfirst: "Blood pressure, a weak spot in a vessel, or a medicine that thins the blood: the usual reasons, and the rarer ones.",
+    figure: { art: "custom", id: "leaks" },
+    pullQuote: "A specific cause is not identified for most aneurysms.",
+  },
+
+  "haemorrhagic/two-kinds": {
+    kicker: "Understanding stroke",
+    headline: "Two kinds of bleed",
+    standfirst: "The difference is where the blood collects: inside the brain, or in the space around it.",
+    figure: { art: "custom", id: "two-kinds" },
+    stats: { 0: [{ value: "About 2 in 3", label: "haemorrhagic strokes are intracerebral: bleeding into the brain tissue.", ref: 1 }] },
+    charts: {
+      1: { kind: "waffle", title: "Out of every 100 strokes in the UK", subtitle: "By what caused them", groups: [{ label: "Ischaemic: a blockage", count: 85, tone: "green" }, { label: "A bleed inside the brain", count: 10, tone: "clay" }, { label: "A bleed on the surface of the brain", count: 5, tone: "dark" }], sources: "Source: Stroke Association, Haemorrhagic stroke. About 15 in 100 strokes are bleeds; about two in three bleeds are inside the brain, and about 5 in 100 strokes are bleeds on the surface. All figures are approximate." },
+    },
+    pullQuote: "People describe it as the worst pain ever, like being hit on the head.",
+  },
+
+  "haemorrhagic/surgery": {
+    kicker: "Understanding stroke",
+    headline: "Coils, clips and drains",
+    standfirst: "Coils, clips, removing a bleed, draining fluid. Each one had a job.",
+    figure: { art: "custom", id: "repair" },
+    stats: { 4: [{ value: "About 3 weeks", label: "is how long nimodipine may be given after a subarachnoid haemorrhage, to help prevent vasospasm.", ref: 1, picture: "calendar" }] },
+    pullQuote: "Surgery aims to stop the bleeding by sealing the weak area of the blood vessel.",
+  },
 };
+
+NEWS_EXTRAS["haemorrhagic/first-three-months"] = {
+  kicker: "Recovery after stroke",
+  headline: "Slow, then steady",
+  standfirst: "Recovery can be slow and frustrating. Most people improve, and it can carry on for years.",
+  figure: { art: "custom", id: "road" },
+  stats: { 1: [
+    { value: "3 hours", label: "of therapy for movement goals, at least five days a week, is what stroke guidelines recommend, if you are able to.", ref: 4, picture: "hours" },
+    { value: "Up to 6 weeks", label: "is how long early supported discharge, therapy at home, typically lasts.", ref: 4, picture: "calendar" },
+  ] },
+  pullQuote: "Most people improve with treatment, and some recover fully.",
+};
+NEWS_EXTRAS["haemorrhagic/headaches"] = {
+  kicker: "Recovery after stroke",
+  headline: "Common, or an emergency",
+  standfirst: "Headaches after a bleed are common, and they usually ease. One kind is always an emergency.",
+  figure: { art: "custom", id: "headache-sort" },
+  pullQuote: "If you have any signs of a stroke, including a sudden, severe headache, call 999.",
+};
+NEWS_EXTRAS["haemorrhagic/blood-pressure"] = {
+  kicker: "Life after stroke",
+  headline: "The number that matters most",
+  standfirst: "High blood pressure can make the blood vessels in the brain more likely to bleed. Keeping it down is the main way to lower the risk.",
+  figure: { art: "custom", id: "bp-gauge" },
+  stats: { 0: [{ value: "Over 25%", label: "lower risk of stroke could come from lowering your blood pressure by just 10 mmHg.", ref: 3 }] },
+  pullQuote: "Your doctor can advise you on the target for your blood pressure.",
+};
+NEWS_EXTRAS["haemorrhagic/blood-thinners"] = {
+  kicker: "Life after stroke",
+  headline: "A careful conversation",
+  standfirst: "They help prevent clots, and they can raise the risk of bleeding. It is a decision to make with your team.",
+  figure: { art: "custom", id: "weighing" },
+  pullQuote: "Do not stop taking a medicine without speaking to your doctor or pharmacist first.",
+};
+NEWS_EXTRAS["haemorrhagic/driving"] = {
+  kicker: "Life after stroke",
+  headline: "Off the road, and back again",
+  standfirst: "The rules depend on the kind of bleed, whether you had surgery, and your licence.",
+  figure: { art: "custom", id: "dvla" },
+  pullQuote: "Restart only when your doctor says it is safe.",
+};
+
+// Pieces whose answer is the same for both kinds of stroke share the same feature.
+for (const id of ["rewiring", "walking", "fatigue", "mood", "carers"]) NEWS_EXTRAS[`haemorrhagic/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];

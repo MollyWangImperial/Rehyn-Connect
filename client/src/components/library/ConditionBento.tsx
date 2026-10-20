@@ -19,7 +19,9 @@ import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
 
 const VERSIONS_KEY = "rehyn.library-condition-version.v1";
 
-export const hasVersionTwo = (place: ConditionPlace) => place.group.id === "stroke" && place.condition.id === "ischaemic";
+/** The conditions with a Version 2 page: Ischaemic stroke, and Haemorrhagic stroke built the same way. */
+export const VERSION_TWO = ["stroke/ischaemic", "stroke/haemorrhagic"];
+export const hasVersionTwo = (place: ConditionPlace) => VERSION_TWO.includes(conditionKey(place));
 
 /** The version a reader chose for this condition (1 unless they switched), and a way to switch. */
 export function useConditionVersion(place: ConditionPlace) {
@@ -86,6 +88,12 @@ const LOOKS: Record<string, Look> = {
   mood: { sym: "mood", ink: "#2F4FA3", tint: "#E6ECF8", text: "#233A78" },
   swallowing: { sym: "cup", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
   carers: { sym: "care", ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A" },
+  // Haemorrhagic stroke's own pieces.
+  "two-kinds": { sym: "types", ink: "#1F6476", tint: "#E4F1F4", text: "#164E5C" },
+  surgery: { sym: "scan", ink: "#34509E", tint: "#E7ECFB", text: "#233A78" },
+  headaches: { sym: "brain", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
+  "blood-pressure": { sym: "heart", ink: "#2F6851", tint: "#E8F3EC", text: "#1F4A3A" },
+  "blood-thinners": { sym: "shield", ink: "#8A5A12", tint: "#FBF0DC", text: "#6B450C" },
 };
 const LOOK_CYCLE: Look[] = [LOOKS["what-happens"], LOOKS["why-me"], LOOKS.types, LOOKS.scans, LOOKS["heavy-side"]];
 const lookFor = (item: LibraryItem, index: number): Look => LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
@@ -122,7 +130,10 @@ function Hero({ place, state, onSwitch }: { place: ConditionPlace; state: Librar
         <path className="lib-v2-flow is-slow" d="M300 300 C360 360, 440 400, 560 420" />
       </g>
       <circle className="lib-v2-ring" cx="1166" cy="238" r="10" fill="none" stroke="#F2B8A5" strokeWidth="2" />
-      <circle className="lib-v2-clot" cx="1166" cy="238" r="11" fill="#7A2A1C" />
+      {/* Ischaemic: a clot stops the branch. Haemorrhagic: the branch leaks, and the bleed spreads. */}
+      {place.condition.id === "haemorrhagic"
+        ? <g fill="#9E2A2A"><ellipse className="lib-v2-bleed" cx="1166" cy="252" rx="46" ry="28" opacity=".85" /><circle cx="1150" cy="290" r="6" opacity=".7" /><circle cx="1190" cy="296" r="4" opacity=".6" /></g>
+        : <circle className="lib-v2-clot" cx="1166" cy="238" r="11" fill="#7A2A1C" />}
     </svg>
     <div className="lib-v2-hero-inner">
       <div className="lib-v2-hero-top">
@@ -245,6 +256,8 @@ const LW_ICON: Record<string, ReactNode> = {
   mood: <path d="M4 14c2.2-4 4.4-4 6.4 0s4.2 4 6.4 0c.9-1.6 1.9-2.4 3.2-2.4" />,
   swallowing: <><path d="M4.5 10h15l-1.6 8.2a1.5 1.5 0 0 1-1.5 1.3H7.6a1.5 1.5 0 0 1-1.5-1.3Z" /><path d="M9 10l3-5.5 3 5.5M10 14v2.5M14 14v2.5" /></>,
   carers: <><circle cx="9" cy="8.5" r="2.8" /><circle cx="16.5" cy="9.5" r="2.2" /><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.4c.6-.3 1.3-.4 2-.4 2.2 0 3.7 1.6 4 4.5" /></>,
+  "blood-pressure": <><path d="M4 18a8 8 0 0 1 16 0" /><path d="M12 18l4-5" /></>,
+  "blood-thinners": <><rect x="4" y="9" width="16" height="7" rx="3.5" /><path d="M12 9v7" /></>,
 };
 
 type LiveWellLine = { line?: string; tag?: string; dark?: boolean };
@@ -254,6 +267,8 @@ const LW_LINES: Record<string, LiveWellLine> = {
   work: { line: "phased returns and what to say" },
   mood: { line: "read by many carers too" },
   carers: { line: "share it with them", dark: true },
+  "blood-pressure": { line: "why it matters most after a bleed" },
+  "blood-thinners": { line: "a decision to make with your team" },
 };
 function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   return <ul className="lib-v2-lwell-list" role="list">

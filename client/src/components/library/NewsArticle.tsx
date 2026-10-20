@@ -114,7 +114,7 @@ const Ornament = () => <div className="lib-news-ornament" aria-hidden="true">
 
 export function NewsArticle({ place, article, media }: { place: ItemPlace; article: LearnArticle; media?: MediaPiece }) {
   const { group, condition, item, type } = place;
-  const extras = newsExtrasFor(item.id, article.id);
+  const extras = newsExtrasFor(condition.id, item.id, article.id);
   const library = useLibraryState();
   const back = conditionHref(group.id, condition.id);
   const saved = library.saved.includes(conditionKey(place));

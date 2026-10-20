@@ -29,7 +29,7 @@ describe("the Ischaemic stroke page's pieces", () => {
       expect(text, item.id).not.toMatch(/coming soon/i);
       // A feature can carry a headline of its own in place of the piece's title.
       const learn = learnArticle(item);
-      expect(text, item.id).toContain((learn && newsExtrasFor(item.id, learn.id)?.headline) ?? item.title);
+      expect(text, item.id).toContain((learn && newsExtrasFor("ischaemic", item.id, learn.id)?.headline) ?? item.title);
     }
   });
 
@@ -115,7 +115,7 @@ describe("the Ischaemic stroke page's pieces", () => {
     const seen = new Set<string>();
     for (const { item } of own) {
       const learn = learnArticle(item);
-      const extras = learn && newsExtrasFor(item.id, learn.id);
+      const extras = learn && newsExtrasFor("ischaemic", item.id, learn.id);
       expect(extras, item.id).toBeDefined();
       const own = [extras!.figure?.art === "custom" ? extras!.figure.id : extras!.figure?.art, ...Object.values(extras!.inserts ?? {})].filter(Boolean) as string[];
       expect(own.length + Object.keys(extras!.charts ?? {}).length, item.id).toBeGreaterThan(0);

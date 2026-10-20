@@ -6,6 +6,7 @@
 // again, keep sentences short (they are read aloud one at a time) and update LEARN_CHECKED.
 // This is general information. It never replaces what a person's own stroke team tells them.
 
+import { haemorrhagicAnswers } from "./haemorrhagic-answers";
 import { ischaemicAnswers } from "./ischaemic-answers";
 import type { LearnInteractive, QuickCheck } from "./learn-interactive";
 
@@ -304,7 +305,7 @@ const coreArticles: LearnArticle[] = [
 ];
 
 /** Every checked answer: the first six, then the Ischaemic stroke page's own (content/ischaemic-answers.ts). */
-export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers];
+export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers];
 
 export type TrustedPlace = { name: string; about: string; url: string };
 

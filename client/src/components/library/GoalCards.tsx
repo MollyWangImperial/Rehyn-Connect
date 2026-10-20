@@ -88,6 +88,12 @@ const Months = () => <svg viewBox="0 0 200 150">
   <text x="173" y="19" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="10" fontWeight="800" fill="#FFFFFF">month 3</text>
 </svg>;
 
+const Ache = () => <svg viewBox="0 0 200 150">
+  <circle cx="92" cy="80" r="46" fill="#FFFFFF" stroke="#A8402B" strokeWidth="5" />
+  <path d="M74 74 h10 M102 74 h10 M78 100 q14 -8 28 0" stroke="#A8402B" strokeWidth="5" strokeLinecap="round" fill="none" />
+  <path className="g-twinkle" d="M150 34 l6 12 l-8 6 l10 14" fill="none" stroke="#D9A441" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+</svg>;
+
 /**
  * The cards, keyed by the Explore piece they lead to, in the order they are shown. Each piece is a
  * Rehyn-written summary; `source` names the organisations its facts come from (the piece itself links
@@ -99,6 +105,7 @@ const GOALS: Record<string, Goal> = {
   words: { want: "Communication after stroke", desc: "Information on aphasia: why finding words can be hard after a stroke, and communication tips that some people find useful.", source: "Stroke Association", cta: "Read", ink: "#6A3E9E", tint: "#EDE5F8", mark: "#D9C7F2", art: <Words /> },
   fatigue: { want: "Understanding fatigue after stroke", desc: "A short narrated animation on post-stroke fatigue and pacing, with an energy diary you can fill in and print.", source: "Stroke Association", cta: "Watch", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Energy /> },
   rewiring: { want: "Neuroplasticity after stroke", desc: "A short narrated animation explaining how the brain can form new connections after a stroke.", source: "Stroke Association", cta: "Watch", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0", art: <Rewire /> },
+  headaches: { want: "Headaches after a bleed", desc: "Information on which headaches are common while you recover, which painkillers to check first, and which headache means calling 999.", source: "Stroke Association, NHS and NICE", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Ache /> },
   "first-three-months": { want: "The early months after stroke", desc: "Information about the early weeks and months after a stroke, and the reviews that may follow.", source: "Stroke Association and NHS", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Months /> },
 };
 const ORDER = Object.keys(GOALS);

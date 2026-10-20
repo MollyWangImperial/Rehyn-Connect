@@ -158,6 +158,24 @@
 .lib-idea svg { width:80px; height:60px; }
 .lib-piece-band.is-sage .lib-piece-say { color:#24362F; }
 
+/* Haemorrhagic stroke's own pieces (components/library/NewsBleedPieces.tsx). */
+.lib-piece-band.is-alarm { --band:#5C1A12; --band-line:#9E3A2A; --band-soft:#FFE4DA; --band-accent:#F2C94C; }
+.lib-bleed-grow { transform-box:fill-box; transform-origin:center; transition:rx .6s ease, ry .6s ease; animation:lib-bleed-grow 3s ease-in-out infinite; }
+@keyframes lib-bleed-grow { 0%,100% { opacity:.8; } 50% { opacity:1; } }
+.lib-bleed-push { animation:lib-bleed-push 1.4s ease-in-out infinite; }
+@keyframes lib-bleed-push { 50% { opacity:.4; } }
+.lib-bulge { transform-box:fill-box; transform-origin:center; animation:lib-bulge 2s ease-in-out infinite; }
+@keyframes lib-bulge { 50% { transform:scale(1.12); } }
+.lib-coil { stroke-dasharray:120; animation:lib-coil 3s ease-in-out infinite; }
+@keyframes lib-coil { 0% { stroke-dashoffset:120; } 70%,100% { stroke-dashoffset:0; } }
+.lib-drain-shrink { transform-box:fill-box; transform-origin:center; animation:lib-drain-shrink 3.4s ease-in-out infinite; }
+@keyframes lib-drain-shrink { 0% { transform:scale(1); opacity:.9; } 70%,100% { transform:scale(.35); opacity:.4; } }
+.lib-alarm { transform-box:fill-box; transform-origin:center bottom; animation:lib-alarm 1.2s ease-in-out infinite; }
+@keyframes lib-alarm { 25% { transform:rotate(-6deg); } 75% { transform:rotate(6deg); } }
+.lib-gauge, .lib-scale { transition:transform .9s cubic-bezier(.3,1.3,.5,1); }
+.lib-gauge-needle { transform-box:view-box; transform-origin:160px 48px; animation:lib-gauge-needle 1.6s ease-in-out infinite alternate; }
+@keyframes lib-gauge-needle { to { transform:rotate(18deg); } }
+
 /* Small interactives inside the story: the balance wheel, a day's energy, drink textures. */
 .lib-balance-list { display:flex; flex-wrap:wrap; gap:8px; flex:1 1 220px; }
 .lib-balance-list button { min-height:44px; padding:0 14px; border:1.5px solid #C9C5B8; background:#FFFFFF; color:var(--news-ink); font:600 14px "DM Sans",system-ui,sans-serif; cursor:pointer; }
@@ -263,6 +281,8 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .lib-scan-spin, .lib-scans-arc, .lib-scans-hand { animation:none; transition:none; }
+  .lib-bleed-grow, .lib-bleed-push, .lib-bulge, .lib-coil, .lib-drain-shrink, .lib-alarm, .lib-gauge, .lib-scale, .lib-gauge-needle { animation:none !important; transition:none !important; }
+  .lib-coil { stroke-dashoffset:0; }
   .lib-signal-detour, .lib-signal-hand, .lib-road-walker, .lib-rain, .lib-flap, .lib-odds-part, .lib-star, .lib-idea, .lib-energy-fill { animation:none !important; transition:none !important; }
   .lib-scan-slice { animation:none; opacity:1; }
   .lib-why-pulse, .lib-types-flow, .lib-types-bleed, .lib-types-dim, .lib-types-tia-clot, .lib-types-tia-dim, .lib-types-tia-flow { animation:none; }

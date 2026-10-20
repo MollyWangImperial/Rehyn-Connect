@@ -1,53 +1,14 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { NewsPiece } from "@/content/ischaemic-news";
-import type { LearnArticle } from "@/content/my-time-learn";
-import { itemMedia, type ItemPlace } from "@/lib/library";
+import { itemMedia } from "@/lib/library";
+import { BleedPieceView, isBleedPiece } from "./NewsBleedPieces";
+import { Band, Choices, para, useStill, type PieceProps } from "./NewsPieceParts";
 
 // The pieces made for one Ischaemic stroke card each (content/ischaemic-news.ts `figure` and
 // `inserts`): a picture under the headline that the reader can play with, or a small interactive
 // placed after a section. Every sentence they show is the card's own checked answer, or a plain
 // instruction ("Tap a stone"); pictures that show an idea rather than a measurement say so.
 
-type PieceProps = { article: LearnArticle; place: ItemPlace };
-
-function useStill() {
-  const [still, setStill] = useState(false);
-  useEffect(() => {
-    const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!query) return;
-    setStill(query.matches);
-    const change = () => setStill(query.matches);
-    query.addEventListener?.("change", change);
-    return () => query.removeEventListener?.("change", change);
-  }, []);
-  return still;
-}
-
-const para = (article: LearnArticle, section: number, paragraph = 0) => article.sections[section]?.paragraphs[paragraph] ?? "";
-
-/** The band every picture sits in: its colour, a kicker, a title, the picture and its controls. */
-function Band({ tone, kicker, title, art, children, credit }: { tone: string; kicker: string; title: string; art: ReactNode; children: ReactNode; credit: string }) {
-  return <section className={`lib-piece-band is-${tone}`} aria-label={title}>
-    <div className="lib-piece-inner">
-      <div className="lib-piece-art">{art}</div>
-      <div className="lib-piece-panel">
-        <div className="lib-why-kicker">{kicker}</div>
-        <h2 className="lib-why-title">{title}</h2>
-        {children}
-      </div>
-    </div>
-    <p className="lib-why-credit">{credit}</p>
-  </section>;
-}
-
-function Choices<T extends string>({ items, active, onPick, label }: { items: { id: T; label: string; note?: string }[]; active: T | null; onPick: (id: T) => void; label: string }) {
-  return <div className="lib-why-choices" role="group" aria-label={label}>
-    {items.map((item, index) => <button key={item.id} type="button" className="lib-why-choice" aria-pressed={active === item.id} onClick={() => onPick(item.id)}>
-      <span className="lib-why-num" aria-hidden="true">{index + 1}</span>
-      <span>{item.note && <span className="lib-scans-when">{item.note}</span>}{item.label}</span>
-    </button>)}
-  </div>;
-}
 
 // ---- Why does one side feel heavier? The signal, the break, and the new road ------------------
 
@@ -433,6 +394,7 @@ function RecoveryCurve() {
 /** The piece named in a card's feature. */
 export function NewsPieceView({ piece, article, place }: { piece: NewsPiece } & PieceProps) {
   const props = { article, place };
+  if (isBleedPiece(piece)) return <BleedPieceView piece={piece} {...props} />;
   switch (piece) {
     case "signal": return <SignalHero {...props} />;
     case "ideas": return <IdeasHero {...props} />;
