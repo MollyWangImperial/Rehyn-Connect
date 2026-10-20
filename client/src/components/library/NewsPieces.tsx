@@ -4,6 +4,10 @@ import { itemMedia } from "@/lib/library";
 import { BleedPieceView, isBleedPiece } from "./NewsBleedPieces";
 import { isTiaPiece, TiaPieceView } from "./NewsTiaPieces";
 import { isYoungPiece, YoungPieceView } from "./NewsYoungPieces";
+import { isMemoryPiece, MemoryPieceView } from "./NewsMemoryPieces";
+import { isLewyPiece, LewyPieceView } from "./NewsLewyPieces";
+import { AlzPieceView, isAlzPiece } from "./NewsAlzPieces";
+import { isMciPiece, MciPieceView } from "./NewsMciPieces";
 import { Band, Choices, para, useStill, type PieceProps } from "./NewsPieceParts";
 
 // The pieces made for one Ischaemic stroke card each (content/ischaemic-news.ts `figure` and
@@ -399,6 +403,10 @@ export function NewsPieceView({ piece, article, place }: { piece: NewsPiece } & 
   if (isBleedPiece(piece)) return <BleedPieceView piece={piece} {...props} />;
   if (isTiaPiece(piece)) return <TiaPieceView piece={piece} {...props} />;
   if (isYoungPiece(piece)) return <YoungPieceView piece={piece} {...props} />;
+  if (isMemoryPiece(piece)) return <MemoryPieceView piece={piece} {...props} />;
+  if (isLewyPiece(piece)) return <LewyPieceView piece={piece} {...props} />;
+  if (isAlzPiece(piece)) return <AlzPieceView piece={piece} {...props} />;
+  if (isMciPiece(piece)) return <MciPieceView piece={piece} {...props} />;
   switch (piece) {
     case "signal": return <SignalHero {...props} />;
     case "ideas": return <IdeasHero {...props} />;

@@ -133,6 +133,25 @@ const Build = () => <svg viewBox="0 0 200 150">
   <text x="155" y="22" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="10" fontWeight="800" fill="#FFFFFF">build up</text>
 </svg>;
 
+// The Dementia & memory cards' pictures, in its purples.
+const P = "#6A3E9E";
+const L = "#D9C7F2";
+const MemPills = () => <svg viewBox="0 0 200 150">{[0, 1, 2, 3].map(index => <g key={index} className="g-pop" style={{ animationDelay: `${index * 0.15}s` }} transform={`translate(${20 + index * 44} ${50 + (index % 2) * 30})`}><rect width="38" height="18" rx="9" fill={index % 2 ? P : L} /><rect width="19" height="18" rx="9" fill="#FFFFFF" opacity=".4" /></g>)}</svg>;
+const MemGroup = () => <svg viewBox="0 0 200 150"><ellipse cx="100" cy="90" rx="56" ry="22" fill="#FFFFFF" stroke={P} strokeWidth="4" />{[[50, 70], [84, 50], [120, 50], [154, 70]].map(([x, y], index) => <g key={index} fill={index % 2 ? P : L} className="g-float" style={{ animationDelay: `${index * 0.3}s` }}><circle cx={x} cy={y - 18} r="9" /><path d={`M${x - 14} ${y + 8} C${x - 14} ${y - 6}, ${x - 8} ${y - 8}, ${x} ${y - 8} C${x + 8} ${y - 8}, ${x + 14} ${y - 6}, ${x + 14} ${y + 8} Z`} /></g>)}</svg>;
+const MemBoard = () => <svg viewBox="0 0 200 150"><rect x="40" y="16" width="120" height="120" rx="10" fill="#FFFFFF" stroke={P} strokeWidth="4" />{[0, 1, 2, 3, 4].map(index => <rect key={index} className="g-pop" style={{ animationDelay: `${index * 0.2}s` }} x="56" y={34 + index * 19} width={index === 1 ? 88 : 70} height="11" rx="3" fill={index === 1 ? P : L} />)}</svg>;
+const MemCheck = () => <svg viewBox="0 0 200 150"><rect x="50" y="14" width="100" height="124" rx="10" fill="#FFFFFF" stroke={P} strokeWidth="4" />{[0, 1, 2, 3].map(index => <g key={index} transform={`translate(64 ${34 + index * 24})`}><rect width="14" height="14" rx="3" fill="none" stroke={P} strokeWidth="3" /><path className="g-draw" pathLength={100} d="M3 7 l4 4 l7 -9" stroke={P} strokeWidth="3" fill="none" /><rect x="22" y="3" width="44" height="8" rx="3" fill={L} /></g>)}</svg>;
+const MemShield = () => <svg viewBox="0 0 200 150"><path d="M100 14 L150 32 V74 C150 108, 126 128, 100 138 C74 128, 50 108, 50 74 V32 Z" fill="#FFFFFF" stroke={P} strokeWidth="5" /><path className="g-draw" pathLength={100} d="M76 78 l16 16 l32 -36" stroke={P} strokeWidth="7" fill="none" strokeLinecap="round" /></svg>;
+const MemFlame = () => <svg viewBox="0 0 200 150"><rect x="84" y="86" width="32" height="54" rx="6" fill="#FFFFFF" stroke={P} strokeWidth="4" /><g className="g-twinkle"><path d="M100 36 C116 58, 116 74, 100 80 C84 74, 84 58, 100 36 Z" fill="#D9A441" /></g></svg>;
+const MemVenn = () => <svg viewBox="0 0 200 150"><circle cx="80" cy="75" r="48" fill={L} opacity=".8" /><circle className="g-float" cx="120" cy="75" r="48" fill={P} opacity=".55" /></svg>;
+const MemCaution = () => <svg viewBox="0 0 200 150"><rect x="60" y="20" width="80" height="110" rx="10" fill="#FFFFFF" stroke={P} strokeWidth="4" /><path className="g-twinkle" d="M100 46 L122 86 H78 Z" fill="#D9674A" /><rect x="76" y="100" width="48" height="8" rx="3" fill={L} /></svg>;
+const MemMoon = () => <svg viewBox="0 0 200 150"><path className="g-float" d="M120 24 a40 40 0 1 0 36 56 a32 32 0 1 1 -36 -56 Z" fill={P} /><rect x="30" y="100" width="110" height="24" rx="6" fill={L} />{[0, 1].map(index => <text key={index} className="g-fade" style={{ animationDelay: `${index * 0.6}s` }} x={60 + index * 22} y={84 - index * 14} fontFamily="Instrument Serif, Georgia, serif" fontSize="22" fill={P}>z</text>)}</svg>;
+const MemSteps = () => <svg viewBox="0 0 200 150"><path d="M20 130 H180" stroke={L} strokeWidth="4" /><g className="g-walk" fill="none" stroke={P} strokeWidth="5" strokeLinecap="round"><circle cx="80" cy="50" r="9" /><path d="M80 59 V92 M80 70 L66 84 M80 70 L94 84" /><path className="g-leg" d="M80 92 L80 128" /><path className="g-leg is-back" d="M80 92 L80 128" /></g></svg>;
+const MemRise = () => <svg viewBox="0 0 200 150"><g fill="none" stroke={P} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"><path d="M40 120 V96 H70 V130 M40 96 L40 70" opacity=".4" /><path className="g-fade" d="M110 130 L114 96 L126 70" /><path d="M140 130 V60" /></g><circle cx="40" cy="58" r="9" fill={L} /><circle cx="128" cy="58" r="9" fill={L} /><circle cx="140" cy="46" r="9" fill={P} /></svg>;
+const MemWheel = () => <svg viewBox="0 0 200 150"><g className="g-spin">{Array.from({ length: 14 }, (_, index) => <path key={index} d="M100 75 L100 25" stroke={index % 3 ? L : P} strokeWidth="9" strokeLinecap="round" transform={`rotate(${index * (360 / 14)} 100 75)`} />)}</g><circle cx="100" cy="75" r="22" fill="#FFFFFF" /><text x="100" y="82" textAnchor="middle" fontFamily="Newsreader, Georgia, serif" fontSize="20" fontWeight="600" fill={P}>14</text></svg>;
+const MemKeys = () => <svg viewBox="0 0 200 150"><path d="M50 40 H150" stroke={P} strokeWidth="6" strokeLinecap="round" /><g className="g-lift"><circle cx="90" cy="70" r="12" fill="none" stroke="#D9A441" strokeWidth="6" /><path d="M90 82 V116 M90 104 H100 M90 112 H98" stroke="#D9A441" strokeWidth="6" /></g><path d="M90 40 V58 M120 40 V52" stroke={P} strokeWidth="4" /></svg>;
+const MemEar = () => <svg viewBox="0 0 200 150"><path d="M70 34 C100 18, 128 40, 120 70 C116 86, 98 90, 98 108 C98 126, 76 130, 66 118" fill="none" stroke={P} strokeWidth="8" strokeLinecap="round" />{[0, 1, 2].map(index => <path key={index} className="g-fade" style={{ animationDelay: `${index * 0.3}s` }} d={`M${140 + index * 16} 50 C${152 + index * 16} 70, ${152 + index * 16} 90, ${140 + index * 16} 110`} fill="none" stroke={P} strokeWidth="4" strokeLinecap="round" />)}</svg>;
+const MemCalendar = () => <svg viewBox="0 0 200 150"><rect x="40" y="24" width="120" height="104" rx="10" fill="#FFFFFF" stroke={P} strokeWidth="4" /><path d="M40 48 H160" stroke={P} strokeWidth="4" />{Array.from({ length: 12 }, (_, index) => <rect key={index} x={52 + (index % 4) * 26} y={58 + Math.floor(index / 4) * 22} width="18" height="14" rx="3" fill={index === 5 || index === 11 ? P : L} className={index === 5 || index === 11 ? "g-twinkle" : undefined} />)}</svg>;
+
 /**
  * The cards, keyed by the Explore piece they lead to, in the order they are shown. Each piece is a
  * Rehyn-written summary; `source` names the organisations its facts come from (the piece itself links
@@ -146,22 +165,45 @@ const GOALS: Record<string, Goal> = {
   rewiring: { want: "Neuroplasticity after stroke", desc: "A short narrated animation explaining how the brain can form new connections after a stroke.", source: "Stroke Association", cta: "Watch", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0", art: <Rewire /> },
   headaches: { want: "Headaches after a bleed", desc: "Information on which headaches are common while you recover, which painkillers to check first, and which headache means calling 999.", source: "Stroke Association, NHS and NICE", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Ache /> },
   "first-three-months": { want: "The early months after stroke", desc: "Information about the early weeks and months after a stroke, and the reviews that may follow.", source: "Stroke Association and NHS", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Months /> },
-  // TIA's treatment pieces.
-  tablets: { want: "Medicines after a TIA", desc: "Information on the tablets often started after a TIA, what each one is for, and questions to ask about them.", source: "Stroke Association and NHS", cta: "Read", ink: "#2F6851", tint: "#E3F0E7", mark: "#BFE0CB", art: <Pills /> },
-  carotid: { want: "Narrowed neck arteries", desc: "Information on how a narrowed carotid artery is found, and the operation that may be offered to clear it.", source: "NHS and Stroke Association", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Neck /> },
-  hidden: { want: "Effects you cannot see", desc: "Information on fatigue, memory and thinking after a stroke, and why they can be hard to explain when you look well.", source: "Stroke Association and Different Strokes", cta: "Read", ink: "#2F4FA3", tint: "#E2E8F8", mark: "#C3D0F2", art: <Berg /> },
-  fitness: { want: "Being active after stroke", desc: "Information on when activity is safe, who to ask first, and why building up slowly matters. Your own team advises on what suits you.", source: "Stroke Association", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Build /> },
+  // TIA's treatment pieces. Ids another page also uses are keyed "<condition>/<piece>".
+  "tia/tablets": { want: "Medicines after a TIA", desc: "Information on the tablets often started after a TIA, what each one is for, and questions to ask about them.", source: "Stroke Association and NHS", cta: "Read", ink: "#2F6851", tint: "#E3F0E7", mark: "#BFE0CB", art: <Pills /> },
+  "tia/carotid": { want: "Narrowed neck arteries", desc: "Information on how a narrowed carotid artery is found, and the operation that may be offered to clear it.", source: "NHS and Stroke Association", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Neck /> },
+  "under-50/hidden": { want: "Effects you cannot see", desc: "Information on fatigue, memory and thinking after a stroke, and why they can be hard to explain when you look well.", source: "Stroke Association and Different Strokes", cta: "Read", ink: "#2F4FA3", tint: "#E2E8F8", mark: "#C3D0F2", art: <Berg /> },
+  "under-50/fitness": { want: "Being active after stroke", desc: "Information on when activity is safe, who to ask first, and why building up slowly matters. Your own team advises on what suits you.", source: "Stroke Association", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Build /> },
   "af-check": { want: "Checking the heart's rhythm", desc: "Information on why the heartbeat is checked after a TIA, and the tests used to look for atrial fibrillation.", source: "Stroke Association and NHS", cta: "Read", ink: "#34509E", tint: "#E2E8F8", mark: "#C3D0F2", art: <Pulse /> },
+  // Dementia & memory, in the light purples of its card.
+  "alzheimers/tablets": memory("Medicines for Alzheimer's", "Information on the four medicines that can ease symptoms for a while, what they cannot do, and where the newer medicines stand.", "Alzheimer's Society, NHS and NICE", <MemPills />),
+  "alzheimers/keeping-sharp": memory("Keeping the mind active", "Information on group cognitive stimulation therapy, what the evidence says, and why brain-training alone is not recommended.", "NHS, NICE and Alzheimer's Society", <MemGroup />),
+  "alzheimers/routines": memory("Routines and memory aids", "Information on routines, timetables, labels, pill organisers and clocks that can make the day easier.", "NHS", <MemBoard />),
+  "alzheimers/other-conditions": memory("Things that make memory worse", "Information on infections, delirium, medicines, low mood, and sight and hearing, and when to see the GP.", "NHS and Alzheimer's Society", <MemCheck />),
+  "vascular/protect": memory("Treating the cause", "Information on medicines for blood pressure, cholesterol and clots, and the habits that can help slow vascular dementia.", "NHS", <MemShield />),
+  "vascular/routines": memory("Routines and memory aids", "Information on routines, timetables, labels, pill organisers and clocks that can make the day easier.", "NHS", <MemBoard />),
+  "vascular/mood-apathy": memory("Low mood and apathy", "Information on why depression and apathy are common in vascular dementia, and the talking treatments that can help.", "Alzheimer's Society, NHS and Stroke Association", <MemFlame />),
+  "vascular/mixed": memory("Mixed dementia", "Information on having vascular dementia and Alzheimer's disease together, and what it can mean for treatment.", "NHS, Alzheimer's Society and Stroke Association", <MemVenn />),
+  "lewy-body/medicines": memory("Medicines to handle with care", "Information on why antipsychotics are avoided whenever possible, and the dementia medicines that may help.", "Alzheimer's Society, NICE and NHS", <MemCaution />),
+  "lewy-body/sleep": memory("Acting out dreams", "Information on REM sleep behaviour disorder, keeping safe at night, and the treatment that can help.", "Alzheimer's Society and NHS", <MemMoon />),
+  "lewy-body/movement": memory("Movement and falls", "Information on Parkinson's-like movement changes, lowering the risk of falls, and staying active. Your own team advises on what suits you.", "Alzheimer's Society and NHS", <MemSteps />),
+  "lewy-body/blood-pressure": memory("Dizzy on standing", "Information on low blood pressure when standing up, and why rising slowly helps.", "Alzheimer's Society and the Lewy Body Society", <MemRise />),
+  "mild-cognitive-impairment/brain-health": memory("Protecting the brain", "Information on the 14 risk factors that can be changed, from activity to blood pressure, and why it is never too late.", "Alzheimer's Society and NHS", <MemWheel />),
+  "mild-cognitive-impairment/memory-aids": memory("Memory aids that get used", "Information on simple habits and aids: one thing at a time, keys on a hook, reminders and checklists.", "Alzheimer's Society", <MemKeys />),
+  "mild-cognitive-impairment/hearing": memory("Hearing and the brain", "Information on how hearing loss is linked with dementia risk, hearing aids, and where to get a hearing test.", "Alzheimer's Society and NHS", <MemEar />),
+  "mild-cognitive-impairment/follow-up": memory("Being followed up", "Information on reviews after an MCI diagnosis, what to watch for, and when to go back to the GP.", "Alzheimer's Society", <MemCalendar />),
 };
+/** A Dementia & memory card: the purples of the Dementia card on the Brain page. */
+function memory(want: string, desc: string, source: string, art: ReactNode): Goal {
+  return { want, desc, source, cta: "Read", ink: "#6A3E9E", tint: "#F1E9FB", mark: "#D9C7F2", art };
+}
 const ORDER = Object.keys(GOALS);
+const goalKey = (conditionId: string, itemId: string) => GOALS[`${conditionId}/${itemId}`] ? `${conditionId}/${itemId}` : itemId;
 
 const PLAIN: Omit<Goal, "want" | "desc" | "source" | "art"> = { cta: "Open", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0" };
 
 export function GoalCards({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
-  const ordered = [...items].sort((a, b) => rank(a.id) - rank(b.id));
+  const key = (item: LibraryItem) => goalKey(place.condition.id, item.id);
+  const ordered = [...items].sort((a, b) => rank(key(a)) - rank(key(b)));
   return <ul className="lib-v2-goals" role="list">
     {ordered.map((item, index) => {
-      const goal = GOALS[item.id];
+      const goal = GOALS[key(item)];
       const look = goal ?? PLAIN;
       return <li key={item.id}>
         <Link href={itemHref({ ...place, item })} className="lib-v2-goal" style={{ background: look.tint, animationDelay: `${index * 0.09}s`, ["--ink" as string]: look.ink, ["--mark" as string]: look.mark } as CSSProperties}>

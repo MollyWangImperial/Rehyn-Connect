@@ -66,7 +66,15 @@ export type NewsPiece =
   // TIA's own (components/library/NewsTiaPieces.tsx).
   | "tia-clear" | "tia-tests" | "questions" | "pill-box" | "neck-artery" | "heartbeat" | "risk-fades" | "fast-card"
   // Stroke under 50's own (components/library/NewsYoungPieces.tsx).
-  | "young-causes" | "bubble-test" | "myth-fact" | "growth-rings" | "iceberg" | "steady-build" | "work-weeks" | "money-jars" | "kids-talk" | "two-chairs";
+  | "young-causes" | "bubble-test" | "myth-fact" | "growth-rings" | "iceberg" | "steady-build" | "work-weeks" | "money-jars" | "kids-talk" | "two-chairs"
+  // Dementia & memory's own (components/library/NewsMemoryPieces.tsx).
+  | "small-vessels" | "step-chart" | "scan-compare" | "recipe-steps" | "protect-dials" | "spark" | "venn-mixed" | "home-light" | "fridge-board"
+  // Lewy body dementia's own (components/library/NewsLewyPieces.tsx).
+  | "lewy-clumps" | "alert-dial" | "seeing-things" | "look-alikes" | "medicine-cards" | "dream-bed" | "falls-steps" | "stand-slowly" | "calm-reply" | "mirror-room"
+  // Alzheimer's disease's own, and those every Dementia page shares (components/library/NewsAlzPieces.tsx).
+  | "plaques-tangles" | "clinic-path" | "three-stages" | "beyond-memory" | "tablet-truth" | "cst-circle" | "other-checks" | "good-days" | "lpa-keys" | "dvla-letter" | "care-circle" | "telling-circles"
+  // Mild cognitive impairment's own (components/library/NewsMciPieces.tsx).
+  | "forget-scale" | "mci-paths" | "test-desk" | "mimic-list" | "risk-wheel" | "key-hook" | "sound-waves" | "review-calendar" | "worry-clouds" | "sleep-moon";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -613,6 +621,122 @@ NEWS_EXTRAS["under-50/relationships"] = {
   figure: { art: "custom", id: "two-chairs" },
   pullQuote: "Talk to your partner about the things you are finding difficult.",
 };
+
+// Vascular dementia (content/vascular-answers.ts), and the pieces every Dementia page shares
+// (content/dementia-shared-answers.ts), keyed by their answer.
+NEWS_EXTRAS["vascular/what-happens"] = {
+  kicker: "Understanding dementia",
+  headline: "When less blood reaches the brain",
+  standfirst: "Vascular dementia is caused by reduced blood flow to the brain: often after a stroke, or through the small vessels deep inside it.",
+  figure: { art: "custom", id: "small-vessels" },
+  charts: { 1: { kind: "waffle", title: "Two in every ten", subtitle: "People living with dementia, out of every 100", groups: [{ label: "Vascular dementia", count: 20, tone: "clay" }, { label: "Other types of dementia", count: 80, tone: "green" }], sources: "Source: Alzheimer's Research UK, Vascular dementia" } },
+  pullQuote: "Strokes are a common cause of vascular dementia.",
+};
+NEWS_EXTRAS["vascular/steps"] = {
+  kicker: "Understanding dementia",
+  headline: "Level, then a step",
+  standfirst: "It can stay the same for months or years, then suddenly get worse. The steps are usually due to new strokes.",
+  figure: { art: "custom", id: "step-chart" },
+  pullQuote: "Symptoms may stay the same for months or even years.",
+};
+NEWS_EXTRAS["vascular/diagnosis"] = {
+  kicker: "Understanding dementia",
+  headline: "No single test",
+  standfirst: "A brain scan helps, alongside other information. And the first signs are often not about memory at all.",
+  figure: { art: "custom", id: "scan-compare" },
+  pullQuote: "Memory loss is not usually the main early vascular dementia symptom.",
+};
+NEWS_EXTRAS["vascular/thinking-not-memory"] = {
+  kicker: "Understanding dementia",
+  headline: "Slower, not only forgetful",
+  standfirst: "Planning, speed of thought and concentration are often affected first. Walking can change too.",
+  figure: { art: "custom", id: "recipe-steps" },
+  pullQuote: "Slower speed of thought is often more common than memory loss.",
+};
+NEWS_EXTRAS["vascular/protect"] = {
+  kicker: "Treat and manage",
+  headline: "Treating the cause",
+  standfirst: "There is no cure, but treating what reduces the blood flow can help stop it getting worse.",
+  figure: { art: "custom", id: "protect-dials" },
+  pullQuote: "If it is found at an early stage, treatment may be able to slow it down.",
+};
+NEWS_EXTRAS["vascular/mood-apathy"] = {
+  kicker: "Treat and manage",
+  headline: "When the spark dims",
+  standfirst: "Depression and apathy are common in vascular dementia, partly because of the damage itself. Talking treatments can help.",
+  figure: { art: "custom", id: "spark" },
+  pullQuote: "Depression is a particularly common vascular dementia symptom.",
+};
+NEWS_EXTRAS["vascular/mixed"] = {
+  kicker: "Treat and manage",
+  headline: "Two kinds at once",
+  standfirst: "Mixed dementia is having more than one type at the same time, most often vascular dementia with Alzheimer's disease.",
+  figure: { art: "custom", id: "venn-mixed" },
+  stats: { 1: [{ value: "At least 1 in 10", label: "people with dementia is diagnosed with mixed dementia.", ref: 3 }] },
+  pullQuote: "Most often it is a combination of Alzheimer's disease and vascular dementia.",
+};
+NEWS_EXTRAS["dem-home"] = {
+  kicker: "Living with dementia",
+  headline: "A home that helps",
+  standfirst: "Better lighting, clear floors, colours that stand out, and signs and clocks that help with the day.",
+  figure: { art: "custom", id: "home-light" },
+  pullQuote: "Better lighting can help to avoid confusion and reduce the risk of falls.",
+};
+NEWS_EXTRAS["dem-routines"] = {
+  kicker: "Living with dementia",
+  headline: "The week on the fridge",
+  standfirst: "A regular routine, a timetable where you can see it, a pill organiser, labels and a clock that shows the day.",
+  figure: { art: "custom", id: "fridge-board" },
+  pullQuote: "Have a regular routine.",
+};
+
+// Lewy body dementia (content/lewy-answers.ts).
+const lewy = (headline: string, standfirst: string, id: NewsPiece, pullQuote: string, kicker = "Understanding dementia", more: Partial<NewsExtras> = {}): NewsExtras =>
+  ({ kicker, headline, standfirst, figure: { art: "custom", id }, pullQuote, ...more });
+NEWS_EXTRAS["lewy-body/what-happens"] = lewy("Clumps of a protein", "Lewy bodies build up in the parts of the brain for thinking, seeing and moving. The same deposits are found in Parkinson's disease.", "lewy-clumps", "The clumps it forms are called Lewy bodies.",
+  "Understanding dementia", { stats: { 3: [{ value: "3 to 4 in 20", label: "people with dementia have dementia with Lewy bodies, says Alzheimer's Research UK.", ref: 1 }] } });
+NEWS_EXTRAS["lewy-body/fluctuations"] = lewy("Clear at breakfast, foggy by lunch", "Alertness and attention can swing through the day, over hours or even minutes.", "alert-dial", "They may appear to switch off.");
+NEWS_EXTRAS["lewy-body/hallucinations"] = lewy("Real to the person seeing it", "Seeing people or animals that are not there is a common early symptom. It can be pleasant, or distressing.", "seeing-things", "Hallucinations that are not distressing may not need to be stopped.");
+NEWS_EXTRAS["lewy-body/diagnosis"] = lewy("Easily mistaken", "It is often taken for Alzheimer's disease or delirium, and a good day at the clinic can hide it.", "look-alikes", "There is no single test for dementia with Lewy bodies.");
+NEWS_EXTRAS["lewy-body/medicines"] = lewy("Handle with care", "Some common medicines can cause serious reactions. Some dementia medicines may help.", "medicine-cards", "Check that medical staff know it is dementia with Lewy bodies, not just dementia.", "Treat and manage");
+NEWS_EXTRAS["lewy-body/sleep"] = lewy("Acting out dreams", "Shouting and moving in sleep can start years before a diagnosis. A few changes keep the nights safer.", "dream-bed", "Put a mattress alongside the bed in case of falls.", "Treat and manage");
+NEWS_EXTRAS["lewy-body/movement"] = lewy("Steady on your feet", "Movement changes are like Parkinson's disease, and falls are more likely. Staying active helps.", "falls-steps", "Stay as active as you can: physically, mentally and socially.", "Treat and manage");
+NEWS_EXTRAS["lewy-body/blood-pressure"] = lewy("Rise slowly", "Low blood pressure on standing up can cause dizziness and fainting.", "stand-slowly", "Rising slowly helps to prevent falls.", "Treat and manage");
+NEWS_EXTRAS["lewy-body/responding"] = lewy("Reassure, don't argue", "Trying to convince someone they are mistaken can add to their distress. Staying with them helps.", "calm-reply", "Stay with the person and try to reassure them.", "Living with dementia");
+NEWS_EXTRAS["lewy-body/home"] = lewy("Fewer tricks of the light", "Less glare and fewer shadows, mirrors checked, curtains closed at dusk, and plain patterns.", "mirror-room", "Try to reduce glare, shadows and reflections.", "Living with dementia");
+
+// Alzheimer's disease (content/alzheimers-answers.ts).
+NEWS_EXTRAS["alzheimers/what-happens"] = lewy("Plaques, tangles and memory", "Two proteins build up in the brain, and the parts for making new memories are usually affected first.", "plaques-tangles", "Memories of events long ago are not usually affected in the earlier stages.",
+  "Understanding dementia", { stats: { 0: [{ value: "2 in 3", label: "people living with dementia in the UK are thought to have Alzheimer's disease.", ref: 2 }] } });
+NEWS_EXTRAS["alzheimers/diagnosis"] = lewy("The road to a diagnosis", "There is no single test. The GP, a memory service and sometimes a scan, over several appointments.", "clinic-path", "There is no single test that can be used to diagnose Alzheimer's disease.");
+NEWS_EXTRAS["alzheimers/stages"] = lewy("Early, middle, later", "A plain guide to the stages, with the reminder that nobody follows it exactly.", "three-stages", "There is no way to be sure how quickly a person's dementia will progress.");
+NEWS_EXTRAS["alzheimers/not-just-memory"] = lewy("More than forgetting", "Words, time and place, decisions, feelings and behaviour can all change too.", "beyond-memory", "A person may get confused about what time of day it is, or where they are.");
+NEWS_EXTRAS["alzheimers/tablets"] = lewy("What the tablets can do", "Four medicines can ease symptoms for a while. They do not stop the disease, and the newest are not on the NHS.", "tablet-truth", "The overall benefit of dementia medicines is modest.", "Treat and manage");
+NEWS_EXTRAS["alzheimers/keeping-sharp"] = lewy("Better together", "Group cognitive stimulation therapy is recommended for mild to moderate dementia. Brain-training on its own is not.", "cst-circle", "Evidence suggests that cognitive stimulation therapy benefits people with mild to moderate dementia.", "Treat and manage");
+NEWS_EXTRAS["alzheimers/other-conditions"] = lewy("Could something else be adding to it?", "Infections, delirium, some medicines, low mood, and sight and hearing problems can all make memory worse. Many can be treated.", "other-checks", "See your GP if you feel unwell.", "Treat and manage");
+NEWS_EXTRAS["alzheimers/good-days"] = lewy("Good days", "You are still you. Keep doing what you enjoy, join a group, keep moving and accept help.", "good-days", "You are still you.", "Living with dementia");
+
+// Shared by the Dementia pages: planning, driving, carers, telling people (content/dementia-shared-answers.ts).
+NEWS_EXTRAS["dem-planning"] = lewy("Two keys to hand over", "A lasting power of attorney lets you choose who can make decisions for you. It is best made early, while you can.", "lpa-keys", "Start thinking about making an LPA as soon as you can.", "Living with dementia");
+NEWS_EXTRAS["dem-driving"] = lewy("Tell DVLA, then wait for the letter", "A diagnosis is not in itself a reason to stop driving, but DVLA must be told.", "dvla-letter", "A diagnosis of dementia is not in itself a reason to stop driving.", "Living with dementia");
+NEWS_EXTRAS["dem-carers"] = lewy("Care for the carer", "Your needs matter as much as the person you look after. A carer's assessment is free, and helplines are there.", "care-circle", "Your needs as a carer are as important as the person you are caring for.", "Living with dementia");
+NEWS_EXTRAS["dem-telling"] = lewy("In your own time", "When you are ready, tell people what the diagnosis means and how they can help.", "telling-circles", "When you are ready, it is best to tell others about your diagnosis.", "Living with dementia");
+
+// Mild cognitive impairment (content/mci-answers.ts).
+const mci = (headline: string, standfirst: string, id: NewsPiece, pullQuote: string, kicker = "Understanding MCI", more: Partial<NewsExtras> = {}) => lewy(headline, standfirst, id, pullQuote, kicker, more);
+NEWS_EXTRAS["mild-cognitive-impairment/forgetting-words"] = mci("Everyday slips, or something more?", "Memory gets less reliable with age without stopping everyday life. Problems that last months are worth checking.", "forget-scale", "It could be caused by something that can be treated.");
+NEWS_EXTRAS["mild-cognitive-impairment/what-mci-is"] = mci("Three ways it can go", "Memory or thinking problems that do not stop everyday life. Many people stay the same or get better.", "mci-paths", "Having MCI is not the same as having dementia.",
+  "Understanding MCI", { stats: { 2: [{ value: "4 in 10", label: "people with MCI will get better, though recovery may not be permanent.", ref: 2 }] } });
+NEWS_EXTRAS["mild-cognitive-impairment/tests"] = mci("What the questions look at", "A short check of thinking, blood tests, and sometimes a scan. The tests point the way; they cannot diagnose on their own.", "test-desk", "These tests cannot diagnose dementia on their own.");
+NEWS_EXTRAS["mild-cognitive-impairment/other-causes"] = mci("Things that look like it", "Sleep, medicines, mood, sight and hearing, infections, thyroid and vitamin B12 can all affect memory.", "mimic-list", "Memory problems do not necessarily mean you have dementia.");
+NEWS_EXTRAS["mild-cognitive-impairment/brain-health"] = mci("Fourteen things that can change", "Addressing 14 risk factors could prevent or delay almost half of dementia cases. It is never too late to start.", "risk-wheel", "What is good for your heart is also good for your brain.",
+  "Treat and manage", { charts: { 1: { kind: "donut", title: "What could change", subtitle: "Dementia cases, out of every 100, from the 2024 Lancet Commission", value: 45, prefix: "Up to", subject: "dementia cases", label: "may be linked to factors that can be prevented, treated or modified", sources: "Source: Alzheimer's Society, 26 August 2026" } } });
+NEWS_EXTRAS["mild-cognitive-impairment/memory-aids"] = mci("A place for everything", "One thing at a time, keys on a hook, reminders on your phone, and a tick for each medicine.", "key-hook", "Try to do just one thing at a time.", "Treat and manage");
+NEWS_EXTRAS["mild-cognitive-impairment/hearing"] = mci("Keep the sound coming in", "Hearing loss in mid-life may raise the risk of dementia. Hearing aids may help, and a test can be free.", "sound-waves", "Hearing loss is only a risk factor.", "Treat and manage");
+NEWS_EXTRAS["mild-cognitive-impairment/follow-up"] = mci("Keeping an eye on it", "Usually back to the GP, sometimes a review in 6 or 12 months, and a referral back if things get worse.", "review-calendar", "If symptoms get worse before then, contact the GP.", "Treat and manage");
+NEWS_EXTRAS["mild-cognitive-impairment/worry"] = mci("Relief, and not knowing", "Many people feel relief at an MCI diagnosis, and many feel unsettled. Both are normal, and support helps.", "worry-clouds", "Be as kind to yourself as you would be to others.", "Living with MCI");
+NEWS_EXTRAS["mild-cognitive-impairment/telling-people"] = mci("Whether, and how, to tell people", "A diagnosis can help people understand. Those close to you may notice things you do not.", "telling-circles", "You may need to listen to the people close to you.", "Living with MCI");
+NEWS_EXTRAS["mild-cognitive-impairment/sleep"] = mci("Seven to nine hours", "Poor sleep is linked with a higher dementia risk, and sleep apnoea most of all. Help is there for sleep problems.", "sleep-moon", "Try to get enough sleep, ideally at least seven hours each night.", "Living with MCI");
 
 // Pieces whose answer is the same for every kind of stroke share the same feature.
 for (const id of ["rewiring", "walking", "fatigue", "mood", "carers"]) NEWS_EXTRAS[`haemorrhagic/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];

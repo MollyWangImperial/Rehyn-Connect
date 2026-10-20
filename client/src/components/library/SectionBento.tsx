@@ -2,6 +2,7 @@ import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "wouter";
 import type { LibraryGroup, LibrarySection } from "@/content/library";
 import { conditionHref, sectionStories } from "@/lib/library";
+import { readLocal } from "@/lib/library-local";
 import { Crumbs } from "./parts";
 
 // The Brain & nervous system page as a "bento" (brain-section-bento.html): a dark header with
@@ -10,7 +11,8 @@ import { Crumbs } from "./parts";
 // there. The colours, symbols and short chip labels are this page's own; everything else comes
 // from the section's groups in content/library.ts.
 
-type BentoStyle = { ink: string; tint: string; text: string; muted: string; short: string; chips: string[]; symbol: ReactNode };
+/** `light`: the large tile keeps the small card's pale colour, with dark words, instead of turning dark. */
+type BentoStyle = { ink: string; tint: string; text: string; muted: string; short: string; chips: string[]; symbol: ReactNode; light?: boolean };
 
 const BRAIN: Record<string, BentoStyle> = {
   stroke: { ink: "#4A3F9C", tint: "#EEEBFA", text: "#2F2770", muted: "#4D4580", short: "When blood stops reaching part of the brain.", chips: ["Ischaemic", "Haemorrhagic", "TIA", "Under 50"], symbol: <>
@@ -19,7 +21,7 @@ const BRAIN: Record<string, BentoStyle> = {
     <path d="M20 186 C50 170, 66 150, 84 132 C96 120, 110 112, 128 100" />
     <circle cx="128" cy="100" r="10" fill="#F2B8A5" stroke="none" />
   </> },
-  dementia: { ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A", muted: "#5B4A72", short: "Memory, thinking and language changes beyond ordinary ageing.", chips: ["Alzheimer's", "Vascular", "Lewy body", "Mild cognitive impairment"], symbol: <>
+  dementia: { light: true, ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A", muted: "#5B4A72", short: "Memory, thinking and language changes beyond ordinary ageing.", chips: ["Alzheimer's", "Vascular", "Lewy body", "Mild cognitive impairment"], symbol: <>
     <path d="M82 176 V142 L56 136 L70 110 C44 70, 70 32, 112 32 C152 32, 172 64, 162 104 L172 124 L152 130 L148 176" />
     <path d="M114 86 a8 8 0 1 1 8 8 a16 16 0 1 1 -16 -16 a24 24 0 1 1 24 24" />
   </> },
@@ -99,13 +101,29 @@ export function BentoHero({ section }: { section: LibrarySection }) {
   </header>;
 }
 
+// The group last moved into the large tile, by section, kept in this browser so coming back to the
+// page (for example from one of its conditions) shows that group again rather than the first one.
+const GROUP_KEY = "rehyn.library-section-group.v1";
+function rememberGroup(sectionId: string, groupId: string) {
+  try { window.localStorage.setItem(GROUP_KEY, JSON.stringify({ ...readLocal<Record<string, string>>(GROUP_KEY, {}), [sectionId]: groupId })); } catch { /* storage blocked: the page still works for this visit */ }
+}
+/** The group to show first: one named in the link (#group-…), else the one chosen last time, else the first. */
+function firstGroup(section: LibrarySection) {
+  const has = (id?: string) => Boolean(id && section.groups.some(group => group.id === id));
+  const linked = typeof window === "undefined" ? undefined : window.location.hash.match(/^#group-(.+)$/)?.[1];
+  if (has(linked)) return linked!;
+  const remembered = readLocal<Record<string, string>>(GROUP_KEY, {})[section.id];
+  if (has(remembered)) return remembered;
+  return section.groups[0]?.id ?? "";
+}
+
 /**
  * The grid. `ask` is the "Not sure which group?" form, given a way to move a group into the large
  * tile, so its answer can open the group it suggests.
  */
 export function SectionBento({ section, ask }: { section: LibrarySection; ask: (show: (groupId: string) => void) => ReactNode }) {
   const styles = BENTO[section.id];
-  const [active, setActive] = useState(section.groups[0]?.id ?? "");
+  const [active, setActive] = useState(() => firstGroup(section));
   const [moves, setMoves] = useState(0);
   const [said, setSaid] = useState("");
   const title = useRef<HTMLHeadingElement>(null);
@@ -118,6 +136,7 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
     const group = section.groups.find(candidate => candidate.id === groupId);
     if (!group) return;
     setActive(group.id);
+    rememberGroup(section.id, group.id);
     setMoves(count => count + 1);
     setSaid(`Showing ${group.title}`);
     // Keyboard and screen-reader users land on the group they chose.
@@ -135,8 +154,9 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
   return <section className="lib-bento-wrap" aria-label="Groups in this section">
     <p className="lib-sr" aria-live="polite">{said}</p>
     <div className="lib-bento">
-      <article key={`${main.id}-${moves}`} id={`group-${main.id}`} className={`lib-bento-tile is-feature${entering}`} style={{ background: mainStyle.ink }} aria-labelledby="lib-bento-feature-title">
-        <GroupSymbol style={mainStyle} colour="#FFFFFF" width={5} className="lib-bento-sym" />
+      <article key={`${main.id}-${moves}`} id={`group-${main.id}`} className={`lib-bento-tile is-feature${mainStyle.light ? " is-light" : ""}${entering}`}
+        style={mainStyle.light ? { background: mainStyle.tint, ["--ink" as string]: mainStyle.ink, ["--text" as string]: mainStyle.text, ["--muted" as string]: mainStyle.muted } as CSSProperties : { background: mainStyle.ink }} aria-labelledby="lib-bento-feature-title">
+        <GroupSymbol style={mainStyle} colour={mainStyle.light ? mainStyle.ink : "#FFFFFF"} width={5} className="lib-bento-sym" />
         <div className="lib-bento-tags">
           {main.badge && <span className="is-hot">{main.badge}</span>}
           <span>{plural(main.conditions.length, "condition")}</span>

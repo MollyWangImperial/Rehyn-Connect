@@ -187,6 +187,23 @@
 .lib-fast-big { font:600 56px/1 "Newsreader",Georgia,serif; }
 @media (max-width:640px) { .lib-fast-big { font-size:40px; } .lib-fast-letter { font-size:13px; } }
 
+/* Dementia & memory features: the light purples of its card on the Brain page. The picture bands
+   are pale lavender with deep purple words (components/library/NewsMemoryPieces.tsx). */
+.lib-news.is-memory { --news-clay:#6A3E9E; --news-forest:#4E2C7A; background:#FCFAFE; }
+.lib-news.is-memory a { color:#6A3E9E; }
+.lib-news.is-memory a:hover { color:#3B1F5E; }
+.lib-news.is-memory .lib-news-ornament path:first-child { fill:#6A3E9E; }
+.lib-piece-band.is-lilac { --band:#F1E9FB; --band-line:#CDB6EA; --band-soft:#3B1F5E; --band-accent:#6A3E9E; color:#2A1745; }
+.lib-piece-band.is-heather { --band:#E8DCF6; --band-line:#BFA3E3; --band-soft:#3B1F5E; --band-accent:#5B3F8C; color:#2A1745; }
+.lib-piece-band.is-orchid { --band:#F7EFFB; --band-line:#D9BDEB; --band-soft:#4A1F5E; --band-accent:#8A3E9E; color:#2A1745; }
+.lib-piece-band.is-mist { --band:#EEEBFA; --band-line:#C3BDEB; --band-soft:#2F2770; --band-accent:#4A3F9C; color:#1E1A45; }
+.lib-piece-band.is-lilac .lib-why-choice[aria-pressed="true"], .lib-piece-band.is-heather .lib-why-choice[aria-pressed="true"],
+.lib-piece-band.is-orchid .lib-why-choice[aria-pressed="true"], .lib-piece-band.is-mist .lib-why-choice[aria-pressed="true"] { color:#FFFFFF; }
+.lib-piece-band.is-lilac .lib-why-num, .lib-piece-band.is-heather .lib-why-num, .lib-piece-band.is-orchid .lib-why-num, .lib-piece-band.is-mist .lib-why-num { background:var(--band-accent); color:#FFFFFF; }
+.lib-piece-band.is-lilac .lib-why-choice[aria-pressed="true"] .lib-why-num, .lib-piece-band.is-heather .lib-why-choice[aria-pressed="true"] .lib-why-num,
+.lib-piece-band.is-orchid .lib-why-choice[aria-pressed="true"] .lib-why-num, .lib-piece-band.is-mist .lib-why-choice[aria-pressed="true"] .lib-why-num { background:#FFFFFF; color:var(--band-accent); }
+.lib-piece-band.is-lilac .lib-why-credit, .lib-piece-band.is-heather .lib-why-credit, .lib-piece-band.is-orchid .lib-why-credit, .lib-piece-band.is-mist .lib-why-credit { opacity:.85; }
+
 /* Stroke under 50's own pieces (components/library/NewsYoungPieces.tsx). */
 .lib-piece-band.is-ink { --band:#14213D; --band-line:#3C5A8A; --band-soft:#E2EAF7; --band-accent:#F2A488; }
 .lib-piece-band.is-berry { --band:#3D1235; --band-line:#7A3A6E; --band-soft:#F7E1F1; --band-accent:#F2C94C; }

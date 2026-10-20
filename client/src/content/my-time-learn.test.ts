@@ -15,8 +15,10 @@ describe("the checked answers", () => {
       expect(article.sources.length, article.id).toBeGreaterThan(0);
       // GOV.UK sets the driving rules and runs the benefits, so it is the source for them; NICE sets the
       // national guidance on treatment. Stroke under 50 also draws on Different Strokes (run for younger
-      // survivors), NHS inform, Citizens Advice, Headway and the Stroke Association's own newsroom.
-      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association)\//);
+      // survivors), NHS inform, Citizens Advice, Headway and the Stroke Association's own newsroom. The
+      // Dementia pages draw on the Alzheimer's Society, Alzheimer's Research UK, the Lewy Body Society and
+      // Parkinson's UK.
+      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association|alzheimers\.org\.uk|alzheimersresearchuk\.org|lewybody\.org|parkinsons\.org\.uk|dementiauk\.org)\//);
     }
     for (const place of trustedPlaces) expect(place.url).toMatch(/^https:\/\//);
   });

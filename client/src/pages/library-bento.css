@@ -56,6 +56,15 @@
 .lib-bento-tile.is-feature li a { display:flex; justify-content:space-between; gap:12px; min-height:46px; align-items:center; padding:10px 16px; border-radius:14px; background:rgba(255,255,255,.16); color:#FFFFFF; font-size:15px; font-weight:700; text-decoration:none; transition:background .2s ease, color .2s ease; }
 .lib-bento-tile.is-feature li a:hover { background:#FFFFFF; color:#231C5C; }
 .lib-bento-tile.is-feature li a:focus-visible { outline:3px solid #FFFFFF; outline-offset:2px; }
+/* A group whose large tile keeps its small card's pale colour (Dementia & memory), with dark words. */
+.lib-bento-tile.is-feature.is-light { color:var(--text); }
+.lib-bento-tile.is-feature.is-light h2 { color:var(--text); }
+.lib-bento-tile.is-feature.is-light p { color:var(--muted); }
+.lib-bento-tile.is-feature.is-light .lib-bento-sym { opacity:.3; }
+.lib-bento-tile.is-feature.is-light .lib-bento-tags span { background:#FFFFFF; color:var(--text); }
+.lib-bento-tile.is-feature.is-light li a { background:#FFFFFF; color:var(--text); }
+.lib-bento-tile.is-feature.is-light li a:hover { background:var(--ink); color:#FFFFFF; }
+.lib-bento-tile.is-feature.is-light li a:focus-visible { outline-color:var(--ink); }
 
 /* A group that has just moved in fades up; the small tiles follow, one after another. */
 .lib-bento-tile.is-entering { animation:lib-bento-tile-in .45s ease both; }

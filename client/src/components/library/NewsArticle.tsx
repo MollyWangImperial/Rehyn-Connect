@@ -166,7 +166,7 @@ export function NewsArticle({ place, article, media }: { place: ItemPlace; artic
     </Fragment>;
   };
 
-  return <div className="lib-page lib-news">
+  return <div className={`lib-page lib-news${group.id === "dementia" ? " is-memory" : ""}`}>
     <article aria-labelledby="lib-news-headline">
       <div className="lib-news-wrap lib-news-head">
         <nav aria-label="Breadcrumb" className="lib-news-kicker">

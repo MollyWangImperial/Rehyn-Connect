@@ -10,6 +10,11 @@ import { haemorrhagicAnswers } from "./haemorrhagic-answers";
 import { ischaemicAnswers } from "./ischaemic-answers";
 import { tiaAnswers } from "./tia-answers";
 import { under50Answers } from "./under50-answers";
+import { vascularAnswers } from "./vascular-answers";
+import { dementiaSharedAnswers } from "./dementia-shared-answers";
+import { lewyAnswers } from "./lewy-answers";
+import { alzheimersAnswers } from "./alzheimers-answers";
+import { mciAnswers } from "./mci-answers";
 import type { LearnInteractive, QuickCheck } from "./learn-interactive";
 
 export const LEARN_CHECKED = "October 2026";
@@ -307,7 +312,7 @@ const coreArticles: LearnArticle[] = [
 ];
 
 /** Every checked answer: the first six, then the Ischaemic stroke page's own (content/ischaemic-answers.ts). */
-export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers];
+export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers, ...dementiaSharedAnswers, ...vascularAnswers, ...lewyAnswers, ...alzheimersAnswers, ...mciAnswers];
 
 export type TrustedPlace = { name: string; about: string; url: string };
 

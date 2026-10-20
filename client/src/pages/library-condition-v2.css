@@ -211,6 +211,45 @@
 .lib-v2-playpulse { transform-box:fill-box; transform-origin:center; animation:lib-v2-pp 2.4s ease-in-out infinite; }
 @keyframes lib-v2-pp { 0%,100% { transform:scale(1); } 50% { transform:scale(1.15); } }
 
+/* ---- Dementia & memory: the light purples of its card on the Brain page ----------------- */
+.lib-v2.is-memory { background:#FBF8FE; }
+.lib-v2.is-memory .lib-v2-hero { background:#F1E9FB; color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-hero::after { background:linear-gradient(90deg, rgba(241,233,251,.95) 0%, rgba(241,233,251,.82) 42%, rgba(241,233,251,0) 74%); }
+.lib-v2.is-memory .lib-v2-hero h1 { color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-hero-words > p { color:#4E2C7A; }
+.lib-v2.is-memory .lib-v2-hero .lib-crumbs, .lib-v2.is-memory .lib-v2-hero .lib-crumbs a { color:#5B4A72; }
+.lib-v2.is-memory .lib-v2-hero .lib-crumbs a:hover, .lib-v2.is-memory .lib-v2-hero .lib-crumbs [aria-current] { color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-hero .lib-crumbs svg { color:#8A5BB8; }
+.lib-v2.is-memory .lib-v2-facts li { background:#FFFFFF; color:#4E2C7A; box-shadow:0 2px 0 rgba(106,62,158,.12); }
+.lib-v2.is-memory .lib-v2-save { border-color:#6A3E9E; color:#4E2C7A; }
+.lib-v2.is-memory .lib-v2-save:hover, .lib-v2.is-memory .lib-v2-save[aria-pressed="true"] { background:#E4D6F5; }
+.lib-v2.is-memory .lib-version-switch { border-color:#6A3E9E; color:#4E2C7A; }
+.lib-v2.is-memory .lib-version-switch:hover { background:#6A3E9E; color:#FFFFFF; }
+.lib-v2-link { animation:lib-v2-link 6s ease-in-out infinite; }
+.lib-v2-link.is-fading { animation:lib-v2-link-fade 7s ease-in-out infinite; }
+@keyframes lib-v2-link { 0%,100% { opacity:.55; } 50% { opacity:.9; } }
+@keyframes lib-v2-link-fade { 0%,30% { opacity:.7; } 55%,70% { opacity:.08; } 100% { opacity:.7; } }
+.lib-v2-node { transform-box:fill-box; transform-origin:center; animation:lib-v2-node 4.5s ease-in-out infinite; }
+@keyframes lib-v2-node { 0%,100% { transform:scale(1); opacity:.95; } 50% { transform:scale(1.5); opacity:.45; } }
+.lib-v2.is-memory .lib-v2-parts-inner { box-shadow:0 12px 30px rgba(106,62,158,.14); }
+.lib-v2.is-memory .lib-v2-parts a { color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-parts a:hover { background:#F1E9FB; }
+.lib-v2.is-memory .lib-v2-parts a.is-active { background:#6A3E9E; color:#FFFFFF; }
+.lib-v2.is-memory .lib-v2-head h2 { color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-head span { color:#5B4A72; }
+.lib-v2.is-memory .lib-v2-tile.is-count { border-color:#D2BDEB; color:#3B1F5E; }
+.lib-v2.is-memory .lib-v2-count, .lib-v2.is-memory .lib-v2-tile.is-count .lib-v2-more, .lib-v2.is-memory .lib-v2-src-kind { color:#6A3E9E; }
+.lib-v2.is-memory .lib-v2-src { border-color:#E6DAF5; }
+.lib-v2.is-memory .lib-v2-lwell-row { border-color:#E6DAF5; }
+.lib-v2.is-memory .lib-v2-lwell-row:hover { box-shadow:0 14px 30px rgba(106,62,158,.14); }
+.lib-v2.is-memory .lib-v2-lwell-ico, .lib-v2.is-memory .lib-v2-lwell-tag { background:#F1E9FB; color:#6A3E9E; }
+.lib-v2.is-memory .lib-v2-lwell-words span { color:#5B4A72; }
+.lib-v2.is-memory .lib-v2-lwell-go { color:#6A3E9E; }
+.lib-v2.is-memory .lib-v2-lwell-row.is-dark { border-color:#6A3E9E; background:#6A3E9E; color:#FFFFFF; }
+.lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-ico { background:rgba(255,255,255,.18); color:#FFFFFF; }
+.lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-words span, .lib-v2.is-memory .lib-v2-lwell-row.is-dark .lib-v2-lwell-go { color:#EFE6FA; }
+.lib-v2.is-memory .lib-v2-wl-kind, .lib-v2.is-memory .lib-v2-wl-extra { color:#EFE6FA; }
+
 /* ---- Narrower screens ---------------------------------------------------------------------- */
 @media (max-width:1100px) {
   .lib-v2-layout { grid-template-columns:minmax(0,1fr); }
