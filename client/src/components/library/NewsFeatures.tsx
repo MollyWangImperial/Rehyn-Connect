@@ -215,7 +215,7 @@ function ScannerArt() {
  * The picture under the headline for The scans and tests you had: a CT scanner at work beside the
  * hospital clock. Choosing a step turns the clock's hand to its time and shows what the answer says.
  */
-export function ScansHero({ milestones, article }: { milestones: NewsMilestone[]; article: LearnArticle }) {
+export function ScansHero({ milestones, article, kicker = "The clock starts at the door", title = "Your first day in hospital", credit = "Illustration: Rehyn. Times as the Stroke Association sets them out; your own hospital's may differ." }: { milestones: NewsMilestone[]; article: LearnArticle; kicker?: string; title?: string; credit?: string }) {
   const [active, setActive] = useState(milestones[0]?.id ?? "");
   const chosen = milestones.find(step => step.id === active) ?? milestones[0];
   const words = (step: NewsMilestone) => "help" in step.from ? article.helps[step.from.help] : article.sections[step.from.section]?.paragraphs[step.from.paragraph];
@@ -224,8 +224,8 @@ export function ScansHero({ milestones, article }: { milestones: NewsMilestone[]
     <div className="lib-scans-hero-inner">
       <ScannerArt />
       <div className="lib-scans-panel">
-        <div className="lib-why-kicker">The clock starts at the door</div>
-        <h2 id="lib-scans-title" className="lib-why-title">Your first day in hospital</h2>
+        <div className="lib-why-kicker">{kicker}</div>
+        <h2 id="lib-scans-title" className="lib-why-title">{title}</h2>
         <div className="lib-scans-row">
           <svg className="lib-scans-dial" viewBox="0 0 180 180" role="img" aria-label={chosen ? `${chosen.label}: ${chosen.when}` : "The hospital clock"}>
             <circle cx="90" cy="90" r="70" fill="none" stroke="#2B4F6B" strokeWidth="12" />
@@ -236,7 +236,7 @@ export function ScansHero({ milestones, article }: { milestones: NewsMilestone[]
             })}
             <line x1="90" y1="90" x2="90" y2="34" stroke="#FFFEFA" strokeWidth="4" strokeLinecap="round" className="lib-scans-hand" style={{ transform: `rotate(${((chosen?.hours ?? 0) / 24) * 360}deg)`, transformOrigin: "90px 90px" }} />
             <circle cx="90" cy="90" r="6" fill="#FFFEFA" />
-            <text x="90" y="124" textAnchor="middle" fontFamily="Newsreader, Georgia, serif" fontSize="22" fontWeight="600" fill="#FFFEFA">{chosen ? `${chosen.hours} h` : ""}</text>
+            <text x="90" y="124" textAnchor="middle" fontFamily="Newsreader, Georgia, serif" fontSize="22" fontWeight="600" fill="#FFFEFA">{chosen ? chosen.mark ?? `${chosen.hours} h` : ""}</text>
           </svg>
           <div className="lib-why-choices" role="group" aria-label="Steps on your first day">
             {milestones.map(step => <button key={step.id} type="button" className="lib-why-choice lib-scans-choice" aria-pressed={step.id === chosen?.id} onClick={() => setActive(step.id)}>
@@ -247,7 +247,7 @@ export function ScansHero({ milestones, article }: { milestones: NewsMilestone[]
         <p className="lib-scans-say" aria-live="polite">{chosen && words(chosen)}</p>
       </div>
     </div>
-    <p className="lib-why-credit lib-scans-credit">Illustration: Rehyn. Times as the Stroke Association sets them out; your own hospital's may differ.</p>
+    <p className="lib-why-credit lib-scans-credit">{credit}</p>
   </section>;
 }
 
@@ -265,7 +265,7 @@ export function DonutChart({ chart }: { chart: Extract<NewsChart, { kind: "donut
         <text x="80" y="92" textAnchor="middle" fontFamily="Newsreader, Georgia, serif" fontSize="34" fontWeight="600" fill="#141413">{chart.value}</text>
         <text x="80" y="110" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="12" fill="#5B6B63">in 100</text>
       </svg>
-      <p className="lib-donut-label"><strong>{chart.prefix ? `${chart.prefix} ` : ""}{chart.value} in 100</strong> ischaemic strokes {chart.label}.</p>
+      <p className="lib-donut-label"><strong>{chart.prefix ? `${chart.prefix} ` : ""}{chart.value} in 100</strong> {chart.subject ?? "ischaemic strokes"} {chart.label}.</p>
     </div>
     <figcaption>{chart.sources}</figcaption>
   </figure>;

@@ -191,7 +191,7 @@ export function NewsArticle({ place, article, media }: { place: ItemPlace; artic
       {extras?.figure?.art === "clot" && <ClotFigure words={extras.figure.words} />}
       {extras?.figure?.art === "routes" && <RoutesHero routes={extras.figure.routes} article={article} />}
       {extras?.figure?.art === "types" && <TypesHero panels={extras.figure.panels} />}
-      {extras?.figure?.art === "scans" && <ScansHero milestones={extras.figure.milestones} article={article} />}
+      {extras?.figure?.art === "scans" && <ScansHero milestones={extras.figure.milestones} article={article} kicker={extras.figure.kicker} title={extras.figure.title} credit={extras.figure.credit} />}
       {extras?.figure?.art === "custom" && <NewsPieceView piece={extras.figure.id} article={article} place={place} />}
       {media && <section className="lib-news-media" aria-label={media.kind === "practice" ? "Your activity log" : "Watch"}>
         <div className="lib-news-media-inner"><MediaPieceView piece={media} /></div>

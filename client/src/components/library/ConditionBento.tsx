@@ -12,15 +12,15 @@ import { BookmarkIcon, Crumbs, Faces, jumpTo } from "./parts";
 // blood flowing through branching arteries and one branch stopped by a clot, a floating bar of the
 // page's parts, the Understand pieces as a bento (choose a small tile to move it into the large one),
 // the outside resources as a strip, symbol cards for Explore, Live well and Watch & listen, then the
-// page's own trusted sources and stories. Only the Ischaemic stroke page has it for now; a button at
-// the top right switches between the two versions, and the choice is remembered on this device.
+// page's own trusted sources and stories. The stroke pages have it for now; a button at the top right
+// switches between the two versions, and the choice is remembered on this device.
 
 // ---- Which version a reader sees ----------------------------------------------------------------
 
 const VERSIONS_KEY = "rehyn.library-condition-version.v1";
 
-/** The conditions with a Version 2 page: Ischaemic stroke, and Haemorrhagic stroke built the same way. */
-export const VERSION_TWO = ["stroke/ischaemic", "stroke/haemorrhagic"];
+/** The conditions with a Version 2 page: Ischaemic stroke, and the other stroke pages built the same way. */
+export const VERSION_TWO = ["stroke/ischaemic", "stroke/haemorrhagic", "stroke/tia", "stroke/under-50"];
 export const hasVersionTwo = (place: ConditionPlace) => VERSION_TWO.includes(conditionKey(place));
 
 /** The version a reader chose for this condition (1 unless they switched), and a way to switch. */
@@ -94,6 +94,26 @@ const LOOKS: Record<string, Look> = {
   headaches: { sym: "brain", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
   "blood-pressure": { sym: "heart", ink: "#2F6851", tint: "#E8F3EC", text: "#1F4A3A" },
   "blood-thinners": { sym: "shield", ink: "#8A5A12", tint: "#FBF0DC", text: "#6B450C" },
+  // TIA's own pieces.
+  "what-happened": { sym: "brain", ink: "#4A3F9C", tint: "#EEEBFA", text: "#2F2770" },
+  warning: { sym: "calendar", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
+  tests: { sym: "scan", ink: "#1F6476", tint: "#E4F1F4", text: "#164E5C" },
+  "not-a-tia": { sym: "words", ink: "#34509E", tint: "#E7ECFB", text: "#233A78" },
+  tablets: { sym: "shield", ink: "#2F6851", tint: "#E8F3EC", text: "#1F4A3A" },
+  carotid: { sym: "rewire", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
+  "af-check": { sym: "heart", ink: "#34509E", tint: "#E7ECFB", text: "#233A78" },
+  prevent: { sym: "shield", ink: "#2F6851", tint: "#E8F3EC", text: "#1F4A3A" },
+  worry: { sym: "mood", ink: "#2F4FA3", tint: "#E6ECF8", text: "#233A78" },
+  fast: { sym: "page", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
+  // Stroke under 50's own pieces.
+  "why-young": { sym: "heart", ink: "#6A3E9E", tint: "#F1E9FB", text: "#4E2C7A" },
+  "too-young": { sym: "words", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
+  "recovery-shape": { sym: "rewire", ink: "#2F6851", tint: "#E8F3EC", text: "#1F4A3A" },
+  hidden: { sym: "battery", ink: "#2F4FA3", tint: "#E6ECF8", text: "#233A78" },
+  fitness: { sym: "steps", ink: "#8A5A12", tint: "#FBF0DC", text: "#6B450C" },
+  money: { sym: "page", ink: "#4A3F9C", tint: "#EEEBFA", text: "#2F2770" },
+  children: { sym: "care", ink: "#8A5A12", tint: "#FBF0DC", text: "#6B450C" },
+  relationships: { sym: "care", ink: "#A8402B", tint: "#FBEDE7", text: "#7E2F1F" },
 };
 const LOOK_CYCLE: Look[] = [LOOKS["what-happens"], LOOKS["why-me"], LOOKS.types, LOOKS.scans, LOOKS["heavy-side"]];
 const lookFor = (item: LibraryItem, index: number): Look => LOOKS[item.id] ?? { ...LOOK_CYCLE[index % LOOK_CYCLE.length], sym: "page" };
@@ -130,10 +150,11 @@ function Hero({ place, state, onSwitch }: { place: ConditionPlace; state: Librar
         <path className="lib-v2-flow is-slow" d="M300 300 C360 360, 440 400, 560 420" />
       </g>
       <circle className="lib-v2-ring" cx="1166" cy="238" r="10" fill="none" stroke="#F2B8A5" strokeWidth="2" />
-      {/* Ischaemic: a clot stops the branch. Haemorrhagic: the branch leaks, and the bleed spreads. */}
+      {/* Ischaemic: a clot stops the branch. Haemorrhagic: the branch leaks, and the bleed spreads.
+          TIA: the clot forms, then clears. */}
       {place.condition.id === "haemorrhagic"
         ? <g fill="#9E2A2A"><ellipse className="lib-v2-bleed" cx="1166" cy="252" rx="46" ry="28" opacity=".85" /><circle cx="1150" cy="290" r="6" opacity=".7" /><circle cx="1190" cy="296" r="4" opacity=".6" /></g>
-        : <circle className="lib-v2-clot" cx="1166" cy="238" r="11" fill="#7A2A1C" />}
+        : <circle className={`lib-v2-clot${place.condition.id === "tia" ? " is-passing" : ""}`} cx="1166" cy="238" r="11" fill="#7A2A1C" />}
     </svg>
     <div className="lib-v2-hero-inner">
       <div className="lib-v2-hero-top">
@@ -258,6 +279,12 @@ const LW_ICON: Record<string, ReactNode> = {
   carers: <><circle cx="9" cy="8.5" r="2.8" /><circle cx="16.5" cy="9.5" r="2.2" /><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.4c.6-.3 1.3-.4 2-.4 2.2 0 3.7 1.6 4 4.5" /></>,
   "blood-pressure": <><path d="M4 18a8 8 0 0 1 16 0" /><path d="M12 18l4-5" /></>,
   "blood-thinners": <><rect x="4" y="9" width="16" height="7" rx="3.5" /><path d="M12 9v7" /></>,
+  prevent: <><path d="M12 3l7.5 4.25v8.5L12 20l-7.5-4.25v-8.5Z" /><path d="M12 8.5v7M8.5 12h7" /></>,
+  worry: <path d="M4 14c2.2-4 4.4-4 6.4 0s4.2 4 6.4 0c.9-1.6 1.9-2.4 3.2-2.4" />,
+  fast: <><circle cx="12" cy="12" r="8" /><path d="M12 7.5V12l3 2" /></>,
+  money: <><rect x="3.5" y="7" width="17" height="11" rx="2" /><circle cx="12" cy="12.5" r="2.5" /><path d="M6.5 10v5M17.5 10v5" /></>,
+  children: <><circle cx="9" cy="7.5" r="2.8" /><circle cx="16.5" cy="11" r="2" /><path d="M3.5 19.5c.5-3.6 2.6-5.5 5.5-5.5s5 1.9 5.5 5.5M14 19.5c.3-2.4 1.3-3.8 2.5-3.8s2.2 1.4 2.5 3.8" /></>,
+  relationships: <path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19Z" />,
 };
 
 type LiveWellLine = { line?: string; tag?: string; dark?: boolean };
@@ -269,11 +296,21 @@ const LW_LINES: Record<string, LiveWellLine> = {
   carers: { line: "share it with them", dark: true },
   "blood-pressure": { line: "why it matters most after a bleed" },
   "blood-thinners": { line: "a decision to make with your team" },
+  // TIA's own lines, keyed by page where an id is shared.
+  prevent: { line: "the tablets and the habits together" },
+  "tia/driving": { line: "at least a month off, longer for lorries and buses" },
+  worry: { line: "the risk goes down over time, and support is there" },
+  fast: { line: "the four signs, and when to call 999", dark: true },
+  // Stroke under 50's own lines.
+  "under-50/work": { line: "a phased return, and your rights" },
+  money: { line: "sick pay, ESA, PIP and the mortgage" },
+  children: { line: "the truth, at their level" },
+  relationships: { line: "talking, intimacy and the people around you", dark: true },
 };
 function LiveWell({ place, items }: { place: ConditionPlace; items: LibraryItem[] }) {
   return <ul className="lib-v2-lwell-list" role="list">
       {items.map((item, index) => {
-        const lines = LW_LINES[item.id] ?? {};
+        const lines = LW_LINES[`${place.condition.id}/${item.id}`] ?? LW_LINES[item.id] ?? {};
         const icon = LW_ICON[item.id];
         return <li key={item.id}>
           <Link href={itemHref({ ...place, item })} className={`lib-v2-lwell-row${lines.dark ? " is-dark" : ""}`}>

@@ -94,6 +94,45 @@ const Ache = () => <svg viewBox="0 0 200 150">
   <path className="g-twinkle" d="M150 34 l6 12 l-8 6 l10 14" fill="none" stroke="#D9A441" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
 </svg>;
 
+const Pills = () => <svg viewBox="0 0 200 150">
+  <rect x="26" y="40" width="148" height="80" rx="10" fill="#FFFFFF" stroke="#2F6851" strokeWidth="5" />
+  <path d="M63 40 V120 M100 40 V120 M137 40 V120 M26 80 H174" stroke="#BFE0CB" strokeWidth="3" />
+  <g className="g-pop"><rect x="34" y="50" width="22" height="22" rx="11" fill="#E8B04A" /><rect x="71" y="50" width="22" height="22" rx="11" fill="#E8B04A" /><rect x="108" y="88" width="22" height="22" rx="11" fill="#2F6851" /></g>
+  <rect x="140" y="8" width="54" height="22" rx="11" fill="#2F6851" />
+  <text x="167" y="23" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="11" fontWeight="800" fill="#FFFFFF">daily</text>
+</svg>;
+
+const Neck = () => <svg viewBox="0 0 200 150">
+  <path d="M70 146 C70 100, 64 60, 80 10 M130 146 C130 100, 136 60, 120 10" fill="none" stroke="#E8C9BE" strokeWidth="6" strokeLinecap="round" />
+  <path d="M100 146 V84 C100 60, 86 40, 84 12 M100 84 C100 60, 114 40, 116 12" fill="none" stroke="#A8402B" strokeWidth="12" strokeLinecap="round" />
+  <ellipse className="g-twinkle" cx="100" cy="96" rx="8" ry="13" fill="#E8B04A" />
+  <path className="g-travel" pathLength={100} d="M100 146 V84 C100 60, 86 40, 84 12" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" />
+</svg>;
+
+const Pulse = () => <svg viewBox="0 0 200 150">
+  <path d="M6 80 H196" stroke="#C3D0F2" strokeWidth="2" strokeDasharray="4 6" />
+  <path className="g-draw" pathLength={100} d="M6 80 H40 L50 56 L58 104 L66 80 H96 L104 40 L112 112 L120 80 H134 L142 66 L150 92 L156 80 H196" fill="none" stroke="#34509E" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+  <path d="M152 18 c-8 -12 -26 -4 -20 10 c4 8 20 18 20 18 s16 -10 20 -18 c6 -14 -12 -22 -20 -10 Z" fill="#A8402B" className="g-twinkle" />
+</svg>;
+
+const Berg = () => <svg viewBox="0 0 200 150">
+  <rect x="0" y="58" width="200" height="92" fill="#C3D0F2" opacity=".5" />
+  <path d="M0 58 H200" stroke="#2F4FA3" strokeWidth="3" />
+  <g className="g-float">
+    <path d="M78 58 L96 22 L110 34 L124 58 Z" fill="#FFFFFF" stroke="#2F4FA3" strokeWidth="4" strokeLinejoin="round" />
+    <path d="M78 58 H124 L160 104 L142 140 L66 144 L40 104 Z" fill="#2F4FA3" opacity=".75" />
+  </g>
+  <text x="100" y="98" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="11" fontWeight="800" fill="#FFFFFF">fatigue</text>
+  <text x="100" y="122" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="11" fontWeight="800" fill="#FFFFFF">memory</text>
+</svg>;
+
+const Build = () => <svg viewBox="0 0 200 150">
+  <path d="M10 136 H190" stroke="#EAD7B0" strokeWidth="3" strokeLinecap="round" />
+  {[16, 22, 30, 40, 52, 66, 82, 100].map((height, index) => <rect key={index} className="g-pop" style={{ animationDelay: `${index * 0.06}s` }} x={18 + index * 22} y={134 - height} width="14" height={height} rx="4" fill={index === 7 ? "#B5522E" : "#D9A441"} />)}
+  <rect x="120" y="8" width="70" height="20" rx="10" fill="#8A5A12" />
+  <text x="155" y="22" textAnchor="middle" fontFamily="DM Sans, sans-serif" fontSize="10" fontWeight="800" fill="#FFFFFF">build up</text>
+</svg>;
+
 /**
  * The cards, keyed by the Explore piece they lead to, in the order they are shown. Each piece is a
  * Rehyn-written summary; `source` names the organisations its facts come from (the piece itself links
@@ -107,6 +146,12 @@ const GOALS: Record<string, Goal> = {
   rewiring: { want: "Neuroplasticity after stroke", desc: "A short narrated animation explaining how the brain can form new connections after a stroke.", source: "Stroke Association", cta: "Watch", ink: "#4A3F9C", tint: "#E9E6F8", mark: "#CFC8F0", art: <Rewire /> },
   headaches: { want: "Headaches after a bleed", desc: "Information on which headaches are common while you recover, which painkillers to check first, and which headache means calling 999.", source: "Stroke Association, NHS and NICE", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Ache /> },
   "first-three-months": { want: "The early months after stroke", desc: "Information about the early weeks and months after a stroke, and the reviews that may follow.", source: "Stroke Association and NHS", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Months /> },
+  // TIA's treatment pieces.
+  tablets: { want: "Medicines after a TIA", desc: "Information on the tablets often started after a TIA, what each one is for, and questions to ask about them.", source: "Stroke Association and NHS", cta: "Read", ink: "#2F6851", tint: "#E3F0E7", mark: "#BFE0CB", art: <Pills /> },
+  carotid: { want: "Narrowed neck arteries", desc: "Information on how a narrowed carotid artery is found, and the operation that may be offered to clear it.", source: "NHS and Stroke Association", cta: "Read", ink: "#A8402B", tint: "#FAE6DF", mark: "#F2C3B4", art: <Neck /> },
+  hidden: { want: "Effects you cannot see", desc: "Information on fatigue, memory and thinking after a stroke, and why they can be hard to explain when you look well.", source: "Stroke Association and Different Strokes", cta: "Read", ink: "#2F4FA3", tint: "#E2E8F8", mark: "#C3D0F2", art: <Berg /> },
+  fitness: { want: "Being active after stroke", desc: "Information on when activity is safe, who to ask first, and why building up slowly matters. Your own team advises on what suits you.", source: "Stroke Association", cta: "Read", ink: "#8A5A12", tint: "#F8EBD3", mark: "#EED3A0", art: <Build /> },
+  "af-check": { want: "Checking the heart's rhythm", desc: "Information on why the heartbeat is checked after a TIA, and the tests used to look for atrial fibrillation.", source: "Stroke Association and NHS", cta: "Read", ink: "#34509E", tint: "#E2E8F8", mark: "#C3D0F2", art: <Pulse /> },
 };
 const ORDER = Object.keys(GOALS);
 

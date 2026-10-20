@@ -16,8 +16,8 @@ export type NewsChart =
   | { kind: "waffle"; title: string; subtitle: string; groups: { label: string; count: number; tone: "green" | "clay" | "dark" }[]; sources: string }
   /** How long a TIA's symptoms last, on a line from the first minute to the weeks after. */
   | { kind: "tia-clock"; title: string; subtitle: string; sources: string }
-  /** One share of a whole, as a ring: "up to 15 in 100". */
-  | { kind: "donut"; title: string; subtitle: string; value: number; prefix?: string; label: string; sources: string };
+  /** One share of a whole, as a ring: "up to 15 in 100" ischaemic strokes, unless `subject` names who. */
+  | { kind: "donut"; title: string; subtitle: string; value: number; prefix?: string; subject?: string; label: string; sources: string };
 
 export type NewsExtras = {
   /** The first part of the line above the headline, before the condition: "Understanding stroke | Ischaemic stroke". */
@@ -36,7 +36,7 @@ export type NewsExtras = {
    * The full-width picture under the headline: the clot illustration, or the three routes to a
    * blockage, a picture the reader steers (each route opens the section it names).
    */
-  figure?: { art: "clot"; words: [string, string] } | { art: "routes"; routes: NewsRoute[] } | { art: "types"; panels: NewsTypePanel[] } | { art: "scans"; milestones: NewsMilestone[] } | { art: "custom"; id: NewsPiece };
+  figure?: { art: "clot"; words: [string, string] } | { art: "routes"; routes: NewsRoute[] } | { art: "types"; panels: NewsTypePanel[] } | { art: "scans"; milestones: NewsMilestone[]; kicker?: string; title?: string; credit?: string } | { art: "custom"; id: NewsPiece };
   /** A card's own pieces placed after a section, by section index (components/library/NewsPieces.tsx). */
   inserts?: Record<number, NewsPiece>;
   /** Big figures after a section, by section index, each with its reference number. */
@@ -52,7 +52,7 @@ export type NewsRoute = { id: "neck" | "brain" | "heart"; label: string; section
  * One step on the hospital clock: how many hours after arriving, what happens, and the answer's own
  * words for it (a paragraph of a section, or a "What helps now" line).
  */
-export type NewsMilestone = { id: string; hours: number; label: string; when: string; from: { section: number; paragraph: number } | { help: number } };
+export type NewsMilestone = { id: string; hours: number; label: string; when: string; /** The clock's centre, in place of "N h". */ mark?: string; from: { section: number; paragraph: number } | { help: number } };
 /** One panel of the three-word picture: the word, what it means, how common it is, and its section. */
 export type NewsTypePanel = { id: "ischaemic" | "haemorrhagic" | "tia"; word: string; meaning: string; share: string; section: number };
 /** A big figure with a small picture of it: half a circle, five bars against one, or one in N people (`of`). */
@@ -62,7 +62,11 @@ export type NewsPiece =
   | "signal" | "ideas" | "road" | "words" | "road-signs" | "odds" | "stones" | "weather" | "swallow" | "wins"
   | "recovery-curve" | "balance-wheel" | "energy-day" | "thickness"
   // Haemorrhagic stroke's own (components/library/NewsBleedPieces.tsx).
-  | "pressure" | "leaks" | "two-kinds" | "repair" | "headache-sort" | "bp-gauge" | "weighing" | "dvla";
+  | "pressure" | "leaks" | "two-kinds" | "repair" | "headache-sort" | "bp-gauge" | "weighing" | "dvla"
+  // TIA's own (components/library/NewsTiaPieces.tsx).
+  | "tia-clear" | "tia-tests" | "questions" | "pill-box" | "neck-artery" | "heartbeat" | "risk-fades" | "fast-card"
+  // Stroke under 50's own (components/library/NewsYoungPieces.tsx).
+  | "young-causes" | "bubble-test" | "myth-fact" | "growth-rings" | "iceberg" | "steady-build" | "work-weeks" | "money-jars" | "kids-talk" | "two-chairs";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -438,5 +442,178 @@ NEWS_EXTRAS["haemorrhagic/driving"] = {
   pullQuote: "Restart only when your doctor says it is safe.",
 };
 
-// Pieces whose answer is the same for both kinds of stroke share the same feature.
+// ---- TIA (mini-stroke) (content/tia-answers.ts). Wording checked on 20 October 2026 against the pages
+// each answer cites; references are the answer's own sources.
+
+NEWS_EXTRAS["tia/what-happened"] = {
+  kicker: "Understanding stroke",
+  headline: "It came, and it went",
+  standfirst: "A blockage that cleared by itself before it did lasting damage. The warning it gives still matters.",
+  figure: { art: "custom", id: "tia-clear" },
+  pullQuote: "When the blockage moves away or dissolves, the blood supply returns and the symptoms stop.",
+};
+NEWS_EXTRAS["tia/warning"] = {
+  kicker: "Understanding stroke",
+  headline: "A warning, not a false alarm",
+  standfirst: "It is a warning. The risk of a stroke is greatest in the first days and weeks after it.",
+  figure: {
+    art: "scans",
+    kicker: "Act fast",
+    title: "The first 24 hours",
+    credit: "Illustration: Rehyn. Times as the NHS, NICE and the Stroke Association set them out.",
+    milestones: [
+      { id: "aspirin", hours: 0, mark: "Now", label: "Aspirin", when: "Straight away", from: { section: 1, paragraph: 0 } },
+      { id: "specialist", hours: 24, label: "Seen by a specialist", when: "Within 24 hours", from: { section: 2, paragraph: 0 } },
+    ],
+  },
+  charts: { 3: { kind: "tia-clock", title: "How long a TIA lasts", subtitle: "The signs come and go; the risk does not", sources: "Source: Stroke Association, Transient ischaemic attack (TIA)" } },
+  pullQuote: "A TIA is a medical emergency, the same as a stroke.",
+};
+NEWS_EXTRAS["tia/tests"] = {
+  kicker: "Understanding stroke",
+  headline: "Looking for the cause",
+  standfirst: "A scan, a neck scan, blood tests, a heart check. Each one looks for a cause that can be treated.",
+  figure: { art: "custom", id: "tia-tests" },
+  pullQuote: "A TIA may not cause damage that would show up on a scan.",
+};
+NEWS_EXTRAS["tia/not-a-tia"] = {
+  kicker: "Understanding stroke",
+  headline: "Why so many questions",
+  standfirst: "Other things can cause the same symptoms. The questions help rule them out.",
+  figure: { art: "custom", id: "questions" },
+  pullQuote: "The specialist will listen carefully to you and confirm whether you have had a TIA.",
+};
+NEWS_EXTRAS["tia/tablets"] = {
+  kicker: "Treat and manage",
+  headline: "What is in the box",
+  standfirst: "Most people take one or more medicines every day, long term, to lower the chance of a stroke.",
+  figure: { art: "custom", id: "pill-box" },
+  pullQuote: "Do not stop any medicines before speaking to your GP or pharmacist.",
+};
+NEWS_EXTRAS["tia/carotid"] = {
+  kicker: "Treat and manage",
+  headline: "Clearing the neck artery",
+  standfirst: "An operation to clear fatty deposits from the artery in the neck, to improve blood flow and help prevent a stroke.",
+  figure: { art: "custom", id: "neck-artery" },
+  stats: { 1: [{ value: "More than 50%", label: "narrowing of the carotid artery is when surgery might be offered.", ref: 3 }] },
+  pullQuote: "This improves blood flow and helps prevent a stroke.",
+};
+NEWS_EXTRAS["tia/af-check"] = {
+  kicker: "Treat and manage",
+  headline: "A rhythm that comes and goes",
+  standfirst: "A clot can form in the heart and travel to the brain. An irregular heartbeat can come and go, so finding it can take time.",
+  figure: { art: "custom", id: "heartbeat" },
+  stats: { 2: [{ value: "24 hours", label: "is how long a small wearable device may track your heartbeat, because atrial fibrillation can come and go.", ref: 3, picture: "hours" }] },
+  pullQuote: "Atrial fibrillation can come and go.",
+};
+NEWS_EXTRAS["tia/prevent"] = {
+  kicker: "Life after a TIA",
+  headline: "Keeping a warning a warning",
+  standfirst: "Medicines every day, the numbers checked, and the habits that help. And the risk goes down over time.",
+  figure: { art: "custom", id: "odds" },
+  pullQuote: "Your risk of a stroke goes down over time following a TIA.",
+};
+NEWS_EXTRAS["tia/driving"] = {
+  kicker: "Life after a TIA",
+  headline: "A month off the road",
+  standfirst: "You must stop straight away. With a car licence it is at least a month, and only when your doctor says it is safe.",
+  figure: { art: "custom", id: "road-signs" },
+  pullQuote: "You can restart only when your doctor or healthcare professional tells you it is safe.",
+};
+NEWS_EXTRAS["tia/worry"] = {
+  kicker: "Life after a TIA",
+  headline: "The worry, and what helps",
+  standfirst: "It can be very worrying to be told you had a TIA. The risk goes down over time, and support is there.",
+  figure: { art: "custom", id: "risk-fades" },
+  pullQuote: "Your risk of a stroke goes down over time.",
+};
+NEWS_EXTRAS["tia/fast"] = {
+  kicker: "Life after a TIA",
+  headline: "Four letters, one rule",
+  standfirst: "Face, arms, speech, time. If you spot any of the signs, call 999. Do not wait to see if they pass.",
+  figure: { art: "custom", id: "fast-card" },
+  pullQuote: "Do not wait to see if the symptoms pass.",
+};
+
+// Stroke under 50 (content/under50-answers.ts).
+NEWS_EXTRAS["under-50/why-young"] = {
+  kicker: "Understanding stroke",
+  headline: "Different reasons, earlier",
+  standfirst: "A torn artery, a hole in the heart, blood that clots too easily, or the usual causes arriving early. And sometimes no cause is found.",
+  figure: { art: "custom", id: "young-causes" },
+  stats: { 0: [{ value: "1 in 4", label: "adults who have a stroke are of working age, between 18 and 65.", ref: 1, picture: "one-in", of: 4 }] },
+  pullQuote: "A stroke can affect anyone, at any age.",
+};
+NEWS_EXTRAS["under-50/tests"] = {
+  kicker: "Understanding stroke",
+  headline: "A closer look at the heart",
+  standfirst: "When a stroke happens younger, or the cause is not clear, the team may look harder: at the heart, the blood and the arteries in the neck.",
+  figure: { art: "custom", id: "bubble-test" },
+  pullQuote: "A bubble test looks for a small hole that could allow clots to pass through.",
+};
+NEWS_EXTRAS["under-50/too-young"] = {
+  kicker: "Understanding stroke",
+  headline: "Never too young",
+  standfirst: "One in four strokes happen at working age. Any one of the signs is an emergency, whatever your age.",
+  figure: { art: "custom", id: "myth-fact" },
+  charts: { 0: { kind: "donut", title: "A common belief", subtitle: "People in the UK, out of every 100, in a 2023 Stroke Association survey", value: 60, subject: "people in the UK", label: "wrongly believe that strokes do not happen to young adults", sources: "Source: Stroke Association, 26 October 2023" } },
+  pullQuote: "Any one of these signs of stroke is an emergency.",
+};
+NEWS_EXTRAS["under-50/recovery-shape"] = {
+  kicker: "Understanding stroke",
+  headline: "Quick at first, and still going",
+  standfirst: "Recovery is quickest in the first days and weeks, but it can carry on for months and years.",
+  figure: { art: "custom", id: "growth-rings" },
+  pullQuote: "Recovery can continue for months and years after a stroke.",
+};
+NEWS_EXTRAS["under-50/hidden"] = {
+  kicker: "Recovery after stroke",
+  headline: "Looking fine, feeling otherwise",
+  standfirst: "Tiredness, memory and thinking problems can be there even when nobody can see them.",
+  figure: { art: "custom", id: "iceberg" },
+  pullQuote: "Fatigue does not seem to get better with rest.",
+};
+NEWS_EXTRAS["under-50/fitness"] = {
+  kicker: "Recovery after stroke",
+  headline: "Slowly does it",
+  standfirst: "Unless your doctor says otherwise, moving is safe. Start slowly, build up, and ask first if you are unsure.",
+  figure: { art: "custom", id: "steady-build" },
+  pullQuote: "Start slowly, and build up over time.",
+};
+NEWS_EXTRAS["under-50/work"] = {
+  kicker: "Life after stroke",
+  headline: "Back in stages",
+  standfirst: "A phased return, reasonable adjustments, and the help Access to Work can give.",
+  figure: { art: "custom", id: "work-weeks" },
+  stats: { 2: [{ value: "12 months", label: "or more counts as long-term under the Equality Act 2010.", ref: 4, picture: "calendar" }] },
+  pullQuote: "Employers have a duty to make reasonable adjustments for employees who are disabled.",
+};
+NEWS_EXTRAS["under-50/money"] = {
+  kicker: "Life after stroke",
+  headline: "Keeping the money coming in",
+  standfirst: "Sick pay first, then benefits such as ESA and PIP, and what to check about your mortgage.",
+  figure: { art: "custom", id: "money-jars" },
+  stats: { 0: [
+    { value: "28 weeks", label: "the longest your employer pays Statutory Sick Pay.", ref: 1, picture: "calendar" },
+    { value: "7 days", label: "off work in a row, including non-working days, before you need a fit note.", ref: 2 },
+  ] },
+  pullQuote: "You can get PIP even if you are working.",
+};
+NEWS_EXTRAS["under-50/children"] = {
+  kicker: "Life after stroke",
+  headline: "The truth, at their size",
+  standfirst: "Children cope better when they are told the truth, simply and honestly, and when the everyday routine carries on.",
+  figure: { art: "custom", id: "kids-talk" },
+  pullQuote: "It is important that your answers are honest.",
+};
+NEWS_EXTRAS["under-50/relationships"] = {
+  kicker: "Life after stroke",
+  headline: "Both of you, changed",
+  standfirst: "A stroke can be as life-changing for a partner. Talking helps, and many people have happy, healthy relationships afterwards.",
+  figure: { art: "custom", id: "two-chairs" },
+  pullQuote: "Talk to your partner about the things you are finding difficult.",
+};
+
+// Pieces whose answer is the same for every kind of stroke share the same feature.
 for (const id of ["rewiring", "walking", "fatigue", "mood", "carers"]) NEWS_EXTRAS[`haemorrhagic/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];
+for (const id of ["rewiring", "words", "driving"]) NEWS_EXTRAS[`under-50/${id}`] = NEWS_EXTRAS[`ischaemic/${id}`];

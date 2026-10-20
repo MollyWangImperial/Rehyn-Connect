@@ -157,6 +157,7 @@
 .lib-idea[aria-pressed="true"] { border-color:var(--band-accent); box-shadow:inset 0 0 0 2px var(--band-accent); }
 .lib-idea svg { width:80px; height:60px; }
 .lib-piece-band.is-sage .lib-piece-say { color:#24362F; }
+.lib-piece-band.is-sage .lib-why-choice[aria-pressed="true"] { color:#FFFEFA; }
 
 /* Haemorrhagic stroke's own pieces (components/library/NewsBleedPieces.tsx). */
 .lib-piece-band.is-alarm { --band:#5C1A12; --band-line:#9E3A2A; --band-soft:#FFE4DA; --band-accent:#F2C94C; }
@@ -175,6 +176,29 @@
 .lib-gauge, .lib-scale { transition:transform .9s cubic-bezier(.3,1.3,.5,1); }
 .lib-gauge-needle { transform-box:view-box; transform-origin:160px 48px; animation:lib-gauge-needle 1.6s ease-in-out infinite alternate; }
 @keyframes lib-gauge-needle { to { transform:rotate(18deg); } }
+
+/* TIA's own pieces (components/library/NewsTiaPieces.tsx). */
+.lib-tia-hand { transform-box:view-box; transform-origin:0 0; animation:lib-scan-spin 6s linear infinite; }
+.lib-ecg { stroke-dasharray:900; animation:lib-ecg 3s linear infinite; }
+@keyframes lib-ecg { from { stroke-dashoffset:900; } to { stroke-dashoffset:0; } }
+.lib-fast { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.lib-fast-letter { display:flex; flex-direction:column; align-items:center; gap:4px; min-height:44px; padding:14px 8px; border:2px solid var(--band-line); background:transparent; color:#FFFEFA; font:700 15px "DM Sans",system-ui,sans-serif; cursor:pointer; transition:background .2s ease; }
+.lib-fast-letter[aria-pressed="true"] { border-color:var(--band-accent); background:var(--band-accent); color:#141413; }
+.lib-fast-big { font:600 56px/1 "Newsreader",Georgia,serif; }
+@media (max-width:640px) { .lib-fast-big { font-size:40px; } .lib-fast-letter { font-size:13px; } }
+
+/* Stroke under 50's own pieces (components/library/NewsYoungPieces.tsx). */
+.lib-piece-band.is-ink { --band:#14213D; --band-line:#3C5A8A; --band-soft:#E2EAF7; --band-accent:#F2A488; }
+.lib-piece-band.is-berry { --band:#3D1235; --band-line:#7A3A6E; --band-soft:#F7E1F1; --band-accent:#F2C94C; }
+.lib-piece-band.is-moss { --band:#263319; --band-line:#5B7A3A; --band-soft:#EAF3DC; --band-accent:#C9E58A; }
+.lib-bubble-drift { animation:lib-bubble-drift 2.6s ease-in-out infinite; }
+@keyframes lib-bubble-drift { 0% { transform:translate(0,0); opacity:0; } 20% { opacity:1; } 100% { transform:translate(-34px,-8px); opacity:0; } }
+.lib-grow-draw path { stroke-dasharray:80; animation:lib-grow-draw 3s ease-out infinite; }
+@keyframes lib-grow-draw { 0% { stroke-dashoffset:80; } 60%,100% { stroke-dashoffset:0; } }
+.lib-bob { animation:lib-bob 4s ease-in-out infinite; }
+@keyframes lib-bob { 50% { transform:translateY(5px); } }
+.lib-grow-bar { transform-box:fill-box; transform-origin:center bottom; animation:lib-grow-bar 1s ease-out both; }
+@keyframes lib-grow-bar { from { transform:scaleY(.1); } to { transform:scaleY(1); } }
 
 /* Small interactives inside the story: the balance wheel, a day's energy, drink textures. */
 .lib-balance-list { display:flex; flex-wrap:wrap; gap:8px; flex:1 1 220px; }
@@ -281,6 +305,10 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .lib-scan-spin, .lib-scans-arc, .lib-scans-hand { animation:none; transition:none; }
+  .lib-tia-hand, .lib-ecg, .lib-fast-letter { animation:none !important; transition:none !important; }
+  .lib-ecg { stroke-dashoffset:0; }
+  .lib-bubble-drift, .lib-grow-draw path, .lib-bob, .lib-grow-bar { animation:none !important; }
+  .lib-grow-draw path { stroke-dashoffset:0; }
   .lib-bleed-grow, .lib-bleed-push, .lib-bulge, .lib-coil, .lib-drain-shrink, .lib-alarm, .lib-gauge, .lib-scale, .lib-gauge-needle { animation:none !important; transition:none !important; }
   .lib-coil { stroke-dashoffset:0; }
   .lib-signal-detour, .lib-signal-hand, .lib-road-walker, .lib-rain, .lib-flap, .lib-odds-part, .lib-star, .lib-idea, .lib-energy-fill { animation:none !important; transition:none !important; }

@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import type { NewsPiece } from "@/content/ischaemic-news";
 import { itemMedia } from "@/lib/library";
 import { BleedPieceView, isBleedPiece } from "./NewsBleedPieces";
+import { isTiaPiece, TiaPieceView } from "./NewsTiaPieces";
+import { isYoungPiece, YoungPieceView } from "./NewsYoungPieces";
 import { Band, Choices, para, useStill, type PieceProps } from "./NewsPieceParts";
 
 // The pieces made for one Ischaemic stroke card each (content/ischaemic-news.ts `figure` and
@@ -395,6 +397,8 @@ function RecoveryCurve() {
 export function NewsPieceView({ piece, article, place }: { piece: NewsPiece } & PieceProps) {
   const props = { article, place };
   if (isBleedPiece(piece)) return <BleedPieceView piece={piece} {...props} />;
+  if (isTiaPiece(piece)) return <TiaPieceView piece={piece} {...props} />;
+  if (isYoungPiece(piece)) return <YoungPieceView piece={piece} {...props} />;
   switch (piece) {
     case "signal": return <SignalHero {...props} />;
     case "ideas": return <IdeasHero {...props} />;
