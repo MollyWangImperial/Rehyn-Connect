@@ -29,7 +29,12 @@ export const HEART_PALETTES: Record<string, ThemePalette> = {
   "long-term-lung": { ink: "#2B6C8F", tint: "#E3F0F7", text: "#1C4E6B", muted: "#3A5A6B" },
   "sleep-breathing": { ink: "#4A4F9C", tint: "#ECEDFA", text: "#30347A", muted: "#4A4E7A" },
 };
-const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES };
+/** The Diabetes & metabolism groups, as their cards on the Diabetes page show them (SectionBento.tsx). */
+export const METABOLISM_PALETTES: Record<string, ThemePalette> = {
+  diabetes: { ink: "#A15C0B", tint: "#FCEFD9", text: "#6E3F06", muted: "#735033" },
+  thyroid: { ink: "#2E7A6B", tint: "#E3F3EF", text: "#1D5549", muted: "#3F665D" },
+};
+const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES };
 
 /** The groups whose own pieces have pictures drawn for them: the Dementia purples and the movement blues. */
 export type LightTheme = "memory" | "movement";

@@ -10,6 +10,11 @@ import { extras as afNews } from "./heart-news/atrial-fibrillation";
 import { extras as copdNews } from "./heart-news/copd";
 import { extras as asthmaNews } from "./heart-news/asthma";
 import { extras as apnoeaNews } from "./heart-news/sleep-apnoea";
+import { extras as prediabetesNews } from "./heart-news/prediabetes";
+import { extras as type1News } from "./heart-news/type-1";
+import { extras as type2News } from "./heart-news/type-2";
+import { extras as underactiveNews } from "./heart-news/underactive";
+import { extras as overactiveNews } from "./heart-news/overactive";
 
 /** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
 export const WRITTEN_ON = "17 October 2026";
@@ -96,7 +101,13 @@ export type NewsPiece =
   | "ang-supply" | "ang-traffic" | "ang-test-panels" | "ang-pain-map" | "ang-spray-clock" | "ang-two-jobs" | "ang-road-detour" | "ang-threshold" | "ang-triggers" | "ang-travel" | "ang-clear-artery" | "ang-calm"
   | "copd-airways" | "copd-spiro" | "copd-flare-signs" | "copd-cycle" | "copd-inhalers" | "copd-rehab-weeks" | "copd-rescue" | "copd-oxygen-gauge" | "copd-candle" | "copd-never-late" | "copd-jab-calendar" | "copd-pace-day" | "copd-worry-loop"
   | "ast-three-changes" | "ast-trigger-ring" | "ast-three-tests" | "ast-life-line" | "ast-two-inhalers" | "ast-plan-sheet" | "ast-attack-steps" | "ast-review-check" | "ast-runner" | "ast-home-rooms" | "ast-smoke-free" | "ast-pollen"
-  | "osa-throat" | "osa-links" | "osa-study" | "osa-ahi" | "osa-cpap-kit" | "osa-jaw" | "osa-side-sleep" | "osa-dvla-path" | "osa-cabin-bag" | "osa-partner-bed" | "osa-day-energy";
+  | "osa-throat" | "osa-links" | "osa-study" | "osa-ahi" | "osa-cpap-kit" | "osa-jaw" | "osa-side-sleep" | "osa-dvla-path" | "osa-cabin-bag" | "osa-partner-bed" | "osa-day-energy"
+  // Diabetes & metabolism pages' own (components/library/NewsMetabolismPieces.tsx).
+  | "pre-hba1c-bar" | "pre-mix" | "pre-fork" | "pre-calendar" | "pre-course" | "pre-scales" | "pre-day-clock" | "pre-swaps" | "pre-night" | "pre-units" | "pre-household"
+  | "t1d-beta-cells" | "t1d-gauge" | "t1d-ketones" | "t1d-two-numbers" | "t1d-basal-bolus" | "t1d-carb-scale" | "t1d-loop" | "t1d-sick-kit" | "t1d-late-low" | "t1d-five-drive" | "t1d-drink-night" | "t1d-distress" | "t1d-pregnancy-line"
+  | "hypo-thermostat" | "hypo-antibodies" | "hypo-seesaw" | "hypo-checklist" | "hypo-morning" | "hypo-steps" | "hypo-four-hours" | "hypo-scales" | "hypo-fog" | "hypo-pregnancy-line" | "hypo-test-calendar"
+  | "hyper-fast" | "hyper-five" | "hyper-seesaw" | "hyper-eye" | "hyper-sore-throat" | "hyper-capsule" | "hyper-three-ops" | "hyper-heart-calm" | "hyper-calm-head" | "hyper-smoke-eyes" | "hyper-pregnancy-line" | "hyper-pendulum"
+  | "t2d-sticky-cell" | "t2d-key" | "t2d-four-spots" | "t2d-remission-line" | "t2d-hypo-steps" | "t2d-pill-cards" | "t2d-pen-week" | "t2d-hand-portions" | "t2d-walk-meal" | "t2d-meter-fork" | "t2d-nine-grid" | "t2d-foot-check" | "t2d-ill-kit" | "t2d-dashboard" | "t2d-backpack";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -932,10 +943,95 @@ NEWS_EXTRAS["sleep-apnoea/travel"] = osaL("Packing CPAP for a trip", "Power, fly
 NEWS_EXTRAS["sleep-apnoea/partner"] = osaL("The person next to you", "Partners often notice first, and treatment can help you both.", "osa-partner-bed", "If they have seen the symptoms, bring them with you to the GP.");
 NEWS_EXTRAS["sleep-apnoea/energy"] = osaL("Getting your days back", "With treatment, many people feel more refreshed.", "osa-day-energy", "Treatment can bring more refreshed mornings.");
 
+// ---- Diabetes & metabolism --------------------------------------------------------------------------
+
+const preU = move("Understanding prediabetes");
+const preT = move("Treat and manage");
+const preL = move("Living with prediabetes");
+NEWS_EXTRAS["prediabetes/what-it-is"] = preU("Higher than it should be", "Blood sugar above the normal range, but not yet in the diabetes range. It does not go away on its own, but it can be acted on.", "pre-hba1c-bar", "Prediabetes does not go away on its own.");
+NEWS_EXTRAS["prediabetes/why"] = preU("Not one cause, but a mix", "Insulin that does not work well, and a mix of age, family, weight, hidden fat, background and the life around you.", "pre-mix", "Weight alone does not cause prediabetes.");
+NEWS_EXTRAS["prediabetes/odds"] = preU("A high risk, not a certainty", "Prediabetes raises the risk of type 2 diabetes, and support to make changes can cut that risk in half.", "pre-fork", "The risk can be reduced through lifestyle changes.");
+NEWS_EXTRAS["prediabetes/tests"] = preU("Once a year, at least", "An HbA1c blood test at least once a year, and what to watch for in between.", "pre-calendar", "You do not need to prepare for it.");
+NEWS_EXTRAS["prediabetes/programme"] = preT("Nine months to change course", "The NHS programme, in a group or online, on food, weight, activity, stress and sleep.", "pre-course", "Topics cover the things that can help bring your blood sugar down.");
+NEWS_EXTRAS["prediabetes/weight"] = preT("Smaller than you think", "Even a small weight loss can help insulin work better, and not everyone needs to lose weight.", "pre-scales", "Not everyone with prediabetes needs to lose weight.");
+NEWS_EXTRAS["prediabetes/moving"] = preT("Slightly out of breath, often", "Activity helps insulin work better. So does breaking up long spells of sitting.", "pre-day-clock", "Standing uses more than twice as much energy as sitting.");
+NEWS_EXTRAS["prediabetes/food"] = preT("One swap at a time", "No banned foods: drinks first, brown not white, less processed meat, more fruit and veg.", "pre-swaps", "It is a question of choosing healthier foods more often.");
+NEWS_EXTRAS["prediabetes/sleep-stress"] = preL("Short nights, stress and sugar", "Short sleep raises appetite, and stress hormones make insulin work less well.", "pre-night", "A lack of sleep is a known factor for weight gain.");
+NEWS_EXTRAS["prediabetes/alcohol"] = preL("Fourteen units, and the calories", "Alcohol adds calories, hunger and broken sleep. The guideline is no more than 14 units a week.", "pre-units", "Alcohol dehydrates your body and stops you sleeping properly.");
+NEWS_EXTRAS["prediabetes/family"] = preL("Easier when everyone joins in", "Changes stick best when the whole household joins in: shopping, cooking and moving together.", "pre-household", "Taking up an activity together is one way to support someone.");
+
+const t1U = move("Understanding type 1");
+const t1T = move("Treat and manage");
+const t1L = move("Living with type 1");
+NEWS_EXTRAS["type-1/what-it-is"] = t1U("Not lifestyle, and nobody's fault", "The immune system destroys the cells that make insulin. It cannot be prevented, and it can start at any age.", "t1d-beta-cells", "Type 1 diabetes is not caused by poor diet or an unhealthy lifestyle.");
+NEWS_EXTRAS["type-1/hypos-hypers"] = t1U("Too low, too high: the fixes", "How to spot and treat a hypo, and what to do when blood sugar runs high.", "t1d-gauge", "Rest for 10 to 15 minutes, then test again.");
+NEWS_EXTRAS["type-1/dka"] = t1U("The emergency ketones warn about", "Without enough insulin, ketones build up and make the blood acidic. Know the signs, and when to call 999.", "t1d-ketones", "DKA needs urgent treatment in hospital.");
+NEWS_EXTRAS["type-1/hba1c"] = t1U("Two numbers, two different stories", "HbA1c shows the last two to three months; time in range shows each day. They work best together.", "t1d-two-numbers", "Time in range does not replace HbA1c.");
+NEWS_EXTRAS["type-1/insulin"] = t1T("Background all day, a burst at meals", "Basal insulin covers the background; bolus insulin covers food. Together they make a flexible routine.", "t1d-basal-bolus", "It is flexible, because you can inject whenever you eat.");
+NEWS_EXTRAS["type-1/carb-counting"] = t1T("Count the carbs, match the insulin", "Your own insulin-to-carb ratio turns grams of carbohydrate into a dose.", "t1d-carb-scale", "A meal with 70g of carbohydrate would need 7 units.");
+NEWS_EXTRAS["type-1/sensors-pumps"] = t1T("Sensor and pump, talking to each other", "Glucose sensors, insulin pumps, and hybrid closed loops that link the two.", "t1d-loop", "It is sometimes called an artificial pancreas.");
+NEWS_EXTRAS["type-1/sick-days"] = t1T("When you're ill, keep the insulin going", "Illness can trigger DKA. Keep taking insulin, check more often, and know when to get help.", "t1d-sick-kit", "Never stop taking insulin, even if you are not eating.");
+NEWS_EXTRAS["type-1/exercise"] = t1L("The low that comes hours later", "Different exercise affects blood sugar differently, and a low can come many hours afterwards.", "t1d-late-low", "Around 8 to 12 hours after exercise, your blood glucose could drop too low.");
+NEWS_EXTRAS["type-1/driving"] = t1L("Five to drive", "Tell the DVLA, check before you set off, and know what to do if a hypo starts at the wheel.", "t1d-five-drive", "Keep hypo treatment where you can easily reach it in the car.");
+NEWS_EXTRAS["type-1/alcohol"] = t1L("The hypo that hides behind a drink", "Alcohol makes hypos more likely, for up to 24 hours, and a hypo can look like being drunk.", "t1d-drink-night", "It is not uncommon for people to mistake a hypo for being drunk.");
+NEWS_EXTRAS["type-1/burnout"] = t1L("Worn down by the relentlessness", "Diabetes distress is common, and it is not the same as depression. Help is there.", "t1d-distress", "Diabetes distress is not the same as depression.");
+NEWS_EXTRAS["type-1/pregnancy"] = t1L("Planning ahead for a healthy pregnancy", "Planning helps: HbA1c, folic acid, extra checks, and feeding your baby soon after birth.", "t1d-pregnancy-line", "You can have a healthy pregnancy if you have type 1 diabetes.");
+
+const t2U = move("Understanding type 2");
+const t2T = move("Treat and manage");
+const t2L = move("Living with type 2");
+NEWS_EXTRAS["type-2/hba1c"] = t2U("One number for three months", "HbA1c is your average blood sugar over the last two to three months, and the number your team watches.", "t2d-sticky-cell", "It is also called glycated haemoglobin.");
+NEWS_EXTRAS["type-2/what-it-is"] = t2U("The key that stops fitting", "Insulin unlocks the cells for sugar. In type 2, there is not enough, or it does not work properly.", "t2d-key", "Insulin resistance is when your body's cells do not respond properly to insulin.");
+NEWS_EXTRAS["type-2/complications"] = t2U("Four places high sugar shows", "Over time, high blood sugar can damage the eyes, kidneys, heart and feet. Checks find problems early.", "t2d-four-spots", "This raises the risk of heart attacks, angina and strokes.");
+NEWS_EXTRAS["type-2/remission"] = t2U("Below the line, without the tablets", "Remission means blood sugar below the diabetes level without medicine, mainly through weight loss.", "t2d-remission-line", "Staying in remission can be hard.");
+NEWS_EXTRAS["type-2/hypos"] = t2U("Low sugar: spot it, fix it", "Who gets hypos, the signs, and the steps to treat one.", "t2d-hypo-steps", "Not everyone with diabetes will have hypos.");
+NEWS_EXTRAS["type-2/tablets"] = t2T("Different tablets, different jobs", "Metformin and the other tablets each help in a different way.", "t2d-pill-cards", "This does not mean you have done anything wrong.");
+NEWS_EXTRAS["type-2/injections"] = t2T("When the pen joins the pills", "GLP-1 medicines and insulin: who is offered them, and what to expect.", "t2d-pen-week", "Around one in four people with type 2 diabetes take insulin.");
+NEWS_EXTRAS["type-2/food"] = t2T("No special diet, just better choices", "Carbohydrates, portions, drinks and fruit, and changes you can keep up.", "t2d-hand-portions", "Whole fruit is good for everyone, and having diabetes is no different.");
+NEWS_EXTRAS["type-2/moving"] = t2T("Walk it down", "Moving more helps insulin work better. A short walk after a meal is a good start.", "t2d-walk-meal", "Walking is often a good place to start.");
+NEWS_EXTRAS["type-2/monitoring"] = t2T("Who needs to check, and how", "Not everyone needs to check at home, but everyone has an HbA1c test.", "t2d-meter-fork", "Not everyone with diabetes needs to check their levels at home.");
+NEWS_EXTRAS["type-2/annual-checks"] = t2L("Nine checks, one healthier year", "The yearly checks spot problems early, before you have symptoms.", "t2d-nine-grid", "There are 9 checks, and some may happen more than once a year.");
+NEWS_EXTRAS["type-2/feet"] = t2L("A minute a day for your feet", "Check your feet every day, look after nails and skin, and act quickly on any problem.", "t2d-foot-check", "Use moisturising cream every day, but not between your toes.");
+NEWS_EXTRAS["type-2/sick-days"] = t2L("Ill? Keep drinking, keep checking", "Illness can push blood sugar very high. A few rules help keep you safe.", "t2d-ill-kit", "Illness and infections can raise your blood sugar to dangerously high levels.");
+NEWS_EXTRAS["type-2/driving"] = t2L("Five to drive", "Most people can drive. When to tell the DVLA, and what to do before and during a journey.", "t2d-dashboard", "The rules are stricter for a bus, coach or lorry licence.");
+NEWS_EXTRAS["type-2/mood"] = t2L("When diabetes wears you down", "Diabetes distress is common, and it is not the same as depression. Help is there.", "t2d-backpack", "Being active can also really help with your mood.");
+
+const hypoU = move("Understanding the thyroid");
+const hypoT = move("Treat and manage");
+const hypoL = move("Living with an underactive thyroid");
+NEWS_EXTRAS["underactive/what-it-does"] = hypoU("The pace-setter that slowed down", "The thyroid sets the speed of the body's cells. With too little hormone, everything slows down.", "hypo-thermostat", "If too little is made, the cells and organs of the body slow down.");
+NEWS_EXTRAS["underactive/causes"] = hypoU("When the immune system turns on the thyroid", "Usually Hashimoto's disease, though treatments, medicines and other causes play a part.", "hypo-antibodies", "But anyone can get an underactive thyroid.");
+NEWS_EXTRAS["underactive/tests"] = hypoU("Reading TSH and T4", "Two numbers that talk to each other: when thyroid hormone falls, TSH rises.", "hypo-seesaw", "Your doctor reads the results together with your symptoms and how you feel.");
+NEWS_EXTRAS["underactive/still-tired"] = hypoU("Still tired? Check these first", "Time, how you take your tablet, the dose, and other causes worth checking.", "hypo-checklist", "Do not change your dose without discussing it with your doctor.");
+NEWS_EXTRAS["underactive/levothyroxine"] = hypoT("One tablet, empty stomach, every morning", "Levothyroxine replaces the missing hormone. How you take it makes a difference.", "hypo-morning", "Swallow tablets whole with a glass of water.");
+NEWS_EXTRAS["underactive/dose"] = hypoT("Start low, test, adjust, repeat", "The dose depends on you, and is found step by step with blood tests.", "hypo-steps", "Once the right dose is found it is unlikely to vary.");
+NEWS_EXTRAS["underactive/interactions"] = hypoT("Timing beats cutting things out", "Coffee, calcium and iron can get in the way, so it is about when, not never.", "hypo-four-hours", "Nori, the seaweed found in sushi, is fine.");
+NEWS_EXTRAS["underactive/weight"] = hypoL("Thyroid and weight, honestly", "Some weight gain is common, mostly salt and water, and treatment usually brings a small loss.", "hypo-scales", "Massive weight gain is rarely caused by an underactive thyroid.");
+NEWS_EXTRAS["underactive/mood"] = hypoL("Fog that lifts with treatment", "Low mood, brain fog and memory lapses are common, and usually improve with treatment.", "hypo-fog", "In fact, they are rarely as severe as in dementia.");
+NEWS_EXTRAS["underactive/pregnancy"] = hypoL("A bigger dose for two", "Plan ahead, raise the dose as soon as you know, and go back down after the birth.", "hypo-pregnancy-line", "It is safe to breastfeed while taking levothyroxine.");
+NEWS_EXTRAS["underactive/checks"] = hypoL("Every three months, then yearly", "Tests while the dose settles, then once a year, and sooner if things change.", "hypo-test-calendar", "Ask for your results, so you can keep track of your levels.");
+
+const hyperU = move("Understanding the thyroid");
+const hyperT = move("Treat and manage");
+const hyperL = move("Living with an overactive thyroid");
+NEWS_EXTRAS["overactive/what-it-does"] = hyperU("The pace-setter stuck on fast", "Too much thyroid hormone makes the body's cells work faster than normal.", "hyper-fast", "With too much, the body's cells work faster than normal.");
+NEWS_EXTRAS["overactive/causes"] = hyperU("Four in five: Graves' disease", "Graves' disease is the usual cause. Lumps, medicines and inflammation account for the rest.", "hyper-five", "Stress also seems to play a role.");
+NEWS_EXTRAS["overactive/tests"] = hyperU("Low TSH, high T4: what next?", "A blood test points to it; antibodies and scans find the cause.", "hyper-seesaw", "A thyroid scan can look for lumps.");
+NEWS_EXTRAS["overactive/eyes"] = hyperU("Eyes that need a second look", "Thyroid eye disease: what it is, the signs, and when it is urgent.", "hyper-eye", "Allergies usually cause itchy eyes, whereas thyroid eye disease does not.");
+NEWS_EXTRAS["overactive/tablets"] = hyperT("The sore-throat rule", "Carbimazole lowers hormone levels. Know the rule for a sore throat or fever.", "hyper-sore-throat", "It starts working straight away.");
+NEWS_EXTRAS["overactive/radioiodine"] = hyperT("One capsule, a few careful weeks", "A drink or capsule that shrinks the overactive gland, and the precautions afterwards.", "hyper-capsule", "Most people only need a single treatment.");
+NEWS_EXTRAS["overactive/surgery"] = hyperT("When surgery is the answer", "When it may be best, the operations, and life afterwards.", "hyper-three-ops", "A total thyroidectomy removes all of the thyroid.");
+NEWS_EXTRAS["overactive/beta-blockers"] = hyperT("Calming the racing heart", "A beta blocker eases a fast heartbeat while other treatment starts to work.", "hyper-heart-calm", "Never take 2 doses at the same time.");
+NEWS_EXTRAS["overactive/anxiety"] = hyperL("It's the thyroid, not you", "Anxiety and irritability can be symptoms. They usually settle with treatment.", "hyper-calm-head", "Most people make a full recovery.");
+NEWS_EXTRAS["overactive/smoking"] = hyperL("Every cigarette counts for your eyes", "Smoking makes thyroid eye disease more likely and treatment work less well.", "hyper-smoke-eyes", "The safest thing is to stop both.");
+NEWS_EXTRAS["overactive/pregnancy"] = hyperL("Planning a pregnancy with an overactive thyroid", "Contraception, planning, safer medicines in pregnancy, and a test after the birth.", "hyper-pregnancy-line", "Radioactive iodine should never be used in pregnancy.");
+NEWS_EXTRAS["overactive/after"] = hyperL("When fast turns slow", "After treatment the thyroid often becomes underactive, so tests continue.", "hyper-pendulum", "Radioactive iodine treatment often causes hormone levels to become too low.");
+
 // Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
 const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
-  copd: copdNews, asthma: asthmaNews, "sleep-apnoea": apnoeaNews,
+  copd: copdNews, asthma: asthmaNews, "sleep-apnoea": apnoeaNews, prediabetes: prediabetesNews, "type-1": type1News, "type-2": type2News,
+  underactive: underactiveNews, overactive: overactiveNews,
 };
 for (const [condition, pieces] of Object.entries(HEART_NEWS)) for (const [piece, more] of Object.entries(pieces)) {
   const key = `${condition}/${piece}`;

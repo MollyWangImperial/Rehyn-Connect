@@ -120,7 +120,7 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const theme = themeOf(group.id);
   const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -206,6 +206,31 @@ function PulseArt() {
   return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
     <path d={`M540 220 ${beats} L1320 220`} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity=".45" />
     <path className="lib-v2-trace" pathLength={100} d={`M540 220 ${beats} L1320 220`} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>;
+}
+
+/** The diabetes pages' header: a blood-sugar line that rises after meals and settles back into a target band. */
+function GlucoseArt() {
+  const line = "M540 250 C580 250, 600 160, 640 160 S700 240, 740 236 S800 130, 840 132 S900 230, 950 228 S1010 170, 1050 172 S1110 226, 1160 224 S1240 200, 1300 204";
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <rect x="540" y="180" width="760" height="80" rx="12" style={{ fill: "var(--t-soft)" }} opacity=".18" />
+    <path d={line} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="3" opacity=".45" />
+    <path className="lib-v2-trace" pathLength={100} d={line} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" />
+  </svg>;
+}
+
+/** The thyroid pages' header: the butterfly-shaped gland, glowing softly in time. */
+function ThyroidArt() {
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <g transform="translate(940 220)" fill="none" strokeLinejoin="round">
+      {/* The windpipe, with its rings, behind the gland. */}
+      <path d="M-34 -230 V230 M34 -230 V230" style={{ stroke: "var(--t-soft)" }} strokeWidth="4" opacity=".55" />
+      {[-180, -130, -80, -30, 20, 70, 120, 170].map(y => <path key={y} d={`M-34 ${y} Q0 ${y + 10} 34 ${y}`} style={{ stroke: "var(--t-soft)" }} strokeWidth="3" opacity=".45" />)}
+      {/* Two tall lobes joined low down by the isthmus. */}
+      <path d="M-30 70 C-60 100, -120 96, -130 30 C-140 -40, -110 -130, -80 -130 C-56 -130, -46 -80, -40 -20 C-36 20, -34 50, -30 70 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".3" className="lib-v2-breathe is-slow" />
+      <path d="M30 70 C60 100, 120 96, 130 30 C140 -40, 110 -130, 80 -130 C56 -130, 46 -80, 40 -20 C36 20, 34 50, 30 70 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".3" className="lib-v2-breathe is-slow" />
+      <path d="M-34 44 C-12 58, 12 58, 34 44 L34 74 C12 86, -12 86, -34 74 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="4" fillOpacity=".3" />
+    </g>
   </svg>;
 }
 

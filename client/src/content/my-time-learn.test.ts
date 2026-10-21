@@ -18,8 +18,9 @@ describe("the checked answers", () => {
       // survivors), NHS inform, Citizens Advice, Headway and the Stroke Association's own newsroom. The
       // Dementia pages draw on the Alzheimer's Society, Alzheimer's Research UK, the Lewy Body Society and
       // Parkinson's UK. The Heart & lungs pages draw on the British Heart Foundation, Blood Pressure UK, the
-      // Arrhythmia Alliance, Asthma + Lung UK and the Sleep Apnoea Trust.
-      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association|alzheimers\.org\.uk|alzheimersresearchuk\.org|lewybody\.org|parkinsons\.org\.uk|dementiauk\.org|tremor\.org\.uk|dystonia\.org\.uk|bhf\.org\.uk|bloodpressureuk\.org|heartrhythmalliance\.org|asthmaandlung\.org\.uk|sleep-apnoea-trust\.org)\//);
+      // Arrhythmia Alliance, Asthma + Lung UK and the Sleep Apnoea Trust; the Diabetes & metabolism pages on
+      // Diabetes UK, Breakthrough T1D UK, NHS England and the thyroid charities.
+      for (const source of article.sources) expect(source.url).toMatch(/^https:\/\/(www\.)?(stroke\.org\.uk|stroke\.org|nhs\.uk|england\.nhs\.uk|gov\.uk|nice\.org\.uk|differentstrokes\.co\.uk|nhsinform\.scot|citizensadvice\.org\.uk|headway\.org\.uk|mynewsdesk\.com\/uk\/stroke-association|alzheimers\.org\.uk|alzheimersresearchuk\.org|lewybody\.org|parkinsons\.org\.uk|dementiauk\.org|tremor\.org\.uk|dystonia\.org\.uk|bhf\.org\.uk|bloodpressureuk\.org|heartrhythmalliance\.org|asthmaandlung\.org\.uk|sleep-apnoea-trust\.org|diabetes\.org\.uk|breakthrought1d\.org\.uk|btf-thyroid\.org|thyroiduk\.org)\//);
     }
     for (const place of trustedPlaces) expect(place.url).toMatch(/^https:\/\//);
   });

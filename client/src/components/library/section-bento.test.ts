@@ -16,11 +16,20 @@ const render = (id: string) => {
 const tiles = (html: string, kind: string) => html.split(`class="lib-bento-tile ${kind}`).slice(1).map(part => part.split("</article>")[0]);
 
 describe("the Brain & nervous system bento", () => {
-  it("is on for the Brain and Heart sections only", () => {
-    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs"]);
-    const diabetes = render("diabetes-metabolism");
-    expect(diabetes).toContain("lib-group");
-    expect(diabetes).not.toContain("lib-bento");
+  it("is on for the Brain, Heart and Diabetes sections only", () => {
+    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs", "diabetes-metabolism"]);
+    const bones = render("bones-joints-muscles");
+    expect(bones).toContain("lib-group");
+    expect(bones).not.toContain("lib-bento");
+  });
+
+  it("opens Diabetes & metabolism with Diabetes large, and Thyroid standing tall beside it", () => {
+    const html = render("diabetes-metabolism");
+    const [feature] = tiles(html, "is-feature");
+    expect(feature).toContain(">Diabetes</h2>");
+    expect(feature).toContain('href="/diabetes/type-2"');
+    expect(tiles(html, "is-small")).toHaveLength(1);
+    expect(html).toContain("lib-bento is-pair");
   });
 
   it("opens Heart & lungs with Blood pressure large and in its own pale colour", () => {

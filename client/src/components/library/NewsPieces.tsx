@@ -11,6 +11,7 @@ import { isMciPiece, MciPieceView } from "./NewsMciPieces";
 import { isPdPiece, PdPieceView } from "./NewsPdPieces";
 import { isTremorPiece, TremorPieceView } from "./NewsTremorPieces";
 import { HeartPieceView, isHeartPiece } from "./NewsHeartPieces";
+import { isMetabolismPiece, MetabolismPieceView } from "./NewsMetabolismPieces";
 import { Band, Choices, para, useStill, type PieceProps } from "./NewsPieceParts";
 
 // The pieces made for one Ischaemic stroke card each (content/ischaemic-news.ts `figure` and
@@ -413,6 +414,7 @@ export function NewsPieceView({ piece, article, place }: { piece: NewsPiece } & 
   if (isPdPiece(piece)) return <PdPieceView piece={piece} {...props} />;
   if (isTremorPiece(piece)) return <TremorPieceView piece={piece} {...props} />;
   if (isHeartPiece(piece)) return <HeartPieceView piece={piece} {...props} />;
+  if (isMetabolismPiece(piece)) return <MetabolismPieceView piece={piece} {...props} />;
   switch (piece) {
     case "signal": return <SignalHero {...props} />;
     case "ideas": return <IdeasHero {...props} />;

@@ -25,6 +25,12 @@
 .lib-bento-hero.is-heart-lungs .lib-crumbs svg { color:#E39AA0; }
 .lib-bento-hero.is-heart-lungs .lib-crumbs a:hover, .lib-bento-hero.is-heart-lungs .lib-crumbs [aria-current] { color:#FFFFFF; }
 .lib-bento-hero.is-heart-lungs p { color:#F6DCDD; }
+/* Diabetes & metabolism: a deep amber-brown header. */
+.lib-bento-hero.is-diabetes-metabolism { background:#45290A; }
+.lib-bento-hero.is-diabetes-metabolism .lib-crumbs, .lib-bento-hero.is-diabetes-metabolism .lib-crumbs a { color:#F3D8AE; }
+.lib-bento-hero.is-diabetes-metabolism .lib-crumbs svg { color:#E0B26A; }
+.lib-bento-hero.is-diabetes-metabolism .lib-crumbs a:hover, .lib-bento-hero.is-diabetes-metabolism .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-diabetes-metabolism p { color:#F7E6CB; }
 .lib-bento-stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 .lib-bento-stats span { padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.12); font-size:13px; font-weight:700; }
 
@@ -91,6 +97,14 @@
 .is-heart-lungs .lib-ask-group.is-tile .lib-ask-row input { border-color:#F0D6D8; }
 .is-heart-lungs .lib-ask-group.is-tile .lib-button { background:#4A1422; }
 .is-heart-lungs .lib-bento-pick:focus-visible { outline-color:#4A1422; }
+.is-diabetes-metabolism .lib-ask-group.is-tile { border-color:#E8D3B2; }
+.is-diabetes-metabolism .lib-ask-group.is-tile .lib-ask-kicker { color:#45290A; }
+.is-diabetes-metabolism .lib-ask-group.is-tile .lib-ask-row input { border-color:#F0E2CC; }
+.is-diabetes-metabolism .lib-ask-group.is-tile .lib-button { background:#45290A; }
+.is-diabetes-metabolism .lib-bento-pick:focus-visible { outline-color:#45290A; }
+/* With one small tile (two groups), the small tile and the question stand tall beside the large tile. */
+.lib-bento.is-pair { grid-template-rows:repeat(2,minmax(290px,auto)); }
+.lib-bento.is-pair > .lib-bento-tile.is-small, .lib-bento.is-pair > .lib-bento-ask { grid-row:span 2; }
 /* With four small tiles (Heart & lungs) the question runs along the bottom as a wide strip. */
 .lib-bento.is-few { grid-template-rows:repeat(2,minmax(290px,auto)) auto; }
 .lib-bento.is-few .lib-bento-ask { grid-column:1 / -1; }
@@ -101,7 +115,8 @@
 @media (max-width:1024px) {
   .lib-bento { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .lib-bento-tile.is-feature { grid-column:span 2; grid-row:auto; min-height:520px; }
-  .lib-bento.is-few { grid-template-rows:none; }
+  .lib-bento.is-few, .lib-bento.is-pair { grid-template-rows:none; }
+  .lib-bento.is-pair > .lib-bento-tile.is-small, .lib-bento.is-pair > .lib-bento-ask { grid-row:auto; }
 }
 @media (max-width:600px) { .lib-bento.is-few .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; } .lib-bento.is-few .lib-ask-group.is-tile .lib-button { width:100%; } }
 @media (max-width:600px) {

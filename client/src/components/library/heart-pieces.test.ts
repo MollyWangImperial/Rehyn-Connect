@@ -19,6 +19,12 @@ const PAGES: [string, string, string][] = [
   ["long-term-lung", "copd", "#2B6C8F"],
   ["long-term-lung", "asthma", "#2B6C8F"],
   ["sleep-breathing", "sleep-apnoea", "#4A4F9C"],
+  // Diabetes & metabolism, built the same way.
+  ["diabetes", "prediabetes", "#A15C0B"],
+  ["diabetes", "type-1", "#A15C0B"],
+  ["diabetes", "type-2", "#A15C0B"],
+  ["thyroid", "underactive", "#2E7A6B"],
+  ["thyroid", "overactive", "#2E7A6B"],
 ];
 
 describe("the Heart & lungs pages", () => {

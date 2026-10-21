@@ -35,7 +35,7 @@ export const LINE = "var(--t-line)";
 export const TINT = "var(--t-tint)";
 export const WHITE = "#FFFFFF";
 
-const credit = "Illustration: Rehyn. A picture of the idea.";
+export const credit = "Illustration: Rehyn. A picture of the idea.";
 
 export const W = ({ x, y, children, anchor = "middle", size = 12, fill = TEXT, serif = false }: { x: number; y: number; children: ReactNode; anchor?: "start" | "middle" | "end"; size?: number; fill?: string; serif?: boolean }) =>
   <text x={x} y={y} textAnchor={anchor} fontFamily={serif ? SERIF : SANS} fontSize={size} fontWeight={serif ? 600 : 700} fill={fill}>{children}</text>;
@@ -53,7 +53,7 @@ export const Chips = ({ labels, lit, y = 180 }: { labels: string[]; lit: number;
 export const HeartShape = ({ x, y, size = 120, fill = WHITE, stroke = INK, width = 4 }: { x: number; y: number; size?: number; fill?: string; stroke?: string; width?: number }) =>
   <path transform={`translate(${x - size / 2} ${y - size * 0.45}) scale(${size / 180})`} d="M90 160 C30 120, 0 86, 10 52 C20 20, 66 14, 90 46 C114 14, 160 20, 170 52 C180 86, 150 120, 90 160 Z" fill={fill} stroke={stroke} strokeWidth={width * 180 / size} strokeLinejoin="round" />;
 /** A pressure gauge: an arc with a needle at `value` (0 to 1). */
-const Gauge = ({ x, y, r = 60, value, label }: { x: number; y: number; r?: number; value: number; label?: string }) => {
+export const Gauge = ({ x, y, r = 60, value, label }: { x: number; y: number; r?: number; value: number; label?: string }) => {
   const angle = Math.PI * (1 - value);
   return <g>
     <path d={`M${x - r} ${y} A${r} ${r} 0 0 1 ${x + r} ${y}`} fill="none" stroke={LINE} strokeWidth="12" strokeLinecap="round" />
@@ -63,9 +63,9 @@ const Gauge = ({ x, y, r = 60, value, label }: { x: number; y: number; r?: numbe
     {label && <W x={x} y={y + 24} size={11}>{label}</W>}
   </g>;
 };
-const Pill = ({ x, y, fill = INK, rotate = 0 }: { x: number; y: number; fill?: string; rotate?: number }) =>
+export const Pill = ({ x, y, fill = INK, rotate = 0 }: { x: number; y: number; fill?: string; rotate?: number }) =>
   <g transform={`translate(${x} ${y}) rotate(${rotate})`}><rect x="-18" y="-8" width="36" height="16" rx="8" fill={WHITE} stroke={fill} strokeWidth="3" /><path d="M0 -8 V8" stroke={fill} strokeWidth="3" /><path d="M0 -8 H10 a8 8 0 0 1 0 16 H0 Z" fill={fill} /></g>;
-const Clock = ({ x, y, r = 18, hand = 0 }: { x: number; y: number; r?: number; hand?: number }) =>
+export const Clock = ({ x, y, r = 18, hand = 0 }: { x: number; y: number; r?: number; hand?: number }) =>
   <g><circle cx={x} cy={y} r={r} fill={WHITE} stroke={INK} strokeWidth="3" /><path d={`M${x} ${y} V${y - r + 6} M${x} ${y} L${x + (r - 7) * Math.sin(hand)} ${y - (r - 7) * Math.cos(hand)}`} stroke={TEXT} strokeWidth="3" strokeLinecap="round" /></g>;
 /** A regular trace across, or an uneven one (`uneven`), from x to x + width at height y. */
 const trace = (x: number, y: number, width: number, uneven = false) => {
