@@ -18,6 +18,7 @@ import { article, CHSS, CURE_PARKINSONS, DIFFERENT_STROKES, NHS, PARKINSONS_FOUN
 import { alzheimers, dystonia, essentialTremor, haemorrhagicStroke, lewyBodyDementia, mildCognitiveImpairment, progressiveMs, relapsingRemittingMs, strokeUnder50, tia, vascularDementia } from "./library-conditions/brain-a";
 import { bellsPalsy, carpalTunnel, concussion, focalSeizures, generalisedSeizures, migraine, peripheralNeuropathy, sciatica, seizuresAfterStroke, spinalCordInjury, tensionHeadache, traumaticBrainInjury } from "./library-conditions/brain-b";
 import { angina, asthma, atrialFibrillation, copd, heartAttack, highBloodPressure, sleepApnoea } from "./library-conditions/heart";
+import { bronchiectasis, coronaryHeartDisease, ectopicBeats, heartFailure, lowBloodPressure, pulmonaryFibrosis, slowHeartRate, snoring, svt } from "./library-conditions/heart-more";
 import { backPain, osteoarthritis, osteoporosis, overactiveThyroid, prediabetes, rheumatoidArthritis, type1Diabetes, type2Diabetes, underactiveThyroid } from "./library-conditions/body";
 import { anxiety, bowelCancer, breastCancer, cancerFatigue, chronicKidneyDisease, depression, depressionAfterStroke, fattyLiver, ibs, insomnia, prostateCancer } from "./library-conditions/cancer-mind-digestion";
 
@@ -436,22 +437,22 @@ export const librarySections: LibrarySection[] = [
         id: "blood-pressure",
         title: "Blood pressure",
         blurb: "The numbers, the tablets and the habits that keep them where your doctor wants them.",
-        conditions: [highBloodPressure],
+        conditions: [highBloodPressure, lowBloodPressure],
       },
       {
         id: "heart-attack",
-        title: "Heart attack & angina",
-        blurb: "Chest pain, the days in hospital, and the months of cardiac rehab that follow.",
-        conditions: [heartAttack, angina],
+        title: "Heart disease",
+        blurb: "Narrowed heart arteries, chest pain, heart attacks and heart failure, and the months of rehab and treatment that follow.",
+        conditions: [heartAttack, angina, coronaryHeartDisease, heartFailure],
       },
       {
         id: "heart-rhythm",
         title: "Heart rhythm",
         blurb: "When the heart beats too fast, too slow or out of step.",
-        conditions: [atrialFibrillation],
+        conditions: [atrialFibrillation, svt, slowHeartRate, ectopicBeats],
       },
-      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler", "lungs", "breathing"], conditions: [copd, asthma] },
-      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", keywords: ["breathing"], conditions: [sleepApnoea] },
+      { id: "long-term-lung", title: "Long-term lung conditions", blurb: "Living with breathlessness, and the inhalers and exercise that help.", keywords: ["breathless", "inhaler", "lungs", "breathing"], conditions: [copd, asthma, bronchiectasis, pulmonaryFibrosis] },
+      { id: "sleep-breathing", title: "Breathing in sleep", blurb: "Snoring, pauses in breathing at night and the tiredness that follows.", keywords: ["breathing", "snoring"], conditions: [sleepApnoea, snoring] },
     ],
   },
   {

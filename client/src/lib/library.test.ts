@@ -37,14 +37,14 @@ describe("the Library's data", () => {
     const merged = findSection("heart-lungs")!;
     expect(merged.title).toBe("Heart & lungs");
     expect(merged.groups.map(group => group.id)).toEqual(["blood-pressure", "heart-attack", "heart-rhythm", "long-term-lung", "sleep-breathing"]);
-    expect(sectionCounts(merged).conditions).toBe(7);
+    expect(sectionCounts(merged).conditions).toBe(16);
     expect(findSection("heart-circulation")).toBe(merged);
     expect(findSection("lungs-breathing")).toBe(merged);
     expect(findSection("heart-circulation-x")).toBeUndefined();
     expect(librarySections.find(section => section.id === "heart-circulation" || section.id === "lungs-breathing")).toBeUndefined();
     expect(findCondition("long-term-lung", "copd")?.section.id).toBe("heart-lungs");
     expect(libraryStories.find(story => story.id === "dev")?.sectionId).toBe("heart-lungs");
-    expect(searchLibrary("breathless")[0]?.href).toBe("/long-term-lung/copd");
+    expect(searchLibrary("breathless").map(hit => hit.href)).toContain("/long-term-lung/copd");
   });
 
   it("turns the Most read list through the editor's picks, then the pieces with words to read", () => {

@@ -19,6 +19,15 @@ const PAGES: [string, string, string][] = [
   ["long-term-lung", "copd", "#2B6C8F"],
   ["long-term-lung", "asthma", "#2B6C8F"],
   ["sleep-breathing", "sleep-apnoea", "#4A4F9C"],
+  ["blood-pressure", "low-blood-pressure", "#B03A3A"],
+  ["heart-attack", "coronary-heart-disease", "#9C2F55"],
+  ["heart-attack", "heart-failure", "#9C2F55"],
+  ["heart-rhythm", "svt", "#B8562A"],
+  ["heart-rhythm", "slow-heart-rate", "#B8562A"],
+  ["heart-rhythm", "ectopic-beats", "#B8562A"],
+  ["long-term-lung", "bronchiectasis", "#2B6C8F"],
+  ["long-term-lung", "pulmonary-fibrosis", "#2B6C8F"],
+  ["sleep-breathing", "snoring", "#4A4F9C"],
   // Diabetes & metabolism, built the same way.
   ["diabetes", "prediabetes", "#A15C0B"],
   ["diabetes", "type-1", "#A15C0B"],
@@ -90,7 +99,9 @@ describe("the Heart & lungs pages", () => {
     it(`${conditionId}: lists real videos and real people's stories`, () => {
       const content = page.condition.content!;
       for (const item of content.watch) expect(item.url, item.id).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=/);
-      expect(content.videoStories?.length).toBe(3);
+      // Three where real, verified stories exist; never padded with adverts or unverified ones.
+      expect(content.videoStories?.length).toBeGreaterThanOrEqual(conditionId === "ectopic-beats" ? 1 : 3);
+      expect(content.videoStories?.length).toBeLessThanOrEqual(3);
     });
   }
 });

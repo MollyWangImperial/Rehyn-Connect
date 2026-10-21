@@ -35,6 +35,15 @@ import { osteoAnswers } from "./osteo-answers";
 import { backAnswers } from "./back-answers";
 import { raAnswers } from "./ra-answers";
 import { anxietyAnswers } from "./anxiety-answers";
+import { svtAnswers } from "./svt-answers";
+import { lowBpAnswers } from "./low-bp-answers";
+import { ectopicAnswers } from "./ectopic-answers";
+import { chdAnswers } from "./chd-answers";
+import { heartFailureAnswers } from "./heart-failure-answers";
+import { slowHeartAnswers } from "./slow-heart-answers";
+import { snoringAnswers } from "./snoring-answers";
+import { pulmonaryFibrosisAnswers } from "./pulmonary-fibrosis-answers";
+import { bronchiectasisAnswers } from "./bronchiectasis-answers";
 import { breastAnswers } from "./breast-answers";
 import { bowelAnswers } from "./bowel-answers";
 import { prostateAnswers } from "./prostate-answers";
@@ -342,7 +351,7 @@ const coreArticles: LearnArticle[] = [
 ];
 
 /** Every checked answer: the first six, then the Ischaemic stroke page's own (content/ischaemic-answers.ts). */
-export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers, ...dementiaSharedAnswers, ...vascularAnswers, ...lewyAnswers, ...alzheimersAnswers, ...mciAnswers, ...parkinsonsAnswers, ...tremorAnswers, ...dystoniaAnswers, ...hbpAnswers, ...afAnswers, ...heartAttackAnswers, ...anginaAnswers, ...copdAnswers, ...asthmaAnswers, ...apnoeaAnswers, ...prediabetesAnswers, ...t1dAnswers, ...t2dAnswers, ...underactiveAnswers, ...overactiveAnswers, ...oaAnswers, ...osteoAnswers, ...backAnswers, ...raAnswers, ...anxietyAnswers, ...breastAnswers, ...bowelAnswers, ...prostateAnswers, ...cancerFatigueAnswers, ...depressionAnswers, ...postStrokeMoodAnswers, ...insomniaAnswers, ...ckdAnswers, ...fattyLiverAnswers, ...ibsAnswers];
+export const learnArticles: LearnArticle[] = [...coreArticles, ...ischaemicAnswers, ...haemorrhagicAnswers, ...tiaAnswers, ...under50Answers, ...dementiaSharedAnswers, ...vascularAnswers, ...lewyAnswers, ...alzheimersAnswers, ...mciAnswers, ...parkinsonsAnswers, ...tremorAnswers, ...dystoniaAnswers, ...hbpAnswers, ...afAnswers, ...heartAttackAnswers, ...anginaAnswers, ...copdAnswers, ...asthmaAnswers, ...apnoeaAnswers, ...prediabetesAnswers, ...t1dAnswers, ...t2dAnswers, ...underactiveAnswers, ...overactiveAnswers, ...oaAnswers, ...osteoAnswers, ...backAnswers, ...raAnswers, ...anxietyAnswers, ...svtAnswers, ...lowBpAnswers, ...ectopicAnswers, ...chdAnswers, ...heartFailureAnswers, ...slowHeartAnswers, ...snoringAnswers, ...pulmonaryFibrosisAnswers, ...bronchiectasisAnswers, ...breastAnswers, ...bowelAnswers, ...prostateAnswers, ...cancerFatigueAnswers, ...depressionAnswers, ...postStrokeMoodAnswers, ...insomniaAnswers, ...ckdAnswers, ...fattyLiverAnswers, ...ibsAnswers];
 
 export type TrustedPlace = { name: string; about: string; url: string };
 

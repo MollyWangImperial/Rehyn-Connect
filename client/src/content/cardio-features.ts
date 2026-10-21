@@ -1,0 +1,59 @@
+import type { FeatureSpec } from "./feature-spec";
+
+// The Low blood pressure, Coronary heart disease and Heart failure pieces' feature pages (see feature-spec.ts). Pictures:
+// components/library/NewsCardioPieces.tsx.
+
+export const CARDIO_PIECES = [
+  // Low blood pressure
+  "lbp-gauge", "lbp-stand-dip", "lbp-cause-ring", "lbp-faint-legs", "lbp-pill-notes", "lbp-bed-edge", "lbp-glasses", "lbp-stocking", "lbp-hallway", "lbp-sun-shade", "lbp-car-key", "lbp-signposts",
+  // Coronary heart disease
+  "chd-artery-rings", "chd-risk-tags", "chd-test-path", "chd-signs-light", "chd-pill-jobs", "chd-stent-graft", "chd-results-slip", "chd-rehab-weeks", "chd-plate", "chd-hill-walk", "chd-quit-line", "chd-support-web",
+  // Heart failure
+  "hf-pump-ef", "hf-cause-roads", "hf-body-signs", "hf-bnp-echo", "hf-pill-bottles", "hf-device-chest", "hf-scales", "hf-steps-up", "hf-warn-signs", "hf-pillows", "hf-calm-wave", "hf-support-ring",
+] as const;
+export type CardioPiece = (typeof CARDIO_PIECES)[number];
+
+const lbpU = "Understanding low blood pressure", lbpT = "Treat and manage", lbpL = "Living with low blood pressure";
+const chdU = "Understanding coronary heart disease", chdT = "Treat and manage", chdL = "Living with coronary heart disease";
+const hfU = "Understanding heart failure", hfT = "Treat and manage", hfL = "Living with heart failure";
+
+export const CARDIO_FEATURES: Record<string, FeatureSpec<CardioPiece>> = {
+  "low-blood-pressure/what-it-is": { kicker: lbpU, headline: "Low numbers, often no trouble", standfirst: "What counts as low blood pressure, why it is often fine, and when it matters.", piece: "lbp-gauge", pullQuote: "Low blood pressure, also known as hypotension, is a reading of less than 90/60mmHg." },
+  "low-blood-pressure/postural": { kicker: lbpU, headline: "The dip when you stand up", standfirst: "Why standing up can bring on dizziness, how it is checked, and getting up slowly.", piece: "lbp-stand-dip", pullQuote: "Get up slowly from sitting to standing." },
+  "low-blood-pressure/causes": { kicker: lbpU, headline: "Medicines, fluids, illness, or just you", standfirst: "The common reasons blood pressure runs low, from fitness and age to medicines, fluids and illness.", piece: "lbp-cause-ring", pullQuote: "Some people develop low blood pressure as they get older." },
+  "low-blood-pressure/fainting": { kicker: lbpU, headline: "Why people faint, and what to do", standfirst: "What happens in a faint, the common triggers and warning signs, and what to do if you feel faint.", piece: "lbp-faint-legs", pullQuote: "Fainting is a symptom and should not be ignored." },
+  "low-blood-pressure/medicines-review": { kicker: lbpT, headline: "When your tablets push too low", standfirst: "Which medicines can lower blood pressure too far, why early dizziness often eases, and asking for a review.", piece: "lbp-pill-notes", pullQuote: "Your body needs time to adjust to lower blood pressure." },
+  "low-blood-pressure/standing-slowly": { kicker: lbpT, headline: "Small habits, steadier days", standfirst: "Everyday ways to get up more slowly, keep moving and sleep with your head raised.", piece: "lbp-bed-edge", pullQuote: "Even short 10-minute strolls will help." },
+  "low-blood-pressure/fluids-salt": { kicker: lbpT, headline: "Drink more, eat little and often", standfirst: "Why fluids matter, when a fluid limit comes first, smaller meals, and salt only with your doctor.", piece: "lbp-glasses", pullQuote: "Lying down or sitting still for a while after eating may also help." },
+  "low-blood-pressure/treatments": { kicker: lbpT, headline: "Stockings first, tablets rarely", standfirst: "Finding the cause, support stockings, changing medicines, and the rare medicines that raise blood pressure.", piece: "lbp-stocking", pullQuote: "Wearing support stockings can improve circulation and increase blood pressure." },
+  "low-blood-pressure/falls": { kicker: lbpL, headline: "Steady at home", standfirst: "Why low blood pressure can lead to falls, making home safer, and what to do if you fall.", piece: "lbp-hallway", pullQuote: "Wear a personal alarm, or carry a mobile phone with you." },
+  "low-blood-pressure/heat-alcohol": { kicker: lbpL, headline: "Heat, the bathroom and a drink", standfirst: "Why warmth can lower blood pressure, keeping cool, bathroom safety and going easy on alcohol.", piece: "lbp-sun-shade", pullQuote: "Being too hot is one of the causes of fainting." },
+  "low-blood-pressure/driving": { kicker: lbpL, headline: "Dizzy spells and the driver's seat", standfirst: "Not driving while dizzy, when DVLA needs to be told, and what the NHS says about fainting.", piece: "lbp-car-key", pullQuote: "DVLA needs to be told if your condition affects your driving." },
+  "low-blood-pressure/when-to-worry": { kicker: lbpL, headline: "GP, 111 or 999?", standfirst: "When dizziness or fainting needs a GP, NHS 111 or an ambulance.", piece: "lbp-signposts", pullQuote: "Do not drive yourself to A&E." },
+
+  "coronary-heart-disease/what-it-is": { kicker: chdU, headline: "When the heart's own arteries narrow", standfirst: "How the heart's arteries narrow with fatty build-up, how that can lead to a heart attack, and what helps.", piece: "chd-artery-rings", pullQuote: "Coronary heart disease cannot be cured." },
+  "coronary-heart-disease/risk-factors": { kicker: chdU, headline: "The things that fur up arteries", standfirst: "What raises the risk of coronary heart disease, which risks you cannot change, and how to lower the rest.", piece: "chd-risk-tags", pullQuote: "You may have more than one risk factor." },
+  "coronary-heart-disease/tests": { kicker: chdU, headline: "From a risk check to an angiogram", standfirst: "The checks and tests used to find coronary heart disease, and what each one is like.", piece: "chd-test-path", pullQuote: "The whole test takes a few minutes and is completely painless." },
+  "coronary-heart-disease/symptoms": { kicker: chdU, headline: "Know the signs, know who to call", standfirst: "The common symptoms, angina, the signs of a heart attack, and when to call 999 or NHS 111.", piece: "chd-signs-light", pullQuote: "Many people with coronary heart disease do not have any symptoms." },
+  "coronary-heart-disease/medicines": { kicker: chdT, headline: "Four jobs, many tablets", standfirst: "What heart medicines do, from preventing clots to lowering cholesterol, and keeping on with them.", piece: "chd-pill-jobs", pullQuote: "Most people start with atorvastatin." },
+  "coronary-heart-disease/stents-bypass": { kicker: chdT, headline: "Prop it open, or go around", standfirst: "When a procedure is needed, how stents and bypass grafts work, and recovering afterwards.", piece: "chd-stent-graft", pullQuote: "This new blood vessel is called a graft." },
+  "coronary-heart-disease/cholesterol": { kicker: chdT, headline: "The hidden number worth knowing", standfirst: "Good and bad cholesterol, the numbers to know, getting checked, and what lowers it.", piece: "chd-results-slip", pullQuote: "When you get your result, you may just be told your total cholesterol." },
+  "coronary-heart-disease/cardiac-rehab": { kicker: chdT, headline: "Rehab is as important as tablets", standfirst: "What cardiac rehab is, how to get a place, and what the weeks involve.", piece: "chd-rehab-weeks", pullQuote: "You do not need a referral from your cardiologist." },
+  "coronary-heart-disease/eating": { kicker: chdL, headline: "Small swaps for a steadier heart", standfirst: "A heart-healthy eating pattern, fats, salt and sugar, and simple swaps.", piece: "chd-plate", pullQuote: "That's about one level teaspoon." },
+  "coronary-heart-disease/activity": { kicker: chdL, headline: "Low and slow, every day", standfirst: "Why activity helps the heart, how much to aim for, starting gently and when to stop.", piece: "chd-hill-walk", pullQuote: "A session could be as little as 5 or 10 minutes." },
+  "coronary-heart-disease/smoking": { kicker: chdL, headline: "The clock starts at your last cigarette", standfirst: "What smoking does to the arteries, how soon stopping helps, and support, vapes and cravings.", piece: "chd-quit-line", pullQuote: "Cravings usually last around 5 minutes." },
+  "coronary-heart-disease/emotions": { kicker: chdL, headline: "Worry is common, and help works", standfirst: "Why worry and low mood are common with heart disease, and the help you can get.", piece: "chd-support-web", pullQuote: "Many people feel better once they've spoken to someone." },
+
+  "heart-failure/what-it-is": { kicker: hfU, headline: "A pump that struggles, not stops", standfirst: "What heart failure means and does not mean, the types and stages, and living well with it.", piece: "hf-pump-ef", pullQuote: "It just needs more support to help it work better." },
+  "heart-failure/causes": { kicker: hfU, headline: "Many roads to a tired heart", standfirst: "The common causes of heart failure, who is most at risk, and when no cause is found.", piece: "hf-cause-roads", pullQuote: "Heart failure can happen at any age." },
+  "heart-failure/symptoms": { kicker: hfU, headline: "Breathless, swollen and very tired", standfirst: "The common and less common symptoms, why they happen, and when to get help.", piece: "hf-body-signs", pullQuote: "Symptoms can vary from day to day and week to week." },
+  "heart-failure/tests": { kicker: hfU, headline: "The tests that show the pump", standfirst: "From the first checks to the BNP blood test, ECG and echo, and waiting for results.", piece: "hf-bnp-echo", pullQuote: "This means your BNP levels will be higher." },
+  "heart-failure/medicines": { kicker: hfT, headline: "Several tablets, several jobs", standfirst: "Why several medicines are used, what each kind does, and getting the dose right.", piece: "hf-pill-bottles", pullQuote: "You will usually take more than one." },
+  "heart-failure/devices": { kicker: hfT, headline: "Small devices, steadier beats", standfirst: "What pacemakers, CRT and ICDs do, having one fitted, everyday life and telling DVLA.", piece: "hf-device-chest", pullQuote: "It cannot shock people near you or touching you." },
+  "heart-failure/fluid-salt": { kicker: hfT, headline: "The morning scales tell the story", standfirst: "Why fluid builds up, weighing every morning, what a sudden change means, and salt and fluid limits.", piece: "hf-scales", pullQuote: "It's a good idea to weigh yourself every day." },
+  "heart-failure/cardiac-rehab": { kicker: hfT, headline: "From rest to gentle, steady movement", standfirst: "Why keeping active helps, what cardiac rehab offers, the kinds of exercise, and when to stop.", piece: "hf-steps-up", pullQuote: "Everyone diagnosed with heart failure should be offered cardiac rehabilitation." },
+  "heart-failure/worsening": { kicker: hfL, headline: "Spot the change, call early", standfirst: "The signs that heart failure may be getting worse, and when to call your team, NHS 111 or 999.", piece: "hf-warn-signs", pullQuote: "Your medicines or treatment may need adjusting." },
+  "heart-failure/sleep": { kicker: hfL, headline: "Breathing easier at night", standfirst: "Why nights can be hard, pillows and a calmer routine, water tablets, and when the night is a warning sign.", piece: "hf-pillows", pullQuote: "Being propped up by pillows at night can help." },
+  "heart-failure/mood": { kicker: hfL, headline: "When worry gets in the way", standfirst: "Why worry and low mood are common, breathing to calm, what helps, and getting support.", piece: "hf-calm-wave", pullQuote: "It's normal to feel anxious, sad and scared about the future." },
+  "heart-failure/support": { kicker: hfL, headline: "You are not doing this alone", standfirst: "Your care team and helpline, palliative care, planning ahead, work, money, carers and driving.", piece: "hf-support-ring", pullQuote: "Palliative care focuses on improving your quality of life." },
+};

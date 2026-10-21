@@ -34,6 +34,7 @@ export const FACIAL_PALSY_UK: TrustedSource = { name: "Facial Palsy UK", note: "
 export const BHF: TrustedSource = { name: "British Heart Foundation", note: "Heart Helpline, booklets and recipes", url: "https://www.bhf.org.uk/" };
 export const BLOOD_PRESSURE_UK: TrustedSource = { name: "Blood Pressure UK", note: "Home monitoring and the numbers explained", url: "https://www.bloodpressureuk.org/" };
 export const AF_ASSOCIATION: TrustedSource = { name: "AF Association", note: "Living with atrial fibrillation, in plain words", url: "https://www.afa.org.uk/" };
+export const ARRHYTHMIA_ALLIANCE: TrustedSource = { name: "Arrhythmia Alliance", note: "Heart rhythm information and a helpline", url: "https://heartrhythmalliance.org/" };
 export const ASTHMA_LUNG_UK: TrustedSource = { name: "Asthma + Lung UK", note: "Helpline, inhaler videos and breathing exercises", url: "https://www.asthmaandlung.org.uk/" };
 export const DIABETES_UK: TrustedSource = { name: "Diabetes UK", note: "Helpline, recipes and learning courses", url: "https://www.diabetes.org.uk/" };
 export const JDRF: TrustedSource = { name: "Breakthrough T1D (JDRF)", note: "Type 1 diabetes: research and support", url: "https://jdrf.org.uk/" };
