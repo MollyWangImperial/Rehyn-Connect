@@ -34,7 +34,13 @@ export const METABOLISM_PALETTES: Record<string, ThemePalette> = {
   diabetes: { ink: "#A15C0B", tint: "#FCEFD9", text: "#6E3F06", muted: "#735033" },
   thyroid: { ink: "#2E7A6B", tint: "#E3F3EF", text: "#1D5549", muted: "#3F665D" },
 };
-const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES };
+/** The Bones, joints & muscles groups, as their cards on the Bones page show them (SectionBento.tsx). */
+export const BONES_PALETTES: Record<string, ThemePalette> = {
+  arthritis: { ink: "#1F6B64", tint: "#E4F3F1", text: "#164E49", muted: "#3C5F5B" },
+  "bone-health": { ink: "#8A6A2E", tint: "#F6EFDF", text: "#5E4818", muted: "#6B5A3C" },
+  "back-neck": { ink: "#3D5A8C", tint: "#E8EEF8", text: "#2A4069", muted: "#4A5A76" },
+};
+const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES, ...BONES_PALETTES };
 
 /** The groups whose own pieces have pictures drawn for them: the Dementia purples and the movement blues. */
 export type LightTheme = "memory" | "movement";

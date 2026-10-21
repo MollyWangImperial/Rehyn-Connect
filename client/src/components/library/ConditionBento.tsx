@@ -120,7 +120,7 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const theme = themeOf(group.id);
   const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : group.id === "arthritis" ? <JointArt /> : group.id === "bone-health" ? <BoneArt /> : group.id === "back-neck" ? <SpineHeroArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -230,6 +230,38 @@ function ThyroidArt() {
       <path d="M-30 70 C-60 100, -120 96, -130 30 C-140 -40, -110 -130, -80 -130 C-56 -130, -46 -80, -40 -20 C-36 20, -34 50, -30 70 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".3" className="lib-v2-breathe is-slow" />
       <path d="M30 70 C60 100, 120 96, 130 30 C140 -40, 110 -130, 80 -130 C56 -130, 46 -80, 40 -20 C36 20, 34 50, 30 70 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".3" className="lib-v2-breathe is-slow" />
       <path d="M-34 44 C-12 58, 12 58, 34 44 L34 74 C12 86, -12 86, -34 74 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="4" fillOpacity=".3" />
+    </g>
+  </svg>;
+}
+
+/** The arthritis pages' header: a knee joint that bends gently, its lining glowing softly. */
+function JointArt() {
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <g transform="translate(960 220)" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M-40 -230 V-40 C-40 -10, -20 4, 0 4 C20 4, 40 -10, 40 -40 V-230" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".2" />
+      <g className="lib-v2-sway"><path d="M-40 230 V60 C-40 30, -20 18, 0 18 C20 18, 40 30, 40 60 V230" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".2" /></g>
+      <ellipse cx="0" cy="11" rx="70" ry="22" className="lib-v2-breathe is-slow" style={{ stroke: "var(--t-soft)" }} strokeWidth="4" strokeDasharray="6 8" />
+    </g>
+  </svg>;
+}
+
+/** The bone health pages' header: a long bone with its honeycomb inside, slowly filling. */
+function BoneArt() {
+  const dots = Array.from({ length: 22 }, (_, index) => [880 + (index % 11) * 22, 205 + Math.floor(index / 11) * 26]);
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice"><g transform="translate(-20 90)">
+    <path d="M760 190 a36 36 0 1 1 46 -22 H1150 a36 36 0 1 1 46 22 a36 36 0 1 1 -46 22 H806 a36 36 0 1 1 -46 -22 Z" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="5" fillOpacity=".18" />
+    {dots.map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r="5" style={{ fill: "var(--t-ink)", animationDelay: `${-index * 0.3}s` }} opacity=".5" />)}
+  </g></svg>;
+}
+
+/** The back pages' header: a spine of vertebrae, swaying gently as if walking. */
+function SpineHeroArt() {
+  return <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    <g className="lib-v2-sway">
+      {Array.from({ length: 12 }, (_, index) => {
+        const y = 20 + index * 35; const x = 960 + Math.sin(index / 2.4) * 46;
+        return <rect key={index} x={x - 46} y={y} width="92" height="26" rx="11" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="4" fillOpacity={index % 3 === 1 ? 0.5 : 0.2} />;
+      })}
     </g>
   </svg>;
 }

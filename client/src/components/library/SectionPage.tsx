@@ -43,7 +43,7 @@ function AskWhichGroup({ section, onGroup, tile = false }: { section: LibrarySec
     <span className="lib-ask-kicker">Not sure which group?</span>
     <label htmlFor="lib-ask-group" className="lib-ask-label">Describe what's happening in your own words and we'll point you to the right group.</label>
     <div className="lib-ask-row">
-      <input id="lib-ask-group" type="text" value={words} onChange={event => setWords(event.target.value)} placeholder={section.id === "heart-lungs" ? "e.g. “Mum gets breathless on the stairs”" : section.id === "diabetes-metabolism" ? "e.g. “My blood test said my sugar is borderline”" : "e.g. “Dad keeps losing his words and repeating himself”"} />
+      <input id="lib-ask-group" type="text" value={words} onChange={event => setWords(event.target.value)} placeholder={section.id === "heart-lungs" ? "e.g. “Mum gets breathless on the stairs”" : section.id === "diabetes-metabolism" ? "e.g. “My blood test said my sugar is borderline”" : section.id === "bones-joints-muscles" ? "e.g. “My knees are stiff in the mornings”" : "e.g. “Dad keeps losing his words and repeating himself”"} />
       <button type="submit" className="lib-button is-small">Ask</button>
     </div>
     <div aria-live="polite">

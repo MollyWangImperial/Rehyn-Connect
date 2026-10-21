@@ -16,11 +16,19 @@ const render = (id: string) => {
 const tiles = (html: string, kind: string) => html.split(`class="lib-bento-tile ${kind}`).slice(1).map(part => part.split("</article>")[0]);
 
 describe("the Brain & nervous system bento", () => {
-  it("is on for the Brain, Heart and Diabetes sections only", () => {
-    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs", "diabetes-metabolism"]);
-    const bones = render("bones-joints-muscles");
-    expect(bones).toContain("lib-group");
-    expect(bones).not.toContain("lib-bento");
+  it("is on for the Brain, Heart, Diabetes and Bones sections only", () => {
+    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs", "diabetes-metabolism", "bones-joints-muscles"]);
+    const cancer = render("cancer-recovery");
+    expect(cancer).toContain("lib-group");
+    expect(cancer).not.toContain("lib-bento");
+  });
+
+  it("opens Bones, joints & muscles with Arthritis large, two small tiles and the question beneath them", () => {
+    const html = render("bones-joints-muscles");
+    const [feature] = tiles(html, "is-feature");
+    expect(feature).toContain(">Arthritis</h2>");
+    expect(tiles(html, "is-small")).toHaveLength(2);
+    expect(html).toContain("lib-bento is-trio");
   });
 
   it("opens Diabetes & metabolism with Diabetes large, and Thyroid standing tall beside it", () => {

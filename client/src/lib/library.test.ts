@@ -110,7 +110,7 @@ describe("the Library's data", () => {
   it("links only to real https homepages for trusted sources", () => {
     const urls = allConditions().flatMap(({ condition }) => condition.content?.sources ?? []).map(source => source.url).filter(Boolean) as string[];
     expect(urls.length).toBeGreaterThan(0);
-    for (const url of urls) expect(url).toMatch(/^https:\/\/[a-z.]+\/$/);
+    for (const url of urls) expect(url).toMatch(/^https:\/\/[a-z.-]+\/$/);
   });
 });
 

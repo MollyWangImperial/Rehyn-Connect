@@ -15,6 +15,10 @@ import { extras as type1News } from "./heart-news/type-1";
 import { extras as type2News } from "./heart-news/type-2";
 import { extras as underactiveNews } from "./heart-news/underactive";
 import { extras as overactiveNews } from "./heart-news/overactive";
+import { extras as osteoarthritisNews } from "./heart-news/osteoarthritis";
+import { extras as backPainNews } from "./heart-news/back-pain";
+import { extras as osteoporosisNews } from "./heart-news/osteoporosis";
+import { extras as rheumatoidNews } from "./heart-news/rheumatoid";
 
 /** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
 export const WRITTEN_ON = "17 October 2026";
@@ -107,7 +111,12 @@ export type NewsPiece =
   | "t1d-beta-cells" | "t1d-gauge" | "t1d-ketones" | "t1d-two-numbers" | "t1d-basal-bolus" | "t1d-carb-scale" | "t1d-loop" | "t1d-sick-kit" | "t1d-late-low" | "t1d-five-drive" | "t1d-drink-night" | "t1d-distress" | "t1d-pregnancy-line"
   | "hypo-thermostat" | "hypo-antibodies" | "hypo-seesaw" | "hypo-checklist" | "hypo-morning" | "hypo-steps" | "hypo-four-hours" | "hypo-scales" | "hypo-fog" | "hypo-pregnancy-line" | "hypo-test-calendar"
   | "hyper-fast" | "hyper-five" | "hyper-seesaw" | "hyper-eye" | "hyper-sore-throat" | "hyper-capsule" | "hyper-three-ops" | "hyper-heart-calm" | "hyper-calm-head" | "hyper-smoke-eyes" | "hyper-pregnancy-line" | "hyper-pendulum"
-  | "t2d-sticky-cell" | "t2d-key" | "t2d-four-spots" | "t2d-remission-line" | "t2d-hypo-steps" | "t2d-pill-cards" | "t2d-pen-week" | "t2d-hand-portions" | "t2d-walk-meal" | "t2d-meter-fork" | "t2d-nine-grid" | "t2d-foot-check" | "t2d-ill-kit" | "t2d-dashboard" | "t2d-backpack";
+  | "t2d-sticky-cell" | "t2d-key" | "t2d-four-spots" | "t2d-remission-line" | "t2d-hypo-steps" | "t2d-pill-cards" | "t2d-pen-week" | "t2d-hand-portions" | "t2d-walk-meal" | "t2d-meter-fork" | "t2d-nine-grid" | "t2d-foot-check" | "t2d-ill-kit" | "t2d-dashboard" | "t2d-backpack"
+  // Bones, joints & muscles pages' own (components/library/NewsBonesPieces.tsx).
+  | "oa-week-ruler" | "oa-two-knees" | "oa-xray-gauge" | "oa-two-hands" | "oa-sit-stand" | "oa-ladder" | "oa-knee-load" | "oa-implant-years" | "oa-stairs" | "oa-hand-tools" | "oa-three-ways" | "oa-loop"
+  | "back-spine-dial" | "back-three-lights" | "back-two-scans" | "back-alarm" | "back-five-moves" | "back-pill-days" | "back-physio-path" | "back-hundred" | "back-desk" | "back-bed" | "back-three-paths" | "back-neck-pillow"
+  | "op-honeycomb" | "op-tscore" | "op-four-risks" | "op-wedge" | "op-tablet-morning" | "op-year-calendar" | "op-food-sun" | "op-three-panels" | "op-safe-home" | "op-heal-weeks" | "op-hip-hinge" | "op-tooth"
+  | "ra-joint-lining" | "ra-jigsaw" | "ra-body-spots" | "ra-flare-wave" | "ra-week-mtx" | "ra-steps" | "ra-bridge" | "ra-hand-moves" | "ra-morning-clock" | "ra-batteries" | "ra-adjust-desk" | "ra-shield" | "ra-family-line";
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -1027,11 +1036,79 @@ NEWS_EXTRAS["overactive/smoking"] = hyperL("Every cigarette counts for your eyes
 NEWS_EXTRAS["overactive/pregnancy"] = hyperL("Planning a pregnancy with an overactive thyroid", "Contraception, planning, safer medicines in pregnancy, and a test after the birth.", "hyper-pregnancy-line", "Radioactive iodine should never be used in pregnancy.");
 NEWS_EXTRAS["overactive/after"] = hyperL("When fast turns slow", "After treatment the thyroid often becomes underactive, so tests continue.", "hyper-pendulum", "Radioactive iodine treatment often causes hormone levels to become too low.");
 
+// ---- Bones, joints & muscles ------------------------------------------------------------------------
+
+const oaU = move("Understanding osteoarthritis");
+const oaT = move("Treat and manage");
+const oaL = move("Living with osteoarthritis");
+NEWS_EXTRAS["osteoarthritis/knee-week-three"] = oaU("Week three: sore, swollen, on the way", "Where week three sits in the months after a new knee, and what is normal.", "oa-week-ruler", "Pain caused by bruising from the operation is normal in the first two months.");
+NEWS_EXTRAS["osteoarthritis/what-it-is"] = oaU("Not worn out, repairing less well", "Cartilage thins and the joint repairs less smoothly. It does not have to get worse.", "oa-two-knees", "Osteoarthritis is often called wear and tear.");
+NEWS_EXTRAS["osteoarthritis/flare"] = oaU("Why the X-ray and the pain disagree", "Symptoms come and go, and the damage in a joint does not always match the pain.", "oa-xray-gauge", "A GP will first ask about your symptoms and examine your joints.");
+NEWS_EXTRAS["osteoarthritis/rheumatoid-or-osteo"] = oaU("Same word, two different conditions", "Morning stiffness, which joints, and why telling them apart matters.", "oa-two-hands", "Osteoarthritis tends only to affect individual joints.");
+NEWS_EXTRAS["osteoarthritis/strength"] = oaT("Stronger muscles, steadier joints", "Strength exercises for knees and hips, and how they should feel.", "oa-sit-stand", "Your muscles should feel tired, as if they have done some work.");
+NEWS_EXTRAS["osteoarthritis/painkillers"] = oaT("Gels first, then the other options", "Gels, tablets, capsaicin cream and steroid injections, alongside self-help.", "oa-ladder", "Medicines are unlikely to take the pain away completely.");
+NEWS_EXTRAS["osteoarthritis/weight"] = oaT("Every step weighs on the knee", "Extra weight adds load and inflammation; even a small loss can help.", "oa-knee-load", "Exercise is still important whatever your weight.");
+NEWS_EXTRAS["osteoarthritis/replacement"] = oaT("When a new joint is worth it", "When a replacement is considered, preparing for it, and how it turns out.", "oa-implant-years", "A hip replacement can last for at least 15 years.");
+NEWS_EXTRAS["osteoarthritis/stairs-chairs"] = oaL("Up with the good, down with the bad", "Stairs, chairs, baths and getting up, and help with the costs.", "oa-stairs", "Good armrests can work just as well as a higher chair.");
+NEWS_EXTRAS["osteoarthritis/hands"] = oaL("Easing the grip on everyday jobs", "Where hand arthritis shows, gadgets, splints and warmth.", "oa-hand-tools", "Hand osteoarthritis often tends to burn out after a time.");
+NEWS_EXTRAS["osteoarthritis/walking"] = oaL("Walk, swim, cycle: gentle on joints", "Low-impact exercise builds muscle without jarring the joints.", "oa-three-ways", "Walking is a good exercise for knee osteoarthritis.");
+NEWS_EXTRAS["osteoarthritis/mood"] = oaL("Breaking the loop", "Pain, sleep and mood feed each other, and there are ways to break the loop.", "oa-loop", "Keep in touch with friends and family, even with shorter visits.");
+
+const opU = move("Understanding osteoporosis");
+const opT = move("Treat and manage");
+const opL = move("Living with osteoporosis");
+NEWS_EXTRAS["osteoporosis/what-it-is"] = opU("When the rebuild falls behind", "Bone renews itself all the time. When the balance slips, bones thin and break more easily.", "op-honeycomb", "Osteopenia does not always lead to osteoporosis.");
+NEWS_EXTRAS["osteoporosis/dexa"] = opU("One scan, one score, one plan", "What a bone density scan is like, and what the T-score means.", "op-tscore", "You do not go into a tunnel or need an injection.");
+NEWS_EXTRAS["osteoporosis/who"] = opU("Menopause, steroids, family, frame", "What raises the risk for women and men, and the medicines and conditions involved.", "op-four-risks", "In most men, the cause is unknown.");
+NEWS_EXTRAS["osteoporosis/spine"] = opU("Shorter, but not stuck", "Why spinal fractures change height and shape, and why they are stable.", "op-wedge", "Spinal fractures caused by osteoporosis do not cause paralysis.");
+NEWS_EXTRAS["osteoporosis/tablets"] = opT("Tap water, empty stomach, stand tall", "How to take bisphosphonate tablets so they work.", "op-tablet-morning", "Stay upright for 30 minutes afterwards.");
+NEWS_EXTRAS["osteoporosis/other-treatments"] = opT("Drips, jabs and bone builders", "The yearly drip, the six-monthly injection, the bone builders and the rest.", "op-year-calendar", "Its effect wears off very quickly.");
+NEWS_EXTRAS["osteoporosis/calcium-d"] = opT("Food first, sun second, then top up", "Calcium from food, vitamin D from summer sun, and supplements when needed.", "op-food-sun", "Spinach contains calcium, but the body cannot digest it all.");
+NEWS_EXTRAS["osteoporosis/bone-exercise"] = opT("Impact, strength and balance", "Bones get stronger when you use them. Three kinds of exercise help most.", "op-three-panels", "If you are not active, your bones lose strength.");
+NEWS_EXTRAS["osteoporosis/falls"] = opL("Trip-proof your home", "Fewer falls mean fewer broken bones: the home, what you wear, and your health.", "op-safe-home", "Have regular sight tests and hearing tests, as ear problems can affect your balance.");
+NEWS_EXTRAS["osteoporosis/after-fracture"] = opL("Mend this break, block the next", "Bones heal as normal. Recovering from a break, and preventing the next one.", "op-heal-weeks", "Osteoporosis does not affect the healing process of bone.");
+NEWS_EXTRAS["osteoporosis/lifting"] = opL("Bend at the hips, not the back", "Bending is generally safe. A simple rule for lifting, gardening and the house.", "op-hip-hinge", "A simple rule is to think straight.");
+const raU = move("Understanding rheumatoid arthritis");
+const raT = move("Treat and manage");
+const raL = move("Living with rheumatoid arthritis");
+NEWS_EXTRAS["rheumatoid/what-it-is"] = raU("When the body attacks its joints", "An immune condition that inflames the joint lining, often in the hands and feet on both sides.", "ra-joint-lining", "Smoking and being overweight raise the risk.");
+NEWS_EXTRAS["rheumatoid/tests"] = raU("No single test, many clues", "Blood tests, scans and a specialist's view build the diagnosis together.", "ra-jigsaw", "Anti-CCP is more specific for rheumatoid arthritis and may appear much earlier.");
+NEWS_EXTRAS["rheumatoid/beyond-joints"] = raU("More than a joint disease", "Inflammation can reach the eyes, lungs, heart and nerves. What to look out for.", "ra-body-spots", "About a quarter of people with rheumatoid arthritis have eye problems.");
+NEWS_EXTRAS["rheumatoid/flares"] = raU("Riding out the flare", "What a flare is, what can set one off, and when to call for help.", "ra-flare-wave", "At times, they have no obvious cause.");
+NEWS_EXTRAS["rheumatoid/dmards"] = raT("Slow medicines, lasting control", "How methotrexate and the other DMARDs work, how long they take, and the checks.", "ra-week-mtx", "But most people tolerate methotrexate well.");
+NEWS_EXTRAS["rheumatoid/biologics"] = raT("The next step after tablets", "When biologics and JAK inhibitors are offered, and what to know before starting.", "ra-steps", "Biologics, such as adalimumab, etanercept and infliximab, are made from proteins.");
+NEWS_EXTRAS["rheumatoid/steroids"] = raT("A fast bridge, not a destination", "Steroids calm a flare quickly; why they are kept short and stopped slowly.", "ra-bridge", "A low dose of prednisolone has a noticeable effect within a few days.");
+NEWS_EXTRAS["rheumatoid/hands"] = raT("Kinder ways to use your hands", "Gentle exercises, joint protection, splints and gadgets for everyday tasks.", "ra-hand-moves", "Notice any pain you feel and use it as a warning.");
+NEWS_EXTRAS["rheumatoid/mornings"] = raL("Warm, slow and ready mornings", "Why mornings are stiff, and small changes that make getting going easier.", "ra-morning-clock", "Heat can soothe stiff or achy joints.");
+NEWS_EXTRAS["rheumatoid/fatigue"] = raL("Not tired, but fatigued", "Where the fatigue comes from, and how pacing and gentle activity help.", "ra-batteries", "Pacing means not using up all your energy in one go.");
+NEWS_EXTRAS["rheumatoid/work"] = raL("Staying in work, with support", "Your rights, telling your employer, reasonable adjustments and Access to Work.", "ra-adjust-desk", "Writing down what you agree can help if your manager changes.");
+NEWS_EXTRAS["rheumatoid/infections"] = raL("Lower defences, simple protection", "Why infections matter on these medicines, the vaccines to have, and the ones to check.", "ra-shield", "Contact your doctor early if you get a fever.");
+NEWS_EXTRAS["rheumatoid/pregnancy"] = raL("Planning a family", "Which medicines change before pregnancy, which can continue, and what to expect.", "ra-family-line", "Keeping your condition in check matters.");
+NEWS_EXTRAS["osteoporosis/dentist"] = opL("The dentist needs to know", "A very rare jaw side effect, and why telling your dentist matters.", "op-tooth", "Tell your dentist you are taking your osteoporosis medicine.");
+
+const backU = move("Understanding back pain");
+const backT = move("Treat and manage");
+const backL = move("Living with back pain");
+NEWS_EXTRAS["back-pain/what-hurts"] = backU("Sore, sensitive, rarely damaged", "The spine is strong. Pain often has no single cause, and many things can turn the volume up.", "back-spine-dial", "The spine is one of the strongest parts of the body.");
+NEWS_EXTRAS["back-pain/red-flags"] = backU("Three levels of urgent", "Rare, but important: when to call 999, when to call 111, and when to see a GP.", "back-three-lights", "Do not drive to A&E.");
+NEWS_EXTRAS["back-pain/scans"] = backU("Why the scanner can wait", "Most back pain is diagnosed by talking and examining, and scans often show normal changes.", "back-two-scans", "The Chartered Society of Physiotherapy says a scan can do more harm than good.");
+NEWS_EXTRAS["back-pain/long-term"] = backU("An alarm that keeps ringing", "Pain that lasts is often a sensitive alarm, not ongoing damage, and it can settle.", "back-alarm", "It is more about protection than detecting harm.");
+NEWS_EXTRAS["back-pain/exercises"] = backT("Five gentle moves to start", "Staying active helps most. Five gentle exercises, after advice.", "back-five-moves", "Start slowly and build up gradually if you are new to exercise.");
+NEWS_EXTRAS["back-pain/painkillers"] = backT("The right pill, briefly", "What may help, for how long, who should check first, and what not to expect.", "back-pill-days", "Painkillers do not speed up recovery.");
+NEWS_EXTRAS["back-pain/physio"] = backT("Book your own physio", "When to ask, how to refer yourself, and what treatment may include.", "back-physio-path", "Physiotherapy is free on the NHS, but there may be a long waiting list.");
+NEWS_EXTRAS["back-pain/injections-surgery"] = backT("Surgery: the rare exception", "Very few people need an operation, and some treatments are no longer offered.", "back-hundred", "Very few people with back pain need an operation.");
+NEWS_EXTRAS["back-pain/work"] = backL("Back to work, back sooner", "Staying in or returning to work often helps, with the right support.", "back-desk", "You do not need to wait until your back problem has completely gone.");
+NEWS_EXTRAS["back-pain/sleep"] = backL("No perfect mattress", "Whatever is comfortable, good sleep habits, and what to do about pain at night.", "back-bed", "Whatever feels most comfortable for you is best.");
+NEWS_EXTRAS["back-pain/fear"] = backL("Hurt is not harm", "Movement is almost always safe. Pacing helps you build up without flare-ups.", "back-three-paths", "An increase in pain does not mean an increase in injury.");
+NEWS_EXTRAS["back-pain/neck"] = backL("Same rules, smaller spine", "Neck pain usually settles in a few weeks. Keep it moving, and know when to see a GP.", "back-neck-pillow", "Most neck pain only lasts a few weeks.");
+
 // Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
 const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
   copd: copdNews, asthma: asthmaNews, "sleep-apnoea": apnoeaNews, prediabetes: prediabetesNews, "type-1": type1News, "type-2": type2News,
-  underactive: underactiveNews, overactive: overactiveNews,
+  underactive: underactiveNews, overactive: overactiveNews, osteoarthritis: osteoarthritisNews, "back-pain": backPainNews,
+  osteoporosis: osteoporosisNews,
+  rheumatoid: rheumatoidNews,
 };
 for (const [condition, pieces] of Object.entries(HEART_NEWS)) for (const [piece, more] of Object.entries(pieces)) {
   const key = `${condition}/${piece}`;

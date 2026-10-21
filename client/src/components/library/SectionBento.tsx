@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import type { LibraryGroup, LibrarySection } from "@/content/library";
 import { conditionHref, sectionStories } from "@/lib/library";
 import { readLocal } from "@/lib/library-local";
-import { HEART_PALETTES, METABOLISM_PALETTES } from "@/lib/library-theme";
+import { BONES_PALETTES, HEART_PALETTES, METABOLISM_PALETTES } from "@/lib/library-theme";
 import { Crumbs } from "./parts";
 
 // The Brain & nervous system page as a "bento" (brain-section-bento.html): a dark header with
@@ -101,7 +101,24 @@ const METABOLISM: Record<string, BentoStyle> = {
   </> },
 };
 
-const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": METABOLISM };
+// The Bones, joints & muscles page: teal for joints, warm stone for bone, slate blue for the back.
+const BONES: Record<string, BentoStyle> = {
+  arthritis: { ...BONES_PALETTES.arthritis, short: "Painful, stiff joints, and the treatments and operations that help.", chips: ["Osteoarthritis", "Rheumatoid"], symbol: <>
+    <path d="M70 20 V86 C70 100, 86 108, 100 108 C114 108, 130 100, 130 86 V20" />
+    <path d="M70 180 V124 C70 112, 86 106, 100 106 M130 180 V124 C130 112, 114 106, 100 106" />
+    <path d="M56 96 C40 100, 40 116, 56 120 M144 96 C160 100, 160 116, 144 120" strokeDasharray="4 6" />
+  </> },
+  "bone-health": { ...BONES_PALETTES["bone-health"], short: "Keeping bones strong, and recovering well after a break.", chips: ["Osteoporosis"], symbol: <>
+    <path d="M60 50 a18 18 0 1 1 28 -8 L130 136 a18 18 0 1 1 8 28 a18 18 0 1 1 -28 8 L68 70 a18 18 0 1 1 -8 -20 Z" />
+    <circle cx="100" cy="100" r="5" /><circle cx="88" cy="84" r="3" /><circle cx="112" cy="118" r="3" />
+  </> },
+  "back-neck": { ...BONES_PALETTES["back-neck"], short: "Everyday back and neck pain, and when to get it checked.", chips: ["Back pain", "Neck"], symbol: <>
+    {[24, 50, 76, 102, 128, 154].map((y, index) => <rect key={y} x={84 + Math.sin(index / 1.6) * 10} y={y} width="36" height="18" rx="7" />)}
+    <path d="M100 18 C116 60, 84 120, 104 186" strokeDasharray="3 6" />
+  </> },
+};
+
+const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": METABOLISM, "bones-joints-muscles": BONES };
 
 /** Whether a section has the bento layout: every one of its groups has a style. */
 export const hasBento = (section: LibrarySection) => Boolean(BENTO[section.id]) && section.groups.every(group => BENTO[section.id][group.id]);
@@ -115,7 +132,7 @@ export function BentoHero({ section }: { section: LibrarySection }) {
   const conditions = section.groups.reduce((sum, group) => sum + group.conditions.length, 0);
   const stories = sectionStories(section.id).length;
   return <header className={`lib-bento-hero is-${section.id}`}>
-    {section.id === "heart-lungs" ? <HeartArt /> : section.id === "diabetes-metabolism" ? <SugarArt /> : <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    {section.id === "heart-lungs" ? <HeartArt /> : section.id === "diabetes-metabolism" ? <SugarArt /> : section.id === "bones-joints-muscles" ? <SpineArt /> : <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
       <g className="lib-bento-folds" fill="none" stroke="#9C91E8" strokeOpacity=".22" strokeWidth="2" strokeLinecap="round">
         <path d="M-60 40 C40 10, 80 70, 160 40 S300 10, 380 50 S520 90, 600 40 S760 0, 840 50 S1000 90, 1080 40 S1240 10, 1340 50" />
         <path d="M-60 100 C30 70, 90 130, 180 100 S320 60, 400 110 S560 150, 640 100 S800 60, 880 110 S1040 150, 1120 100 S1280 70, 1340 110" />
@@ -191,6 +208,26 @@ function SugarArt() {
   </svg>;
 }
 
+/** The Bones, joints & muscles header: a gently curving spine of vertebrae, swaying as if on a walk. */
+function SpineArt() {
+  return <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    <g className="lib-bento-folds" fill="none" stroke="#9FD8CF" strokeOpacity=".28" strokeWidth="2.4" strokeLinejoin="round">
+      {Array.from({ length: 11 }, (_, index) => {
+        const y = 18 + index * 31; const x = 1000 + Math.sin(index / 2.2) * 40;
+        return <rect key={index} x={x - 34} y={y} width="68" height="22" rx="9" />;
+      })}
+    </g>
+    <g className="lib-bento-folds is-slow" fill="none" stroke="#E8C98F" strokeOpacity=".2" strokeWidth="1.6" strokeLinecap="round">
+      <path d="M-60 300 C120 260, 260 320, 420 290 S700 250, 860 290" />
+      <path d="M-60 200 C120 160, 260 220, 420 190 S700 150, 860 190" />
+    </g>
+    <g fill="#E8C98F">
+      {[[300, 80, 3, 0], [640, 40, 3, -1], [760, 300, 4, -2.2], [520, 330, 3, -1.6]].map(([cx, cy, r, delay]) =>
+        <circle key={`${cx}-${cy}`} className="lib-bento-spark" cx={cx} cy={cy} r={r} style={{ animationDelay: `${delay}s` }} />)}
+    </g>
+  </svg>;
+}
+
 // The group last moved into the large tile, by section, kept in this browser so coming back to the
 // page (for example from one of its conditions) shows that group again rather than the first one.
 const GROUP_KEY = "rehyn.library-section-group.v1";
@@ -244,7 +281,7 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
 
   return <section className="lib-bento-wrap" aria-label="Groups in this section">
     <p className="lib-sr" aria-live="polite">{said}</p>
-    <div className={`lib-bento${rest.length === 4 ? " is-few" : rest.length === 1 ? " is-pair" : ""}`}>
+    <div className={`lib-bento${rest.length === 4 ? " is-few" : rest.length === 2 ? " is-trio" : rest.length === 1 ? " is-pair" : ""}`}>
       <article key={`${main.id}-${moves}`} id={`group-${main.id}`} className={`lib-bento-tile is-feature${mainStyle.light ? " is-light" : ""}${entering}`}
         style={mainStyle.light ? { background: mainStyle.tint, ["--ink" as string]: mainStyle.ink, ["--text" as string]: mainStyle.text, ["--muted" as string]: mainStyle.muted } as CSSProperties : { background: mainStyle.ink }} aria-labelledby="lib-bento-feature-title">
         <GroupSymbol style={mainStyle} colour={mainStyle.light ? mainStyle.ink : "#FFFFFF"} width={5} className="lib-bento-sym" />

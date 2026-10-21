@@ -38,7 +38,8 @@ export const ASTHMA_LUNG_UK: TrustedSource = { name: "Asthma + Lung UK", note: "
 export const DIABETES_UK: TrustedSource = { name: "Diabetes UK", note: "Helpline, recipes and learning courses", url: "https://www.diabetes.org.uk/" };
 export const JDRF: TrustedSource = { name: "Breakthrough T1D (JDRF)", note: "Type 1 diabetes: research and support", url: "https://jdrf.org.uk/" };
 export const THYROID_UK: TrustedSource = { name: "Thyroid UK", note: "Information and support for thyroid conditions", url: "https://www.thyroiduk.org/" };
-export const VERSUS_ARTHRITIS: TrustedSource = { name: "Versus Arthritis", note: "Helpline, exercises and pain advice", url: "https://www.versusarthritis.org/" };
+/** Formerly Versus Arthritis; its old site now redirects to arthritis-uk.org (checked 21 October 2026). */
+export const VERSUS_ARTHRITIS: TrustedSource = { name: "Arthritis UK", note: "Helpline, exercises and pain advice", url: "https://www.arthritis-uk.org/" };
 export const NRAS: TrustedSource = { name: "NRAS", note: "National Rheumatoid Arthritis Society: helpline and groups", url: "https://nras.org.uk/" };
 export const ROS: TrustedSource = { name: "Royal Osteoporosis Society", note: "Specialist nurse helpline and bone health advice", url: "https://theros.org.uk/" };
 export const BACKCARE: TrustedSource = { name: "BackCare", note: "The charity for healthier backs", url: "https://backcare.org.uk/" };

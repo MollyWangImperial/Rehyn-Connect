@@ -25,6 +25,11 @@ const PAGES: [string, string, string][] = [
   ["diabetes", "type-2", "#A15C0B"],
   ["thyroid", "underactive", "#2E7A6B"],
   ["thyroid", "overactive", "#2E7A6B"],
+  // Bones, joints & muscles.
+  ["arthritis", "osteoarthritis", "#1F6B64"],
+  ["arthritis", "rheumatoid", "#1F6B64"],
+  ["bone-health", "osteoporosis", "#8A6A2E"],
+  ["back-neck", "back-pain", "#3D5A8C"],
 ];
 
 describe("the Heart & lungs pages", () => {

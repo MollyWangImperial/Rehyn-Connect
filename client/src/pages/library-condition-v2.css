@@ -240,6 +240,8 @@
 @keyframes lib-v2-trace { from { stroke-dashoffset:22; } to { stroke-dashoffset:-100; } }
 .lib-v2-breathe { transform-box:fill-box; transform-origin:center; animation:lib-v2-breathe 6s ease-in-out infinite; }
 .lib-v2-breathe.is-slow { animation-duration:8s; }
+.lib-v2-sway { transform-box:view-box; transform-origin:960px 0; animation:lib-v2-sway 7s ease-in-out infinite; }
+@keyframes lib-v2-sway { 0%,100% { transform:rotate(-2deg); } 50% { transform:rotate(2deg); } }
 @keyframes lib-v2-breathe { 0%,100% { transform:scaleY(.6); } 50% { transform:scaleY(1.15); } }
 .lib-v2.is-light .lib-v2-parts-inner { box-shadow:0 12px 30px rgba(var(--t-shadow),.14); }
 .lib-v2.is-light .lib-v2-parts a { color:var(--t-text); }

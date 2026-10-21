@@ -31,6 +31,12 @@
 .lib-bento-hero.is-diabetes-metabolism .lib-crumbs svg { color:#E0B26A; }
 .lib-bento-hero.is-diabetes-metabolism .lib-crumbs a:hover, .lib-bento-hero.is-diabetes-metabolism .lib-crumbs [aria-current] { color:#FFFFFF; }
 .lib-bento-hero.is-diabetes-metabolism p { color:#F7E6CB; }
+/* Bones, joints & muscles: a deep teal header. */
+.lib-bento-hero.is-bones-joints-muscles { background:#123F3B; }
+.lib-bento-hero.is-bones-joints-muscles .lib-crumbs, .lib-bento-hero.is-bones-joints-muscles .lib-crumbs a { color:#BFE3DD; }
+.lib-bento-hero.is-bones-joints-muscles .lib-crumbs svg { color:#8CCBC1; }
+.lib-bento-hero.is-bones-joints-muscles .lib-crumbs a:hover, .lib-bento-hero.is-bones-joints-muscles .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-bones-joints-muscles p { color:#D9EFEB; }
 .lib-bento-stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 .lib-bento-stats span { padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.12); font-size:13px; font-weight:700; }
 
@@ -102,6 +108,16 @@
 .is-diabetes-metabolism .lib-ask-group.is-tile .lib-ask-row input { border-color:#F0E2CC; }
 .is-diabetes-metabolism .lib-ask-group.is-tile .lib-button { background:#45290A; }
 .is-diabetes-metabolism .lib-bento-pick:focus-visible { outline-color:#45290A; }
+.is-bones-joints-muscles .lib-ask-group.is-tile { border-color:#BFD9D5; }
+.is-bones-joints-muscles .lib-ask-group.is-tile .lib-ask-kicker { color:#123F3B; }
+.is-bones-joints-muscles .lib-ask-group.is-tile .lib-ask-row input { border-color:#D5E8E5; }
+.is-bones-joints-muscles .lib-ask-group.is-tile .lib-button { background:#123F3B; }
+.is-bones-joints-muscles .lib-bento-pick:focus-visible { outline-color:#123F3B; }
+/* With two small tiles (three groups), they sit side by side and the question runs under them. */
+.lib-bento.is-trio { grid-template-rows:repeat(2,minmax(290px,auto)); }
+.lib-bento.is-trio > .lib-bento-ask { grid-column:span 2; }
+.lib-bento.is-trio .lib-ask-group.is-tile .lib-ask-row { flex-direction:row; }
+.lib-bento.is-trio .lib-ask-group.is-tile .lib-button { width:auto; padding:0 28px; }
 /* With one small tile (two groups), the small tile and the question stand tall beside the large tile. */
 .lib-bento.is-pair { grid-template-rows:repeat(2,minmax(290px,auto)); }
 .lib-bento.is-pair > .lib-bento-tile.is-small, .lib-bento.is-pair > .lib-bento-ask { grid-row:span 2; }
@@ -115,10 +131,10 @@
 @media (max-width:1024px) {
   .lib-bento { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .lib-bento-tile.is-feature { grid-column:span 2; grid-row:auto; min-height:520px; }
-  .lib-bento.is-few, .lib-bento.is-pair { grid-template-rows:none; }
+  .lib-bento.is-few, .lib-bento.is-pair, .lib-bento.is-trio { grid-template-rows:none; }
   .lib-bento.is-pair > .lib-bento-tile.is-small, .lib-bento.is-pair > .lib-bento-ask { grid-row:auto; }
 }
-@media (max-width:600px) { .lib-bento.is-few .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; } .lib-bento.is-few .lib-ask-group.is-tile .lib-button { width:100%; } }
+@media (max-width:600px) { :is(.lib-bento.is-few, .lib-bento.is-trio) .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; } :is(.lib-bento.is-few, .lib-bento.is-trio) .lib-ask-group.is-tile .lib-button { width:100%; } .lib-bento.is-trio > .lib-bento-ask { grid-column:auto; } }
 @media (max-width:600px) {
   .lib-bento-hero { padding:16px 16px 64px; }
   .lib-bento-wrap { padding:0 16px 40px; }
