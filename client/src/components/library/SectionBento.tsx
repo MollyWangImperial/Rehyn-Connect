@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import type { LibraryGroup, LibrarySection } from "@/content/library";
 import { conditionHref, sectionStories } from "@/lib/library";
 import { readLocal } from "@/lib/library-local";
-import { BONES_PALETTES, HEART_PALETTES, METABOLISM_PALETTES } from "@/lib/library-theme";
+import { BONES_PALETTES, CANCER_PALETTES, DIGESTION_PALETTES, HEART_PALETTES, METABOLISM_PALETTES, MIND_PALETTES } from "@/lib/library-theme";
 import { Crumbs } from "./parts";
 
 // The Brain & nervous system page as a "bento" (brain-section-bento.html): a dark header with
@@ -118,7 +118,55 @@ const BONES: Record<string, BentoStyle> = {
   </> },
 };
 
-const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": METABOLISM, "bones-joints-muscles": BONES };
+// The Cancer & recovery page: berry for the cancers, warm apricot for life after treatment.
+const CANCER: Record<string, BentoStyle> = {
+  "common-cancers": { ...CANCER_PALETTES["common-cancers"], short: "The months after treatment for breast, bowel and prostate cancer.", chips: ["Breast", "Bowel", "Prostate"], symbol: <>
+    <path d="M100 30 C70 30, 66 70, 82 96 L52 170 M100 30 C130 30, 134 70, 118 96 L148 170" />
+    <path d="M82 96 C90 110, 110 110, 118 96 M118 96 L74 168" />
+  </> },
+  "after-treatment": { ...CANCER_PALETTES["after-treatment"], short: "Tiredness, worry and getting back to everyday life.", chips: ["Tiredness after treatment"], symbol: <>
+    <path d="M30 150 H170" />
+    <path d="M56 150 A44 44 0 0 1 144 150" />
+    <path d="M100 74 V50 M58 92 L42 76 M142 92 L158 76 M38 124 H18 M162 124 H182" />
+  </> },
+};
+
+// The Mind & mood page: indigo for low mood, sea teal for worry, violet for sleep.
+const MIND: Record<string, BentoStyle> = {
+  depression: { ...MIND_PALETTES.depression, short: "Low mood that lasts, and the help that works.", chips: ["Depression", "After stroke"], symbol: <>
+    <path d="M44 120 a28 28 0 0 1 20 -48 a36 36 0 0 1 68 -6 a26 26 0 0 1 24 54 Z" />
+    <path d="M70 140 l-6 18 M100 140 l-6 18 M130 140 l-6 18" />
+    <circle cx="150" cy="44" r="12" strokeDasharray="4 6" />
+  </> },
+  anxiety: { ...MIND_PALETTES.anxiety, short: "Worry and panic that get in the way of everyday life.", chips: ["Anxiety", "Panic"], symbol: <>
+    <path d="M20 100 C40 60, 60 140, 80 100 S120 60, 140 100 S170 130, 184 100" />
+    <path d="M20 146 C60 130, 140 162, 184 146" />
+    <path d="M20 54 C60 40, 140 68, 184 54" strokeDasharray="4 8" />
+  </> },
+  sleep: { ...MIND_PALETTES.sleep, short: "Getting to sleep, staying asleep and waking rested.", chips: ["Sleep problems"], symbol: <>
+    <path d="M118 36 A60 60 0 1 0 170 128 A48 48 0 1 1 118 36 Z" />
+    <circle cx="160" cy="44" r="4" /><circle cx="176" cy="74" r="3" /><circle cx="44" cy="40" r="3" />
+  </> },
+};
+
+// The Kidneys, liver & digestion page: olive for the kidneys, russet for the liver, plum for the gut.
+const DIGESTION: Record<string, BentoStyle> = {
+  kidneys: { ...DIGESTION_PALETTES.kidneys, short: "How well the kidneys are working, and keeping them that way.", chips: ["Chronic kidney disease"], symbol: <>
+    <path d="M78 40 C40 40, 30 90, 40 120 C50 150, 80 160, 88 136 C94 118, 76 108, 82 86 C86 70, 100 40, 78 40 Z" />
+    <path d="M122 40 C160 40, 170 90, 160 120 C150 150, 120 160, 112 136 C106 118, 124 108, 118 86 C114 70, 100 40, 122 40 Z" />
+    <path d="M86 112 C92 140, 96 160, 96 186 M114 112 C108 140, 104 160, 104 186" />
+  </> },
+  liver: { ...DIGESTION_PALETTES.liver, short: "What can strain the liver, and what helps it recover.", chips: ["Fatty liver"], symbol: <>
+    <path d="M24 80 C40 50, 120 40, 176 56 C186 60, 184 76, 172 86 C140 112, 100 140, 70 150 C40 158, 18 120, 24 80 Z" />
+    <path d="M110 50 C104 80, 96 110, 82 146" />
+    <circle cx="58" cy="100" r="7" /><circle cx="140" cy="76" r="5" />
+  </> },
+  gut: { ...DIGESTION_PALETTES.gut, short: "Tummy pain, bloating and bowel changes.", chips: ["IBS"], symbol: <>
+    <path d="M60 40 H140 C160 40, 164 70, 144 74 H62 C40 78, 40 104, 62 108 H140 C162 112, 162 138, 140 142 H70 C52 146, 52 172, 76 172 H110" />
+  </> },
+};
+
+const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": METABOLISM, "bones-joints-muscles": BONES, "cancer-recovery": CANCER, "mind-mood": MIND, "kidneys-liver-digestion": DIGESTION };
 
 /** Whether a section has the bento layout: every one of its groups has a style. */
 export const hasBento = (section: LibrarySection) => Boolean(BENTO[section.id]) && section.groups.every(group => BENTO[section.id][group.id]);
@@ -132,7 +180,8 @@ export function BentoHero({ section }: { section: LibrarySection }) {
   const conditions = section.groups.reduce((sum, group) => sum + group.conditions.length, 0);
   const stories = sectionStories(section.id).length;
   return <header className={`lib-bento-hero is-${section.id}`}>
-    {section.id === "heart-lungs" ? <HeartArt /> : section.id === "diabetes-metabolism" ? <SugarArt /> : section.id === "bones-joints-muscles" ? <SpineArt /> : <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    {section.id === "heart-lungs" ? <HeartArt /> : section.id === "diabetes-metabolism" ? <SugarArt /> : section.id === "bones-joints-muscles" ? <SpineArt />
+      : section.id === "cancer-recovery" ? <DawnArt /> : section.id === "mind-mood" ? <NightArt /> : section.id === "kidneys-liver-digestion" ? <FlowArt /> : <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
       <g className="lib-bento-folds" fill="none" stroke="#9C91E8" strokeOpacity=".22" strokeWidth="2" strokeLinecap="round">
         <path d="M-60 40 C40 10, 80 70, 160 40 S300 10, 380 50 S520 90, 600 40 S760 0, 840 50 S1000 90, 1080 40 S1240 10, 1340 50" />
         <path d="M-60 100 C30 70, 90 130, 180 100 S320 60, 400 110 S560 150, 640 100 S800 60, 880 110 S1040 150, 1120 100 S1280 70, 1340 110" />
@@ -225,6 +274,56 @@ function SpineArt() {
       {[[300, 80, 3, 0], [640, 40, 3, -1], [760, 300, 4, -2.2], [520, 330, 3, -1.6]].map(([cx, cy, r, delay]) =>
         <circle key={`${cx}-${cy}`} className="lib-bento-spark" cx={cx} cy={cy} r={r} style={{ animationDelay: `${delay}s` }} />)}
     </g>
+  </svg>;
+}
+
+const Sparks = ({ fill, points }: { fill: string; points: number[][] }) => <g fill={fill}>
+  {points.map(([cx, cy, r, delay]) => <circle key={`${cx}-${cy}`} className="lib-bento-spark" cx={cx} cy={cy} r={r} style={{ animationDelay: `${delay}s` }} />)}
+</g>;
+
+/** The Cancer & recovery header: a low sun rising behind slow, widening rings. */
+function DawnArt() {
+  return <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    <g className="lib-bento-folds" fill="none" stroke="#F2B3CC" strokeOpacity=".24" strokeWidth="2.4">
+      {[90, 150, 210, 270].map(r => <path key={r} d={`M${1010 - r} 380 A${r} ${r} 0 0 1 ${1010 + r} 380`} />)}
+    </g>
+    <circle cx="1010" cy="380" r="46" fill="#F6C59A" opacity=".22" />
+    <g className="lib-bento-folds is-slow" fill="none" stroke="#F6C59A" strokeOpacity=".2" strokeWidth="1.6" strokeLinecap="round">
+      <path d="M-60 300 C120 260, 260 320, 420 290 S700 250, 860 290" />
+    </g>
+    <Sparks fill="#F6C59A" points={[[300, 80, 3, 0], [640, 40, 3, -1], [760, 300, 4, -2.2], [520, 330, 3, -1.6]]} />
+  </svg>;
+}
+
+/** The Mind & mood header: calm night waves and a crescent moon, with a few slow stars. */
+function NightArt() {
+  return <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    <path d="M1060 60 A80 80 0 1 0 1130 180 A64 64 0 1 1 1060 60 Z" fill="#C9D0F2" opacity=".16" />
+    <g className="lib-bento-folds" fill="none" stroke="#9AA6E3" strokeOpacity=".24" strokeWidth="2.2" strokeLinecap="round">
+      <path d="M-60 250 C60 220, 140 280, 260 250 S460 220, 580 250 S780 280, 900 250 S1100 220, 1340 250" />
+      <path d="M-60 310 C60 280, 140 340, 260 310 S460 280, 580 310 S780 340, 900 310 S1100 280, 1340 310" />
+    </g>
+    <g className="lib-bento-folds is-slow" fill="none" stroke="#8FD0DB" strokeOpacity=".18" strokeWidth="1.6" strokeLinecap="round">
+      <path d="M-60 190 C80 170, 200 210, 340 190 S620 170, 760 190" />
+    </g>
+    <Sparks fill="#E1E5F8" points={[[300, 60, 2.5, 0], [640, 40, 3, -1], [880, 120, 2.5, -2.2], [520, 110, 2, -1.6], [1200, 60, 2.5, -3]]} />
+  </svg>;
+}
+
+/** The Kidneys, liver & digestion header: a looping stream, as the body filters and moves things along. */
+function FlowArt() {
+  const loop = (y: number) => Array.from({ length: 4 }, (_, index) => {
+    const x = 680 + index * 240;
+    return `M${x} ${y} C${x + 60} ${y - 50}, ${x + 120} ${y - 50}, ${x + 120} ${y} S${x + 180} ${y + 50}, ${x + 240} ${y}`;
+  }).join(" ");
+  return <svg className="lib-bento-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 360" preserveAspectRatio="xMidYMid slice">
+    <g className="lib-bento-folds" fill="none" stroke="#C6DA8E" strokeOpacity=".26" strokeWidth="2.4" strokeLinecap="round">
+      <path d={loop(150)} />
+    </g>
+    <g className="lib-bento-folds is-slow" fill="none" stroke="#E8B49F" strokeOpacity=".2" strokeWidth="1.6" strokeLinecap="round">
+      <path d={loop(270)} />
+    </g>
+    <Sparks fill="#D6E3B4" points={[[300, 70, 3, 0], [700, 50, 3, -1], [900, 120, 4, -2.2], [1120, 90, 3, -3], [520, 140, 3, -1.6]]} />
   </svg>;
 }
 

@@ -37,6 +37,24 @@
 .lib-bento-hero.is-bones-joints-muscles .lib-crumbs svg { color:#8CCBC1; }
 .lib-bento-hero.is-bones-joints-muscles .lib-crumbs a:hover, .lib-bento-hero.is-bones-joints-muscles .lib-crumbs [aria-current] { color:#FFFFFF; }
 .lib-bento-hero.is-bones-joints-muscles p { color:#D9EFEB; }
+/* Cancer & recovery: a deep berry header. */
+.lib-bento-hero.is-cancer-recovery { background:#4A1730; }
+.lib-bento-hero.is-cancer-recovery .lib-crumbs, .lib-bento-hero.is-cancer-recovery .lib-crumbs a { color:#F2C9DA; }
+.lib-bento-hero.is-cancer-recovery .lib-crumbs svg { color:#E39AB8; }
+.lib-bento-hero.is-cancer-recovery .lib-crumbs a:hover, .lib-bento-hero.is-cancer-recovery .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-cancer-recovery p { color:#F8E1EA; }
+/* Mind & mood: a deep night-blue header. */
+.lib-bento-hero.is-mind-mood { background:#1A2250; }
+.lib-bento-hero.is-mind-mood .lib-crumbs, .lib-bento-hero.is-mind-mood .lib-crumbs a { color:#C9D0F2; }
+.lib-bento-hero.is-mind-mood .lib-crumbs svg { color:#9AA6E3; }
+.lib-bento-hero.is-mind-mood .lib-crumbs a:hover, .lib-bento-hero.is-mind-mood .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-mind-mood p { color:#E1E5F8; }
+/* Kidneys, liver & digestion: a deep olive header. */
+.lib-bento-hero.is-kidneys-liver-digestion { background:#26330A; }
+.lib-bento-hero.is-kidneys-liver-digestion .lib-crumbs, .lib-bento-hero.is-kidneys-liver-digestion .lib-crumbs a { color:#D6E3B4; }
+.lib-bento-hero.is-kidneys-liver-digestion .lib-crumbs svg { color:#B3C97E; }
+.lib-bento-hero.is-kidneys-liver-digestion .lib-crumbs a:hover, .lib-bento-hero.is-kidneys-liver-digestion .lib-crumbs [aria-current] { color:#FFFFFF; }
+.lib-bento-hero.is-kidneys-liver-digestion p { color:#EAF1D6; }
 .lib-bento-stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 .lib-bento-stats span { padding:8px 14px; border-radius:999px; background:rgba(255,255,255,.12); font-size:13px; font-weight:700; }
 
@@ -113,6 +131,21 @@
 .is-bones-joints-muscles .lib-ask-group.is-tile .lib-ask-row input { border-color:#D5E8E5; }
 .is-bones-joints-muscles .lib-ask-group.is-tile .lib-button { background:#123F3B; }
 .is-bones-joints-muscles .lib-bento-pick:focus-visible { outline-color:#123F3B; }
+.is-cancer-recovery .lib-ask-group.is-tile { border-color:#E8C3D3; }
+.is-cancer-recovery .lib-ask-group.is-tile .lib-ask-kicker { color:#4A1730; }
+.is-cancer-recovery .lib-ask-group.is-tile .lib-ask-row input { border-color:#F3DDE7; }
+.is-cancer-recovery .lib-ask-group.is-tile .lib-button { background:#4A1730; }
+.is-cancer-recovery .lib-bento-pick:focus-visible { outline-color:#4A1730; }
+.is-mind-mood .lib-ask-group.is-tile { border-color:#C7CDEB; }
+.is-mind-mood .lib-ask-group.is-tile .lib-ask-kicker { color:#1A2250; }
+.is-mind-mood .lib-ask-group.is-tile .lib-ask-row input { border-color:#DDE1F5; }
+.is-mind-mood .lib-ask-group.is-tile .lib-button { background:#1A2250; }
+.is-mind-mood .lib-bento-pick:focus-visible { outline-color:#1A2250; }
+.is-kidneys-liver-digestion .lib-ask-group.is-tile { border-color:#D2DDB4; }
+.is-kidneys-liver-digestion .lib-ask-group.is-tile .lib-ask-kicker { color:#26330A; }
+.is-kidneys-liver-digestion .lib-ask-group.is-tile .lib-ask-row input { border-color:#E3EBCD; }
+.is-kidneys-liver-digestion .lib-ask-group.is-tile .lib-button { background:#26330A; }
+.is-kidneys-liver-digestion .lib-bento-pick:focus-visible { outline-color:#26330A; }
 /* With two small tiles (three groups), they sit side by side and the question runs under them. */
 .lib-bento.is-trio { grid-template-rows:repeat(2,minmax(290px,auto)); }
 .lib-bento.is-trio > .lib-bento-ask { grid-column:span 2; }

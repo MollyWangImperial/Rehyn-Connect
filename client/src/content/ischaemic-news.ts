@@ -19,6 +19,21 @@ import { extras as osteoarthritisNews } from "./heart-news/osteoarthritis";
 import { extras as backPainNews } from "./heart-news/back-pain";
 import { extras as osteoporosisNews } from "./heart-news/osteoporosis";
 import { extras as rheumatoidNews } from "./heart-news/rheumatoid";
+import { extras as anxietyNews } from "./heart-news/anxiety";
+import { extras as breastNews } from "./heart-news/breast";
+import { extras as bowelNews } from "./heart-news/bowel";
+import { extras as prostateNews } from "./heart-news/prostate";
+import { extras as cancerFatigueNews } from "./heart-news/cancer-fatigue";
+import { extras as depressionNews } from "./heart-news/depression";
+import { extras as afterStrokeNews } from "./heart-news/after-stroke";
+import { extras as insomniaNews } from "./heart-news/insomnia";
+import { extras as ckdNews } from "./heart-news/chronic-kidney-disease";
+import { extras as fattyLiverNews } from "./heart-news/fatty-liver";
+import { extras as ibsNews } from "./heart-news/ibs";
+import { CANCER_FEATURES, type CancerPiece } from "./cancer-features";
+import { GUT_FEATURES, type GutPiece } from "./gut-features";
+import { AFTERCARE_FEATURES, type AftercarePiece } from "./aftercare-features";
+import { MIND_FEATURES, type MindPiece } from "./mind-features";
 
 /** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
 export const WRITTEN_ON = "17 October 2026";
@@ -116,7 +131,8 @@ export type NewsPiece =
   | "oa-week-ruler" | "oa-two-knees" | "oa-xray-gauge" | "oa-two-hands" | "oa-sit-stand" | "oa-ladder" | "oa-knee-load" | "oa-implant-years" | "oa-stairs" | "oa-hand-tools" | "oa-three-ways" | "oa-loop"
   | "back-spine-dial" | "back-three-lights" | "back-two-scans" | "back-alarm" | "back-five-moves" | "back-pill-days" | "back-physio-path" | "back-hundred" | "back-desk" | "back-bed" | "back-three-paths" | "back-neck-pillow"
   | "op-honeycomb" | "op-tscore" | "op-four-risks" | "op-wedge" | "op-tablet-morning" | "op-year-calendar" | "op-food-sun" | "op-three-panels" | "op-safe-home" | "op-heal-weeks" | "op-hip-hinge" | "op-tooth"
-  | "ra-joint-lining" | "ra-jigsaw" | "ra-body-spots" | "ra-flare-wave" | "ra-week-mtx" | "ra-steps" | "ra-bridge" | "ra-hand-moves" | "ra-morning-clock" | "ra-batteries" | "ra-adjust-desk" | "ra-shield" | "ra-family-line";
+  | "ra-joint-lining" | "ra-jigsaw" | "ra-body-spots" | "ra-flare-wave" | "ra-week-mtx" | "ra-steps" | "ra-bridge" | "ra-hand-moves" | "ra-morning-clock" | "ra-batteries" | "ra-adjust-desk" | "ra-shield" | "ra-family-line"
+  | CancerPiece | AftercarePiece | MindPiece | GutPiece;
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -1103,12 +1119,17 @@ NEWS_EXTRAS["back-pain/fear"] = backL("Hurt is not harm", "Movement is almost al
 NEWS_EXTRAS["back-pain/neck"] = backL("Same rules, smaller spine", "Neck pain usually settles in a few weeks. Keep it moving, and know when to see a GP.", "back-neck-pillow", "Most neck pain only lasts a few weeks.");
 
 // Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
+// The sections from Cancer & recovery onwards keep their features in their own files (content/feature-spec.ts).
+for (const features of [CANCER_FEATURES, AFTERCARE_FEATURES, MIND_FEATURES, GUT_FEATURES]) for (const [key, spec] of Object.entries(features)) NEWS_EXTRAS[key] = move(spec.kicker)(spec.headline, spec.standfirst, spec.piece, spec.pullQuote);
+
 const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
   copd: copdNews, asthma: asthmaNews, "sleep-apnoea": apnoeaNews, prediabetes: prediabetesNews, "type-1": type1News, "type-2": type2News,
   underactive: underactiveNews, overactive: overactiveNews, osteoarthritis: osteoarthritisNews, "back-pain": backPainNews,
   osteoporosis: osteoporosisNews,
   rheumatoid: rheumatoidNews,
+  anxiety: anxietyNews,
+  "breast": breastNews, "bowel": bowelNews, "prostate": prostateNews, "cancer-fatigue": cancerFatigueNews, "depression": depressionNews, "after-stroke": afterStrokeNews, "insomnia": insomniaNews, "chronic-kidney-disease": ckdNews, "fatty-liver": fattyLiverNews, "ibs": ibsNews,
 };
 for (const [condition, pieces] of Object.entries(HEART_NEWS)) for (const [piece, more] of Object.entries(pieces)) {
   const key = `${condition}/${piece}`;

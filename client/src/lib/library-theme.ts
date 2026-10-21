@@ -40,7 +40,24 @@ export const BONES_PALETTES: Record<string, ThemePalette> = {
   "bone-health": { ink: "#8A6A2E", tint: "#F6EFDF", text: "#5E4818", muted: "#6B5A3C" },
   "back-neck": { ink: "#3D5A8C", tint: "#E8EEF8", text: "#2A4069", muted: "#4A5A76" },
 };
-const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES, ...BONES_PALETTES };
+/** The Cancer & recovery groups, as their cards on the Cancer page show them (SectionBento.tsx). */
+export const CANCER_PALETTES: Record<string, ThemePalette> = {
+  "common-cancers": { ink: "#963A66", tint: "#F9E8F0", text: "#6A2246", muted: "#6E4A5C" },
+  "after-treatment": { ink: "#A9553A", tint: "#FBEDE6", text: "#773620", muted: "#755246" },
+};
+/** The Mind & mood groups, as their cards on the Mind page show them (SectionBento.tsx). */
+export const MIND_PALETTES: Record<string, ThemePalette> = {
+  depression: { ink: "#35458C", tint: "#E8EBF8", text: "#232F6B", muted: "#4A5378" },
+  anxiety: { ink: "#2A7383", tint: "#E2F1F4", text: "#1C5260", muted: "#40636B" },
+  sleep: { ink: "#5B4A9A", tint: "#EEEAF8", text: "#3D2F75", muted: "#574E78" },
+};
+/** The Kidneys, liver & digestion groups, as their cards on that page show them (SectionBento.tsx). */
+export const DIGESTION_PALETTES: Record<string, ThemePalette> = {
+  kidneys: { ink: "#4F6A14", tint: "#EEF3DF", text: "#36490A", muted: "#56603C" },
+  liver: { ink: "#93402F", tint: "#F8E9E4", text: "#69281B", muted: "#6E4D45" },
+  gut: { ink: "#82508A", tint: "#F4EAF5", text: "#5C3162", muted: "#6A5270" },
+};
+const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES, ...BONES_PALETTES, ...CANCER_PALETTES, ...MIND_PALETTES, ...DIGESTION_PALETTES };
 
 /** The groups whose own pieces have pictures drawn for them: the Dementia purples and the movement blues. */
 export type LightTheme = "memory" | "movement";

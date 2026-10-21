@@ -53,5 +53,6 @@ export const SAMARITANS: TrustedSource = { name: "Samaritans", note: "Someone to
 export const ANXIETY_UK: TrustedSource = { name: "Anxiety UK", note: "Helpline and therapy services", url: "https://www.anxietyuk.org.uk/" };
 export const SLEEP_CHARITY: TrustedSource = { name: "The Sleep Charity", note: "Sleep advice and a national helpline", url: "https://thesleepcharity.org.uk/" };
 export const KIDNEY_CARE_UK: TrustedSource = { name: "Kidney Care UK", note: "Patient support, money advice and a helpline", url: "https://www.kidneycareuk.org/" };
-export const BRITISH_LIVER_TRUST: TrustedSource = { name: "British Liver Trust", note: "Nurse-led helpline and a support network", url: "https://britishlivertrust.org.uk/" };
+// The British Liver Trust is now Liver UK (britishlivertrust.org.uk redirects to liveruk.org, checked 21 October 2026).
+export const BRITISH_LIVER_TRUST: TrustedSource = { name: "Liver UK", note: "Nurse-led helpline and a support network", url: "https://liveruk.org/" };
 export const GUTS_UK: TrustedSource = { name: "Guts UK", note: "Digestive health, in plain words", url: "https://gutscharity.org.uk/" };

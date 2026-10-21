@@ -120,7 +120,9 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const theme = themeOf(group.id);
   const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : group.id === "arthritis" ? <JointArt /> : group.id === "bone-health" ? <BoneArt /> : group.id === "back-neck" ? <SpineHeroArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : group.id === "arthritis" ? <JointArt /> : group.id === "bone-health" ? <BoneArt /> : group.id === "back-neck" ? <SpineHeroArt />
+      : group.id === "common-cancers" ? <RibbonArt /> : group.id === "after-treatment" ? <SunriseArt /> : group.id === "depression" ? <CloudArt /> : group.id === "anxiety" ? <SettleArt /> : group.id === "sleep" ? <MoonArt />
+      : group.id === "kidneys" ? <KidneyArt /> : group.id === "liver" ? <LiverArt /> : group.id === "gut" ? <GutArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -263,6 +265,97 @@ function SpineHeroArt() {
         return <rect key={index} x={x - 46} y={y} width="92" height="26" rx="11" style={{ stroke: "var(--t-ink)", fill: "var(--t-soft)" }} strokeWidth="4" fillOpacity={index % 3 === 1 ? 0.5 : 0.2} />;
       })}
     </g>
+  </svg>;
+}
+
+const ART_PROPS = { className: "lib-v2-hero-art", "aria-hidden": true, focusable: false, viewBox: "0 0 1280 440", preserveAspectRatio: "xMidYMid slice" } as const;
+const INKED = { stroke: "var(--t-ink)", fill: "var(--t-soft)" };
+
+/** The cancer pages' header: a looped ribbon, with soft rings widening behind it. */
+function RibbonArt() {
+  return <svg {...ART_PROPS}>
+    <g fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="3" opacity=".5">
+      {[110, 170, 230].map((r, index) => <circle key={r} className={`lib-v2-breathe${index === 1 ? " is-slow" : ""}`} cx="960" cy="200" r={r} style={{ animationDelay: `${-index * 1.4}s` }} />)}
+    </g>
+    <g transform="translate(960 190)" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ stroke: "var(--t-ink)" }} strokeWidth="14">
+      <path d="M0 -10 C-60 -80, -40 -150, 0 -150 C40 -150, 60 -80, 0 -10 L-70 150" />
+      <path d="M0 -10 L70 150" />
+    </g>
+  </svg>;
+}
+
+/** Life after treatment: a low sun rising slowly over the horizon. */
+function SunriseArt() {
+  return <svg {...ART_PROPS}>
+    <path d="M560 330 H1320" style={{ stroke: "var(--t-soft)" }} strokeWidth="4" />
+    <g className="lib-v2-breathe is-slow"><path d="M840 330 A120 120 0 0 1 1080 330 Z" style={INKED} strokeWidth="5" fillOpacity=".3" /></g>
+    {[[960, 150], [840, 190], [1080, 190], [770, 270], [1150, 270]].map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r="7" style={{ fill: "var(--t-ink)", animationDelay: `${-index * 0.8}s` }} />)}
+  </svg>;
+}
+
+/** The depression pages' header: a heavy cloud with light breaking through at its edge. */
+function CloudArt() {
+  return <svg {...ART_PROPS}>
+    <g className="lib-v2-breathe is-slow" transform="translate(940 200)"><path d="M-190 60 a70 70 0 0 1 40 -126 a96 96 0 0 1 180 -20 a70 70 0 0 1 110 146 Z" style={INKED} strokeWidth="5" fillOpacity=".25" strokeLinejoin="round" /></g>
+    <circle cx="1130" cy="100" r="34" style={{ fill: "var(--t-soft)" }} opacity=".55" />
+    {[[1130, 40], [1196, 100], [1176, 52]].map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r="6" style={{ fill: "var(--t-ink)", animationDelay: `${-index * 1.1}s` }} />)}
+  </svg>;
+}
+
+/** The anxiety pages' header: choppy lines on the left that settle into calm water on the right. */
+function SettleArt() {
+  const line = (y: number, chop: number) => {
+    let d = `M560 ${y}`;
+    for (let x = 560; x < 1300; x += 24) {
+      const settle = Math.max(0, 1 - (x - 560) / 460);
+      d += ` Q${x + 12} ${y + (((x / 24) % 2) ? chop : -chop) * settle + Math.sin(x / 110) * 12} ${x + 24} ${y + Math.sin((x + 24) / 110) * 12}`;
+    }
+    return d;
+  };
+  return <svg {...ART_PROPS}>
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {[130, 210, 290, 370].map((y, index) => <path key={y} className={index % 2 ? "lib-v2-wave is-slow" : "lib-v2-wave"} d={line(y, 22 - index * 3)} style={{ stroke: index === 1 ? "var(--t-ink)" : "var(--t-soft)" }} strokeWidth={index === 1 ? 5 : 3} opacity=".75" />)}
+    </g>
+  </svg>;
+}
+
+/** The sleep pages' header: a crescent moon, gently glowing, and stars coming and going. */
+function MoonArt() {
+  const stars = [[760, 90], [860, 210], [1180, 80], [1220, 300], [800, 330], [1080, 370], [700, 200]];
+  return <svg {...ART_PROPS}>
+    <g className="lib-v2-breathe is-slow"><path d="M1000 120 A110 110 0 1 0 1096 288 A88 88 0 1 1 1000 120 Z" style={INKED} strokeWidth="5" fillOpacity=".3" /></g>
+    {stars.map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r={index % 2 ? 5 : 7} style={{ fill: "var(--t-ink)", animationDelay: `${-index * 0.9}s` }} />)}
+  </svg>;
+}
+
+/** The kidney pages' header: two kidneys, breathing softly, with the flow down to the bladder. */
+function KidneyArt() {
+  return <svg {...ART_PROPS}>
+    <g transform="translate(960 190)" strokeWidth="5" strokeLinejoin="round">
+      <g className="lib-v2-breathe is-slow">
+        <path d="M-60 -130 C-170 -130, -190 -10, -170 50 C-150 110, -80 120, -64 70 C-52 30, -96 10, -84 -40 C-76 -80, -20 -130, -60 -130 Z" style={INKED} fillOpacity=".3" />
+        <path d="M60 -130 C170 -130, 190 -10, 170 50 C150 110, 80 120, 64 70 C52 30, 96 10, 84 -40 C76 -80, 20 -130, 60 -130 Z" style={INKED} fillOpacity=".3" />
+      </g>
+      <path className="lib-v2-flow is-slow" d="M-72 40 C-50 120, -20 180, -16 260 M72 40 C50 120, 20 180, 16 260" fill="none" style={{ stroke: "var(--t-soft)" }} strokeLinecap="round" />
+    </g>
+  </svg>;
+}
+
+/** The liver pages' header: the liver, with spots of fat fading away as it recovers. */
+function LiverArt() {
+  const spots = [[860, 170], [920, 220], [990, 160], [1060, 200], [900, 280], [970, 260], [1130, 170], [1040, 270]];
+  return <svg {...ART_PROPS}>
+    <path d="M740 180 C780 100, 1000 80, 1200 110 C1230 116, 1230 150, 1200 170 C1110 240, 990 310, 900 330 C800 350, 720 280, 740 180 Z" style={INKED} strokeWidth="5" fillOpacity=".25" strokeLinejoin="round" />
+    {spots.map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r={index % 3 ? 9 : 13} style={{ fill: "var(--t-ink)", animationDelay: `${-index * 0.7}s` }} opacity=".5" />)}
+  </svg>;
+}
+
+/** The gut pages' header: a looping gut, with movement travelling along it. */
+function GutArt() {
+  const loop = "M880 150 H1170 C1220 150, 1220 210, 1170 210 H920 C870 210, 870 270, 920 270 H1170 C1220 270, 1220 330, 1170 330 H980";
+  return <svg {...ART_PROPS}>
+    <path d={loop} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="22" strokeLinecap="round" strokeLinejoin="round" opacity=".3" />
+    <path className="lib-v2-trace" pathLength={100} d={loop} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>;
 }
 

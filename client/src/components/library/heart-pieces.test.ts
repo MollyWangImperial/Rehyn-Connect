@@ -30,7 +30,18 @@ const PAGES: [string, string, string][] = [
   ["arthritis", "rheumatoid", "#1F6B64"],
   ["bone-health", "osteoporosis", "#8A6A2E"],
   ["back-neck", "back-pain", "#3D5A8C"],
-];
+  // Cancer, Mind and Kidneys, liver & digestion.
+  ["anxiety", "anxiety", "#2A7383"],
+  ["depression", "depression", "#35458C"],
+  ["depression", "after-stroke", "#35458C"],
+  ["sleep", "insomnia", "#5B4A9A"],
+  ["common-cancers", "breast", "#963A66"],
+  ["common-cancers", "bowel", "#963A66"],
+  ["common-cancers", "prostate", "#963A66"],
+  ["after-treatment", "cancer-fatigue", "#A9553A"],
+  ["kidneys", "chronic-kidney-disease", "#4F6A14"],
+  ["liver", "fatty-liver", "#93402F"],
+  ["gut", "ibs", "#82508A"],];
 
 describe("the Heart & lungs pages", () => {
   for (const [groupId, conditionId, ink] of PAGES) {

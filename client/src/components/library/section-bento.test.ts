@@ -16,11 +16,25 @@ const render = (id: string) => {
 const tiles = (html: string, kind: string) => html.split(`class="lib-bento-tile ${kind}`).slice(1).map(part => part.split("</article>")[0]);
 
 describe("the Brain & nervous system bento", () => {
-  it("is on for the Brain, Heart, Diabetes and Bones sections only", () => {
-    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(["brain-nervous-system", "heart-lungs", "diabetes-metabolism", "bones-joints-muscles"]);
-    const cancer = render("cancer-recovery");
-    expect(cancer).toContain("lib-group");
-    expect(cancer).not.toContain("lib-bento");
+  it("is on for every section", () => {
+    expect(librarySections.filter(hasBento).map(section => section.id)).toEqual(librarySections.map(section => section.id));
+    for (const section of librarySections) expect(render(section.id), section.id).toContain("lib-bento-hero");
+  });
+
+  it("opens Cancer & recovery with the common cancers large and Life after treatment beside it", () => {
+    const html = render("cancer-recovery");
+    const [feature] = tiles(html, "is-feature");
+    expect(feature).toContain(">Common cancers</h2>");
+    expect(feature).toContain('href="/common-cancers/breast"');
+    expect(html).toContain("lib-bento is-pair");
+  });
+
+  it("opens Mind & mood and Kidneys, liver & digestion with two small tiles each", () => {
+    for (const id of ["mind-mood", "kidneys-liver-digestion"]) {
+      const html = render(id);
+      expect(tiles(html, "is-small"), id).toHaveLength(2);
+      expect(html, id).toContain("lib-bento is-trio");
+    }
   });
 
   it("opens Bones, joints & muscles with Arthritis large, two small tiles and the question beneath them", () => {
