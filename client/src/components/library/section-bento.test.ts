@@ -21,37 +21,43 @@ describe("the Brain & nervous system bento", () => {
     for (const section of librarySections) expect(render(section.id), section.id).toContain("lib-bento-hero");
   });
 
-  it("opens Cancer & recovery with the common cancers large and Life after treatment beside it", () => {
+  it("opens Cancer & recovery with the common cancers large and its five other groups small", () => {
     const html = render("cancer-recovery");
     const [feature] = tiles(html, "is-feature");
     expect(feature).toContain(">Common cancers</h2>");
     expect(feature).toContain('href="/common-cancers/breast"');
-    expect(html).toContain("lib-bento is-pair");
+    expect(tiles(html, "is-small")).toHaveLength(5);
+    expect(html).toContain("lib-bento is-five");
   });
 
-  it("opens Mind & mood and Kidneys, liver & digestion with two small tiles each", () => {
-    for (const id of ["mind-mood", "kidneys-liver-digestion"]) {
-      const html = render(id);
-      expect(tiles(html, "is-small"), id).toHaveLength(2);
-      expect(html, id).toContain("lib-bento is-trio");
-    }
+  it("opens Mind & mood with Depression large and its six other groups small", () => {
+    const html = render("mind-mood");
+    expect(tiles(html, "is-small")).toHaveLength(6);
+    expect(html).toContain("lib-bento is-six");
   });
 
-  it("opens Bones, joints & muscles with Arthritis large, two small tiles and the question beneath them", () => {
+  it("opens Kidneys, liver & digestion with Kidneys large and its five other groups small", () => {
+    const html = render("kidneys-liver-digestion");
+    const [feature] = tiles(html, "is-feature");
+    expect(feature).toContain(">Kidneys</h2>");
+    expect(tiles(html, "is-small")).toHaveLength(5);
+    expect(html).toContain("lib-bento is-five");
+  });
+
+  it("opens Bones, joints & muscles with Arthritis large and its five other groups small", () => {
     const html = render("bones-joints-muscles");
     const [feature] = tiles(html, "is-feature");
     expect(feature).toContain(">Arthritis</h2>");
-    expect(tiles(html, "is-small")).toHaveLength(2);
-    expect(html).toContain("lib-bento is-trio");
+    expect(tiles(html, "is-small")).toHaveLength(5);
+    expect(html).toContain("lib-bento is-five");
   });
 
-  it("opens Diabetes & metabolism with Diabetes large, and Thyroid standing tall beside it", () => {
+  it("opens Diabetes & metabolism with Diabetes large and its five other groups small", () => {
     const html = render("diabetes-metabolism");
     const [feature] = tiles(html, "is-feature");
     expect(feature).toContain(">Diabetes</h2>");
     expect(feature).toContain('href="/diabetes/type-2"');
-    expect(tiles(html, "is-small")).toHaveLength(1);
-    expect(html).toContain("lib-bento is-pair");
+    expect(tiles(html, "is-small")).toHaveLength(5);
   });
 
   it("opens Heart & lungs with Blood pressure large and in its own pale colour", () => {

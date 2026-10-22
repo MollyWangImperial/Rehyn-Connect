@@ -20,6 +20,73 @@ import { extras as backPainNews } from "./heart-news/back-pain";
 import { extras as osteoporosisNews } from "./heart-news/osteoporosis";
 import { extras as rheumatoidNews } from "./heart-news/rheumatoid";
 import { extras as anxietyNews } from "./heart-news/anxiety";
+import { extras as pancreaticNews } from "./heart-news/pancreatic";
+import { extras as coeliacNews } from "./heart-news/coeliac-disease";
+import { extras as cervicalNews } from "./heart-news/cervical";
+import { extras as secondaryCancerNews } from "./heart-news/secondary-cancer";
+import { extras as leukaemiaNews } from "./heart-news/leukaemia";
+import { extras as bladderCancerNews } from "./heart-news/bladder-cancer";
+import { extras as lungNews } from "./heart-news/lung";
+import { extras as incontinenceNews } from "./heart-news/urinary-incontinence";
+import { extras as headNeckNews } from "./heart-news/head-neck";
+import { extras as melanomaNews } from "./heart-news/melanoma";
+import { extras as wombNews } from "./heart-news/womb";
+import { extras as bphNews } from "./heart-news/enlarged-prostate";
+import { extras as colitisNews } from "./heart-news/ulcerative-colitis";
+import { extras as arldNews } from "./heart-news/alcohol-related-liver-disease";
+import { extras as kidneyStonesNews } from "./heart-news/kidney-stones";
+import { extras as cirrhosisNews } from "./heart-news/cirrhosis";
+import { extras as hepatitisNews } from "./heart-news/hepatitis-b-c";
+import { extras as hipFractureNews } from "./heart-news/hip-fracture";
+import { extras as akiNews } from "./heart-news/acute-kidney-injury";
+import { extras as kidneyCancerNews } from "./heart-news/kidney-cancer";
+import { extras as myelomaNews } from "./heart-news/myeloma";
+import { extras as stressNews } from "./heart-news/stress";
+import { extras as gallstonesNews } from "./heart-news/gallstones";
+import { extras as ovarianNews } from "./heart-news/ovarian";
+import { extras as ulcerNews } from "./heart-news/stomach-ulcers";
+import { extras as alcoholNews } from "./heart-news/alcohol";
+import { extras as diverticularNews } from "./heart-news/diverticular-disease";
+import { extras as bipolarNews } from "./heart-news/bipolar";
+import { extras as utiNews } from "./heart-news/uti";
+import { extras as lymphomaNews } from "./heart-news/lymphoma";
+import { extras as rlsNews } from "./heart-news/restless-legs";
+import { extras as lymphoedemaNews } from "./heart-news/lymphoedema";
+import { extras as crohnsNews } from "./heart-news/crohns-disease";
+import { extras as griefNews } from "./heart-news/grief";
+import { extras as pancreatitisNews } from "./heart-news/pancreatitis";
+import { extras as psychosisNews } from "./heart-news/psychosis";
+import { extras as ocdNews } from "./heart-news/ocd";
+import { extras as eatingNews } from "./heart-news/eating-disorders";
+import { extras as constipationNews } from "./heart-news/constipation";
+import { extras as psaNews } from "./heart-news/psoriatic-arthritis";
+import { extras as refluxNews } from "./heart-news/acid-reflux";
+import { extras as pmrNews } from "./heart-news/polymyalgia-rheumatica";
+import { extras as ptsdNews } from "./heart-news/ptsd";
+import { extras as lonelinessNews } from "./heart-news/loneliness";
+import { extras as kneeReplacementNews } from "./heart-news/knee-replacement";
+import { extras as pndNews } from "./heart-news/postnatal-depression";
+import { extras as frozenShoulderNews } from "./heart-news/frozen-shoulder";
+import { extras as hipReplacementNews } from "./heart-news/hip-replacement";
+import { extras as stenosisNews } from "./heart-news/spinal-stenosis";
+import { extras as sadNews } from "./heart-news/seasonal-affective-disorder";
+import { extras as plantarNews } from "./heart-news/plantar-fasciitis";
+import { extras as pagetsNews } from "./heart-news/pagets-disease";
+import { extras as fibroNews } from "./heart-news/fibromyalgia";
+import { extras as neckNews } from "./heart-news/neck-pain";
+import { extras as axspaNews } from "./heart-news/axial-spondyloarthritis";
+import { extras as lupusNews } from "./heart-news/lupus";
+import { extras as tennisElbowNews } from "./heart-news/tennis-elbow";
+import { extras as addisonsNews } from "./heart-news/addisons";
+import { extras as obesityNews } from "./heart-news/obesity";
+import { extras as fhNews } from "./heart-news/familial-hypercholesterolaemia";
+import { extras as nodulesNews } from "./heart-news/nodules-goitre";
+import { extras as cholesterolNews } from "./heart-news/high-cholesterol";
+import { extras as vitaminDNews } from "./heart-news/vitamin-d-deficiency";
+import { extras as goutNews } from "./heart-news/gout";
+import { extras as hypoNews } from "./heart-news/hypoglycaemia";
+import { extras as pcosNews } from "./heart-news/pcos";
+import { extras as gdNews } from "./heart-news/gestational-diabetes";
 import { extras as svtNews } from "./heart-news/svt";
 import { extras as lowBpNews } from "./heart-news/low-blood-pressure";
 import { extras as ectopicNews } from "./heart-news/ectopic-beats";
@@ -45,6 +112,33 @@ import { AFTERCARE_FEATURES, type AftercarePiece } from "./aftercare-features";
 import { CARDIO_FEATURES, type CardioPiece } from "./cardio-features";
 import { RHYTHM_FEATURES, type RhythmPiece } from "./rhythm-features";
 import { AIRWAY_FEATURES, type AirwayPiece } from "./airway-features";
+import { RENAL_FEATURES, type RenalPiece } from "./renal-features";
+import { BLADDER_FEATURES, type BladderPiece } from "./bladder-features";
+import { HEPATIC_FEATURES, type HepaticPiece } from "./hepatic-features";
+import { UPPER_FEATURES, type UpperPiece } from "./upper-features";
+import { BOWEL_FEATURES, type BowelPiece } from "./bowel-features";
+import { IBD_FEATURES, type IbdPiece } from "./ibd-features";
+import { INFLAM_FEATURES, type InflamPiece } from "./inflam-features";
+import { IMMUNE_FEATURES, type ImmunePiece } from "./immune-features";
+import { BONEFIX_FEATURES, type BonefixPiece } from "./bonefix-features";
+import { SPINE_FEATURES, type SpinePiece } from "./spine-features";
+import { SOFT_FEATURES, type SoftPiece } from "./soft-features";
+import { JOINT_FEATURES, type JointPiece } from "./joint-features";
+import { TENDON_FEATURES, type TendonPiece } from "./tendon-features";
+import { SUGAR_FEATURES, type SugarPiece } from "./sugar-features";
+import { LIPID_FEATURES, type LipidPiece } from "./lipid-features";
+import { GLAND_FEATURES, type GlandPiece } from "./gland-features";
+import { MINERAL_FEATURES, type MineralPiece } from "./mineral-features";
+import { SOLID_FEATURES, type SolidPiece } from "./solid-features";
+import { BLOOD_FEATURES, type BloodPiece } from "./blood-features";
+import { GYN_FEATURES, type GynPiece } from "./gyn-features";
+import { ORGAN_FEATURES, type OrganPiece } from "./organ-features";
+import { CARE_FEATURES, type CarePiece } from "./care-features";
+import { SEASON_FEATURES, type SeasonPiece } from "./season-features";
+import { WORRY_FEATURES, type WorryPiece } from "./worry-features";
+import { BALANCE_FEATURES, type BalancePiece } from "./balance-features";
+import { EASE_FEATURES, type EasePiece } from "./ease-features";
+import { REACH_FEATURES, type ReachPiece } from "./reach-features";
 import { MIND_FEATURES, type MindPiece } from "./mind-features";
 
 /** When the Ischaemic stroke answers were written and checked (content/ischaemic-answers.ts). */
@@ -144,7 +238,8 @@ export type NewsPiece =
   | "back-spine-dial" | "back-three-lights" | "back-two-scans" | "back-alarm" | "back-five-moves" | "back-pill-days" | "back-physio-path" | "back-hundred" | "back-desk" | "back-bed" | "back-three-paths" | "back-neck-pillow"
   | "op-honeycomb" | "op-tscore" | "op-four-risks" | "op-wedge" | "op-tablet-morning" | "op-year-calendar" | "op-food-sun" | "op-three-panels" | "op-safe-home" | "op-heal-weeks" | "op-hip-hinge" | "op-tooth"
   | "ra-joint-lining" | "ra-jigsaw" | "ra-body-spots" | "ra-flare-wave" | "ra-week-mtx" | "ra-steps" | "ra-bridge" | "ra-hand-moves" | "ra-morning-clock" | "ra-batteries" | "ra-adjust-desk" | "ra-shield" | "ra-family-line"
-  | CancerPiece | AftercarePiece | MindPiece | GutPiece | CardioPiece | RhythmPiece | AirwayPiece;
+  | SolidPiece | BloodPiece | GynPiece | OrganPiece | CarePiece
+  | CancerPiece | AftercarePiece | MindPiece | GutPiece | CardioPiece | RhythmPiece | AirwayPiece | RenalPiece | BladderPiece | HepaticPiece | UpperPiece | BowelPiece | IbdPiece | InflamPiece | ImmunePiece | BonefixPiece | SpinePiece | SoftPiece | JointPiece | TendonPiece | SugarPiece | LipidPiece | GlandPiece | MineralPiece | SeasonPiece | WorryPiece | BalancePiece | EasePiece | ReachPiece;
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -1132,7 +1227,7 @@ NEWS_EXTRAS["back-pain/neck"] = backL("Same rules, smaller spine", "Neck pain us
 
 // Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
 // The sections from Cancer & recovery onwards keep their features in their own files (content/feature-spec.ts).
-for (const features of [CANCER_FEATURES, AFTERCARE_FEATURES, MIND_FEATURES, GUT_FEATURES, CARDIO_FEATURES, RHYTHM_FEATURES, AIRWAY_FEATURES]) for (const [key, spec] of Object.entries(features)) NEWS_EXTRAS[key] = move(spec.kicker)(spec.headline, spec.standfirst, spec.piece, spec.pullQuote);
+for (const features of [SOLID_FEATURES, BLOOD_FEATURES, GYN_FEATURES, ORGAN_FEATURES, CARE_FEATURES, CANCER_FEATURES, AFTERCARE_FEATURES, MIND_FEATURES, GUT_FEATURES, CARDIO_FEATURES, RHYTHM_FEATURES, AIRWAY_FEATURES, RENAL_FEATURES, BLADDER_FEATURES, HEPATIC_FEATURES, UPPER_FEATURES, BOWEL_FEATURES, IBD_FEATURES, INFLAM_FEATURES, IMMUNE_FEATURES, BONEFIX_FEATURES, SPINE_FEATURES, SOFT_FEATURES, JOINT_FEATURES, TENDON_FEATURES, SUGAR_FEATURES, LIPID_FEATURES, GLAND_FEATURES, MINERAL_FEATURES, SEASON_FEATURES, WORRY_FEATURES, BALANCE_FEATURES, EASE_FEATURES, REACH_FEATURES]) for (const [key, spec] of Object.entries(features)) NEWS_EXTRAS[key] = move(spec.kicker)(spec.headline, spec.standfirst, spec.piece, spec.pullQuote);
 
 const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
@@ -1141,6 +1236,73 @@ const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   osteoporosis: osteoporosisNews,
   rheumatoid: rheumatoidNews,
   anxiety: anxietyNews,
+  "pancreatic": pancreaticNews,
+  "coeliac-disease": coeliacNews,
+  "cervical": cervicalNews,
+  "secondary-cancer": secondaryCancerNews,
+  "leukaemia": leukaemiaNews,
+  "bladder-cancer": bladderCancerNews,
+  "lung": lungNews,
+  "urinary-incontinence": incontinenceNews,
+  "head-neck": headNeckNews,
+  "melanoma": melanomaNews,
+  "womb": wombNews,
+  "enlarged-prostate": bphNews,
+  "ulcerative-colitis": colitisNews,
+  "alcohol-related-liver-disease": arldNews,
+  "kidney-stones": kidneyStonesNews,
+  "cirrhosis": cirrhosisNews,
+  "hepatitis-b-c": hepatitisNews,
+  "hip-fracture": hipFractureNews,
+  "acute-kidney-injury": akiNews,
+  "kidney-cancer": kidneyCancerNews,
+  "myeloma": myelomaNews,
+  "stress": stressNews,
+  "gallstones": gallstonesNews,
+  "ovarian": ovarianNews,
+  "stomach-ulcers": ulcerNews,
+  "alcohol": alcoholNews,
+  "diverticular-disease": diverticularNews,
+  "bipolar": bipolarNews,
+  "uti": utiNews,
+  "lymphoma": lymphomaNews,
+  "restless-legs": rlsNews,
+  "lymphoedema": lymphoedemaNews,
+  "crohns-disease": crohnsNews,
+  "grief": griefNews,
+  "pancreatitis": pancreatitisNews,
+  "psychosis": psychosisNews,
+  "ocd": ocdNews,
+  "eating-disorders": eatingNews,
+  "constipation": constipationNews,
+  "psoriatic-arthritis": psaNews,
+  "acid-reflux": refluxNews,
+  "polymyalgia-rheumatica": pmrNews,
+  "ptsd": ptsdNews,
+  "loneliness": lonelinessNews,
+  "knee-replacement": kneeReplacementNews,
+  "postnatal-depression": pndNews,
+  "frozen-shoulder": frozenShoulderNews,
+  "hip-replacement": hipReplacementNews,
+  "spinal-stenosis": stenosisNews,
+  "seasonal-affective-disorder": sadNews,
+  "plantar-fasciitis": plantarNews,
+  "pagets-disease": pagetsNews,
+  "fibromyalgia": fibroNews,
+  "neck-pain": neckNews,
+  "axial-spondyloarthritis": axspaNews,
+  "lupus": lupusNews,
+  "tennis-elbow": tennisElbowNews,
+  "addisons": addisonsNews,
+  "obesity": obesityNews,
+  "familial-hypercholesterolaemia": fhNews,
+  "nodules-goitre": nodulesNews,
+  "high-cholesterol": cholesterolNews,
+  "vitamin-d-deficiency": vitaminDNews,
+  "gout": goutNews,
+  "hypoglycaemia": hypoNews,
+  "pcos": pcosNews,
+  "gestational-diabetes": gdNews,
   "svt": svtNews,
   "low-blood-pressure": lowBpNews,
   "ectopic-beats": ectopicNews,

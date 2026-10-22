@@ -120,9 +120,10 @@ function Hero({ place, state }: { place: ConditionPlace; state: LibraryState }) 
   const theme = themeOf(group.id);
   const stroke = !paletteFor(place);
   return <header className="lib-v2-hero">
-    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : group.id === "arthritis" ? <JointArt /> : group.id === "bone-health" ? <BoneArt /> : group.id === "back-neck" ? <SpineHeroArt />
-      : group.id === "common-cancers" ? <RibbonArt /> : group.id === "after-treatment" ? <SunriseArt /> : group.id === "depression" ? <CloudArt /> : group.id === "anxiety" ? <SettleArt /> : group.id === "sleep" ? <MoonArt />
-      : group.id === "kidneys" ? <KidneyArt /> : group.id === "liver" ? <LiverArt /> : group.id === "gut" ? <GutArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
+    {theme === "movement" ? <MovementArt /> : BREATH_GROUPS.includes(group.id) ? <BreathArt /> : group.id === "diabetes" ? <GlucoseArt /> : group.id === "thyroid" ? <ThyroidArt /> : group.id === "arthritis" ? <JointArt /> : group.id === "bone-health" ? <BoneArt /> : group.id === "back-neck" ? <SpineHeroArt /> : group.id === "joint-replacement" ? <JointArt /> : group.id === "muscles" ? <SettleArt /> : group.id === "feet-tendons" ? <PathArt />
+      : ["common-cancers", "blood-cancers", "womens-cancers", "other-cancers"].includes(group.id) ? <RibbonArt /> : group.id === "after-treatment" || group.id === "advanced-cancer" ? <SunriseArt /> : group.id === "depression" ? <CloudArt /> : group.id === "anxiety" ? <SettleArt /> : group.id === "sleep" ? <MoonArt /> : group.id === "bipolar-psychosis" ? <SettleArt /> : group.id === "stress-grief" ? <CloudArt /> : group.id === "eating-disorders" ? <SunriseArt />
+      : group.id === "cholesterol" ? <ArteryArt /> : group.id === "weight" ? <PathArt /> : group.id === "gout-vitamins" ? <SunArt />
+      : group.id === "kidneys" || group.id === "bladder" ? <KidneyArt /> : group.id === "stomach" || group.id === "ibd" ? <GutArt /> : group.id === "liver" ? <LiverArt /> : group.id === "gut" ? <GutArt /> : section.id === "heart-lungs" ? <PulseArt /> : !stroke ? <MemoryArt /> : <svg className="lib-v2-hero-art" aria-hidden="true" focusable="false" viewBox="0 0 1280 440" preserveAspectRatio="xMidYMid slice">
       <g fill="none" stroke="#3E3390" strokeWidth="16" strokeLinecap="round" opacity=".9">
         <path d="M-20 330 C200 310, 320 250, 480 240 S760 210, 900 150 S1120 90, 1300 70" />
         <path d="M480 240 C560 290, 700 320, 860 330 S1120 350, 1300 360" />
@@ -356,6 +357,33 @@ function GutArt() {
   return <svg {...ART_PROPS}>
     <path d={loop} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="22" strokeLinecap="round" strokeLinejoin="round" opacity=".3" />
     <path className="lib-v2-trace" pathLength={100} d={loop} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>;
+}
+
+/** The cholesterol pages' header: an artery with fatty patches along its wall, and blood flowing through. */
+function ArteryArt() {
+  return <svg {...ART_PROPS}>
+    <path d="M560 150 H1320 M560 290 H1320" style={{ stroke: "var(--t-ink)" }} strokeWidth="6" fill="none" />
+    {[[700, 160], [880, 280], [1060, 160], [1220, 280]].map(([x, y], index) => <ellipse key={index} cx={x} cy={y} rx="46" ry="16" style={{ fill: "var(--t-soft)" }} opacity=".55" />)}
+    <path className="lib-v2-flow is-slow" d="M560 220 C700 200, 820 240, 960 220 S1200 200, 1320 220" fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="5" strokeLinecap="round" />
+  </svg>;
+}
+
+/** The weight pages' header: a gentle downward path that levels out, step by step. */
+function PathArt() {
+  const line = "M560 140 C660 150, 720 190, 820 210 S980 250, 1080 262 S1240 272, 1320 272";
+  return <svg {...ART_PROPS}>
+    <path d={line} fill="none" style={{ stroke: "var(--t-soft)" }} strokeWidth="3" opacity=".5" />
+    <path className="lib-v2-trace" pathLength={100} d={line} fill="none" style={{ stroke: "var(--t-ink)" }} strokeWidth="5" strokeLinecap="round" />
+    {[[820, 210], [1080, 262]].map(([x, y], index) => <circle key={index} className="lib-v2-node" cx={x} cy={y} r="8" style={{ fill: "var(--t-ink)", animationDelay: `${-index}s` }} />)}
+  </svg>;
+}
+
+/** The gout and vitamin D pages' header: a warm sun, slowly glowing, over soft rays. */
+function SunArt() {
+  return <svg {...ART_PROPS}>
+    <g className="lib-v2-breathe is-slow"><circle cx="980" cy="200" r="90" style={INKED} strokeWidth="5" fillOpacity=".3" /></g>
+    {Array.from({ length: 12 }, (_, index) => { const angle = (index / 12) * Math.PI * 2; return <line key={index} className="lib-v2-node" style={{ stroke: "var(--t-ink)", animationDelay: `${-index * 0.4}s` }} strokeWidth="5" strokeLinecap="round" x1={980 + 120 * Math.cos(angle)} y1={200 + 120 * Math.sin(angle)} x2={980 + 150 * Math.cos(angle)} y2={200 + 150 * Math.sin(angle)} />; })}
   </svg>;
 }
 

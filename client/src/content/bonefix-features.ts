@@ -1,0 +1,43 @@
+import type { FeatureSpec } from "./feature-spec";
+
+// The Hip fracture and Paget's disease of bone pieces' feature pages (see feature-spec.ts). Pictures:
+// components/library/NewsBonefixPieces.tsx.
+
+export const BONEFIX_PIECES = [
+  // Hip fracture
+  "hipfx-thigh-crack", "hipfx-fall-honeycomb", "hipfx-fix-replace", "hipfx-weeks-ruler", "hipfx-footprints", "hipfx-five-moves", "hipfx-ahead-clock", "hipfx-bedside", "hipfx-home-cutaway", "hipfx-safer-stairs", "hipfx-week-tablet", "hipfx-goal-steps",
+  // Paget's disease of bone
+  "pag-renewal-cells", "pag-night-ache", "pag-three-tests", "pag-skeleton-callouts", "pag-drip-clock", "pag-pain-paths", "pag-bowed-bone", "pag-person-number", "pag-heel-toe", "pag-skull-ear", "pag-family-tree", "pag-support-circle",
+] as const;
+export type BonefixPiece = (typeof BONEFIX_PIECES)[number];
+
+const hipU = "Understanding hip fracture", hipR = "Recovering after a hip fracture", hipL = "Living with a hip fracture";
+const pagU = "Understanding Paget's disease of bone", pagT = "Treat and manage", pagL = "Living with Paget's disease of bone";
+
+export const BONEFIX_FEATURES: Record<string, FeatureSpec<BonefixPiece>> = {
+  "hip-fracture/what-it-is": { kicker: hipU, headline: "A break at the top of the thigh", standfirst: "Where the hip breaks, how it feels, when to call 999 and why a broken hip should still heal as normal.", piece: "hipfx-thigh-crack", pullQuote: "A broken hip is serious and needs treatment in hospital straight away." },
+  "hip-fracture/why": { kicker: hipU, headline: "A small fall, a fragile bone", standfirst: "Why most hip fractures follow a fall, how weaker bones play a part, and why a fall is worth telling your GP about.", piece: "hipfx-fall-honeycomb", pullQuote: "Many underlying causes of falls can be treated or corrected." },
+  "hip-fracture/operation": { kicker: hipU, headline: "Fixed or replaced, then up next day", standfirst: "Pain relief and an X-ray on arrival, how the hip is fixed or replaced, getting up the next day and watching for clots.", piece: "hipfx-fix-replace", pullQuote: "Blood clots can travel to the lungs, which needs treatment straight away." },
+  "hip-fracture/recovery-time": { kicker: hipU, headline: "Weeks to heal, months to recover", standfirst: "How long bone takes to heal, time in hospital, the first six weeks at home and getting back to driving and work.", piece: "hipfx-weeks-ruler", pullQuote: "A broken bone usually takes around 6 to 12 weeks to heal." },
+  "hip-fracture/moving": { kicker: hipR, headline: "Every step builds on the last", standfirst: "Why getting up the day after surgery matters, moving on from a frame, and walking further a little at a time.", piece: "hipfx-footprints", pullQuote: "Walking outside is an effective way to increase stamina and strength." },
+  "hip-fracture/exercises": { kicker: hipR, headline: "Five moves, a few at a time", standfirst: "The five exercises NHS inform shows, how to build them up, and how much pain is all right while you do them.", piece: "hipfx-five-moves", pullQuote: "Start with low numbers and gradually add more as it feels manageable." },
+  "hip-fracture/pain": { kicker: hipR, headline: "Stay ahead of the pain", standfirst: "Pain relief in hospital and at home, using ice or heat safely, and getting a better night's sleep.", piece: "hipfx-ahead-clock", pullQuote: "Take painkillers before activity." },
+  "hip-fracture/confusion": { kicker: hipR, headline: "When confusion comes on suddenly", standfirst: "What delirium is, what it looks like, who is more likely to get it, and how staff and family can help.", piece: "hipfx-bedside", pullQuote: "Delirium is when a person's mental function changes suddenly, often over hours or days." },
+  "hip-fracture/home": { kicker: hipL, headline: "Help to get home and stay there", standfirst: "Planning to leave hospital, short-term help to recover, equipment, needs assessments and support for carers.", piece: "hipfx-home-cutaway", pullQuote: "It is free and anyone can ask for one." },
+  "hip-fracture/next-fall": { kicker: hipL, headline: "Steady legs, safer home", standfirst: "Why the risk of another fall is higher now, strength and balance, a safer home and a plan in case you fall.", piece: "hipfx-safer-stairs", pullQuote: "Get up slowly out of chairs and bed, in case you feel dizzy." },
+  "hip-fracture/bones": { kicker: hipL, headline: "Protecting against the next break", standfirst: "Why bone health matters after a broken hip, how bone medicines work, taking alendronic acid, and calcium and vitamin D.", piece: "hipfx-week-tablet", pullQuote: "Make sure you are getting enough calcium and vitamin D." },
+  "hip-fracture/confidence": { kicker: hipL, headline: "Small goals, steady confidence", standfirst: "Feelings after a fracture, the fear of falling, small steps back to your routine and when to ask for more help.", piece: "hipfx-goal-steps", pullQuote: "Reward yourself and remind yourself how well you have done." },
+
+  "pagets-disease/what-it-is": { kicker: pagU, headline: "When bone renewal runs too fast", standfirst: "How bone renews itself, what goes wrong in Paget's disease, which bones it affects and who gets it.", piece: "pag-renewal-cells", pullQuote: "Most people with Paget's disease have a normal life expectancy." },
+  "pagets-disease/symptoms": { kicker: pagU, headline: "Often silent, sometimes a deep ache", standfirst: "Why many people have no symptoms, the deep bone ache, warmth and changes in shape, and when to get help.", piece: "pag-night-ache", pullQuote: "Where the pain is felt depends on which bones are affected." },
+  "pagets-disease/diagnosis": { kicker: pagU, headline: "A blood test, an X-ray, a scan", standfirst: "The ALP blood test, what X-rays and bone scans show, and when further tests and a specialist are needed.", piece: "pag-three-tests", pullQuote: "An X-ray can show whether your bones have become enlarged." },
+  "pagets-disease/complications": { kicker: pagU, headline: "Which bones, which risks", standfirst: "How the risks depend on which bones are affected: broken bones, joints and shape, hearing, nerves and rare problems.", piece: "pag-skeleton-callouts", pullQuote: "The potential for complications depends on which bones are affected." },
+  "pagets-disease/bisphosphonates": { kicker: pagT, headline: "One drip, often years of relief", standfirst: "Who needs treatment, how bisphosphonates work, zoledronic acid and the other options, and their side effects.", piece: "pag-drip-clock", pullQuote: "Treatment can be repeated when the effect starts to wear off." },
+  "pagets-disease/pain": { kicker: pagT, headline: "Find the cause, then ease it", standfirst: "Finding the cause of the pain, painkillers, easing arthritis pain, help without medicines and pacing your day.", piece: "pag-pain-paths", pullQuote: "Pain from other causes is unlikely to be helped by it." },
+  "pagets-disease/surgery": { kicker: pagT, headline: "When an operation helps most", standfirst: "When surgery is needed, joint replacement, fixing breaks and bowed bones, freeing nerves and planning ahead.", piece: "pag-bowed-bone", pullQuote: "Osteotomy means cutting of the bone." },
+  "pagets-disease/follow-up": { kicker: pagT, headline: "Treating the person, not the number", standfirst: "When the response to treatment is checked, what the ALP test shows, and why symptoms guide treatment.", piece: "pag-person-number", pullQuote: "ALP is a blood test used to assess the activity of the disease." },
+  "pagets-disease/activity": { kicker: pagL, headline: "Strong and steady on your feet", standfirst: "Why exercise helps, checking first, how much to aim for, simple balance moves, and physiotherapy and aids.", piece: "pag-heel-toe", pullQuote: "Start slowly and gradually increase over time." },
+  "pagets-disease/hearing": { kicker: pagL, headline: "When the skull is affected", standfirst: "How Paget's disease in the skull can affect hearing, treatment and hearing aids, tinnitus and the urgent signs.", piece: "pag-skull-ear", pullQuote: "Managing tinnitus can be easier if help is given early." },
+  "pagets-disease/family": { kicker: pagL, headline: "Paget's disease in the family", standfirst: "The SQSTM1 gene, the part the environment plays, what it means for children, and genetic testing.", piece: "pag-family-tree", pullQuote: "The most important gene is called sequestosome 1, or SQSTM1." },
+  "pagets-disease/support": { kicker: pagL, headline: "Nobody has to manage it alone", standfirst: "The Paget's Nurse Helpline, support groups and events, specialist care, booklets and videos, and everyday help.", piece: "pag-support-circle", pullQuote: "Do not be frightened to ask for help when you need it." },
+};

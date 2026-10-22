@@ -33,29 +33,47 @@ export const HEART_PALETTES: Record<string, ThemePalette> = {
 export const METABOLISM_PALETTES: Record<string, ThemePalette> = {
   diabetes: { ink: "#A15C0B", tint: "#FCEFD9", text: "#6E3F06", muted: "#735033" },
   thyroid: { ink: "#2E7A6B", tint: "#E3F3EF", text: "#1D5549", muted: "#3F665D" },
+  cholesterol: { ink: "#A0394F", tint: "#FAE8EC", text: "#722438", muted: "#714A53" },
+  weight: { ink: "#557A1E", tint: "#EDF4DF", text: "#3B5512", muted: "#58663F" },
+  hormones: { ink: "#6A4C9C", tint: "#F0EAF9", text: "#4A3278", muted: "#5E5278" },
+  "gout-vitamins": { ink: "#2F6690", tint: "#E5EFF7", text: "#1F4A6B", muted: "#425B70" },
 };
 /** The Bones, joints & muscles groups, as their cards on the Bones page show them (SectionBento.tsx). */
 export const BONES_PALETTES: Record<string, ThemePalette> = {
   arthritis: { ink: "#1F6B64", tint: "#E4F3F1", text: "#164E49", muted: "#3C5F5B" },
   "bone-health": { ink: "#8A6A2E", tint: "#F6EFDF", text: "#5E4818", muted: "#6B5A3C" },
   "back-neck": { ink: "#3D5A8C", tint: "#E8EEF8", text: "#2A4069", muted: "#4A5A76" },
+  muscles: { ink: "#A2483A", tint: "#FAEAE5", text: "#73291D", muted: "#714E47" },
+  "joint-replacement": { ink: "#4C6B7A", tint: "#E6EFF3", text: "#304C59", muted: "#4B5E67" },
+  "feet-tendons": { ink: "#6E6A1E", tint: "#F3F2DC", text: "#4C4910", muted: "#615E3E" },
 };
 /** The Cancer & recovery groups, as their cards on the Cancer page show them (SectionBento.tsx). */
 export const CANCER_PALETTES: Record<string, ThemePalette> = {
   "common-cancers": { ink: "#963A66", tint: "#F9E8F0", text: "#6A2246", muted: "#6E4A5C" },
   "after-treatment": { ink: "#A9553A", tint: "#FBEDE6", text: "#773620", muted: "#755246" },
+  "blood-cancers": { ink: "#A3333F", tint: "#FAE7E8", text: "#74202A", muted: "#734A4F" },
+  "womens-cancers": { ink: "#7E4594", tint: "#F4EAF7", text: "#58296B", muted: "#685074" },
+  "other-cancers": { ink: "#3F6188", tint: "#E6EDF6", text: "#2A4464", muted: "#4A5A70" },
+  "advanced-cancer": { ink: "#5E6B3A", tint: "#EFF2E4", text: "#414C22", muted: "#5A6046" },
 };
 /** The Mind & mood groups, as their cards on the Mind page show them (SectionBento.tsx). */
 export const MIND_PALETTES: Record<string, ThemePalette> = {
   depression: { ink: "#35458C", tint: "#E8EBF8", text: "#232F6B", muted: "#4A5378" },
   anxiety: { ink: "#2A7383", tint: "#E2F1F4", text: "#1C5260", muted: "#40636B" },
   sleep: { ink: "#5B4A9A", tint: "#EEEAF8", text: "#3D2F75", muted: "#574E78" },
+  "bipolar-psychosis": { ink: "#8A3F7A", tint: "#F7E9F4", text: "#622A57", muted: "#6B5066" },
+  "stress-grief": { ink: "#4F6E8A", tint: "#E8EEF4", text: "#334E66", muted: "#4F5F6E" },
+  alcohol: { ink: "#A0522D", tint: "#FAECE3", text: "#713517", muted: "#73533F" },
+  "eating-disorders": { ink: "#2E7D5B", tint: "#E3F3EB", text: "#1D5940", muted: "#40654F" },
 };
 /** The Kidneys, liver & digestion groups, as their cards on that page show them (SectionBento.tsx). */
 export const DIGESTION_PALETTES: Record<string, ThemePalette> = {
   kidneys: { ink: "#4F6A14", tint: "#EEF3DF", text: "#36490A", muted: "#56603C" },
   liver: { ink: "#93402F", tint: "#F8E9E4", text: "#69281B", muted: "#6E4D45" },
   gut: { ink: "#82508A", tint: "#F4EAF5", text: "#5C3162", muted: "#6A5270" },
+  bladder: { ink: "#2F6F8F", tint: "#E4EFF6", text: "#1F4E68", muted: "#435E70" },
+  stomach: { ink: "#B0612A", tint: "#FBEDE2", text: "#7B3F17", muted: "#755643" },
+  ibd: { ink: "#A8466B", tint: "#F9E9F0", text: "#77294A", muted: "#704C5C" },
 };
 const GROUP_PALETTES: Record<string, ThemePalette> = { ...BRAIN_PALETTES, ...HEART_PALETTES, ...METABOLISM_PALETTES, ...BONES_PALETTES, ...CANCER_PALETTES, ...MIND_PALETTES, ...DIGESTION_PALETTES };
 
