@@ -126,16 +126,16 @@ const METABOLISM_MORE: Record<string, BentoStyle> = {
 
 // The Bones, joints & muscles page: teal for joints, warm stone for bone, slate blue for the back.
 const BONES: Record<string, BentoStyle> = {
-  arthritis: { ...BONES_PALETTES.arthritis, short: "Painful, stiff joints, and the treatments and operations that help.", chips: ["Osteoarthritis", "Rheumatoid", "Psoriatic", "Axial SpA", "PMR", "Lupus"], symbol: <>
+  arthritis: { ...BONES_PALETTES.arthritis, short: "Painful, stiff joints, and the treatments and operations that help.", chips: ["Osteoarthritis", "Rheumatoid", "Psoriatic", "Axial SpA", "PMR", "GCA", "Lupus", "Sjögren's", "Scleroderma"], symbol: <>
     <path d="M70 20 V86 C70 100, 86 108, 100 108 C114 108, 130 100, 130 86 V20" />
     <path d="M70 180 V124 C70 112, 86 106, 100 106 M130 180 V124 C130 112, 114 106, 100 106" />
     <path d="M56 96 C40 100, 40 116, 56 120 M144 96 C160 100, 160 116, 144 120" strokeDasharray="4 6" />
   </> },
-  "bone-health": { ...BONES_PALETTES["bone-health"], short: "Keeping bones strong, and recovering well after a break.", chips: ["Osteoporosis", "Hip fracture", "Paget's"], symbol: <>
+  "bone-health": { ...BONES_PALETTES["bone-health"], short: "Keeping bones strong, and recovering well after a break.", chips: ["Osteoporosis", "Hip fracture", "Broken wrist", "Broken ankle", "Paget's"], symbol: <>
     <path d="M60 50 a18 18 0 1 1 28 -8 L130 136 a18 18 0 1 1 8 28 a18 18 0 1 1 -28 8 L68 70 a18 18 0 1 1 -8 -20 Z" />
     <circle cx="100" cy="100" r="5" /><circle cx="88" cy="84" r="3" /><circle cx="112" cy="118" r="3" />
   </> },
-  "back-neck": { ...BONES_PALETTES["back-neck"], short: "Everyday back and neck pain, and when to get it checked.", chips: ["Back pain", "Neck pain", "Spinal stenosis"], symbol: <>
+  "back-neck": { ...BONES_PALETTES["back-neck"], short: "Everyday back and neck pain, and when to get it checked.", chips: ["Back pain", "Neck pain", "Slipped disc", "Spinal stenosis", "Scoliosis"], symbol: <>
     {[24, 50, 76, 102, 128, 154].map((y, index) => <rect key={y} x={84 + Math.sin(index / 1.6) * 10} y={y} width="36" height="18" rx="7" />)}
     <path d="M100 18 C116 60, 84 120, 104 186" strokeDasharray="3 6" />
   </> },
@@ -143,30 +143,41 @@ const BONES: Record<string, BentoStyle> = {
 
 // The Cancer & recovery page: berry for the cancers, warm apricot for life after treatment.
 const CANCER: Record<string, BentoStyle> = {
-  "common-cancers": { ...CANCER_PALETTES["common-cancers"], short: "The months after treatment for breast, bowel, prostate, lung and skin cancer.", chips: ["Breast", "Bowel", "Prostate", "Lung", "Melanoma"], symbol: <>
+  "common-cancers": { ...CANCER_PALETTES["common-cancers"], short: "Recovery after breast, bowel, prostate, lung and skin cancers.", chips: ["Breast", "Bowel", "Prostate", "Lung", "Melanoma", "Skin"], symbol: <>
     <path d="M100 30 C70 30, 66 70, 82 96 L52 170 M100 30 C130 30, 134 70, 118 96 L148 170" />
     <path d="M82 96 C90 110, 110 110, 118 96 M118 96 L74 168" />
   </> },
-  "after-treatment": { ...CANCER_PALETTES["after-treatment"], short: "Tiredness, swelling and getting back to everyday life.", chips: ["Tiredness after treatment", "Lymphoedema"], symbol: <>
+  "after-treatment": { ...CANCER_PALETTES["after-treatment"], short: "Tiredness, swelling, brain fog, worry and the longer-term effects.", chips: ["Tiredness", "Lymphoedema", "Brain fog", "Fear of recurrence", "Fertility", "Late effects"], symbol: <>
     <path d="M30 150 H170" />
     <path d="M56 150 A44 44 0 0 1 144 150" />
     <path d="M100 74 V50 M58 92 L42 76 M142 92 L158 76 M38 124 H18 M162 124 H182" />
   </> },
-  "blood-cancers": { ...CANCER_PALETTES["blood-cancers"], short: "Lymphoma, leukaemia and myeloma, and life between treatments.", chips: ["Lymphoma", "Leukaemia", "Myeloma"], symbol: <>
+  "blood-cancers": { ...CANCER_PALETTES["blood-cancers"], short: "Lymphoma, leukaemia, myeloma and MDS, and life between treatments.", chips: ["Lymphoma", "Leukaemia", "Myeloma", "MDS"], symbol: <>
     <path d="M100 26 C80 60, 56 88, 56 116 a44 44 0 0 0 88 0 C144 88, 120 60, 100 26 Z" />
     <circle cx="86" cy="118" r="9" /><circle cx="112" cy="132" r="7" /><circle cx="110" cy="104" r="5" />
   </> },
-  "womens-cancers": { ...CANCER_PALETTES["womens-cancers"], short: "Recovery after ovarian, womb and cervical cancer.", chips: ["Ovarian", "Womb", "Cervical"], symbol: <>
+  "womens-cancers": { ...CANCER_PALETTES["womens-cancers"], short: "Recovery after ovarian, womb, cervical and vulval cancer.", chips: ["Ovarian", "Womb", "Cervical", "Vulval"], symbol: <>
     <path d="M100 70 C80 70, 74 96, 84 120 C90 136, 110 136, 116 120 C126 96, 120 70, 100 70 Z" />
     <path d="M88 80 C70 66, 50 66, 40 80 M112 80 C130 66, 150 66, 160 80" />
     <circle cx="34" cy="88" r="10" /><circle cx="166" cy="88" r="10" /><path d="M100 136 V170" />
   </> },
-  "other-cancers": { ...CANCER_PALETTES["other-cancers"], short: "Head and neck, bladder, kidney and pancreatic cancer.", chips: ["Head and neck", "Bladder", "Kidney", "Pancreatic"], symbol: <>
+  "other-cancers": { ...CANCER_PALETTES["other-cancers"], short: "Head and neck, bladder, kidney, pancreatic and thyroid cancer.", chips: ["Head and neck", "Bladder", "Kidney", "Pancreatic", "Thyroid"], symbol: <>
     <path d="M100 30 C70 30, 66 70, 82 96 L52 170 M100 30 C130 30, 134 70, 118 96 L148 170" />
     <path d="M82 96 C90 110, 110 110, 118 96 M118 96 L74 168" />
     <circle cx="160" cy="46" r="8" /><circle cx="40" cy="46" r="8" />
   </> },
-  "advanced-cancer": { ...CANCER_PALETTES["advanced-cancer"], short: "Living well with cancer that has spread, and the care that helps.", chips: ["Secondary cancer"], symbol: <>
+  "mens-cancers": { ...CANCER_PALETTES["mens-cancers"], short: "Recovery after testicular and penile cancer.", chips: ["Testicular", "Penile"], symbol: <>
+    <circle cx="100" cy="110" r="44" />
+    <path d="M131 79 L166 44 M146 44 H166 V64" />
+  </> },
+  "digestive-cancers": { ...CANCER_PALETTES["digestive-cancers"], short: "Oesophageal, stomach and liver cancer, and changes to eating.", chips: ["Oesophageal", "Stomach", "Liver"], symbol: <>
+    <path d="M92 20 V78 C92 96, 70 100, 70 124 C70 158, 132 166, 140 128 C146 100, 120 84, 106 84" />
+    <path d="M132 150 C140 164, 120 176, 104 172" />
+  </> },
+  "rarer-cancers": { ...CANCER_PALETTES["rarer-cancers"], short: "Brain tumours, sarcoma and mesothelioma.", chips: ["Brain tumours", "Sarcoma", "Mesothelioma"], symbol: <>
+    <path d="M100 176 L100 120 M100 120 L70 90 M100 120 L130 90 M70 90 L56 60 M130 90 L144 60 M100 120 L100 70" />
+    <circle cx="56" cy="52" r="8" /><circle cx="144" cy="52" r="8" /><circle cx="100" cy="62" r="8" />
+  </> },  "advanced-cancer": { ...CANCER_PALETTES["advanced-cancer"], short: "Living well with cancer that has spread, and support for carers.", chips: ["Secondary cancer", "Secondary bone cancer", "Caring"], symbol: <>
     <path d="M100 176 C100 130, 100 100, 100 70" />
     <path d="M100 120 C80 108, 66 90, 64 66 C86 70, 98 88, 100 110 M100 98 C120 86, 134 68, 136 44 C114 48, 102 66, 100 88" />
   </> },
@@ -174,17 +185,17 @@ const CANCER: Record<string, BentoStyle> = {
 
 // The Mind & mood page: indigo for low mood, sea teal for worry, violet for sleep.
 const MIND: Record<string, BentoStyle> = {
-  depression: { ...MIND_PALETTES.depression, short: "Low mood that lasts, and the help that works.", chips: ["Depression", "After stroke", "SAD", "Postnatal"], symbol: <>
+  depression: { ...MIND_PALETTES.depression, short: "Low mood that lasts, and the help that works.", chips: ["Depression", "After stroke", "SAD", "Postnatal", "Perimenopause", "Self-harm"], symbol: <>
     <path d="M44 120 a28 28 0 0 1 20 -48 a36 36 0 0 1 68 -6 a26 26 0 0 1 24 54 Z" />
     <path d="M70 140 l-6 18 M100 140 l-6 18 M130 140 l-6 18" />
     <circle cx="150" cy="44" r="12" strokeDasharray="4 6" />
   </> },
-  anxiety: { ...MIND_PALETTES.anxiety, short: "Worry and panic that get in the way of everyday life.", chips: ["Anxiety", "OCD", "PTSD"], symbol: <>
+  anxiety: { ...MIND_PALETTES.anxiety, short: "Worry and panic that get in the way of everyday life.", chips: ["Anxiety", "OCD", "PTSD", "Panic", "Health anxiety", "Social anxiety", "Phobias"], symbol: <>
     <path d="M20 100 C40 60, 60 140, 80 100 S120 60, 140 100 S170 130, 184 100" />
     <path d="M20 146 C60 130, 140 162, 184 146" />
     <path d="M20 54 C60 40, 140 68, 184 54" strokeDasharray="4 8" />
   </> },
-  sleep: { ...MIND_PALETTES.sleep, short: "Getting to sleep, staying asleep and waking rested.", chips: ["Sleep problems", "Restless legs"], symbol: <>
+  sleep: { ...MIND_PALETTES.sleep, short: "Getting to sleep, staying asleep and waking rested.", chips: ["Sleep problems", "Restless legs", "Narcolepsy"], symbol: <>
     <path d="M118 36 A60 60 0 1 0 170 128 A48 48 0 1 1 118 36 Z" />
     <circle cx="160" cy="44" r="4" /><circle cx="176" cy="74" r="3" /><circle cx="44" cy="40" r="3" />
   </> },
@@ -193,47 +204,53 @@ const MIND: Record<string, BentoStyle> = {
 // The newer Mind & mood groups: plum for bipolar and psychosis, slate for stress, grief and loneliness, rust for
 // alcohol, green for eating disorders.
 const MIND_MORE: Record<string, BentoStyle> = {
-  "bipolar-psychosis": { ...MIND_PALETTES["bipolar-psychosis"], short: "Big swings in mood, and times when reality is hard to tell apart.", chips: ["Bipolar", "Psychosis"], symbol: <>
+  "bipolar-psychosis": { ...MIND_PALETTES["bipolar-psychosis"], short: "Mood swings, psychosis, and lasting patterns of intense emotion.", chips: ["Bipolar", "Psychosis", "Schizophrenia", "Personality disorder"], symbol: <>
     <path d="M16 100 C40 30, 70 30, 94 100 S148 170, 184 100" />
     <circle cx="55" cy="47" r="6" /><circle cx="133" cy="153" r="6" />
   </> },
-  "stress-grief": { ...MIND_PALETTES["stress-grief"], short: "Pressure, loss and feeling alone, and the support that helps.", chips: ["Stress", "Grief", "Loneliness"], symbol: <>
+  "stress-grief": { ...MIND_PALETTES["stress-grief"], short: "Pressure, loss and feeling alone, and the support that helps.", chips: ["Stress", "Grief", "Loneliness", "Burnout", "Carer stress", "Anger"], symbol: <>
     <circle cx="70" cy="80" r="18" /><path d="M40 160 C40 128, 100 128, 100 160" />
     <circle cx="140" cy="80" r="18" strokeDasharray="5 6" /><path d="M110 160 C110 128, 170 128, 170 160" strokeDasharray="5 6" />
   </> },
-  alcohol: { ...MIND_PALETTES.alcohol, short: "How drinking affects mood, sleep and health, and help to cut down.", chips: ["Alcohol"], symbol: <>
+  alcohol: { ...MIND_PALETTES.alcohol, short: "Drinking, drugs, gambling and smoking, and help to cut down or stop.", chips: ["Alcohol", "Drugs", "Gambling", "Smoking"], symbol: <>
     <path d="M64 30 H136 L128 92 C124 116, 76 116, 72 92 Z" /><path d="M100 112 V164 M72 168 H128" /><path d="M70 62 H130" strokeDasharray="4 6" />
   </> },
-  "eating-disorders": { ...MIND_PALETTES["eating-disorders"], short: "When food and eating become a way of coping, and getting help early.", chips: ["Eating disorders"], symbol: <>
+  "eating-disorders": { ...MIND_PALETTES["eating-disorders"], short: "When food and eating become a way of coping, and getting help early.", chips: ["Eating disorders", "Binge eating", "ARFID"], symbol: <>
     <circle cx="100" cy="104" r="56" /><circle cx="100" cy="104" r="34" /><path d="M30 40 V170 M178 40 V96 C178 112, 166 118, 166 118 V170" />
+  </> },
+  // Teal-blue for ADHD and autism.
+  "adhd-autism": { ...MIND_PALETTES["adhd-autism"], short: "Attention, communication and the senses: support as an adult.", chips: ["ADHD", "Autism"], symbol: <>
+    <circle cx="100" cy="100" r="62" strokeDasharray="10 8" />
+    <path d="M100 38 V62 M100 138 V162 M38 100 H62 M138 100 H162" />
+    <circle cx="100" cy="100" r="16" />
   </> },
 };
 
 // The Kidneys, liver & digestion page: olive for the kidneys, russet for the liver, plum for the gut.
 const DIGESTION: Record<string, BentoStyle> = {
-  kidneys: { ...DIGESTION_PALETTES.kidneys, short: "Kidney function, stones and sudden injury.", chips: ["CKD", "Kidney stones", "Acute kidney injury"], symbol: <>
+  kidneys: { ...DIGESTION_PALETTES.kidneys, short: "Kidney function, stones and sudden injury.", chips: ["CKD", "Kidney stones", "AKI", "PKD", "Dialysis", "Transplant"], symbol: <>
     <path d="M78 40 C40 40, 30 90, 40 120 C50 150, 80 160, 88 136 C94 118, 76 108, 82 86 C86 70, 100 40, 78 40 Z" />
     <path d="M122 40 C160 40, 170 90, 160 120 C150 150, 120 160, 112 136 C106 118, 124 108, 118 86 C114 70, 100 40, 122 40 Z" />
     <path d="M86 112 C92 140, 96 160, 96 186 M114 112 C108 140, 104 160, 104 186" />
   </> },
-  liver: { ...DIGESTION_PALETTES.liver, short: "What can strain and scar the liver, and what helps it recover.", chips: ["Fatty liver", "Cirrhosis", "Alcohol-related", "Hepatitis B & C"], symbol: <>
+  liver: { ...DIGESTION_PALETTES.liver, short: "What can strain and scar the liver, and what helps it recover.", chips: ["Fatty liver", "Cirrhosis", "Hepatitis B & C", "PBC"], symbol: <>
     <path d="M24 80 C40 50, 120 40, 176 56 C186 60, 184 76, 172 86 C140 112, 100 140, 70 150 C40 158, 18 120, 24 80 Z" />
     <path d="M110 50 C104 80, 96 110, 82 146" />
     <circle cx="58" cy="100" r="7" /><circle cx="140" cy="76" r="5" />
   </> },
-  gut: { ...DIGESTION_PALETTES.gut, short: "Tummy pain, bloating and bowel changes.", chips: ["IBS", "Coeliac", "Diverticular", "Constipation"], symbol: <>
+  gut: { ...DIGESTION_PALETTES.gut, short: "Tummy pain, bloating and bowel changes.", chips: ["IBS", "Coeliac", "Constipation", "Piles"], symbol: <>
     <path d="M60 40 H140 C160 40, 164 70, 144 74 H62 C40 78, 40 104, 62 108 H140 C162 112, 162 138, 140 142 H70 C52 146, 52 172, 76 172 H110" />
   </> },
-  bladder: { ...DIGESTION_PALETTES.bladder, short: "Leaks, infections and a prostate that has grown.", chips: ["Incontinence", "Enlarged prostate", "UTIs"], symbol: <>
+  bladder: { ...DIGESTION_PALETTES.bladder, short: "Leaks, infections and a prostate that has grown.", chips: ["Incontinence", "Overactive bladder", "UTIs", "Prostate"], symbol: <>
     <path d="M70 30 C70 60, 80 70, 86 80 M130 30 C130 60, 120 70, 114 80" />
     <path d="M100 76 C60 76, 46 110, 56 136 C66 160, 134 160, 144 136 C154 110, 140 76, 100 76 Z" />
     <path d="M100 158 V186" /><circle cx="100" cy="186" r="3" />
   </> },
-  stomach: { ...DIGESTION_PALETTES.stomach, short: "Heartburn, ulcers, gallstones and the pancreas.", chips: ["Acid reflux", "Ulcers", "Gallstones", "Pancreatitis"], symbol: <>
+  stomach: { ...DIGESTION_PALETTES.stomach, short: "Heartburn, ulcers, gallstones and the pancreas.", chips: ["Reflux", "Indigestion", "Ulcers", "Gallstones"], symbol: <>
     <path d="M86 20 V56 C86 70, 60 76, 54 104 C46 140, 80 168, 118 160 C150 154, 168 130, 160 108 C152 88, 128 92, 122 110 C118 122, 106 122, 104 108 C102 92, 112 70, 112 56 V20" />
     <circle cx="140" cy="58" r="8" />
   </> },
-  ibd: { ...DIGESTION_PALETTES.ibd, short: "Inflammatory bowel disease: flare-ups and living well.", chips: ["Crohn's", "Ulcerative colitis"], symbol: <>
+  ibd: { ...DIGESTION_PALETTES.ibd, short: "Inflammatory bowel disease: flare-ups and living well.", chips: ["Crohn's", "Ulcerative colitis", "Microscopic"], symbol: <>
     <path d="M40 160 V60 C40 44, 54 36, 70 36 H130 C146 36, 160 44, 160 60 V160" />
     <path d="M60 60 l6 8 l6 -8 M120 90 l6 8 l6 -8 M70 130 l6 8 l6 -8" />
   </> },
@@ -242,23 +259,32 @@ const DIGESTION: Record<string, BentoStyle> = {
 // The newer Bones, joints & muscles groups: terracotta for muscles, steel blue for joint replacement, olive for
 // tendons and feet.
 const BONES_MORE: Record<string, BentoStyle> = {
-  muscles: { ...BONES_PALETTES.muscles, short: "Widespread pain, and a shoulder that stiffens and slowly frees.", chips: ["Fibromyalgia", "Frozen shoulder"], symbol: <>
+  muscles: { ...BONES_PALETTES.muscles, short: "Widespread pain, shoulders, bursae and very flexible joints.", chips: ["Fibromyalgia", "Frozen shoulder", "Rotator cuff", "Bursitis", "Hypermobility"], symbol: <>
     <path d="M40 150 C40 100, 70 60, 110 56 C150 52, 170 80, 166 110 C162 140, 130 150, 100 146" />
     <path d="M70 120 C90 108, 110 108, 130 120 M78 96 C96 86, 116 86, 134 96" strokeDasharray="4 6" />
   </> },
-  "joint-replacement": { ...BONES_PALETTES["joint-replacement"], short: "Preparing for a new hip or knee, and the recovery after.", chips: ["Hip replacement", "Knee replacement"], symbol: <>
+  "joint-replacement": { ...BONES_PALETTES["joint-replacement"], short: "Preparing for a new hip, knee or shoulder, and the recovery after.", chips: ["Hip", "Knee", "Shoulder"], symbol: <>
     <path d="M100 20 V80" /><circle cx="100" cy="96" r="18" />
     <path d="M82 120 C82 112, 118 112, 118 120 V180 M82 120 V180" />
     <path d="M150 40 l12 12 M162 40 l-12 12" />
   </> },
-  "feet-tendons": { ...BONES_PALETTES["feet-tendons"], short: "Elbow and heel pain from tired tendons and tissue.", chips: ["Tennis elbow", "Plantar fasciitis"], symbol: <>
+  "feet-tendons": { ...BONES_PALETTES["feet-tendons"], short: "Elbows, hands, heels and toes.", chips: ["Tennis elbow", "Trigger finger", "De Quervain's", "Plantar fasciitis", "Achilles", "Bunions"], symbol: <>
     <path d="M30 170 C30 146, 52 132, 86 130 C122 128, 156 140, 172 156 C180 164, 176 174, 164 174 H38 C32 174, 30 172, 30 170 Z" />
     <circle cx="48" cy="160" r="8" strokeDasharray="3 4" />
     <path d="M110 40 L150 80 L120 110" /><circle cx="150" cy="80" r="8" strokeDasharray="3 4" />
   </> },
 };
 
-const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": { ...METABOLISM, ...METABOLISM_MORE }, "bones-joints-muscles": { ...BONES, ...BONES_MORE }, "cancer-recovery": CANCER, "mind-mood": { ...MIND, ...MIND_MORE }, "kidneys-liver-digestion": DIGESTION };
+// Sprains & joint injuries: plum.
+const BONES_INJURIES: Record<string, BentoStyle> = {
+  injuries: { ...BONES_PALETTES.injuries, short: "Twists, sprains and knee injuries, and getting back to activity.", chips: ["Sprains & strains", "Knee ligaments", "Meniscus"], symbol: <>
+    <path d="M86 20 V92 C86 104, 94 110, 100 110 C106 110, 114 104, 114 92 V20 M86 180 V128 C86 118, 94 114, 100 114 C106 114, 114 118, 114 128 V180" />
+    <path d="M70 100 L60 96 M130 100 L140 96 M72 120 L62 126 M128 120 L138 126" strokeDasharray="3 5" />
+    <path d="M150 40 l8 -14 l4 10 l8 -12" />
+  </> },
+};
+
+const BENTO: Record<string, Record<string, BentoStyle>> = { "brain-nervous-system": BRAIN, "heart-lungs": HEART, "diabetes-metabolism": { ...METABOLISM, ...METABOLISM_MORE }, "bones-joints-muscles": { ...BONES, ...BONES_MORE, ...BONES_INJURIES }, "cancer-recovery": CANCER, "mind-mood": { ...MIND, ...MIND_MORE }, "kidneys-liver-digestion": DIGESTION };
 
 /** Whether a section has the bento layout: every one of its groups has a style. */
 export const hasBento = (section: LibrarySection) => Boolean(BENTO[section.id]) && section.groups.every(group => BENTO[section.id][group.id]);
@@ -472,7 +498,7 @@ export function SectionBento({ section, ask }: { section: LibrarySection; ask: (
 
   return <section className="lib-bento-wrap" aria-label="Groups in this section">
     <p className="lib-sr" aria-live="polite">{said}</p>
-    <div className={`lib-bento${rest.length === 4 ? " is-few" : rest.length === 5 ? " is-five" : rest.length === 6 ? " is-six" : rest.length === 2 ? " is-trio" : rest.length === 1 ? " is-pair" : ""}`}>
+    <div className={`lib-bento${rest.length === 4 ? " is-few" : rest.length === 5 ? " is-five" : rest.length === 8 ? " is-eight" : rest.length === 6 ? " is-six" : rest.length === 6 ? " is-six" : rest.length === 2 ? " is-trio" : rest.length === 1 ? " is-pair" : ""}`}>
       <article key={`${main.id}-${moves}`} id={`group-${main.id}`} className={`lib-bento-tile is-feature${mainStyle.light ? " is-light" : ""}${entering}`}
         style={mainStyle.light ? { background: mainStyle.tint, ["--ink" as string]: mainStyle.ink, ["--text" as string]: mainStyle.text, ["--muted" as string]: mainStyle.muted } as CSSProperties : { background: mainStyle.ink }} aria-labelledby="lib-bento-feature-title">
         <GroupSymbol style={mainStyle} colour={mainStyle.light ? mainStyle.ink : "#FFFFFF"} width={5} className="lib-bento-sym" />

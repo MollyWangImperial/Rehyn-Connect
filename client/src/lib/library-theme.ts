@@ -46,6 +46,7 @@ export const BONES_PALETTES: Record<string, ThemePalette> = {
   muscles: { ink: "#A2483A", tint: "#FAEAE5", text: "#73291D", muted: "#714E47" },
   "joint-replacement": { ink: "#4C6B7A", tint: "#E6EFF3", text: "#304C59", muted: "#4B5E67" },
   "feet-tendons": { ink: "#6E6A1E", tint: "#F3F2DC", text: "#4C4910", muted: "#615E3E" },
+  injuries: { ink: "#8C4A7A", tint: "#F6EAF3", text: "#622E55", muted: "#6B5366" },
 };
 /** The Cancer & recovery groups, as their cards on the Cancer page show them (SectionBento.tsx). */
 export const CANCER_PALETTES: Record<string, ThemePalette> = {
@@ -55,6 +56,9 @@ export const CANCER_PALETTES: Record<string, ThemePalette> = {
   "womens-cancers": { ink: "#7E4594", tint: "#F4EAF7", text: "#58296B", muted: "#685074" },
   "other-cancers": { ink: "#3F6188", tint: "#E6EDF6", text: "#2A4464", muted: "#4A5A70" },
   "advanced-cancer": { ink: "#5E6B3A", tint: "#EFF2E4", text: "#414C22", muted: "#5A6046" },
+  "mens-cancers": { ink: "#2E6E7E", tint: "#E3F0F3", text: "#1E4E5A", muted: "#41616A" },
+  "digestive-cancers": { ink: "#9A5B1E", tint: "#F8ECDD", text: "#6B3D10", muted: "#6E5640" },
+  "rarer-cancers": { ink: "#5A4E8C", tint: "#EEEBF6", text: "#3D3366", muted: "#585170" },
 };
 /** The Mind & mood groups, as their cards on the Mind page show them (SectionBento.tsx). */
 export const MIND_PALETTES: Record<string, ThemePalette> = {
@@ -65,6 +69,7 @@ export const MIND_PALETTES: Record<string, ThemePalette> = {
   "stress-grief": { ink: "#4F6E8A", tint: "#E8EEF4", text: "#334E66", muted: "#4F5F6E" },
   alcohol: { ink: "#A0522D", tint: "#FAECE3", text: "#713517", muted: "#73533F" },
   "eating-disorders": { ink: "#2E7D5B", tint: "#E3F3EB", text: "#1D5940", muted: "#40654F" },
+  "adhd-autism": { ink: "#1F6F9A", tint: "#E2EFF7", text: "#154E6E", muted: "#3F5D70" },
 };
 /** The Kidneys, liver & digestion groups, as their cards on that page show them (SectionBento.tsx). */
 export const DIGESTION_PALETTES: Record<string, ThemePalette> = {

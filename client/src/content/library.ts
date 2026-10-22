@@ -18,14 +18,16 @@ import { article, CHSS, CURE_PARKINSONS, DIFFERENT_STROKES, NHS, PARKINSONS_FOUN
 import { alzheimers, dystonia, essentialTremor, haemorrhagicStroke, lewyBodyDementia, mildCognitiveImpairment, progressiveMs, relapsingRemittingMs, strokeUnder50, tia, vascularDementia } from "./library-conditions/brain-a";
 import { bellsPalsy, carpalTunnel, concussion, focalSeizures, generalisedSeizures, migraine, peripheralNeuropathy, sciatica, seizuresAfterStroke, spinalCordInjury, tensionHeadache, traumaticBrainInjury } from "./library-conditions/brain-b";
 import { angina, asthma, atrialFibrillation, copd, heartAttack, highBloodPressure, sleepApnoea } from "./library-conditions/heart";
-import { axialSpondyloarthritis, fibromyalgia, frozenShoulder, hipFracture, hipReplacement, kneeReplacement, lupus, neckPain, pagets, plantarFasciitis, polymyalgiaRheumatica, psoriaticArthritis, spinalStenosis, tennisElbow } from "./library-conditions/body-more";
+import { achilles, ankleFracture, axialSpondyloarthritis, bunions, bursitis, deQuervains, fibromyalgia, frozenShoulder, giantCellArteritis, hipFracture, hipReplacement, hypermobility, kneeLigament, kneeReplacement, lupus, meniscus, neckPain, pagets, plantarFasciitis, polymyalgiaRheumatica, psoriaticArthritis, rotatorCuff, scoliosis, shoulderReplacement, sjogrens, slippedDisc, spinalStenosis, sprainsStrains, systemicSclerosis, tennisElbow, triggerFinger, wristFracture } from "./library-conditions/body-more";
 import { alcohol, bipolar, eatingDisorders, grief, loneliness, ocd, postnatalDepression, psychosis, ptsd, restlessLegs, sad, stress } from "./library-conditions/mind-more";
-import { acidReflux, acuteKidneyInjury, alcoholLiverDisease, cirrhosis, coeliac, constipation, crohns, diverticular, enlargedProstate, gallstones, hepatitis, kidneyStones, pancreatitis, stomachUlcers, ulcerativeColitis, urinaryIncontinence, uti } from "./library-conditions/digestion-more";
+import { adhd, anger, arfid, autism, bingeEating, burnout, carerStress, drugUse, gambling, healthAnxiety, narcolepsy, panicDisorder, perimenopauseMood, personalityDisorder, phobias, quittingSmoking, schizophrenia, selfHarm, socialAnxiety } from "./library-conditions/mind-extra";
+import { acidReflux, acuteKidneyInjury, alcoholLiverDisease, analFissure, autoimmuneHepatitis, bladderPain, bowelIncontinence, cirrhosis, coeliac, constipation, crohns, diverticular, enlargedProstate, gallstones, gastritis, glomerulonephritis, haemochromatosis, haemorrhoids, hepatitis, hiatusHernia, indigestion, kidneyFailureDialysis, kidneyStones, kidneyTransplant, lactoseIntolerance, microscopicColitis, overactiveBladder, pancreatitis, pbc, polycysticKidney, prostatitis, stomachUlcers, ulcerativeColitis, urinaryIncontinence, uti } from "./library-conditions/digestion-more";
 import { addisons, familialHypercholesterolaemia, gestationalDiabetes, gout, highCholesterol, hypoglycaemia, obesity, pcos, thyroidNodules, vitaminD } from "./library-conditions/metabolism-more";
 import { bronchiectasis, coronaryHeartDisease, ectopicBeats, heartFailure, lowBloodPressure, pulmonaryFibrosis, slowHeartRate, snoring, svt } from "./library-conditions/heart-more";
 import { backPain, osteoarthritis, osteoporosis, overactiveThyroid, prediabetes, rheumatoidArthritis, type1Diabetes, type2Diabetes, underactiveThyroid } from "./library-conditions/body";
 import { anxiety, bowelCancer, breastCancer, cancerFatigue, chronicKidneyDisease, depression, depressionAfterStroke, fattyLiver, ibs, insomnia, prostateCancer } from "./library-conditions/cancer-mind-digestion";
 import { bladderCancer, cervicalCancer, headNeckCancer, kidneyCancer, leukaemia, lungCancer, lymphoedema, lymphoma, melanoma, myeloma, ovarianCancer, pancreaticCancer, secondaryCancer, wombCancer } from "./library-conditions/cancer-more";
+import { boneMetastases, brainFog, brainTumours, caringAdvanced, fearOfRecurrence, fertilityAfterCancer, lateEffects, liverCancer, mds, mesothelioma, oesophagealCancer, penileCancer, sarcoma, skinCancer, stomachCancer, testicularCancer, thyroidCancer, vulvalCancer } from "./library-conditions/cancer-more-2";
 
 export type Hue = { tint: string; ink: string };
 export type SectionIcon = "brain" | "heart" | "drop" | "bone" | "ribbon" | "mind" | "kidney";
@@ -502,13 +504,14 @@ export const librarySections: LibrarySection[] = [
         title: "Arthritis",
         blurb: "Painful, stiff joints, and the treatments and operations that help.",
         keywords: ["joint", "knee", "hip"],
-        conditions: [osteoarthritis, rheumatoidArthritis, psoriaticArthritis, axialSpondyloarthritis, polymyalgiaRheumatica, lupus],
+        conditions: [osteoarthritis, rheumatoidArthritis, psoriaticArthritis, axialSpondyloarthritis, polymyalgiaRheumatica, giantCellArteritis, lupus, sjogrens, systemicSclerosis],
       },
-      { id: "bone-health", title: "Bone health", blurb: "Keeping bones strong, and recovering well after a break.", conditions: [osteoporosis, hipFracture, pagets] },
-      { id: "back-neck", title: "Back & neck", blurb: "Everyday back and neck pain, and when to get it checked.", conditions: [backPain, neckPain, spinalStenosis] },
-      { id: "muscles", title: "Muscles & soft tissue", blurb: "Widespread pain and a stiff, frozen shoulder.", keywords: ["muscle", "soft tissue"], conditions: [fibromyalgia, frozenShoulder] },
-      { id: "joint-replacement", title: "Joint replacement", blurb: "Getting ready for a new hip or knee, and the recovery after.", keywords: ["operation", "surgery"], conditions: [hipReplacement, kneeReplacement] },
-      { id: "feet-tendons", title: "Tendons & feet", blurb: "Elbow and heel pain from tired tendons and tissue.", keywords: ["tendon", "heel", "elbow"], conditions: [tennisElbow, plantarFasciitis] },
+      { id: "bone-health", title: "Bone health", blurb: "Keeping bones strong, and recovering well after a break.", conditions: [osteoporosis, hipFracture, wristFracture, ankleFracture, pagets] },
+      { id: "back-neck", title: "Back & neck", blurb: "Everyday back and neck pain, and when to get it checked.", conditions: [backPain, neckPain, slippedDisc, spinalStenosis, scoliosis] },
+      { id: "muscles", title: "Muscles & soft tissue", blurb: "Widespread pain, shoulders, bursae and flexible joints.", keywords: ["muscle", "soft tissue"], conditions: [fibromyalgia, frozenShoulder, rotatorCuff, bursitis, hypermobility] },
+      { id: "joint-replacement", title: "Joint replacement", blurb: "Getting ready for a new hip, knee or shoulder, and the recovery after.", keywords: ["operation", "surgery"], conditions: [hipReplacement, kneeReplacement, shoulderReplacement] },
+      { id: "feet-tendons", title: "Tendons, hands & feet", blurb: "Elbows, hands, heels and toes: tendons and feet.", keywords: ["tendon", "heel", "elbow", "hand", "foot"], conditions: [tennisElbow, triggerFinger, deQuervains, plantarFasciitis, achilles, bunions] },
+      { id: "injuries", title: "Sprains & joint injuries", blurb: "Twists, sprains and knee injuries, and getting back to activity.", keywords: ["injury", "sport", "sprain"], conditions: [sprainsStrains, kneeLigament, meniscus] },
     ],
   },
   {
@@ -520,12 +523,15 @@ export const librarySections: LibrarySection[] = [
     icon: "ribbon",
     chips: ["Breast", "Bowel", "Prostate"],
     groups: [
-      { id: "common-cancers", title: "Common cancers", blurb: "Recovery after treatment for some of the most common cancers.", conditions: [breastCancer, bowelCancer, prostateCancer, lungCancer, melanoma] },
-      { id: "blood-cancers", title: "Blood cancers", blurb: "Lymphoma, leukaemia and myeloma: treatment, infections and life between appointments.", keywords: ["blood cancer", "bone marrow"], conditions: [lymphoma, leukaemia, myeloma] },
-      { id: "womens-cancers", title: "Women's cancers", blurb: "Recovery after ovarian, womb and cervical cancer.", keywords: ["gynaecological"], conditions: [ovarianCancer, wombCancer, cervicalCancer] },
-      { id: "other-cancers", title: "Other cancers", blurb: "Head and neck, bladder, kidney and pancreatic cancer.", conditions: [headNeckCancer, bladderCancer, kidneyCancer, pancreaticCancer] },
-      { id: "after-treatment", title: "Life after treatment", blurb: "Tiredness, swelling, worry and going back to normal life after treatment ends.", conditions: [cancerFatigue, lymphoedema] },
-      { id: "advanced-cancer", title: "Advanced cancer", blurb: "Living well with cancer that has spread, and the care that helps.", keywords: ["metastatic", "palliative"], conditions: [secondaryCancer] },
+      { id: "common-cancers", title: "Common cancers", blurb: "Recovery after treatment for some of the most common cancers.", conditions: [breastCancer, bowelCancer, prostateCancer, lungCancer, melanoma, skinCancer] },
+      { id: "blood-cancers", title: "Blood cancers", blurb: "Lymphoma, leukaemia, myeloma and MDS: treatment, infections and life between appointments.", keywords: ["blood cancer", "bone marrow"], conditions: [lymphoma, leukaemia, myeloma, mds] },
+      { id: "womens-cancers", title: "Women's cancers", blurb: "Recovery after ovarian, womb, cervical and vulval cancer.", keywords: ["gynaecological"], conditions: [ovarianCancer, wombCancer, cervicalCancer, vulvalCancer] },
+      { id: "mens-cancers", title: "Men's cancers", blurb: "Recovery after testicular and penile cancer.", conditions: [testicularCancer, penileCancer] },
+      { id: "digestive-cancers", title: "Digestive cancers", blurb: "Oesophageal, stomach and liver cancer, and the changes to eating that follow.", keywords: ["gastric", "food pipe"], conditions: [oesophagealCancer, stomachCancer, liverCancer] },
+      { id: "other-cancers", title: "Other cancers", blurb: "Head and neck, bladder, kidney, pancreatic and thyroid cancer.", conditions: [headNeckCancer, bladderCancer, kidneyCancer, pancreaticCancer, thyroidCancer] },
+      { id: "rarer-cancers", title: "Less common cancers", blurb: "Brain tumours, sarcoma and mesothelioma.", conditions: [brainTumours, sarcoma, mesothelioma] },
+      { id: "after-treatment", title: "Life after treatment", blurb: "Tiredness, swelling, brain fog, worry, fertility and the longer-term effects of treatment.", conditions: [cancerFatigue, lymphoedema, brainFog, fearOfRecurrence, fertilityAfterCancer, lateEffects] },
+      { id: "advanced-cancer", title: "Advanced cancer", blurb: "Living well with cancer that has spread, and support for those who care.", keywords: ["metastatic", "palliative"], conditions: [secondaryCancer, boneMetastases, caringAdvanced] },
     ],
   },
   {
@@ -537,13 +543,14 @@ export const librarySections: LibrarySection[] = [
     icon: "mind",
     chips: ["Depression", "Anxiety", "Sleep"],
     groups: [
-      { id: "depression", title: "Depression", blurb: "Low mood that lasts, including the kind that follows a stroke or a diagnosis.", keywords: ["low", "sad", "mood"], conditions: [depression, depressionAfterStroke, sad, postnatalDepression] },
-      { id: "anxiety", title: "Anxiety", blurb: "Worry that gets in the way of everyday life.", keywords: ["worry", "panic", "trauma"], conditions: [anxiety, ocd, ptsd] },
-      { id: "sleep", title: "Sleep", blurb: "Trouble getting to sleep, staying asleep or waking rested.", keywords: ["insomnia", "night"], conditions: [insomnia, restlessLegs] },
-      { id: "bipolar-psychosis", title: "Bipolar & psychosis", blurb: "Big swings in mood, and times when reality is hard to tell apart.", keywords: ["mania", "voices"], conditions: [bipolar, psychosis] },
-      { id: "stress-grief", title: "Stress, grief & loneliness", blurb: "Pressure, loss and feeling alone, and the support that helps.", keywords: ["pressure", "loss", "lonely"], conditions: [stress, grief, loneliness] },
-      { id: "alcohol", title: "Alcohol", blurb: "How drinking affects mood, sleep and health, and help to cut down.", keywords: ["drinking", "units"], conditions: [alcohol] },
-      { id: "eating-disorders", title: "Eating disorders", blurb: "When food and eating become a way of coping, and getting help early.", keywords: ["anorexia", "bulimia", "binge"], conditions: [eatingDisorders] },
+      { id: "depression", title: "Depression", blurb: "Low mood that lasts, including the kind that follows a stroke or a diagnosis.", keywords: ["low", "sad", "mood"], conditions: [depression, depressionAfterStroke, sad, postnatalDepression, perimenopauseMood, selfHarm] },
+      { id: "anxiety", title: "Anxiety", blurb: "Worry that gets in the way of everyday life.", keywords: ["worry", "panic", "trauma", "phobia"], conditions: [anxiety, ocd, ptsd, panicDisorder, healthAnxiety, socialAnxiety, phobias] },
+      { id: "sleep", title: "Sleep", blurb: "Trouble getting to sleep, staying asleep or waking rested.", keywords: ["insomnia", "night"], conditions: [insomnia, restlessLegs, narcolepsy] },
+      { id: "bipolar-psychosis", title: "Bipolar, psychosis & personality", blurb: "Big swings in mood, times when reality is hard to tell apart, and lasting patterns of intense emotion.", keywords: ["mania", "voices", "bpd"], conditions: [bipolar, psychosis, schizophrenia, personalityDisorder] },
+      { id: "stress-grief", title: "Stress, grief & loneliness", blurb: "Pressure, loss and feeling alone, and the support that helps.", keywords: ["pressure", "loss", "lonely", "carer", "anger"], conditions: [stress, grief, loneliness, burnout, carerStress, anger] },
+      { id: "alcohol", title: "Alcohol & addiction", blurb: "Drinking, drugs, gambling and smoking: how they affect mood and health, and help to cut down or stop.", keywords: ["drinking", "units", "drugs", "gambling", "smoking"], conditions: [alcohol, drugUse, gambling, quittingSmoking] },
+      { id: "eating-disorders", title: "Eating disorders", blurb: "When food and eating become a way of coping, and getting help early.", keywords: ["anorexia", "bulimia", "binge"], conditions: [eatingDisorders, bingeEating, arfid] },
+      { id: "adhd-autism", title: "ADHD & autism", blurb: "Differences in attention, communication and the senses, and getting support as an adult.", keywords: ["neurodivergent", "adhd", "autism"], conditions: [adhd, autism] },
     ],
   },
   {
@@ -555,12 +562,12 @@ export const librarySections: LibrarySection[] = [
     icon: "kidney",
     chips: ["Kidney disease", "Liver", "IBS"],
     groups: [
-      { id: "kidneys", title: "Kidneys", blurb: "How well the kidneys are working, stones and sudden injury, and keeping them well.", conditions: [chronicKidneyDisease, kidneyStones, acuteKidneyInjury] },
-      { id: "bladder", title: "Bladder & prostate", blurb: "Leaks, infections and a prostate that has grown.", keywords: ["urine", "peeing", "urinary"], conditions: [urinaryIncontinence, enlargedProstate, uti] },
-      { id: "liver", title: "Liver", blurb: "The liver, what can strain and scar it, and what helps it recover.", conditions: [fattyLiver, cirrhosis, alcoholLiverDisease, hepatitis] },
-      { id: "stomach", title: "Stomach & gallbladder", blurb: "Heartburn, ulcers, gallstones and the pancreas.", keywords: ["indigestion", "heartburn", "upper abdomen"], conditions: [acidReflux, stomachUlcers, gallstones, pancreatitis] },
-      { id: "gut", title: "Gut & digestion", blurb: "Tummy pain, bloating and bowel changes.", conditions: [ibs, coeliac, diverticular, constipation] },
-      { id: "ibd", title: "Crohn's & colitis", blurb: "Inflammatory bowel disease: flare-ups, treatment and living well.", keywords: ["inflammatory bowel disease", "ibd"], conditions: [crohns, ulcerativeColitis] },
+      { id: "kidneys", title: "Kidneys", blurb: "How well the kidneys are working, stones and sudden injury, and keeping them well.", conditions: [chronicKidneyDisease, kidneyStones, acuteKidneyInjury, polycysticKidney, glomerulonephritis, kidneyFailureDialysis, kidneyTransplant] },
+      { id: "bladder", title: "Bladder & prostate", blurb: "Leaks, infections and a prostate that has grown.", keywords: ["urine", "peeing", "urinary"], conditions: [urinaryIncontinence, overactiveBladder, uti, bladderPain, enlargedProstate, prostatitis] },
+      { id: "liver", title: "Liver", blurb: "The liver, what can strain and scar it, and what helps it recover.", conditions: [fattyLiver, cirrhosis, alcoholLiverDisease, hepatitis, haemochromatosis, pbc, autoimmuneHepatitis] },
+      { id: "stomach", title: "Stomach & gallbladder", blurb: "Heartburn, ulcers, gallstones and the pancreas.", keywords: ["indigestion", "heartburn", "upper abdomen"], conditions: [acidReflux, indigestion, hiatusHernia, gastritis, stomachUlcers, gallstones, pancreatitis] },
+      { id: "gut", title: "Gut & digestion", blurb: "Tummy pain, bloating and bowel changes.", conditions: [ibs, coeliac, lactoseIntolerance, diverticular, constipation, haemorrhoids, analFissure, bowelIncontinence] },
+      { id: "ibd", title: "Crohn's & colitis", blurb: "Inflammatory bowel disease: flare-ups, treatment and living well.", keywords: ["inflammatory bowel disease", "ibd"], conditions: [crohns, ulcerativeColitis, microscopicColitis] },
     ],
   },
 ];

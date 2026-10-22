@@ -20,6 +20,61 @@ import { extras as backPainNews } from "./heart-news/back-pain";
 import { extras as osteoporosisNews } from "./heart-news/osteoporosis";
 import { extras as rheumatoidNews } from "./heart-news/rheumatoid";
 import { extras as anxietyNews } from "./heart-news/anxiety";
+import { extras as bunionsNews } from "./heart-news/bunions";
+import { extras as achillesNews } from "./heart-news/achilles";
+import { extras as deQuervainsNews } from "./heart-news/de-quervains";
+import { extras as meniscusNews } from "./heart-news/meniscus";
+import { extras as kneeLigamentNews } from "./heart-news/knee-ligament";
+import { extras as sprainsStrainsNews } from "./heart-news/sprains-strains";
+import { extras as bingeEatingNews } from "./heart-news/binge-eating";
+import { extras as autismNews } from "./heart-news/autism";
+import { extras as gamblingNews } from "./heart-news/gambling";
+import { extras as adhdNews } from "./heart-news/adhd";
+import { extras as arfidNews } from "./heart-news/arfid";
+import { extras as angerNews } from "./heart-news/anger";
+import { extras as sarcomaNews } from "./heart-news/sarcoma";
+import { extras as smokingNews } from "./heart-news/quitting-smoking";
+import { extras as drugUseNews } from "./heart-news/drug-use";
+import { extras as mdsNews } from "./heart-news/mds";
+import { extras as triggerFingerNews } from "./heart-news/trigger-finger";
+import { extras as hypermobilityNews } from "./heart-news/hypermobility";
+import { extras as carerStressNews } from "./heart-news/carer-stress";
+import { extras as testicularNews } from "./heart-news/testicular";
+import { extras as brainFogNews } from "./heart-news/brain-fog";
+import { extras as brainTumoursNews } from "./heart-news/brain-tumours";
+import { extras as bursitisNews } from "./heart-news/bursitis";
+import { extras as fertilityAfterCancerNews } from "./heart-news/fertility-after-cancer";
+import { extras as vulvalNews } from "./heart-news/vulval";
+import { extras as oesophagealNews } from "./heart-news/oesophageal";
+import { extras as skinCancerNews } from "./heart-news/skin-cancer";
+import { extras as stomachCancerNews } from "./heart-news/stomach-cancer";
+import { extras as healthAnxietyNews } from "./heart-news/health-anxiety";
+import { extras as liverCancerNews } from "./heart-news/liver-cancer";
+import { extras as penileNews } from "./heart-news/penile";
+import { extras as boneMetastasesNews } from "./heart-news/bone-metastases";
+import { extras as fearOfRecurrenceNews } from "./heart-news/fear-of-recurrence";
+import { extras as mesotheliomaNews } from "./heart-news/mesothelioma";
+import { extras as caringAdvancedNews } from "./heart-news/caring-advanced";
+import { extras as shoulderReplacementNews } from "./heart-news/shoulder-replacement";
+import { extras as phobiasNews } from "./heart-news/phobias";
+import { extras as socialAnxietyNews } from "./heart-news/social-anxiety";
+import { extras as lateEffectsNews } from "./heart-news/late-effects";
+import { extras as perimenopauseNews } from "./heart-news/perimenopause-mood";
+import { extras as thyroidCancerNews } from "./heart-news/thyroid-cancer";
+import { extras as rotatorCuffNews } from "./heart-news/rotator-cuff";
+import { extras as selfHarmNews } from "./heart-news/self-harm";
+import { extras as panicNews } from "./heart-news/panic-disorder";
+import { extras as sscNews } from "./heart-news/systemic-sclerosis";
+import { extras as sjogrensNews } from "./heart-news/sjogrens";
+import { extras as ankleFractureNews } from "./heart-news/ankle-fracture";
+import { extras as wristFractureNews } from "./heart-news/wrist-fracture";
+import { extras as narcolepsyNews } from "./heart-news/narcolepsy";
+import { extras as scoliosisNews } from "./heart-news/scoliosis";
+import { extras as gcaNews } from "./heart-news/giant-cell-arteritis";
+import { extras as schizophreniaNews } from "./heart-news/schizophrenia";
+import { extras as discNews } from "./heart-news/slipped-disc";
+import { extras as personalityDisorderNews } from "./heart-news/personality-disorder";
+import { extras as burnoutNews } from "./heart-news/burnout";
 import { extras as pancreaticNews } from "./heart-news/pancreatic";
 import { extras as coeliacNews } from "./heart-news/coeliac-disease";
 import { extras as cervicalNews } from "./heart-news/cervical";
@@ -118,6 +173,11 @@ import { HEPATIC_FEATURES, type HepaticPiece } from "./hepatic-features";
 import { UPPER_FEATURES, type UpperPiece } from "./upper-features";
 import { BOWEL_FEATURES, type BowelPiece } from "./bowel-features";
 import { IBD_FEATURES, type IbdPiece } from "./ibd-features";
+import { NEPHRO_FEATURES, type NephroPiece } from "./nephro-features";
+import { UROLOGY_FEATURES, type UrologyPiece } from "./urology-features";
+import { BILIARY_FEATURES, type BiliaryPiece } from "./biliary-features";
+import { GASTRIC_FEATURES, type GastricPiece } from "./gastric-features";
+import { RECTAL_FEATURES, type RectalPiece } from "./rectal-features";
 import { INFLAM_FEATURES, type InflamPiece } from "./inflam-features";
 import { IMMUNE_FEATURES, type ImmunePiece } from "./immune-features";
 import { BONEFIX_FEATURES, type BonefixPiece } from "./bonefix-features";
@@ -125,15 +185,36 @@ import { SPINE_FEATURES, type SpinePiece } from "./spine-features";
 import { SOFT_FEATURES, type SoftPiece } from "./soft-features";
 import { JOINT_FEATURES, type JointPiece } from "./joint-features";
 import { TENDON_FEATURES, type TendonPiece } from "./tendon-features";
+import { AUTOIMMUNE_FEATURES, type AutoimmunePiece } from "./autoimmune-features";
+import { BREAKS_FEATURES, type BreaksPiece } from "./breaks-features";
+import { DISCS_FEATURES, type DiscsPiece } from "./discs-features";
+import { SHOULDER_FEATURES, type ShoulderPiece } from "./shoulder-features";
+import { FLEX_FEATURES, type FlexPiece } from "./flex-features";
+import { HANDS_FEATURES, type HandsPiece } from "./hands-features";
+import { FEET_FEATURES, type FeetPiece } from "./feet-features";
+import { INJURY_FEATURES, type InjuryPiece } from "./injury-features";
 import { SUGAR_FEATURES, type SugarPiece } from "./sugar-features";
 import { LIPID_FEATURES, type LipidPiece } from "./lipid-features";
 import { GLAND_FEATURES, type GlandPiece } from "./gland-features";
 import { MINERAL_FEATURES, type MineralPiece } from "./mineral-features";
+import { DUSK_FEATURES, type DuskPiece } from "./dusk-features";
+import { FEAR_FEATURES, type FearPiece } from "./fear-features";
+import { MINDSET_FEATURES, type MindsetPiece } from "./mindset-features";
+import { HABIT_FEATURES, type HabitPiece } from "./habit-features";
+import { STRAIN_FEATURES, type StrainPiece } from "./strain-features";
+import { NOURISH_FEATURES, type NourishPiece } from "./nourish-features";
+import { NEURO_FEATURES, type NeuroPiece } from "./neuro-features";
 import { SOLID_FEATURES, type SolidPiece } from "./solid-features";
 import { BLOOD_FEATURES, type BloodPiece } from "./blood-features";
 import { GYN_FEATURES, type GynPiece } from "./gyn-features";
 import { ORGAN_FEATURES, type OrganPiece } from "./organ-features";
 import { CARE_FEATURES, type CarePiece } from "./care-features";
+import { SPOT_FEATURES, type SpotPiece } from "./spot-features";
+import { MEN_FEATURES, type MenPiece } from "./men-features";
+import { DIGEST_FEATURES, type DigestPiece } from "./digest-features";
+import { RARE_FEATURES, type RarePiece } from "./rare-features";
+import { BEYOND_FEATURES, type BeyondPiece } from "./beyond-features";
+import { SUPPORT_FEATURES, type SupportPiece } from "./support-features";
 import { SEASON_FEATURES, type SeasonPiece } from "./season-features";
 import { WORRY_FEATURES, type WorryPiece } from "./worry-features";
 import { BALANCE_FEATURES, type BalancePiece } from "./balance-features";
@@ -238,8 +319,8 @@ export type NewsPiece =
   | "back-spine-dial" | "back-three-lights" | "back-two-scans" | "back-alarm" | "back-five-moves" | "back-pill-days" | "back-physio-path" | "back-hundred" | "back-desk" | "back-bed" | "back-three-paths" | "back-neck-pillow"
   | "op-honeycomb" | "op-tscore" | "op-four-risks" | "op-wedge" | "op-tablet-morning" | "op-year-calendar" | "op-food-sun" | "op-three-panels" | "op-safe-home" | "op-heal-weeks" | "op-hip-hinge" | "op-tooth"
   | "ra-joint-lining" | "ra-jigsaw" | "ra-body-spots" | "ra-flare-wave" | "ra-week-mtx" | "ra-steps" | "ra-bridge" | "ra-hand-moves" | "ra-morning-clock" | "ra-batteries" | "ra-adjust-desk" | "ra-shield" | "ra-family-line"
-  | SolidPiece | BloodPiece | GynPiece | OrganPiece | CarePiece
-  | CancerPiece | AftercarePiece | MindPiece | GutPiece | CardioPiece | RhythmPiece | AirwayPiece | RenalPiece | BladderPiece | HepaticPiece | UpperPiece | BowelPiece | IbdPiece | InflamPiece | ImmunePiece | BonefixPiece | SpinePiece | SoftPiece | JointPiece | TendonPiece | SugarPiece | LipidPiece | GlandPiece | MineralPiece | SeasonPiece | WorryPiece | BalancePiece | EasePiece | ReachPiece;
+  | SolidPiece | BloodPiece | GynPiece | OrganPiece | CarePiece | SpotPiece | MenPiece | DigestPiece | RarePiece | BeyondPiece | SupportPiece
+  | CancerPiece | AftercarePiece | MindPiece | GutPiece | CardioPiece | RhythmPiece | AirwayPiece | RenalPiece | BladderPiece | HepaticPiece | UpperPiece | BowelPiece | IbdPiece | NephroPiece | UrologyPiece | BiliaryPiece | GastricPiece | RectalPiece | InflamPiece | ImmunePiece | BonefixPiece | SpinePiece | SoftPiece | JointPiece | TendonPiece | AutoimmunePiece | BreaksPiece | DiscsPiece | ShoulderPiece | FlexPiece | HandsPiece | FeetPiece | InjuryPiece | SugarPiece | LipidPiece | GlandPiece | MineralPiece | DuskPiece | FearPiece | MindsetPiece | HabitPiece | StrainPiece | NourishPiece | NeuroPiece | SeasonPiece | WorryPiece | BalancePiece | EasePiece | ReachPiece;
 
 /**
  * A card's feature: by condition and piece first ("ischaemic/heavy-side": two pieces can share one
@@ -1227,7 +1308,7 @@ NEWS_EXTRAS["back-pain/neck"] = backL("Same rules, smaller spine", "Neck pain us
 
 // Each Heart & lungs feature then takes its reference numbers, charts and figures, as the stroke features have.
 // The sections from Cancer & recovery onwards keep their features in their own files (content/feature-spec.ts).
-for (const features of [SOLID_FEATURES, BLOOD_FEATURES, GYN_FEATURES, ORGAN_FEATURES, CARE_FEATURES, CANCER_FEATURES, AFTERCARE_FEATURES, MIND_FEATURES, GUT_FEATURES, CARDIO_FEATURES, RHYTHM_FEATURES, AIRWAY_FEATURES, RENAL_FEATURES, BLADDER_FEATURES, HEPATIC_FEATURES, UPPER_FEATURES, BOWEL_FEATURES, IBD_FEATURES, INFLAM_FEATURES, IMMUNE_FEATURES, BONEFIX_FEATURES, SPINE_FEATURES, SOFT_FEATURES, JOINT_FEATURES, TENDON_FEATURES, SUGAR_FEATURES, LIPID_FEATURES, GLAND_FEATURES, MINERAL_FEATURES, SEASON_FEATURES, WORRY_FEATURES, BALANCE_FEATURES, EASE_FEATURES, REACH_FEATURES]) for (const [key, spec] of Object.entries(features)) NEWS_EXTRAS[key] = move(spec.kicker)(spec.headline, spec.standfirst, spec.piece, spec.pullQuote);
+for (const features of [SPOT_FEATURES, MEN_FEATURES, DIGEST_FEATURES, RARE_FEATURES, BEYOND_FEATURES, SUPPORT_FEATURES, SOLID_FEATURES, BLOOD_FEATURES, GYN_FEATURES, ORGAN_FEATURES, CARE_FEATURES, CANCER_FEATURES, AFTERCARE_FEATURES, MIND_FEATURES, GUT_FEATURES, CARDIO_FEATURES, RHYTHM_FEATURES, AIRWAY_FEATURES, RENAL_FEATURES, BLADDER_FEATURES, HEPATIC_FEATURES, UPPER_FEATURES, BOWEL_FEATURES, IBD_FEATURES, NEPHRO_FEATURES, UROLOGY_FEATURES, BILIARY_FEATURES, GASTRIC_FEATURES, RECTAL_FEATURES, INFLAM_FEATURES, IMMUNE_FEATURES, BONEFIX_FEATURES, SPINE_FEATURES, SOFT_FEATURES, JOINT_FEATURES, TENDON_FEATURES, AUTOIMMUNE_FEATURES, BREAKS_FEATURES, DISCS_FEATURES, SHOULDER_FEATURES, FLEX_FEATURES, HANDS_FEATURES, FEET_FEATURES, INJURY_FEATURES, SUGAR_FEATURES, LIPID_FEATURES, GLAND_FEATURES, MINERAL_FEATURES, DUSK_FEATURES, FEAR_FEATURES, MINDSET_FEATURES, HABIT_FEATURES, STRAIN_FEATURES, NOURISH_FEATURES, NEURO_FEATURES, SEASON_FEATURES, WORRY_FEATURES, BALANCE_FEATURES, EASE_FEATURES, REACH_FEATURES]) for (const [key, spec] of Object.entries(features)) NEWS_EXTRAS[key] = move(spec.kicker)(spec.headline, spec.standfirst, spec.piece, spec.pullQuote);
 
 const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   "high-blood-pressure": hbpNews, "heart-attack": heartAttackNews, angina: anginaNews, "atrial-fibrillation": afNews,
@@ -1236,6 +1317,61 @@ const HEART_NEWS: Record<string, Record<string, Partial<NewsExtras>>> = {
   osteoporosis: osteoporosisNews,
   rheumatoid: rheumatoidNews,
   anxiety: anxietyNews,
+  "bunions": bunionsNews,
+  "achilles": achillesNews,
+  "de-quervains": deQuervainsNews,
+  "meniscus": meniscusNews,
+  "knee-ligament": kneeLigamentNews,
+  "sprains-strains": sprainsStrainsNews,
+  "binge-eating": bingeEatingNews,
+  "autism": autismNews,
+  "gambling": gamblingNews,
+  "adhd": adhdNews,
+  "arfid": arfidNews,
+  "anger": angerNews,
+  "sarcoma": sarcomaNews,
+  "quitting-smoking": smokingNews,
+  "drug-use": drugUseNews,
+  "mds": mdsNews,
+  "trigger-finger": triggerFingerNews,
+  "hypermobility": hypermobilityNews,
+  "carer-stress": carerStressNews,
+  "testicular": testicularNews,
+  "brain-fog": brainFogNews,
+  "brain-tumours": brainTumoursNews,
+  "bursitis": bursitisNews,
+  "fertility-after-cancer": fertilityAfterCancerNews,
+  "vulval": vulvalNews,
+  "oesophageal": oesophagealNews,
+  "skin-cancer": skinCancerNews,
+  "stomach-cancer": stomachCancerNews,
+  "health-anxiety": healthAnxietyNews,
+  "liver-cancer": liverCancerNews,
+  "penile": penileNews,
+  "bone-metastases": boneMetastasesNews,
+  "fear-of-recurrence": fearOfRecurrenceNews,
+  "mesothelioma": mesotheliomaNews,
+  "caring-advanced": caringAdvancedNews,
+  "shoulder-replacement": shoulderReplacementNews,
+  "phobias": phobiasNews,
+  "social-anxiety": socialAnxietyNews,
+  "late-effects": lateEffectsNews,
+  "perimenopause-mood": perimenopauseNews,
+  "thyroid-cancer": thyroidCancerNews,
+  "rotator-cuff": rotatorCuffNews,
+  "self-harm": selfHarmNews,
+  "panic-disorder": panicNews,
+  "systemic-sclerosis": sscNews,
+  "sjogrens": sjogrensNews,
+  "ankle-fracture": ankleFractureNews,
+  "wrist-fracture": wristFractureNews,
+  "narcolepsy": narcolepsyNews,
+  "scoliosis": scoliosisNews,
+  "giant-cell-arteritis": gcaNews,
+  "schizophrenia": schizophreniaNews,
+  "slipped-disc": discNews,
+  "personality-disorder": personalityDisorderNews,
+  "burnout": burnoutNews,
   "pancreatic": pancreaticNews,
   "coeliac-disease": coeliacNews,
   "cervical": cervicalNews,

@@ -21,19 +21,19 @@ describe("the Brain & nervous system bento", () => {
     for (const section of librarySections) expect(render(section.id), section.id).toContain("lib-bento-hero");
   });
 
-  it("opens Cancer & recovery with the common cancers large and its five other groups small", () => {
+  it("opens Cancer & recovery with the common cancers large and its eight other groups small", () => {
     const html = render("cancer-recovery");
     const [feature] = tiles(html, "is-feature");
     expect(feature).toContain(">Common cancers</h2>");
     expect(feature).toContain('href="/common-cancers/breast"');
-    expect(tiles(html, "is-small")).toHaveLength(5);
-    expect(html).toContain("lib-bento is-five");
+    expect(tiles(html, "is-small")).toHaveLength(8);
   });
 
-  it("opens Mind & mood with Depression large and its six other groups small", () => {
+  it("opens Mind & mood with Depression large and its seven other groups small, laid out like the Brain page", () => {
     const html = render("mind-mood");
-    expect(tiles(html, "is-small")).toHaveLength(6);
-    expect(html).toContain("lib-bento is-six");
+    expect(tiles(html, "is-small")).toHaveLength(7);
+    expect(html).toContain('class="lib-bento"');
+    expect(html).toContain(">ADHD &amp; autism</h3>");
   });
 
   it("opens Kidneys, liver & digestion with Kidneys large and its five other groups small", () => {
@@ -44,12 +44,12 @@ describe("the Brain & nervous system bento", () => {
     expect(html).toContain("lib-bento is-five");
   });
 
-  it("opens Bones, joints & muscles with Arthritis large and its five other groups small", () => {
+  it("opens Bones, joints & muscles with Arthritis large and its six other groups small", () => {
     const html = render("bones-joints-muscles");
     const [feature] = tiles(html, "is-feature");
     expect(feature).toContain(">Arthritis</h2>");
-    expect(tiles(html, "is-small")).toHaveLength(5);
-    expect(html).toContain("lib-bento is-five");
+    expect(tiles(html, "is-small")).toHaveLength(6);
+    expect(html).toContain("lib-bento is-six");
   });
 
   it("opens Diabetes & metabolism with Diabetes large and its five other groups small", () => {

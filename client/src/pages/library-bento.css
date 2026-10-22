@@ -162,6 +162,11 @@
 .lib-ask-open { min-height:44px; padding:0; border:0; background:none; color:#2F6851; font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 
 .lib-bento.is-five > .lib-bento-ask { grid-column:span 3; }
+/* With eight small tiles, the question runs across the last row. */
+.lib-bento.is-eight > .lib-bento-ask { grid-column:1 / -1; }
+.lib-bento.is-eight .lib-ask-group.is-tile .lib-ask-row { flex-direction:row; }
+.lib-bento.is-eight .lib-ask-group.is-tile .lib-button { width:auto; padding:0 28px; }
+@media (max-width:600px) { .lib-bento.is-eight .lib-ask-group.is-tile .lib-ask-row { flex-direction:column; } .lib-bento.is-eight .lib-ask-group.is-tile .lib-button { width:100%; } }
 .lib-bento.is-six > .lib-bento-ask { grid-column:span 2; }
 .lib-bento.is-five .lib-ask-group.is-tile .lib-ask-row { flex-direction:row; }
 .lib-bento.is-five .lib-ask-group.is-tile .lib-button { width:auto; padding:0 28px; }

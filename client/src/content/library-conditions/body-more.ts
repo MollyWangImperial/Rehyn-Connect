@@ -1,5 +1,5 @@
 import type { LibraryCondition, LibraryItem, VideoStory } from "../library";
-import { article, BACKCARE, CSP, FMA_UK, LUPUS_UK, NASS, NHS, NRAS, PAGETS_ASSOCIATION, PAPAA, piece, PMRGCA_UK, ROS, source, VERSUS_ARTHRITIS } from "../library-helpers";
+import { article, BACKCARE, CSP, FMA_UK, BSSH, HMSA, LUPUS_UK, NASS, NHS, NRAS, PAGETS_ASSOCIATION, PAPAA, piece, PMRGCA_UK, RCPOD, ROS, SCOLIOSIS_SR, SJOGRENS_UK, source, SRUK, VERSUS_ARTHRITIS } from "../library-helpers";
 
 // Bones, joints & muscles, the rest of the section: psoriatic arthritis, axial spondyloarthritis, polymyalgia
 // rheumatica and lupus; hip fracture and Paget's disease of bone; neck pain and spinal stenosis; fibromyalgia and
@@ -624,4 +624,737 @@ export const plantarFasciitis = condition({
   sources: [source(NHS, "Plantar fasciitis"), CSP, VERSUS_ARTHRITIS],
   askDoctor: ["Is this plantar fasciitis, or something else?", "Which stretches should I do?", "Would insoles or a referral to a podiatrist help?", "What if it is no better after a few months?"],
   related: [{ groupId: "feet-tendons", conditionId: "tennis-elbow" }, { groupId: "arthritis", conditionId: "osteoarthritis" }, { groupId: "weight", conditionId: "obesity" }],
+});
+
+// ---- The second round: autoimmune conditions, more breaks, more back and soft-tissue problems, shoulder
+// replacement, hands and feet, and joint injuries.
+
+export const giantCellArteritis = condition({
+  id: "giant-cell-arteritis",
+  prefix: "gca-",
+  facts: ["Very rare in people under 50", "Peak age is between 60 and 80", "Up to half also have PMR symptoms"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-mayo-gca", title: "Mayo Clinic - Giant Cell Arteritis and Takayasu's Arteritis", kind: "video", duration: "2:51", url: "https://www.youtube.com/watch?v=GArqMWFvQtQ", extra: "a rheumatologist on symptoms and treatment", publisher: "Mayo Clinic", keywords: ["giant cell arteritis", "vasculitis", "treatment"] },
+    { id: "yt-nanos-gca", title: "Understanding Giant Cell Arteritis (GCA): Causes, Symptoms, and Treatment", kind: "video", duration: "2:02", url: "https://www.youtube.com/watch?v=yfCJwS1Hs2g", extra: "vision, headaches, jaw pain and treatment", publisher: "North American Neuro-Ophthalmology Society", keywords: ["giant cell arteritis", "vision", "steroids"] },
+    { id: "yt-mgh-gca", title: "Rheumatology Patient Education: Giant Cell Arteritis (GCA)", kind: "video", duration: "6:23", url: "https://www.youtube.com/watch?v=fQRGUdjQxrQ", extra: "patient education from a rheumatologist", publisher: "MassGeneralHospital", keywords: ["giant cell arteritis", "rheumatology", "patient education"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-sue-gca", person: "Sue", title: "Polymyalgia Rheumatica and Giant Cell Arteritis - Sue's Story", channel: "PMRGCAuk", url: "https://www.youtube.com/watch?v=qEB9UrbEAV8", duration: "9:09", about: "Sue was diagnosed with polymyalgia rheumatica and, three years later, with giant cell arteritis; eight years on she keeps as active as she can and refuses to let the conditions rule her life." },
+    { id: "yt-jeffery-gca", person: "Jeffery", title: "Polymyalgia Rheumatica and Giant Cell Arteritis - Jeffery's Story", channel: "PMRGCAuk", url: "https://www.youtube.com/watch?v=SdqHrouHhg4", duration: "4:13", about: "Jeffery's polymyalgia rheumatica worsened until he spent two weeks in hospital and developed giant cell arteritis; after five flare-ups in five years of tapering, he is enjoying life and getting help when he needs it." },
+    { id: "yt-malcolm-gca", person: "Malcolm", title: "Polymyalgia Rheumatica and Giant Cell Arteritis - Malcolm's experience", channel: "PMRGCAuk", url: "https://www.youtube.com/watch?v=5jLjt8UwoX0", duration: "5:47", about: "Malcolm had polymyalgia rheumatica symptoms without a diagnosis for a time and a trip to A&E for emergency giant cell arteritis treatment, and reflects on his care and the charity's support." },
+  ],
+  // end of wiring
+  title: "Giant cell arteritis",
+  summary: "Inflammation of medium and large arteries, usually those around the temples, in people over 50. It causes headaches, scalp tenderness and jaw pain, and it can affect sight, which is why it is treated urgently with steroids.",
+  keywords: ["giant cell arteritis", "gca", "temporal arteritis", "headache", "jaw pain", "vision"],
+  understand: [
+    ["what-it-is", "What giant cell arteritis is", 3, ["arteries", "inflammation", "temples"], "Inflamed arteries, often at the temples."],
+    ["symptoms", "Symptoms: headache, scalp and jaw", 3, ["headache", "scalp", "jaw pain"]],
+    ["urgent", "Sight problems: get help straight away", 2, ["vision", "urgent", "sight"]],
+    ["diagnosis", "Blood tests, scans and biopsy", 3, ["blood test", "ultrasound", "biopsy"]],
+  ],
+  recover: [
+    ["steroids", "High-dose steroids at the start", 3, ["prednisolone", "steroids"]],
+    ["reducing", "Reducing the dose over time", 3, ["tapering", "dose"]],
+    ["other-medicines", "Other medicines that help", 3, ["tocilizumab", "methotrexate"]],
+    ["side-effects", "Side effects and protecting your bones", 3, ["side effects", "bones", "blood sugar"]],
+  ],
+  liveWell: [
+    ["relapse", "If symptoms come back", 2, ["relapse", "flare"]],
+    ["pmr-link", "Giant cell arteritis and polymyalgia", 2, ["polymyalgia rheumatica", "link"]],
+    ["steroid-card", "Steroid cards and sick days", 2, ["steroid card", "illness"]],
+    ["support", "Support and everyday life", 2, ["support", "daily life"]],
+  ],
+  sources: [source(NHS, "Giant cell arteritis"), PMRGCA_UK, VERSUS_ARTHRITIS],
+  askDoctor: ["How quickly should my steroid dose come down?", "Which symptoms mean I should come back straight away?", "Do I need bone protection or a stomach-protecting tablet?", "Should I have a steroid emergency card?"],
+  related: [{ groupId: "arthritis", conditionId: "polymyalgia-rheumatica" }, { groupId: "bone-health", conditionId: "osteoporosis" }, { groupId: "stroke", conditionId: "tia" }],
+});
+
+export const sjogrens = condition({
+  id: "sjogrens",
+  prefix: "sjo-",
+  facts: ["About 9 in 10 people with it are women", "Most often diagnosed between 40 and 60", "Most have a normal life expectancy"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-jhu-sjogrens-overview", title: "Sjögren's Syndrome - Disease Overview | Johns Hopkins", kind: "video", duration: "3:19", url: "https://www.youtube.com/watch?v=TLwBy5E9els", extra: "A specialist centre director explains", publisher: "Johns Hopkins Rheumatology", keywords: ["symptoms", "dryness", "diagnosis"] },
+    { id: "yt-sf-sjogrens-immune", title: "Sjögren’s Disease Explained: The Immune System and What Goes Wrong", kind: "video", duration: "5:06", url: "https://www.youtube.com/watch?v=JgvHUgmKrqQ", extra: "What goes wrong in the immune system", publisher: "Sjögrens Foundation", keywords: ["immune system", "autoimmune", "glands"] },
+    { id: "yt-bsr-sjogren-guideline", title: "Rheumatology Roundtable: Sjogren disease guideline", kind: "video", duration: "12:29", url: "https://www.youtube.com/watch?v=sxvB-4YJV1o", extra: "UK experts on the new guideline", publisher: "British Society for Rheumatology", keywords: ["guideline", "treatment", "UK"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-linda-sjogrens", person: "Linda", title: "Linda's story", channel: "Sjögren Europe", url: "https://www.youtube.com/watch?v=yfRQd43bW9Q", duration: "3:15", about: "Linda gives a British patient's perspective on living with Sjögren's syndrome." },
+    { id: "yt-jane-sjogrens", person: "Jane", title: "Living with Sjögren's Syndrome: Jane’s 30-Year Journey of Strength and Resilience", channel: "The University of Kansas Health System", url: "https://www.youtube.com/watch?v=qpQKUc6FTFU", duration: "1:51", about: "For over 30 years, Jane has managed Sjögren's, with joint pain, dry eyes and severe dental issues, and she continues to tend her garden and embrace life." },
+  ],
+  // end of wiring
+  title: "Sjögren's syndrome",
+  summary: "An autoimmune condition that mainly affects the glands that make tears and saliva, causing dry eyes and a dry mouth, often with tiredness and joint pain. There is no cure, but many treatments ease the dryness and protect the eyes and teeth.",
+  keywords: ["sjogren's", "sjogrens", "dry eyes", "dry mouth", "autoimmune", "fatigue"],
+  understand: [
+    ["what-it-is", "What Sjögren's syndrome is", 3, ["autoimmune", "glands", "dryness"], "An immune system that targets the moisture glands."],
+    ["symptoms", "Dry eyes, dry mouth and more", 3, ["dry eyes", "dry mouth", "tiredness"]],
+    ["diagnosis", "Tests and diagnosis", 3, ["blood tests", "eye test", "saliva"]],
+    ["other-organs", "When it affects joints, nerves or other organs", 3, ["joints", "nerves", "lungs"]],
+  ],
+  recover: [
+    ["eyes", "Caring for dry eyes", 3, ["eye drops", "dry eyes"]],
+    ["mouth", "Caring for a dry mouth and teeth", 3, ["saliva", "teeth", "dentist"]],
+    ["medicines", "Medicines for joints and tiredness", 3, ["hydroxychloroquine", "pain relief"]],
+    ["checks", "Regular checks", 2, ["checks", "lymphoma", "follow-up"]],
+  ],
+  liveWell: [
+    ["fatigue", "Fatigue and pacing", 3, ["fatigue", "pacing"]],
+    ["everyday", "Dryness at home, work and when travelling", 3, ["humidity", "screens", "travel"]],
+    ["pregnancy", "Pregnancy and Sjögren's", 2, ["pregnancy", "antibodies"]],
+    ["support", "Support and living well", 2, ["support", "charity"]],
+  ],
+  sources: [source(NHS, "Sjögren's syndrome"), SJOGRENS_UK, VERSUS_ARTHRITIS],
+  askDoctor: ["Which eye drops or gels would suit me?", "How often should I see the dentist?", "Would a medicine help my joints or tiredness?", "Which symptoms should I report quickly?"],
+  related: [{ groupId: "arthritis", conditionId: "lupus" }, { groupId: "arthritis", conditionId: "rheumatoid" }, { groupId: "muscles", conditionId: "fibromyalgia" }],
+});
+
+export const systemicSclerosis = condition({
+  id: "systemic-sclerosis",
+  prefix: "ssc-",
+  facts: ["Around 19,000 people in the UK", "95% say Raynaud's came first", "Check-ups best once a year"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-sruk-know-scleroderma", title: "What you need to know about scleroderma", kind: "video", duration: "3:34", url: "https://www.youtube.com/watch?v=0nfV508j8tQ", extra: "SRUK's Scleroderma Awareness Month film", publisher: "SRUK", keywords: ["scleroderma", "awareness", "what is scleroderma"] },
+    { id: "yt-sruk-first-symptoms", title: "What are the first symptoms of scleroderma?", kind: "video", duration: "3:21", url: "https://www.youtube.com/watch?v=7d7qzJAtN4k", extra: "The first symptoms of scleroderma", publisher: "SRUK", keywords: ["first symptoms", "early signs", "diagnosis"] },
+    { id: "yt-sruk-hand-exercises", title: "5 Minute Hand Exercises to Beat Scleroderma Stiffness", kind: "video", duration: "9:39", url: "https://www.youtube.com/watch?v=DsBIZiWfNPk", extra: "A consultant physiotherapist's hand stretches", publisher: "SRUK", keywords: ["hand exercises", "stiffness", "physiotherapy"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-diane-ssc", person: "Diane", title: "Diane's shares her story of her diagnosis of Systemic Scleroderma.", channel: "WeAreSRUK", url: "https://www.youtube.com/watch?v=N4sLCEhRk08", duration: "6:30", about: "Diane talks about her diagnosis of systemic scleroderma, and her experiences of kidney failure and dialysis as a result of it." },
+    { id: "yt-helen-ssc", person: "Helen", title: "Helen: \"There were symptoms of scleroderma probably for the last 8 or 9 years\"", channel: "WeAreSRUK", url: "https://www.youtube.com/watch?v=DtqwyODkwwk", duration: "4:02", about: "Helen received a diagnosis of scleroderma after years of living with symptoms, probably for the last 8 or 9 years." },
+    { id: "yt-simon-ssc", person: "Simon", title: "Simon: \"There was a lot of confusion about my symptoms\"", channel: "WeAreSRUK", url: "https://www.youtube.com/watch?v=Lfrmg84wNZc", duration: "7:24", about: "Simon started reporting symptoms in 2018, but there was a lot of confusion about them, and it took a few years until he was diagnosed with scleroderma." },
+  ],
+  // end of wiring
+  title: "Systemic sclerosis (scleroderma)",
+  summary: "An autoimmune condition that causes thickening and hardening of the skin and, for some people, the internal organs. Raynaud's, where fingers turn white or blue in the cold, is often the first sign. Regular checks and treatment help protect the organs.",
+  keywords: ["systemic sclerosis", "scleroderma", "raynaud's", "skin thickening", "autoimmune"],
+  understand: [
+    ["what-it-is", "What systemic sclerosis is", 3, ["autoimmune", "skin", "scarring"], "Skin and tissues that thicken and tighten."],
+    ["raynauds", "Raynaud's: cold fingers and toes", 3, ["raynaud's", "cold", "fingers"]],
+    ["types", "Limited and diffuse types", 3, ["limited", "diffuse", "types"]],
+    ["organs", "Lungs, heart, gut and kidneys", 3, ["lungs", "heart", "gut", "kidneys"]],
+  ],
+  recover: [
+    ["medicines", "Medicines that calm the immune system", 3, ["immunosuppressants", "mycophenolate"]],
+    ["raynauds-care", "Treating Raynaud's and finger ulcers", 3, ["raynaud's", "ulcers", "warmth"]],
+    ["checks", "Regular checks for lungs and heart", 3, ["checks", "lung tests", "echo"]],
+    ["therapy", "Physiotherapy, hand exercises and skin care", 3, ["physiotherapy", "hands", "skin"]],
+  ],
+  liveWell: [
+    ["warmth", "Keeping warm", 2, ["warmth", "gloves", "cold"]],
+    ["eating", "Eating, swallowing and reflux", 3, ["reflux", "swallowing", "food"]],
+    ["urgent", "Symptoms to report quickly", 2, ["urgent", "blood pressure", "breathless"]],
+    ["support", "Support and living well", 2, ["support", "mood"]],
+  ],
+  sources: [source(NHS, "Scleroderma"), SRUK, VERSUS_ARTHRITIS],
+  askDoctor: ["Which type of systemic sclerosis do I have?", "How often will my lungs and heart be checked?", "What can I do about Raynaud's attacks?", "Which symptoms should I report straight away?"],
+  related: [{ groupId: "arthritis", conditionId: "lupus" }, { groupId: "long-term-lung", conditionId: "pulmonary-fibrosis" }, { groupId: "arthritis", conditionId: "sjogrens" }],
+});
+
+export const wristFracture = condition({
+  id: "wrist-fracture",
+  prefix: "wfx-",
+  facts: ["Most heal in 6 to 12 weeks", "A cast usually stays on about 6 weeks", "Over 50? Ask about fracture liaison"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-grampian-wrist-fracture-exercise", title: "Wrist Fracture Exercise", kind: "video", duration: "5:26", url: "https://www.youtube.com/watch?v=HEWtDZPjO7c", extra: "exercises while in a cast", publisher: "NHS Grampian", keywords: ["wrist fracture", "exercises", "cast"] },
+    { id: "yt-cornwall-looking-after-cast", title: "Looking after your cast   a guide for patients", kind: "video", duration: "2:26", url: "https://www.youtube.com/watch?v=_y8snLlJ-gs", extra: "a patient guide to cast care", publisher: "Royal Cornwall Hospitals NHS Trust", keywords: ["cast", "cast care", "fracture"] },
+    { id: "yt-george-eliot-wrist-exercises", title: "Exercises after a wrist fracture", kind: "video", duration: "2:40", url: "https://www.youtube.com/watch?v=48CshMyhK_g", extra: "exercises to aid recovery", publisher: "George Eliot Hospital NHS Trust", keywords: ["wrist fracture", "exercises", "recovery"] },
+  ],
+  // end of wiring
+  title: "Broken wrist",
+  summary: "A break in one of the bones at the wrist, often from putting a hand out in a fall. Most heal well in a cast or splint over about six weeks, and some need an operation. Exercises afterwards help bring back movement and grip.",
+  keywords: ["broken wrist", "wrist fracture", "colles", "cast", "fall"],
+  understand: [
+    ["what-it-is", "What a broken wrist is", 3, ["wrist", "break", "radius"], "The bones at the wrist, and how they break."],
+    ["signs", "Signs, and when to go to A&E", 2, ["pain", "swelling", "a&e"]],
+    ["treatment", "Casts, splints and operations", 3, ["cast", "splint", "surgery"]],
+    ["bones", "Weaker bones: should you be checked?", 3, ["osteoporosis", "bone density"]],
+  ],
+  recoverTitle: "Recovery",
+  recover: [
+    ["cast-care", "Looking after a cast or splint", 3, ["cast", "swelling", "itching"]],
+    ["exercises", "Exercises once the cast is off", 3, ["exercises", "stiffness"]],
+    ["pain", "Pain, stiffness and swelling", 3, ["pain", "stiffness", "swelling"]],
+    ["warning-signs", "Warning signs during healing", 2, ["numbness", "urgent"]],
+  ],
+  liveWell: [
+    ["daily-tasks", "Everyday tasks with one hand", 3, ["dressing", "cooking"]],
+    ["driving-work", "Driving and going back to work", 2, ["driving", "work"]],
+    ["falls", "Preventing another fall", 3, ["falls", "home safety"]],
+    ["long-term", "When it takes longer to recover", 2, ["recovery", "stiffness"]],
+  ],
+  sources: [source(NHS, "Broken arm or wrist"), CSP, ROS],
+  askDoctor: ["Will my wrist need an operation?", "How long will I be in a cast?", "Which exercises should I do, and when?", "Should I be checked for weaker bones?"],
+  related: [{ groupId: "bone-health", conditionId: "osteoporosis" }, { groupId: "bone-health", conditionId: "hip-fracture" }, { groupId: "nerves", conditionId: "carpal-tunnel" }],
+});
+
+export const ankleFracture = condition({
+  id: "ankle-fracture",
+  prefix: "afx-",
+  facts: ["Usually heals in 6 to 8 weeks", "Most often a break of the fibula", "Swelling can last up to a year"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-western-ankle-fracture-exercises", title: "Physiotherapy Exercises following an Ankle Fracture", kind: "video", duration: "7:13", url: "https://www.youtube.com/watch?v=lf6kLq2kwDA", extra: "physiotherapy exercises after an ankle fracture", publisher: "WesternTrust", keywords: ["exercises", "physiotherapy", "ankle fracture"] },
+    { id: "yt-moc-weber-a", title: "Weber A Ankle Fracture - Virtual Fracture Clinic", kind: "video", duration: "11:50", url: "https://www.youtube.com/watch?v=djKBt2Z59G0", extra: "a virtual fracture clinic on Weber A breaks", publisher: "Midlands Orthopaedic Centre", keywords: ["weber a", "fracture clinic", "fibula"] },
+    { id: "yt-glos-boots-braces", title: "Fracture Clinic: Boots and Braces", kind: "video", duration: "3:17", url: "https://www.youtube.com/watch?v=0esuQM7Yyzk", extra: "boots and braces from fracture clinic", publisher: "Gloucestershire Hospitals NHS Foundation Trust", keywords: ["boot", "brace", "fracture clinic"] },
+  ],
+  // end of wiring
+  title: "Broken ankle",
+  summary: "A break in one or more of the bones at the ankle, often from a twist or a fall. Treatment ranges from a boot or cast to an operation, and recovery takes weeks to months. Exercises help bring back movement, strength and balance.",
+  keywords: ["broken ankle", "ankle fracture", "boot", "cast", "twisted ankle"],
+  understand: [
+    ["what-it-is", "What a broken ankle is", 3, ["ankle", "fibula", "tibia"], "The bones of the ankle, and how they break."],
+    ["sprain-or-break", "Sprain or break: telling them apart", 3, ["sprain", "break", "x-ray"]],
+    ["treatment", "Boots, casts and operations", 3, ["boot", "cast", "surgery"]],
+    ["healing", "How long it takes to heal", 2, ["healing", "weeks"]],
+  ],
+  recoverTitle: "Recovery",
+  recover: [
+    ["weight-bearing", "Putting weight on it again", 3, ["weight bearing", "crutches"]],
+    ["exercises", "Exercises for movement and balance", 3, ["exercises", "balance"]],
+    ["swelling", "Swelling, pain and raising the leg", 3, ["swelling", "pain", "elevation"]],
+    ["warning-signs", "Warning signs, including blood clots", 2, ["blood clot", "urgent"]],
+  ],
+  liveWell: [
+    ["home", "Getting around at home", 3, ["stairs", "home"]],
+    ["driving-work", "Driving and going back to work", 2, ["driving", "work"]],
+    ["return-to-sport", "Getting back to walking and sport", 3, ["walking", "sport"]],
+    ["long-term", "Stiffness and swelling that linger", 2, ["stiffness", "long-term"]],
+  ],
+  sources: [source(NHS, "Broken ankle"), CSP, ROS],
+  askDoctor: ["How much weight can I put on my ankle, and when?", "Do I need anything to prevent blood clots?", "Which exercises should I do?", "When can I drive and go back to work?"],
+  related: [{ groupId: "injuries", conditionId: "sprains-strains" }, { groupId: "bone-health", conditionId: "wrist-fracture" }, { groupId: "feet-tendons", conditionId: "achilles" }],
+});
+
+export const slippedDisc = condition({
+  id: "slipped-disc",
+  prefix: "disc-",
+  facts: ["Also called a herniated disc", "Many people never know they have one", "Most common cause of sciatica"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-nhs-sciatica", title: "Sciatica pain relief, exercises and treatment | NHS", kind: "video", duration: "3:30", url: "https://www.youtube.com/watch?v=cXL5fZ7-Tg8", extra: "A spinal physio on sciatica exercises", publisher: "NHS", keywords: ["sciatica", "exercises", "pain relief"] },
+    { id: "yt-mayo-herniated-disk", title: "Mayo Clinic Explains Herniated Disk", kind: "video", duration: "5:24", url: "https://www.youtube.com/watch?v=CVMcDjRGXyI", extra: "Causes, symptoms, diagnosis and treatment", publisher: "Mayo Clinic", keywords: ["herniated disc", "symptoms", "treatment"] },
+    { id: "yt-mgb-disc-herniation", title: "Disc Herniation: Symptoms, Treatment, Risk Factors & Causes | Mass General Brigham", kind: "video", duration: "4:13", url: "https://www.youtube.com/watch?v=d0HNORwk_2M", extra: "A spine surgeon on treatment options", publisher: "Mass General Brigham", keywords: ["disc herniation", "causes", "treatment"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-gabriel-disc", person: "Gabriel", title: "Gabriel's Story: Returning to Dance After Herniated Disc | Ohio State Sports Medicine", channel: "Ohio State Wexner Medical Center", url: "https://www.youtube.com/watch?v=iiU0_E-9wrY", duration: "4:16", about: "BalletMet dancer Gabriel shares how a sports medicine team helped him recover from a herniated disc in his back and return to dancing." },
+    { id: "yt-phil-disc", person: "Phil", title: "Endoscopic Spine Surgery Patient Story", channel: "Campbell Clinic Orthopaedics", url: "https://www.youtube.com/watch?v=UNeTEP9esXE", duration: "3:22", about: "Endoscopic spine surgery allowed Phil to get back to exercising, travelling and other activities that pain from his herniated disc had stopped him enjoying." },
+    { id: "yt-joel-disc", person: "Joel", title: "Patient Story: Microdiscectomy", channel: "Emory Healthcare", url: "https://www.youtube.com/watch?v=x-smgjrogAY", duration: "2:10", about: "Joel, an Emmy Award winner, found himself needing back surgery, a microdiscectomy, in order to perform daily functions." },
+  ],
+  // end of wiring
+  title: "Slipped disc",
+  summary: "When the soft centre of a spinal disc bulges out and presses on a nerve, causing back or neck pain and sometimes pain, numbness or weakness down an arm or leg. Most people get better within about six weeks with activity and painkillers.",
+  keywords: ["slipped disc", "herniated disc", "prolapsed disc", "back pain", "nerve pain"],
+  understand: [
+    ["what-it-is", "What a slipped disc is", 3, ["disc", "nerve", "spine"], "A disc that bulges onto a nerve."],
+    ["symptoms", "Symptoms in the back, neck, arms and legs", 3, ["pain", "numbness", "weakness"]],
+    ["causes", "Why it happens", 2, ["age", "lifting", "causes"]],
+    ["urgent", "Symptoms that need urgent help", 2, ["cauda equina", "urgent"]],
+  ],
+  recover: [
+    ["moving", "Keeping active while it heals", 3, ["activity", "movement"]],
+    ["painkillers", "Painkillers and nerve pain medicines", 3, ["painkillers", "nerve pain"]],
+    ["physio", "Physiotherapy and exercises", 3, ["physiotherapy", "exercises"]],
+    ["injections-surgery", "Injections and surgery", 3, ["injections", "surgery", "discectomy"]],
+  ],
+  liveWell: [
+    ["lifting", "Lifting and bending", 2, ["lifting", "bending"]],
+    ["work", "Work and sitting", 3, ["work", "sitting"]],
+    ["sleep", "Sleeping with back or leg pain", 2, ["sleep", "position"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention", "exercise"]],
+  ],
+  sources: [source(NHS, "Slipped disc"), BACKCARE, CSP],
+  askDoctor: ["Is a slipped disc causing my leg or arm pain?", "Which activities are safe for me now?", "Would physiotherapy help?", "Which symptoms mean I need help urgently?"],
+  related: [{ groupId: "nerves", conditionId: "sciatica" }, { groupId: "back-neck", conditionId: "back-pain" }, { groupId: "back-neck", conditionId: "spinal-stenosis" }],
+});
+
+export const scoliosis = condition({
+  id: "scoliosis",
+  prefix: "scol-",
+  facts: ["Over 2 million people in the UK", "Most often starts from age 10 to 15", "About 8 in 10 have no known cause"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-ssr-abcd", title: "🎥 Mr Sudarshan Munigangaiah – The ABCD of Scoliosis", kind: "video", duration: "4:04", url: "https://www.youtube.com/watch?v=HCP7lWepU5s", extra: "A spinal surgeon on early signs", publisher: "Scoliosis Support & Research", keywords: ["signs", "abcd", "diagnosis"] },
+    { id: "yt-ssr-adult-surgery", title: "🎥 Professor Hilali Noordeen – Extra planning for adult scoliosis surgery", kind: "video", duration: "3:14", url: "https://www.youtube.com/watch?v=pylAZroFyMU", extra: "Why adult surgery needs more planning", publisher: "Scoliosis Support & Research", keywords: ["surgery", "adults", "planning"] },
+    { id: "yt-severn-degenerative", title: "Scoliosis Correction   Degenerative Scoliosis", kind: "video", duration: "6:20", url: "https://www.youtube.com/watch?v=fd7Ts5YXq34", extra: "Correcting a curve from degenerative changes", publisher: "NHS Severn Spine", keywords: ["degenerative", "surgery", "adults"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-sandra-scoliosis", person: "Sandra", title: "Embrace Your Curve: Sandra's Story 💙", channel: "Scoliosis Support & Research", url: "https://www.youtube.com/watch?v=uFMyeWR6_pU", duration: "0:50", about: "Sandra did not discover she had scoliosis until later in life, and today she is a personal trainer and bodybuilder who believes in training with her body, not against it." },
+    { id: "yt-elizabeth-scoliosis", person: "Elizabeth", title: "Embrace Your Curve: Elizabeth's Story 💙", channel: "Scoliosis Support & Research", url: "https://www.youtube.com/watch?v=tmDVrPtR_HM", duration: "1:42", about: "Elizabeth was diagnosed with scoliosis in 1959 and had spinal surgery in Edinburgh in 1963, and looking back she describes it as a blessing that let her move forward and live her life." },
+    { id: "yt-gabby-scoliosis", person: "Gabby", title: "Gabby Allen: Fitness, Confidence & Life with Scoliosis | Beyond The Curve Podcast", channel: "Scoliosis Support & Research", url: "https://www.youtube.com/watch?v=PK3_NRYOQQk", duration: "43:00", about: "TV personality and fitness trainer Gabby Allen talks openly about living with scoliosis, her relationship with her body and fitness, and confidence in the public eye." },
+  ],
+  // end of wiring
+  title: "Scoliosis",
+  summary: "A sideways curve of the spine. It often starts in childhood or the teenage years, and in adults it can also develop with age. Many curves are mild and need only checks; some need a brace or an operation. Exercise and pain relief help adults with symptoms.",
+  keywords: ["scoliosis", "curved spine", "back curve", "brace", "spinal fusion"],
+  understand: [
+    ["what-it-is", "What scoliosis is", 3, ["curve", "spine"], "A spine that curves to one side."],
+    ["signs", "Signs to look for", 2, ["shoulders", "hips", "uneven"]],
+    ["adults", "Scoliosis in adults", 3, ["adults", "degenerative", "age"]],
+    ["diagnosis", "X-rays and measuring the curve", 2, ["x-ray", "diagnosis"]],
+  ],
+  recover: [
+    ["monitoring", "Checks and monitoring", 2, ["monitoring", "x-rays"]],
+    ["brace", "Back braces", 3, ["brace", "children"]],
+    ["surgery", "Surgery for scoliosis", 3, ["surgery", "spinal fusion"]],
+    ["pain", "Managing back pain", 3, ["pain", "exercise", "physiotherapy"]],
+  ],
+  liveWell: [
+    ["exercise", "Exercise and sport", 3, ["exercise", "sport"]],
+    ["body-image", "Body image and confidence", 2, ["confidence", "clothes"]],
+    ["pregnancy", "Pregnancy with scoliosis", 2, ["pregnancy"]],
+    ["support", "Support and information", 2, ["support", "charity"]],
+  ],
+  sources: [source(NHS, "Scoliosis"), SCOLIOSIS_SR, BACKCARE],
+  askDoctor: ["How big is my curve, and is it likely to change?", "Do I need a brace or any checks?", "Which exercises would help my back?", "When would surgery be considered?"],
+  related: [{ groupId: "back-neck", conditionId: "back-pain" }, { groupId: "back-neck", conditionId: "slipped-disc" }, { groupId: "bone-health", conditionId: "osteoporosis" }],
+});
+
+export const rotatorCuff = condition({
+  id: "rotator-cuff",
+  prefix: "rc-",
+  facts: ["Most common cause of shoulder pain", "Usually affects people aged 35 to 75", "Exercises often help in 6 to 12 weeks"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-bess-shoulder-pain-exercises-intro", title: "Exercises for Shoulder Pain - Introduction", kind: "video", duration: "0:51", url: "https://www.youtube.com/watch?v=s_BDnPssQFY", extra: "introducing the BESS shoulder pain exercises", publisher: "BESS - British Elbow & Shoulder Society", keywords: ["rotator cuff", "subacromial pain", "exercises"] },
+    { id: "yt-somerset-rotator-cuff-pain", title: "Rotator Cuff Related Shoulder Pain", kind: "video", duration: "9:33", url: "https://www.youtube.com/watch?v=dKlnXJKrX8U", extra: "rotator cuff related shoulder pain", publisher: "Somerset NHS Foundation Trust", keywords: ["rotator cuff", "shoulder pain"] },
+    { id: "yt-plymouth-rotator-cuff-repair-early-exercises", title: "Rotator cuff repair. Early post op exercises in first 3 wee", kind: "video", duration: "2:46", url: "https://www.youtube.com/watch?v=gfX2ehiDeYE", extra: "simple exercises for the first 3 weeks", publisher: "NHS University Hospitals Plymouth Physiotherapy", keywords: ["rotator cuff", "repair", "surgery", "exercises"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-betsy-rotator-cuff-repair", person: "Betsy", title: "Rotator Cuff Repair: Betsy Bassan's Story", channel: "MedStar Georgetown University Hospital", url: "https://www.youtube.com/watch?v=_EHYq-9wjbM", duration: "3:07", about: "Betsy runs her own company and enjoys tennis and the gym, and tells her story of treatment and recovery after a torn rotator cuff began to slow her down." },
+    { id: "yt-mayra-rotator-cuff-surgery", person: "Mayra", title: "Mayra’s Story – Rotator Cuff Surgery – Temple Health", channel: "Temple Health", url: "https://www.youtube.com/watch?v=PDs-BnwkcEI", duration: "3:26", about: "After a slip and fall on ice, Mayra had a severe rotator cuff rupture and a nerve injury, and had her rotator cuff repaired before intensive physical and occupational therapy." },
+  ],
+  // end of wiring
+  title: "Rotator cuff problems",
+  summary: "Pain and weakness from the group of tendons and muscles that hold the shoulder in place, from wear, irritation or a tear. It often hurts when lifting the arm or at night. Rest, exercises and physiotherapy help most people.",
+  keywords: ["rotator cuff", "shoulder pain", "impingement", "tendinopathy", "torn rotator cuff"],
+  understand: [
+    ["what-it-is", "What the rotator cuff is", 3, ["tendons", "shoulder"], "The tendons that hold the shoulder steady."],
+    ["types", "Tendinopathy, impingement and tears", 3, ["tendinopathy", "impingement", "tear"]],
+    ["symptoms", "Symptoms: lifting, reaching and nights", 2, ["pain", "night", "weakness"]],
+    ["diagnosis", "Examination and scans", 2, ["ultrasound", "mri", "diagnosis"]],
+  ],
+  recover: [
+    ["self-care", "Rest, ice and painkillers", 3, ["rest", "ice", "painkillers"]],
+    ["exercises", "Shoulder exercises", 3, ["exercises", "strengthening"]],
+    ["injections", "Steroid injections", 2, ["injection", "steroids"]],
+    ["surgery", "When surgery is offered", 3, ["surgery", "repair"]],
+  ],
+  liveWell: [
+    ["daily-tasks", "Reaching, dressing and sleeping", 3, ["reaching", "dressing", "sleep"]],
+    ["work", "Work and lifting", 2, ["work", "lifting"]],
+    ["sport", "Getting back to sport", 2, ["sport", "throwing"]],
+    ["long-term", "Pain that lasts", 2, ["long-term", "recovery"]],
+  ],
+  sources: [source(NHS, "Shoulder pain"), CSP, VERSUS_ARTHRITIS],
+  askDoctor: ["Is this tendinopathy or a tear?", "Which exercises should I do?", "Would an injection help me?", "When should I come back if it is not improving?"],
+  related: [{ groupId: "muscles", conditionId: "frozen-shoulder" }, { groupId: "joint-replacement", conditionId: "shoulder-replacement" }, { groupId: "back-neck", conditionId: "neck-pain" }],
+});
+
+export const hypermobility = condition({
+  id: "hypermobility",
+  prefix: "hmob-",
+  facts: ["Often gets better as you get older", "Many have no problems at all", "Main treatment: strength and fitness"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-hmsa-living-hms", title: "Living with Hypermobility syndromes", kind: "video", duration: "6:02", url: "https://www.youtube.com/watch?v=eTh0KYKXh4I", extra: "Everyday life with hypermobility", publisher: "Hypermobility Syndromes Association - HMSA", keywords: ["daily life", "awareness", "hypermobility syndromes"] },
+    { id: "yt-nelft-flexible-child", title: "Hypermobility and The Flexible Child - NELFT Children's Physiotherapy", kind: "video", duration: "15:07", url: "https://www.youtube.com/watch?v=nZMTU8Ffdgc", extra: "Children's physiotherapy on flexible children", publisher: "NELFT - North East London NHS Foundation Trust", keywords: ["children", "physiotherapy", "flexible joints"] },
+    { id: "yt-hct-hypermobility-webinar", title: "Hypermobility Webinar", kind: "video", duration: "23:08", url: "https://www.youtube.com/watch?v=OaRWFYi0qHQ", extra: "An NHS trust's hypermobility webinar", publisher: "Hertfordshire Community NHS Trust", keywords: ["hypermobility", "webinar", "NHS"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-brogan-zebra", person: "Brogan", title: "I Am a Zebra  Hypermobility and Invisible Disabilities", channel: "Hypermobility Syndromes Association - HMSA", url: "https://www.youtube.com/watch?v=Q3V1ItCnfas", duration: "4:25", about: "Brogan Lawes, who has lived with HSD all their life, made this awareness video to help people with HSD, EDS and other disabilities explain what it is like to the people around them." },
+    { id: "yt-rebecca-heds", person: "Rebecca", title: "Rebecca's story", channel: "Genetic Alliance UK", url: "https://www.youtube.com/watch?v=b-FcHz46q9Y", duration: "4:26", about: "Rebecca has Ehlers-Danlos syndrome type 3, also known as hypermobile EDS, a condition that can be hard to diagnose." },
+    { id: "yt-tynara-eds", person: "Tynara", title: "My Story - Tynara", channel: "The Ehlers-Danlos Support UK", url: "https://www.youtube.com/watch?v=h56iaZmtbxw", duration: "6:34", about: "Tynara tells her own story on Ehlers-Danlos Support UK's channel." },
+  ],
+  // end of wiring
+  title: "Joint hypermobility",
+  summary: "Joints that move further than most people's. Many people with hypermobile joints have no problems, but some have pain, tiredness or joints that dislocate easily, sometimes as part of a hypermobility spectrum disorder or hypermobile Ehlers-Danlos syndrome.",
+  keywords: ["hypermobility", "double jointed", "ehlers-danlos", "heds", "hypermobility spectrum disorder", "joint pain"],
+  understand: [
+    ["what-it-is", "What joint hypermobility is", 3, ["flexible", "joints"], "Joints that bend further than usual."],
+    ["when-a-problem", "When it causes problems", 3, ["pain", "dislocation", "symptoms"]],
+    ["hsd-heds", "Hypermobility spectrum disorder and hEDS", 3, ["hsd", "heds", "ehlers-danlos"]],
+    ["diagnosis", "How it is assessed", 2, ["beighton", "diagnosis"]],
+  ],
+  recover: [
+    ["strengthening", "Strengthening and joint control", 3, ["exercise", "strength", "physiotherapy"]],
+    ["pain", "Managing pain", 3, ["pain", "painkillers"]],
+    ["fatigue", "Fatigue and pacing", 3, ["fatigue", "pacing"]],
+    ["dislocations", "Dislocations and subluxations", 2, ["dislocation", "subluxation"]],
+  ],
+  liveWell: [
+    ["everyday", "Posture, footwear and everyday tasks", 3, ["posture", "footwear"]],
+    ["exercise", "Choosing exercise", 3, ["exercise", "sport"]],
+    ["work-school", "Work and study", 2, ["work", "study"]],
+    ["support", "Support and living well", 2, ["support", "mood"]],
+  ],
+  sources: [source(NHS, "Joint hypermobility"), HMSA, CSP],
+  askDoctor: ["Is my hypermobility causing my symptoms?", "Can I be referred to a physiotherapist?", "What should I do if a joint dislocates?", "Which kinds of exercise suit me?"],
+  related: [{ groupId: "muscles", conditionId: "fibromyalgia" }, { groupId: "injuries", conditionId: "sprains-strains" }, { groupId: "after-treatment", conditionId: "cancer-fatigue" }],
+});
+
+export const bursitis = condition({
+  id: "bursitis",
+  prefix: "burs-",
+  facts: ["Often in shoulders, hips, elbows, knees", "Should go away in a few weeks", "2 in 3 elbow cases are not infected"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-somerset-gtps", title: "Greater trochanteric pain syndrome", kind: "video", duration: "6:50", url: "https://www.youtube.com/watch?v=z9w5axHITms", extra: "condition, symptoms, managing it, exercises", publisher: "Somerset NHS Foundation Trust", keywords: ["hip", "trochanteric bursitis", "exercises"] },
+    { id: "yt-cht-lateral-hip", title: "Exercises to help your lateral hip pain", kind: "video", duration: "4:42", url: "https://www.youtube.com/watch?v=n6HvASZlE8M", extra: "exercises for pain outside the hip", publisher: "Calderdale and Huddersfield NHS Foundation Trust", keywords: ["hip", "exercises", "lateral hip pain"] },
+    { id: "yt-mount-sinai-bursitis", title: "What Is Bursitis and How Can It Be Treated?", kind: "video", duration: "2:14", url: "https://www.youtube.com/watch?v=r8Tv6L783zs", extra: "an orthopaedic surgeon explains bursitis", publisher: "Mount Sinai Health System", keywords: ["bursitis", "treatment"] },
+  ],
+  // end of wiring
+  title: "Bursitis",
+  summary: "Painful swelling of a bursa, a small fluid-filled sac that cushions a joint, most often at the hip, shoulder, elbow or knee. It usually settles with rest and self-care within a few weeks. A hot, red bursa with a fever needs checking quickly.",
+  keywords: ["bursitis", "hip pain", "elbow swelling", "knee swelling", "trochanteric"],
+  understand: [
+    ["what-it-is", "What bursitis is", 3, ["bursa", "swelling"], "A small cushion that becomes inflamed."],
+    ["where", "Hip, shoulder, elbow and knee", 3, ["hip", "shoulder", "elbow", "knee"]],
+    ["causes", "Why it happens", 2, ["pressure", "overuse", "injury"]],
+    ["urgent", "Signs of infection", 2, ["infection", "fever", "urgent"]],
+  ],
+  recover: [
+    ["self-care", "Rest, ice and painkillers", 3, ["rest", "ice", "painkillers"]],
+    ["exercises", "Exercises and physiotherapy", 3, ["exercises", "physiotherapy"]],
+    ["injections", "Steroid injections and other treatments", 2, ["injection", "drainage"]],
+    ["infected", "Treating an infected bursa", 2, ["antibiotics", "infection"]],
+  ],
+  liveWell: [
+    ["pressure", "Taking the pressure off", 3, ["kneeling", "leaning", "sleeping"]],
+    ["activity", "Staying active", 2, ["activity", "exercise"]],
+    ["work", "Work and repetitive tasks", 2, ["work", "kneeling"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention"]],
+  ],
+  sources: [source(NHS, "Bursitis"), CSP, VERSUS_ARTHRITIS],
+  askDoctor: ["Which bursa is affected?", "Which exercises would help?", "Would an injection be an option?", "Which signs mean it might be infected?"],
+  related: [{ groupId: "arthritis", conditionId: "osteoarthritis" }, { groupId: "feet-tendons", conditionId: "tennis-elbow" }, { groupId: "muscles", conditionId: "rotator-cuff" }],
+});
+
+export const shoulderReplacement = condition({
+  id: "shoulder-replacement",
+  prefix: "shr-",
+  facts: ["Usually 2 to 3 nights in hospital", "Often a sling for up to 4 weeks", "Very good chance it lasts 10 years"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-uhcw-shoulder-replacement", title: "Shoulder Replacement Video - Patient Information", kind: "video", duration: "11:58", url: "https://www.youtube.com/watch?v=rkSnS4T4Hr4", extra: "an NHS pre-operative education video", publisher: "nhsuhcw", keywords: ["shoulder replacement", "before surgery", "patient information"] },
+    { id: "yt-auk-shoulder-surgery-exercises", title: "Surgery Toolkit: Shoulder replacement exercises for before and after surgery", kind: "video", duration: "15:40", url: "https://www.youtube.com/watch?v=TVnZYNGbEnY", extra: "follow-along exercises with a physiotherapist", publisher: "Arthritis UK", keywords: ["exercises", "before surgery", "after surgery"] },
+    { id: "yt-mft-post-op-shoulder-exercises", title: "Sh 1 Post-Operative Shoulder Exercises MFT", kind: "video", duration: "4:46", url: "https://www.youtube.com/watch?v=hnCwHI75uVk", extra: "early exercises after shoulder surgery", publisher: "Manchester University NHS Foundation Trust", keywords: ["exercises", "after surgery", "physiotherapy"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-kevin-shoulder", person: "Kevin", title: "Kevin's Story - Total Shoulder Replacement at KIMS Hospital", channel: "KIMS Hospital", url: "https://www.youtube.com/watch?v=pLok0YcLOu8", duration: "3:07", about: "Kevin had suffered from severe pain in his shoulder for two years and was unable to use his right arm for anything, before his total shoulder replacement at KIMS Hospital." },
+    { id: "yt-karen-shoulder", person: "Karen", title: "Meet Karen Mitchell: Reverse Shoulder Replacement Patient", channel: "MedStar Health", url: "https://www.youtube.com/watch?v=JrHYVpR4xJo", duration: "3:15", about: "Karen Mitchell reflects on the shoulder pain she lived with for over three decades, and her decision to have a reverse shoulder replacement." },
+    { id: "yt-mitch-shoulder", person: "Mitch", title: "Patient Story: Mitch Murray - Reverse Total Shoulder Replacement", channel: "UNC Health Appalachian", url: "https://www.youtube.com/watch?v=jqHV21dZHYM", duration: "3:00", about: "Mitch's worn-out shoulder had severely limited his activity, so that biking, swimming and weight lifting were no longer options, before his reverse total shoulder replacement." },
+  ],
+  // end of wiring
+  title: "Shoulder replacement",
+  summary: "An operation to replace a damaged shoulder joint, most often because of arthritis or a severe rotator cuff problem. It usually eases pain. A sling, careful exercises and patience over several months are part of the recovery.",
+  keywords: ["shoulder replacement", "shoulder surgery", "arthroplasty", "reverse shoulder", "recovery"],
+  understand: [
+    ["what-it-is", "What a shoulder replacement involves", 3, ["operation", "artificial joint"], "The new joint, and the types."],
+    ["deciding", "Deciding whether to have one", 3, ["decision", "benefits", "risks"]],
+    ["preparing", "Getting ready for the operation", 3, ["preparing", "home"]],
+    ["hospital", "The operation and the hospital stay", 3, ["hospital", "anaesthetic"]],
+  ],
+  recoverTitle: "Recovery",
+  recover: [
+    ["sling", "The sling and the first weeks", 3, ["sling", "first weeks"]],
+    ["exercises", "Exercises after a shoulder replacement", 3, ["exercises", "physiotherapy"]],
+    ["pain-sleep", "Pain and sleeping", 3, ["pain", "sleep"]],
+    ["warning-signs", "Warning signs after surgery", 2, ["infection", "urgent"]],
+  ],
+  liveWell: [
+    ["daily-life", "Dressing, washing and reaching", 3, ["dressing", "washing"]],
+    ["driving-work", "Driving and going back to work", 2, ["driving", "work"]],
+    ["activity", "Activity and sport with a new shoulder", 2, ["sport", "activity"]],
+    ["long-term", "How long a new shoulder lasts", 2, ["lifespan", "follow-up"]],
+  ],
+  sources: [VERSUS_ARTHRITIS, source(NHS, "Shoulder pain and surgery"), CSP],
+  askDoctor: ["Which type of replacement would suit me?", "How long will I wear a sling?", "What movements should I avoid, and for how long?", "When can I drive and go back to work?"],
+  related: [{ groupId: "muscles", conditionId: "rotator-cuff" }, { groupId: "arthritis", conditionId: "osteoarthritis" }, { groupId: "joint-replacement", conditionId: "hip-replacement" }],
+});
+
+export const achilles = condition({
+  id: "achilles",
+  prefix: "ach-",
+  facts: ["The body's strongest tendon", "Full recovery can take a year or longer", "It does not improve with rest"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-imperial-what-is-tendonitis", title: "What is tendonitis?", kind: "video", duration: "3:28", url: "https://www.youtube.com/watch?v=dCK0asnoBcQ", extra: "an NHS physiotherapist explains tendonitis", publisher: "Imperial College Healthcare NHS Trust", keywords: ["tendonitis", "tendon", "physiotherapy"] },
+    { id: "yt-imperial-treat-tendonitis", title: "How to treat tendonitis", kind: "video", duration: "2:57", url: "https://www.youtube.com/watch?v=2kDgS3Jx0oU", extra: "medicines and lifestyle choices that help", publisher: "Imperial College Healthcare NHS Trust", keywords: ["tendonitis", "treatment", "self-care"] },
+    { id: "yt-nhsggc-calf-raises", title: "NHSGGC - MSK Physiotherapy - Calf Raises for Foot Pain", kind: "video", duration: "1:34", url: "https://www.youtube.com/watch?v=Nyo2ogQLvCg", extra: "calf raises from NHS physiotherapy", publisher: "NHS Greater Glasgow and Clyde", keywords: ["calf raises", "exercises", "physiotherapy"] },
+  ],
+  // end of wiring
+  title: "Achilles tendinopathy",
+  summary: "Pain and stiffness in the Achilles tendon at the back of the heel, often worst first thing in the morning or at the start of exercise. It usually improves over months with a loading exercise programme, rest from aggravating activity and good footwear.",
+  keywords: ["achilles", "tendinopathy", "tendonitis", "heel pain", "calf"],
+  understand: [
+    ["what-it-is", "What Achilles tendinopathy is", 3, ["tendon", "heel", "calf"], "The strongest tendon in the body, under strain."],
+    ["causes", "Why it happens", 2, ["running", "load", "age"]],
+    ["symptoms", "Symptoms, and a ruptured tendon", 2, ["stiffness", "rupture"]],
+    ["how-long", "How long it lasts", 2, ["recovery", "months"]],
+  ],
+  recover: [
+    ["exercises", "Loading exercises", 3, ["exercises", "heel raises"]],
+    ["self-care", "Rest, ice and painkillers", 2, ["rest", "ice", "painkillers"]],
+    ["footwear", "Shoes and heel raises", 2, ["shoes", "heel raise"]],
+    ["further-treatment", "Physiotherapy and other treatments", 3, ["physiotherapy", "shockwave"]],
+  ],
+  liveWell: [
+    ["sport", "Running and sport", 3, ["running", "sport"]],
+    ["work", "Standing and walking at work", 2, ["work", "standing"]],
+    ["weight", "Weight and tendon strain", 2, ["weight", "strain"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention"]],
+  ],
+  sources: [source(NHS, "Tendonitis and heel pain"), VERSUS_ARTHRITIS, CSP],
+  askDoctor: ["Is this tendinopathy or something more serious?", "Which exercises should I do?", "Should I stop running or sport for now?", "When should I come back if it is not better?"],
+  related: [{ groupId: "feet-tendons", conditionId: "plantar-fasciitis" }, { groupId: "injuries", conditionId: "sprains-strains" }, { groupId: "bone-health", conditionId: "ankle-fracture" }],
+});
+
+export const bunions = condition({
+  id: "bunions",
+  prefix: "bun-",
+  facts: ["Surgery is the only way to remove them", "Most go home the same day after surgery", "Often seen across family generations"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-odonovan-bunion-treatment", title: "Doctor explains BUNION TREATMENT OPTIONS", kind: "video", duration: "5:39", url: "https://www.youtube.com/watch?v=rrGGc5wmGPk", extra: "home care, podiatry and surgery options", publisher: "Doctor O'Donovan", keywords: ["bunions", "treatment", "podiatry"] },
+    { id: "yt-gstt-bunion-surgery-pain", title: "How painful is bunion surgery?", kind: "video", duration: "1:16", url: "https://www.youtube.com/watch?v=seBv_l8bzyY", extra: "an NHS consultant on post-operative pain", publisher: "Compare my Care", keywords: ["surgery", "pain", "recovery"] },
+    { id: "yt-auk-foot-toe-exercises", title: "Ankle, Foot and Toe Exercises for Arthritis and Joint Pain", kind: "video", duration: "23:40", url: "https://www.youtube.com/watch?v=LWGGQYPWPX0", extra: "follow-along feet and toe stretches", publisher: "Arthritis UK", keywords: ["exercise", "toes", "feet"] },
+  ],
+  // end of wiring
+  title: "Bunions",
+  summary: "A bony lump on the side of the foot at the base of the big toe, as the toe leans towards the others. Wider shoes, padding and painkillers ease the discomfort, and surgery can straighten the toe when pain affects everyday life.",
+  keywords: ["bunions", "hallux valgus", "big toe", "foot pain", "shoes"],
+  understand: [
+    ["what-it-is", "What a bunion is", 3, ["big toe", "joint"], "A big toe that leans, and a bump that forms."],
+    ["causes", "Why bunions form", 2, ["genes", "shoes", "arthritis"]],
+    ["symptoms", "Symptoms and related problems", 2, ["pain", "corns", "hard skin"]],
+    ["when-to-see-gp", "When to see a GP or podiatrist", 2, ["gp", "podiatrist"]],
+  ],
+  recover: [
+    ["shoes", "Shoes that help", 3, ["shoes", "wide fit"]],
+    ["padding", "Pads, insoles and toe spacers", 2, ["pads", "insoles", "spacers"]],
+    ["pain-relief", "Pain relief", 2, ["painkillers", "ice"]],
+    ["surgery", "Bunion surgery and recovery", 4, ["surgery", "recovery"]],
+  ],
+  liveWell: [
+    ["walking", "Walking and staying active", 2, ["walking", "activity"]],
+    ["work-occasions", "Work shoes and special occasions", 2, ["work", "heels"]],
+    ["skin", "Corns, hard skin and foot care", 2, ["corns", "foot care"]],
+    ["family", "Bunions in families", 2, ["family", "genes"]],
+  ],
+  sources: [source(NHS, "Bunions"), RCPOD, VERSUS_ARTHRITIS],
+  askDoctor: ["Would a podiatrist help me?", "What shoes and insoles would suit me?", "Would surgery be an option, and what is the recovery?", "Could arthritis be part of the problem?"],
+  related: [{ groupId: "feet-tendons", conditionId: "plantar-fasciitis" }, { groupId: "arthritis", conditionId: "osteoarthritis" }, { groupId: "arthritis", conditionId: "rheumatoid" }],
+});
+
+export const triggerFinger = condition({
+  id: "trigger-finger",
+  prefix: "trf-",
+  facts: ["More likely over 40 and with diabetes", "Most often the thumb or ring finger", "Injection helps in about 70% of cases"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-derby-trigger-finger-exam", title: "Trigger Finger exam", kind: "video", duration: "3:02", url: "https://www.youtube.com/watch?v=VldMTN6PGdg", extra: "examining a trigger finger, from the NHS", publisher: "NHS Derby and Derbyshire ICB", keywords: ["trigger finger", "examination", "diagnosis"] },
+    { id: "yt-hje-trigger-finger", title: "An Insight into Trigger Finger", kind: "video", duration: "3:51", url: "https://www.youtube.com/watch?v=GZ9KXr4O6dc", extra: "a consultant hand surgeon explains treatment", publisher: "St John & St Elizabeth Hospital", keywords: ["trigger finger", "treatment", "surgeon"] },
+    { id: "yt-jubilee-hand-stiffness", title: "Post hand surgery - Stiffness management (Extended version)", kind: "video", duration: "6:02", url: "https://www.youtube.com/watch?v=XIpa7NtedwM", extra: "tips and exercises for stiffness after hand surgery", publisher: "NHS Golden Jubilee", keywords: ["after surgery", "stiffness", "exercises"] },
+  ],
+  // end of wiring
+  title: "Trigger finger",
+  summary: "A finger or thumb that catches, locks or clicks when you bend it, because the tendon cannot glide smoothly. It is more common with diabetes and rheumatoid arthritis. A splint, a steroid injection or a small operation usually frees it.",
+  keywords: ["trigger finger", "trigger thumb", "locking finger", "stenosing tenosynovitis", "hand"],
+  understand: [
+    ["what-it-is", "What trigger finger is", 3, ["tendon", "sheath", "finger"], "A tendon that catches in its tunnel."],
+    ["symptoms", "Catching, clicking and locking", 2, ["clicking", "locking", "stiffness"]],
+    ["who", "Who gets it", 2, ["diabetes", "rheumatoid", "age"]],
+    ["diagnosis", "How it is diagnosed", 2, ["examination"]],
+  ],
+  recover: [
+    ["rest-splint", "Rest and a splint", 2, ["rest", "splint"]],
+    ["injection", "Steroid injections", 3, ["injection", "steroids"]],
+    ["surgery", "Trigger finger release", 3, ["surgery", "release"]],
+    ["after-surgery", "Recovery after the operation", 2, ["recovery", "exercises"]],
+  ],
+  liveWell: [
+    ["hand-use", "Easing strain on the hand", 2, ["grip", "tools"]],
+    ["diabetes", "Trigger finger and diabetes", 2, ["diabetes", "blood sugar"]],
+    ["work", "Work and hobbies", 2, ["work", "hobbies"]],
+    ["coming-back", "If it comes back", 2, ["recurrence"]],
+  ],
+  sources: [source(NHS, "Trigger finger"), VERSUS_ARTHRITIS, BSSH],
+  askDoctor: ["Would a splint or an injection help first?", "When would surgery be an option?", "How long will recovery take?", "Should my blood sugar be checked?"],
+  related: [{ groupId: "feet-tendons", conditionId: "de-quervains" }, { groupId: "nerves", conditionId: "carpal-tunnel" }, { groupId: "diabetes", conditionId: "type-2" }],
+});
+
+export const deQuervains = condition({
+  id: "de-quervains",
+  prefix: "dq-",
+  facts: ["Most common between 30 and 50", "Not harmful, but can be painful", "Mild cases can settle in weeks"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-handsociety-dq", title: "de Quervain's Tenosynovitis: Causes, Symptoms, & Treatment", kind: "video", duration: "2:52", url: "https://www.youtube.com/watch?v=ltGz5mJPbuo", extra: "causes, symptoms and treatment", publisher: "TheHandSociety", keywords: ["de quervain's", "thumb", "wrist", "tendons"] },
+    { id: "yt-mayo-dq", title: "Mayo Clinic Minute: Is your thumb pain de Quervain's tenosynovitis?", kind: "video", duration: "1:00", url: "https://www.youtube.com/watch?v=o0KSfDuy3i0", extra: "an orthopaedic surgeon explains it", publisher: "Mayo Clinic", keywords: ["de quervain's", "thumb pain", "tendon", "surgery"] },
+    { id: "yt-nuh-dq-exercises", title: "Management of De Quervain's Tenosynovitis: Home Exercise Programme and Splinting", kind: "video", duration: "2:59", url: "https://www.youtube.com/watch?v=UgTF9h7yyAU", extra: "home exercises and splinting", publisher: "National University Hospital (NUH) Singapore", keywords: ["de quervain's", "exercises", "splint", "brace"] },
+  ],
+  // end of wiring
+  title: "De Quervain's tenosynovitis",
+  summary: "Pain and swelling at the thumb side of the wrist, from irritated tendons that move the thumb. It is often linked to repeated gripping and lifting, including lifting a young baby. Rest, a splint and sometimes an injection help it settle.",
+  keywords: ["de quervain's", "wrist pain", "thumb pain", "tenosynovitis", "mummy thumb"],
+  understand: [
+    ["what-it-is", "What de Quervain's tenosynovitis is", 3, ["tendons", "thumb", "wrist"], "Two thumb tendons, rubbing in a tight tunnel."],
+    ["symptoms", "Symptoms at the thumb and wrist", 2, ["pain", "swelling", "grip"]],
+    ["causes", "Why it happens", 2, ["gripping", "lifting", "babies"]],
+    ["diagnosis", "How it is diagnosed", 2, ["finkelstein", "examination"]],
+  ],
+  recover: [
+    ["self-care", "Rest, ice and painkillers", 2, ["rest", "ice", "painkillers"]],
+    ["splint", "A thumb splint", 2, ["splint"]],
+    ["injection", "Steroid injections", 2, ["injection", "steroids"]],
+    ["surgery", "Surgery if it does not settle", 2, ["surgery", "release"]],
+  ],
+  liveWell: [
+    ["lifting", "Lifting, including lifting a baby", 3, ["lifting", "baby"]],
+    ["daily-tasks", "Phones, keyboards and daily tasks", 2, ["phone", "keyboard"]],
+    ["exercises", "Gentle exercises as it improves", 2, ["exercises"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention"]],
+  ],
+  sources: [source(NHS, "Thumb pain and wrist pain"), BSSH, VERSUS_ARTHRITIS],
+  askDoctor: ["Would a splint help, and how long should I wear it?", "Would an injection be an option?", "How can I lift my baby without making it worse?", "When should I come back if it does not settle?"],
+  related: [{ groupId: "feet-tendons", conditionId: "trigger-finger" }, { groupId: "nerves", conditionId: "carpal-tunnel" }, { groupId: "feet-tendons", conditionId: "tennis-elbow" }],
+});
+
+export const sprainsStrains = condition({
+  id: "sprains-strains",
+  prefix: "spr-",
+  facts: ["Most can be treated at home", "Most feel better after 2 weeks", "Avoid running for up to 8 weeks"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-sja-bone-muscle-joint", title: "Bone, Muscle and Joint Injuries - Animated", kind: "video", duration: "3:03", url: "https://www.youtube.com/watch?v=N-FY78--JWw", extra: "how to treat these injuries", publisher: "St John Ambulance", keywords: ["first aid", "sprain", "joint injury"] },
+    { id: "yt-ntees-sprains-self-care", title: "Sprains and strains self care", kind: "video", duration: "0:59", url: "https://www.youtube.com/watch?v=tiAX6lKCvTA", extra: "caring for a sprain at home", publisher: "North Tees and Hartlepool NHS Foundation Trust", keywords: ["sprains", "strains", "self care"] },
+    { id: "yt-plymouth-ankle-rom", title: "Ankle Range of Movement exercises.", kind: "video", duration: "1:57", url: "https://www.youtube.com/watch?v=btEEj6NyTw0", extra: "ankle range of movement exercises", publisher: "NHS University Hospitals Plymouth Physiotherapy", keywords: ["ankle", "exercises", "physiotherapy"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-maleah-ankle", person: "Maleah", title: "Maleah's Story - Recovering From a Basketball Ankle Injury", channel: "Cincinnati Children's", url: "https://www.youtube.com/watch?v=xn538DsoDzU", duration: "1:41", about: "Maleah, a high school basketball player with a history of ankle issues, was diagnosed with three torn ligaments in her ankle and talks about her treatment plan." },
+  ],
+  // end of wiring
+  title: "Sprains and strains",
+  summary: "A sprain is a stretched or torn ligament, and a strain an overstretched muscle, often at the ankle, knee, wrist or back. Most get better within a few weeks with rest, ice, gentle movement and painkillers. Some signs mean an injury needs checking.",
+  keywords: ["sprain", "strain", "twisted ankle", "pulled muscle", "ligament", "rice"],
+  understand: [
+    ["what-it-is", "Sprains and strains: the difference", 3, ["ligament", "muscle"], "Ligaments, muscles, and what overstretching does."],
+    ["symptoms", "Pain, swelling and bruising", 2, ["pain", "swelling", "bruising"]],
+    ["serious", "When it might be more serious", 2, ["break", "a&e", "urgent"]],
+    ["healing", "How long healing takes", 2, ["healing", "weeks"]],
+  ],
+  recover: [
+    ["first-days", "The first few days: rest, ice, raise", 3, ["rest", "ice", "elevation"]],
+    ["painkillers", "Painkillers", 2, ["painkillers", "ibuprofen"]],
+    ["moving", "Gentle movement and exercises", 3, ["exercises", "movement"]],
+    ["physio", "Physiotherapy", 2, ["physiotherapy"]],
+  ],
+  liveWell: [
+    ["return", "Getting back to sport and work", 3, ["sport", "work"]],
+    ["prevention", "Warming up and preventing injuries", 2, ["warm up", "prevention"]],
+    ["repeat", "Ankles that keep giving way", 2, ["recurring", "unstable"]],
+    ["supports", "Supports, strapping and footwear", 2, ["strapping", "footwear"]],
+  ],
+  sources: [source(NHS, "Sprains and strains"), CSP],
+  askDoctor: ["Could this be a break rather than a sprain?", "Which exercises should I start, and when?", "When can I go back to sport or work?", "Would physiotherapy help?"],
+  related: [{ groupId: "bone-health", conditionId: "ankle-fracture" }, { groupId: "injuries", conditionId: "knee-ligament" }, { groupId: "feet-tendons", conditionId: "achilles" }],
+});
+
+export const kneeLigament = condition({
+  id: "knee-ligament",
+  prefix: "acl-",
+  facts: ["4 main ligaments hold the knee", "ACL surgery usually takes 1 to 3 hours", "Sport again can take up to a year"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-hhft-what-is-acl", title: "The Anterior Cruciate Ligament: What is it & what does it do? | ACL Surgery", kind: "video", duration: "1:36", url: "https://www.youtube.com/watch?v=JQM8F9S06Yg", extra: "Where the ACL sits and what it does", publisher: "HipandKneeTV (Hampshire Hospitals NHS)", keywords: ["acl", "ligaments", "knee"] },
+    { id: "yt-hhft-acl-how-why", title: "ACL Injuries:  The How & Why | ACL Surgery", kind: "video", duration: "3:36", url: "https://www.youtube.com/watch?v=qeEBhhOkGVw", extra: "Orthopaedic consultants on common ACL injuries", publisher: "HipandKneeTV (Hampshire Hospitals NHS)", keywords: ["acl injury", "sport", "giving way"] },
+    { id: "yt-gj-acl-exercises", title: "ACL exercises post-operation", kind: "video", duration: "3:32", url: "https://www.youtube.com/watch?v=m8oBQ-PL0-E", extra: "Exercises after ACL surgery", publisher: "NHS Golden Jubilee", keywords: ["exercises", "after surgery", "physiotherapy"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-lois-acl", person: "Lois", title: "ACL Surgery, Lois's experience being a patient at Clifton Park Hospital, York", channel: "Ramsay Health Care UK", url: "https://www.youtube.com/watch?v=ddk09rZnshM", duration: "4:38", about: "Lois Richardson talks about her experience of an ACL injury, from the incident to surgery and recovery, including overcoming the worry before surgery and life afterwards." },
+    { id: "yt-andi-acl", person: "Andi", title: "Andi Weimann's Road to Recovery", channel: "Bristol City", url: "https://www.youtube.com/watch?v=yohLKy5Ij5k", duration: "7:14", about: "Follow footballer Andi Weimann on his journey to full fitness after a season-ending anterior cruciate ligament injury." },
+  ],
+  // end of wiring
+  title: "Knee ligament injury",
+  summary: "Damage to one of the ligaments that hold the knee steady, such as the anterior cruciate ligament (ACL), often from a twist or a direct blow in sport. Many injuries heal with physiotherapy; some need a reconstruction operation and a long rehabilitation.",
+  keywords: ["knee ligament", "acl", "cruciate ligament", "mcl", "knee injury", "twisted knee"],
+  understand: [
+    ["what-it-is", "The knee's ligaments", 3, ["acl", "mcl", "ligaments"], "Four bands that hold the knee steady."],
+    ["symptoms", "Symptoms: a pop, swelling, giving way", 2, ["pop", "swelling", "unstable"]],
+    ["diagnosis", "Examination and MRI scans", 2, ["examination", "mri"]],
+    ["urgent", "When to go to A&E", 2, ["a&e", "urgent"]],
+  ],
+  recover: [
+    ["first-days", "The first days after the injury", 3, ["rest", "ice", "crutches"]],
+    ["physio", "Physiotherapy and rehabilitation", 3, ["physiotherapy", "rehabilitation"]],
+    ["surgery", "ACL reconstruction surgery", 3, ["acl reconstruction", "surgery"]],
+    ["after-surgery", "Recovery after reconstruction", 3, ["recovery", "months"]],
+  ],
+  liveWell: [
+    ["return-to-sport", "Getting back to sport", 3, ["sport", "return"]],
+    ["daily-life", "Work, stairs and driving", 2, ["work", "stairs", "driving"]],
+    ["confidence", "Confidence in the knee", 2, ["confidence", "fear"]],
+    ["long-term", "The knee in later years", 2, ["arthritis", "long-term"]],
+  ],
+  sources: [source(NHS, "ACL (anterior cruciate ligament) surgery"), VERSUS_ARTHRITIS, CSP],
+  askDoctor: ["Which ligament is injured, and how badly?", "Do I need an operation, or will physiotherapy be enough?", "When can I go back to sport?", "What should I do if the knee keeps giving way?"],
+  related: [{ groupId: "injuries", conditionId: "meniscus" }, { groupId: "injuries", conditionId: "sprains-strains" }, { groupId: "arthritis", conditionId: "osteoarthritis" }],
+});
+
+export const meniscus = condition({
+  id: "meniscus",
+  prefix: "men-",
+  facts: ["A common knee cartilage injury", "Most improve without an operation", "Most go home the same day after surgery"],
+  // Educational videos on YouTube. Checked 22 October 2026: title and channel from YouTube's oEmbed; running time from each watch page.
+  watch: [
+    { id: "yt-mwl-arthroscopic-knee", title: "Arthroscopic Knee Surgery - Patient Film", kind: "video", duration: "10:50", url: "https://www.youtube.com/watch?v=dMNXrYiWXMw", extra: "Information about having knee surgery", publisher: "Mersey and West Lancashire NHS Trust", keywords: ["arthroscopy", "keyhole surgery", "knee"] },
+    { id: "yt-chelwest-knee-arthroscopy", title: "Knee Arthroscopy", kind: "video", duration: "2:10", url: "https://www.youtube.com/watch?v=NzTACLMND30", extra: "A preview of the procedure", publisher: "Chelsea and Westminster Hospital", keywords: ["arthroscopy", "surgery", "knee"] },
+    { id: "yt-mayo-meniscus-101", title: "Meniscus Tear 101: Symptoms, Diagnosis and Treatment Options - Ask Mayo Clinic Health System", kind: "video", duration: "3:41", url: "https://www.youtube.com/watch?v=kyx3lEgQTj0", extra: "An orthopaedic surgeon answers meniscus questions", publisher: "Mayo Clinic Health System", keywords: ["meniscus tear", "symptoms", "treatment"] },
+  ],
+  // Real people's stories. Checked 22 October 2026; each detail is from the video's own title or description.
+  videoStories: [
+    { id: "yt-grace-meniscus", person: "Grace", title: "Meniscus Surgery | Grace's Story", channel: "Johns Hopkins Medicine", url: "https://www.youtube.com/watch?v=blU6PpPO7Rs", duration: "3:09", about: "Grace, an avid runner, tore her left meniscus during a half marathon, had surgery to repair it followed by rehabilitation, and one year later was back to running long distances." },
+    { id: "yt-liz-meniscus", person: "Liz", title: "Patient Testimonial: Torn Meniscus Surgery at Newton-Wellesley Hospital", channel: "Newton-Wellesley Hospital", url: "https://www.youtube.com/watch?v=Zde_BZrZvjw", duration: "2:36", about: "Liz tore her meniscus during a CrossFit workout, had day surgery to remove part of the torn meniscus, and six weeks later was back at CrossFit." },
+    { id: "yt-jim-meniscus", person: "Jim", title: "Jim's torn meniscus in his knee didn't stop his drive to win.", channel: "UCHealth", url: "https://www.youtube.com/watch?v=dpqWLHqM_nc", duration: "1:53", about: "A dirt bike accident left Jim, a competitive trials rider, with a knee injury, and with a supportive surgeon he went on to win a state division title." },
+  ],
+  // end of wiring
+  title: "Torn meniscus",
+  summary: "A tear in one of the rubbery pads of cartilage that cushion the knee, from a twist in younger people or wear in older people. It can cause pain, swelling and catching. Many tears settle with exercise and physiotherapy; some need keyhole surgery.",
+  keywords: ["torn meniscus", "cartilage tear", "knee pain", "locking knee", "arthroscopy"],
+  understand: [
+    ["what-it-is", "What the meniscus is", 3, ["cartilage", "cushion", "knee"], "Two cushions inside the knee."],
+    ["symptoms", "Pain, swelling, catching and locking", 2, ["pain", "locking", "swelling"]],
+    ["causes", "Twists and wear", 2, ["twist", "wear", "age"]],
+    ["diagnosis", "Examination and MRI scans", 2, ["examination", "mri"]],
+  ],
+  recover: [
+    ["self-care", "Rest, ice and painkillers", 2, ["rest", "ice", "painkillers"]],
+    ["exercises", "Exercises and physiotherapy", 3, ["exercises", "physiotherapy"]],
+    ["surgery", "Keyhole surgery: who it helps", 3, ["arthroscopy", "surgery"]],
+    ["after-surgery", "Recovery after surgery", 2, ["recovery"]],
+  ],
+  liveWell: [
+    ["activity", "Staying active", 2, ["activity", "walking"]],
+    ["sport", "Getting back to sport", 2, ["sport"]],
+    ["locking", "If the knee locks", 2, ["locking", "urgent"]],
+    ["long-term", "The knee in later years", 2, ["arthritis", "long-term"]],
+  ],
+  sources: [source(NHS, "Meniscus tear (knee cartilage damage)"), VERSUS_ARTHRITIS, CSP],
+  askDoctor: ["Is my tear likely to heal with exercise?", "Would keyhole surgery help me?", "Which exercises should I do?", "What should I do if my knee locks?"],
+  related: [{ groupId: "injuries", conditionId: "knee-ligament" }, { groupId: "arthritis", conditionId: "osteoarthritis" }, { groupId: "joint-replacement", conditionId: "knee-replacement" }],
 });

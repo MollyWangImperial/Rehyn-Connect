@@ -1,0 +1,64 @@
+import type { FeatureSpec } from "./feature-spec";
+
+// The Oesophageal, Stomach and Liver cancer pieces' feature pages (see feature-spec.ts). Pictures:
+// components/library/NewsDigestPieces.tsx.
+
+export const DIGEST_PIECES = [
+  // Oesophageal cancer
+  "dig-oes-pulled-up", "dig-oes-wall-layers", "dig-oes-spacing-out", "dig-oes-stent", "dig-oes-day-plates", "dig-oes-two-clocks", "dig-oes-weight-scale", "dig-oes-wedge-bed", "dig-oes-battery-steps", "dig-oes-small-card", "dig-oes-phased-weeks", "dig-oes-bench",
+  // Stomach cancer
+  "dig-stc-partial-total", "dig-stc-tnm-dots", "dig-stc-path-cards", "dig-stc-family-tree", "dig-stc-two-hours", "dig-stc-sugar-dip", "dig-stc-b12-arrows", "dig-stc-weight-level", "dig-stc-key-weeks", "dig-stc-call-ahead", "dig-stc-rights-desk", "dig-stc-signposts",
+  // Liver cancer
+  "dig-lvc-two-livers", "dig-lvc-risk-ring", "dig-lvc-routes", "dig-lvc-three-months", "dig-lvc-needle-beads", "dig-lvc-24-hour", "dig-lvc-regrow-line", "dig-lvc-body-spots", "dig-lvc-shield", "dig-lvc-squashed", "dig-lvc-bed-battery", "dig-lvc-helplines",
+] as const;
+export type DigestPiece = (typeof DIGEST_PIECES)[number];
+
+// None of the three pages sets a recoverTitle. The oesophageal and stomach recover columns are about recovering
+// from surgery's after-effects; the liver column is about the treatments themselves and managing symptoms.
+const oesU = "Understanding oesophageal cancer", oesR = "Recovering after treatment", oesL = "Living with oesophageal cancer";
+const stcU = "Understanding stomach cancer", stcR = "Recovering after treatment", stcL = "Living with stomach cancer";
+const lvcU = "Understanding liver cancer", lvcT = "Treat and manage", lvcL = "Living with liver cancer";
+
+export const DIGEST_FEATURES: Record<string, FeatureSpec<DigestPiece>> = {
+  // Oesophageal cancer
+  "oesophageal/what-you-had": { kicker: oesU, headline: "Each part of your treatment, explained", standfirst: "Why your plan was your own, what surgery, chemotherapy and other drugs do, and when to call straight away.", piece: "dig-oes-pulled-up", pullQuote: "The main operation is called an oesophagectomy." },
+  "oesophageal/stage": { kicker: oesU, headline: "Type, stage and grade, in plain words", standfirst: "The two main types, the TNM and number stages, staging after surgery and what the grade means.", piece: "dig-oes-wall-layers", pullQuote: "The 2 main types are adenocarcinoma and squamous cell cancer." },
+  "oesophageal/follow-up": { kicker: oesU, headline: "Check-ups after treatment, step by step", standfirst: "What follow-up is for, what happens at appointments, how often they are, and getting in touch between them.", piece: "dig-oes-spacing-out", pullQuote: "You do not have to wait until your next visit." },
+  "oesophageal/swallowing": { kicker: oesU, headline: "Stents, stretches and swallowing again", standfirst: "Why swallowing can get harder, how stents and stretching help, eating with a stent and when to get help.", piece: "dig-oes-stent", pullQuote: "If you cannot swallow anything, tell your healthcare team straight away." },
+  "oesophageal/eating": { kicker: oesR, headline: "Eating again after an oesophagectomy", standfirst: "From sips in hospital to small, frequent meals, the common problems and how long it can take.", piece: "dig-oes-day-plates", pullQuote: "You may feel full very quickly, because your stomach is smaller." },
+  "oesophageal/dumping": { kicker: oesR, headline: "Why meals can leave you faint", standfirst: "What dumping syndrome is, early and late dumping, and the changes to eating that help.", piece: "dig-oes-two-clocks", pullQuote: "Dumping syndrome happens in 1 in 2 people after an oesophagectomy." },
+  "oesophageal/weight": { kicker: oesR, headline: "Keeping your weight and strength up", standfirst: "Why weight matters, your dietitian, adding calories and protein, and help when eating is still hard.", piece: "dig-oes-weight-scale", pullQuote: "The dietitian can support you from diagnosis, through treatment and afterwards." },
+  "oesophageal/reflux": { kicker: oesR, headline: "Easing reflux, by day and night", standfirst: "Why reflux follows surgery, what helps around meals and at night, and the medicines that can help.", piece: "dig-oes-wedge-bed", pullQuote: "After eating, try not to lie down for about 30 to 60 minutes." },
+  "oesophageal/fatigue": { kicker: oesL, headline: "Living with tiredness after treatment", standfirst: "Why tiredness lingers, building up after surgery, telling your team and what helps day to day.", piece: "dig-oes-battery-steps", pullQuote: "Try to keep to a normal sleep routine." },
+  "oesophageal/social-eating": { kicker: oesL, headline: "Eating out, with a little planning", standfirst: "Why meals out can feel hard, the OPA's restaurant card, tips at the table, toilets and support.", piece: "dig-oes-small-card", pullQuote: "Talking about your feelings may help." },
+  "oesophageal/work": { kicker: oesL, headline: "Back to work, and help with money", standfirst: "Your choices, reasonable adjustments, Access to Work, and free advice on benefits and debt.", piece: "dig-oes-phased-weeks", pullQuote: "Make sure you are fully involved in any decisions about your return." },
+  "oesophageal/mood": { kicker: oesL, headline: "The low months after treatment ends", standfirst: "Feelings after treatment, worry about the cancer coming back, signs of depression and where to get help.", piece: "dig-oes-bench", pullQuote: "It is normal to have these feelings sometimes." },
+
+  // Stomach cancer
+  "stomach-cancer/what-you-had": { kicker: stcU, headline: "Surgery and chemotherapy, side by side", standfirst: "The main treatments, partial and total gastrectomy, chemotherapy before and after, other drugs and when to call.", piece: "dig-stc-partial-total", pullQuote: "You do not need to wait for your next check-up." },
+  "stomach-cancer/stage": { kicker: stcU, headline: "T, N and M, made plain", standfirst: "Why the stage matters, the TNM and number stages, grades, and staging before and after surgery.", piece: "dig-stc-tnm-dots", pullQuote: "Knowing the stage helps doctors decide on the best treatment for you." },
+  "stomach-cancer/follow-up": { kicker: stcU, headline: "Check-ups that fit your needs", standfirst: "Leaving hospital, what happens at appointments, how often, what to report between them and getting the most from them.", piece: "dig-stc-path-cards", pullQuote: "You do not have to wait until your next visit." },
+  "stomach-cancer/h-pylori": { kicker: stcU, headline: "A common germ, and your family", standfirst: "What H. pylori is, how it is tested and treated, why stomach cancer can run in families and what relatives can do.", piece: "dig-stc-family-tree", pullQuote: "Most stomach cancers are not caused by inherited cancer genes." },
+  "stomach-cancer/eating": { kicker: stcR, headline: "Little and often, then a little more", standfirst: "Why eating changes after a gastrectomy, the first days, small frequent meals and finding what suits you.", piece: "dig-stc-two-hours", pullQuote: "Your body will slowly adjust, so you can eat more at one time." },
+  "stomach-cancer/dumping": { kicker: stcR, headline: "When food rushes through", standfirst: "Why dumping syndrome happens, early and late dumping, what helps and when to get help.", piece: "dig-stc-sugar-dip", pullQuote: "For most people, the symptoms of dumping syndrome slowly reduce over time." },
+  "stomach-cancer/vitamins": { kicker: stcR, headline: "What your stomach used to absorb", standfirst: "Why vitamin B12 injections are needed, the signs of low B12, and iron, folate, calcium and vitamin D.", piece: "dig-stc-b12-arrows", pullQuote: "Vitamin B12 is important for making healthy red blood cells." },
+  "stomach-cancer/weight": { kicker: stcR, headline: "Holding on to your weight", standfirst: "Why weight drops at first, adding energy and protein, your dietitian and when more help is needed.", piece: "dig-stc-weight-level", pullQuote: "But in time, most people find they stop losing weight." },
+  "stomach-cancer/fatigue": { kicker: stcL, headline: "Healing takes energy", standfirst: "Why you feel so tired, what can be checked, building up slowly, pacing your day and driving again.", piece: "dig-stc-key-weeks", pullQuote: "Everyone is different, and some people take longer than others to recover." },
+  "stomach-cancer/social-eating": { kicker: stcL, headline: "Back to the table", standfirst: "Why meals can feel different, planning a meal out, tips at the table, meals at home and support.", piece: "dig-stc-call-ahead", pullQuote: "The amount you can eat may change each day." },
+  "stomach-cancer/work": { kicker: stcL, headline: "Back to work, with rights behind you", standfirst: "Your legal rights, adjustments for side effects, planning your return, sick pay, benefits and more help.", piece: "dig-stc-rights-desk", pullQuote: "You do not have to tell your employer you have cancer." },
+  "stomach-cancer/mood": { kicker: stcL, headline: "After treatment, the feelings arrive", standfirst: "Mixed feelings, worry about the future, sadness or depression, ways to feel supported and help right now.", piece: "dig-stc-signposts", pullQuote: "These feelings can get better over time." },
+
+  // Liver cancer
+  "liver-cancer/what-it-is": { kicker: lvcU, headline: "Cancer that starts in the liver", standfirst: "Primary and secondary liver cancer, HCC and other types, what the liver does and why your type matters.", piece: "dig-lvc-two-livers", pullQuote: "The liver is good at repairing itself." },
+  "liver-cancer/causes": { kicker: lvcU, headline: "Most HCC grows in a scarred liver", standfirst: "What raises the risk, from cirrhosis and hepatitis to fatty liver, alcohol and smoking, and healthy changes.", piece: "dig-lvc-risk-ring", pullQuote: "Doctors do not know the exact cause of primary liver cancer." },
+  "liver-cancer/treatments": { kicker: lvcU, headline: "From surgery to treatments into the liver", standfirst: "What decides your treatment, surgery and transplant, treatments into the liver, drugs and radiotherapy.", piece: "dig-lvc-routes", pullQuote: "Surgery is the most effective treatment for HCC." },
+  "liver-cancer/follow-up": { kicker: lvcU, headline: "Scans and check-ups after treatment", standfirst: "Regular check-ups, how often they are, scans and AFP blood tests, and help when they feel worrying.", piece: "dig-lvc-three-months", pullQuote: "You do not have to wait until your next visit." },
+  "liver-cancer/local-treatments": { kicker: lvcT, headline: "Reaching the cancer from inside", standfirst: "How ablation, TACE and SIRT work, what to expect afterwards and when to call the hospital.", piece: "dig-lvc-needle-beads", pullQuote: "You might have embolisation treatment more than once." },
+  "liver-cancer/medicines": { kicker: lvcT, headline: "Know your 24-hour number", standfirst: "How targeted drugs and immunotherapy work, when they are used, the main drugs and their side effects.", piece: "dig-lvc-24-hour", pullQuote: "Always call 999 if you have chest pain or difficulty breathing." },
+  "liver-cancer/surgery-recovery": { kicker: lvcT, headline: "Step by step after liver surgery", standfirst: "Intensive care, getting moving, going home, the weeks after and the signs of infection.", piece: "dig-lvc-regrow-line", pullQuote: "This is normal after major operations." },
+  "liver-cancer/symptoms": { kicker: lvcT, headline: "Help for every symptom", standfirst: "Support at any stage, and what helps with pain, a swollen tummy, jaundice, itching and sickness.", piece: "dig-lvc-body-spots", pullQuote: "Some people get pain in the right shoulder." },
+  "liver-cancer/liver-health": { kicker: lvcL, headline: "Protecting the liver you have", standfirst: "Why the rest of the liver matters, alcohol, medicines and supplements, vaccines and healthy habits.", piece: "dig-lvc-shield", pullQuote: "So the safest option is usually to have the vaccine." },
+  "liver-cancer/eating": { kicker: lvcL, headline: "Eating enough when you fill up fast", standfirst: "Why eating gets hard, little and often, adding energy and protein, special advice and a dietitian.", piece: "dig-lvc-squashed", pullQuote: "Aim to have something every couple of hours." },
+  "liver-cancer/fatigue": { kicker: lvcL, headline: "Tiredness that sleep does not fix", standfirst: "Why fatigue is so common, during and after treatment, pacing, gentle activity and telling your team.", piece: "dig-lvc-bed-battery", pullQuote: "Cancer fatigue does not usually go away with sleep or rest." },
+  "liver-cancer/mood": { kicker: lvcL, headline: "Rare cancer, shared feelings", standfirst: "Feelings that come and go, signs of depression, things that help, urgent help and where to find support.", piece: "dig-lvc-helplines", pullQuote: "Everyone reacts in their own way." },
+};

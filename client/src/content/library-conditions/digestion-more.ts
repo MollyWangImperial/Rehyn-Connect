@@ -1,5 +1,5 @@
 import type { LibraryCondition } from "../library";
-import { article, BAUS, BLADDER_HEALTH_UK, BRITISH_LIVER_TRUST, COELIAC_UK, CROHNS_COLITIS_UK, GUTS_UK, KIDNEY_CARE_UK, NHS, piece, PROSTATE_CANCER_UK, source } from "../library-helpers";
+import { article, BAUS, BLADDER_BOWEL_COMMUNITY, BLADDER_HEALTH_UK, BRITISH_LIVER_TRUST, COELIAC_UK, CROHNS_COLITIS_UK, GUTS_UK, HAEMOCHROMATOSIS_UK, KIDNEY_CARE_UK, NHS, ORGAN_DONATION, piece, PKD_CHARITY, PROSTATE_CANCER_UK, source } from "../library-helpers";
 
 // Kidneys, liver & digestion, the rest of the section: kidney stones and acute kidney injury; urinary
 // incontinence, an enlarged prostate and urinary tract infections; cirrhosis, alcohol-related liver disease and
@@ -910,5 +910,692 @@ export const ulcerativeColitis = condition({
     { groupId: "ibd", conditionId: "crohns-disease" },
     { groupId: "gut", conditionId: "ibs" },
     { groupId: "common-cancers", conditionId: "bowel" },
+  ],
+});
+
+
+// ---- The second round: more conditions under every group --------------------------------------------------
+
+export const polycysticKidney = condition({
+  id: "polycystic-kidney-disease",
+  title: "Polycystic kidney disease",
+  summary: "An inherited condition in which many fluid-filled cysts grow in the kidneys, slowly making them larger and less able to work. It often shows up in adulthood with high blood pressure, pain or blood in the urine. Treatment protects the kidneys for as long as possible, and family members can be tested.",
+  keywords: ["polycystic kidney disease", "pkd", "adpkd", "kidney cysts", "inherited"],
+  blurb: "Cysts that grow in both kidneys, and why it runs in families.",
+  understand: [
+    ["what-it-is", "What polycystic kidney disease is", 3, ["cysts", "kidneys", "inherited"]],
+    ["inheritance", "How it is inherited", 3, ["genes", "family", "children"]],
+    ["symptoms", "Symptoms: blood pressure, pain and more", 3, ["blood pressure", "pain", "blood in urine"]],
+    ["tests", "Scans and tests", 3, ["ultrasound", "genetic test"]],
+  ],
+  recover: [
+    ["blood-pressure", "Keeping blood pressure down", 3, ["blood pressure", "tablets"]],
+    ["tolvaptan", "Tolvaptan: who it is for", 3, ["tolvaptan", "medicine"]],
+    ["pain", "Managing kidney pain", 3, ["pain", "painkillers"]],
+    ["later", "If the kidneys fail", 3, ["dialysis", "transplant"]],
+  ],
+  liveWell: [
+    ["fluids-food", "Water, salt and food", 3, ["water", "salt", "diet"]],
+    ["family", "Telling family and testing relatives", 3, ["family", "testing"]],
+    ["liver-brain", "Liver cysts and other effects", 3, ["liver cysts", "aneurysm"]],
+    ["support", "Support and living well", 2, ["support", "charity"]],
+  ],
+  sources: [source(NHS, "Autosomal dominant polycystic kidney disease"), PKD_CHARITY, KIDNEY_CARE_UK],
+  askDoctor: [
+    "How well are my kidneys working, and how fast is it changing?",
+    "Is tolvaptan an option for me?",
+    "Should my children or relatives be tested?",
+    "What is my blood pressure target?",
+  ],
+  related: [
+    { groupId: "kidneys", conditionId: "chronic-kidney-disease" },
+    { groupId: "kidneys", conditionId: "kidney-failure-dialysis" },
+    { groupId: "blood-pressure", conditionId: "high-blood-pressure" },
+  ],
+});
+
+export const kidneyFailureDialysis = condition({
+  id: "kidney-failure-dialysis",
+  title: "Kidney failure and dialysis",
+  summary: "When the kidneys can no longer keep the body well on their own, dialysis can take over part of their work. There are different kinds, at home or in a unit, and some people choose supportive care instead. Planning ahead with the kidney team helps people choose what suits their life.",
+  keywords: ["kidney failure", "dialysis", "haemodialysis", "peritoneal dialysis", "end stage"],
+  blurb: "What dialysis does when the kidneys cannot.",
+  understand: [
+    ["what-it-is", "What kidney failure means", 3, ["kidney failure", "stage 5"]],
+    ["choices", "The choices: dialysis, transplant or supportive care", 3, ["choices", "planning"]],
+    ["haemodialysis", "Haemodialysis", 3, ["haemodialysis", "fistula", "unit"]],
+    ["peritoneal", "Peritoneal dialysis at home", 3, ["peritoneal dialysis", "home"]],
+  ],
+  recover: [
+    ["access", "Fistulas, lines and catheters", 3, ["fistula", "line", "catheter"]],
+    ["fluid", "Fluid limits and thirst", 3, ["fluid", "thirst"]],
+    ["food", "Eating on dialysis", 3, ["potassium", "phosphate", "diet"]],
+    ["supportive-care", "Supportive care without dialysis", 3, ["supportive care", "conservative"]],
+  ],
+  liveWell: [
+    ["work-travel", "Work, holidays and dialysis", 3, ["work", "holiday dialysis"]],
+    ["tiredness-mood", "Tiredness and mood", 3, ["tired", "mood"]],
+    ["money", "Money, transport and practical help", 3, ["benefits", "transport"]],
+    ["urgent", "Signs to get help quickly", 2, ["urgent", "infection", "bleeding"]],
+  ],
+  sources: [source(NHS, "Dialysis"), KIDNEY_CARE_UK],
+  askDoctor: [
+    "Which type of dialysis would suit my life best?",
+    "Could I have dialysis at home?",
+    "Am I suitable for a transplant?",
+    "What would supportive care without dialysis look like for me?",
+  ],
+  related: [
+    { groupId: "kidneys", conditionId: "chronic-kidney-disease" },
+    { groupId: "kidneys", conditionId: "kidney-transplant" },
+    { groupId: "kidneys", conditionId: "polycystic-kidney-disease" },
+  ],
+});
+
+export const kidneyTransplant = condition({
+  id: "kidney-transplant",
+  title: "Kidney transplant",
+  summary: "A healthy kidney from a living or deceased donor, placed in the body to do the work the failing kidneys cannot. It is the best treatment for many people with kidney failure. Anti-rejection medicines are then taken for life, along with regular checks.",
+  keywords: ["kidney transplant", "donor", "living donor", "rejection", "immunosuppressants"],
+  blurb: "Where the new kidney goes, and how it is kept working.",
+  understand: [
+    ["what-it-is", "What a kidney transplant involves", 3, ["transplant", "donor kidney"]],
+    ["suitability", "Who can have one: assessment", 3, ["assessment", "suitability"]],
+    ["donors", "Living and deceased donors", 3, ["living donor", "waiting list"]],
+    ["waiting", "The waiting list and the call", 3, ["waiting list", "call"]],
+  ],
+  recover: [
+    ["operation", "The operation and the first weeks", 4, ["operation", "recovery"]],
+    ["medicines", "Anti-rejection medicines for life", 3, ["tacrolimus", "immunosuppressants"]],
+    ["rejection", "Rejection: signs and checks", 3, ["rejection", "blood tests"]],
+    ["clinic", "Clinic visits and blood tests", 2, ["clinic", "follow-up"]],
+  ],
+  liveWell: [
+    ["infections", "Avoiding infections", 3, ["infection", "vaccines"]],
+    ["skin-cancer", "Sun, skin and cancer checks", 2, ["sun", "skin cancer"]],
+    ["daily-life", "Work, exercise and travel", 3, ["work", "exercise", "travel"]],
+    ["donor-family", "Thanks, donors and their families", 2, ["donor family", "letters"]],
+  ],
+  sources: [source(NHS, "Kidney transplant"), ORGAN_DONATION, KIDNEY_CARE_UK],
+  askDoctor: [
+    "Am I suitable for a transplant, and how long is the wait?",
+    "Could a family member or friend be a living donor?",
+    "Which signs of rejection or infection should I report?",
+    "Which vaccines and checks do I need on my medicines?",
+  ],
+  related: [
+    { groupId: "kidneys", conditionId: "kidney-failure-dialysis" },
+    { groupId: "kidneys", conditionId: "chronic-kidney-disease" },
+    { groupId: "kidneys", conditionId: "polycystic-kidney-disease" },
+  ],
+});
+
+export const glomerulonephritis = condition({
+  id: "glomerulonephritis",
+  title: "Glomerulonephritis",
+  summary: "Inflammation of the tiny filters in the kidneys, often caused by the immune system. It can show up as blood or protein in the urine, swelling or high blood pressure, and some types are found only on a routine test. Treatment depends on the type and aims to protect the kidneys.",
+  keywords: ["glomerulonephritis", "iga nephropathy", "kidney inflammation", "nephrotic syndrome", "protein in urine"],
+  blurb: "Inflamed kidney filters, and why blood and protein leak through.",
+  understand: [
+    ["what-it-is", "What glomerulonephritis is", 3, ["filters", "inflammation"]],
+    ["types", "The types, including IgA nephropathy", 3, ["iga nephropathy", "types"]],
+    ["symptoms", "Signs: urine, swelling and blood pressure", 3, ["blood in urine", "swelling", "frothy urine"]],
+    ["biopsy", "Tests and the kidney biopsy", 3, ["biopsy", "tests"]],
+  ],
+  recover: [
+    ["blood-pressure", "Blood pressure and protecting the kidneys", 3, ["blood pressure", "ace inhibitor"]],
+    ["immune-treatment", "Treatments that calm the immune system", 3, ["steroids", "immunosuppressants"]],
+    ["swelling", "Swelling, salt and water tablets", 3, ["swelling", "diuretics", "salt"]],
+    ["monitoring", "Monitoring over time", 2, ["blood tests", "urine tests"]],
+  ],
+  liveWell: [
+    ["infections", "Infections and vaccines on treatment", 3, ["infection", "vaccines"]],
+    ["food", "Food, salt and protein", 2, ["salt", "protein"]],
+    ["pregnancy", "Pregnancy and kidney inflammation", 2, ["pregnancy"]],
+    ["urgent", "Signs to get help quickly", 2, ["urgent", "swelling", "breathless"]],
+  ],
+  sources: [source(NHS, "Glomerulonephritis"), KIDNEY_CARE_UK],
+  askDoctor: [
+    "Which type of glomerulonephritis do I have?",
+    "Do I need a biopsy or immune treatment?",
+    "What blood pressure and urine results should we aim for?",
+    "Which symptoms mean I should get help quickly?",
+  ],
+  related: [
+    { groupId: "kidneys", conditionId: "chronic-kidney-disease" },
+    { groupId: "kidneys", conditionId: "acute-kidney-injury" },
+    { groupId: "blood-pressure", conditionId: "high-blood-pressure" },
+  ],
+});
+
+export const overactiveBladder = condition({
+  id: "overactive-bladder",
+  title: "Overactive bladder",
+  summary: "A sudden, strong need to pee that is hard to put off, often with needing to go many times a day and night, sometimes with leaks. It is common and can usually be improved with bladder training, changes to drinks and, if needed, medicines.",
+  keywords: ["overactive bladder", "oab", "urgency", "frequency", "nocturia"],
+  blurb: "The bladder muscle that squeezes too soon.",
+  understand: [
+    ["what-it-is", "What an overactive bladder is", 3, ["urgency", "bladder muscle"]],
+    ["symptoms", "Urgency, frequency and nights", 3, ["urgency", "frequency", "night"]],
+    ["causes", "What can cause or worsen it", 3, ["causes", "caffeine", "infection"]],
+    ["diary", "The bladder diary", 2, ["bladder diary", "tests"]],
+  ],
+  recover: [
+    ["training", "Bladder training", 3, ["bladder training"]],
+    ["drinks", "Drinks that irritate the bladder", 3, ["caffeine", "fizzy drinks", "alcohol"]],
+    ["medicines", "Medicines for an overactive bladder", 3, ["mirabegron", "antimuscarinics"]],
+    ["further", "When first steps are not enough", 3, ["botox", "nerve stimulation"]],
+  ],
+  liveWell: [
+    ["nights", "Fewer trips at night", 3, ["night", "sleep"]],
+    ["out-and-about", "Going out with confidence", 3, ["toilets", "travel", "card"]],
+    ["pelvic-floor", "Pelvic floor exercises and urgency", 2, ["pelvic floor"]],
+    ["older-age", "Overactive bladder in later life", 2, ["older", "falls"]],
+  ],
+  sources: [source(NHS, "Urinary incontinence"), BLADDER_HEALTH_UK, BLADDER_BOWEL_COMMUNITY],
+  askDoctor: [
+    "Could an infection or another condition be causing this?",
+    "Should I keep a bladder diary?",
+    "Which medicine would suit me, and what are the side effects?",
+    "Can I be referred to a continence service?",
+  ],
+  related: [
+    { groupId: "bladder", conditionId: "urinary-incontinence" },
+    { groupId: "bladder", conditionId: "bladder-pain-syndrome" },
+    { groupId: "bladder", conditionId: "uti" },
+  ],
+});
+
+export const bladderPain = condition({
+  id: "bladder-pain-syndrome",
+  title: "Bladder pain syndrome",
+  summary: "Long-lasting pain or pressure in the bladder area, often with needing to pee often, when no infection is found. Also called interstitial cystitis. It is not fully understood, but a mix of self-care, treatments and support can ease symptoms.",
+  keywords: ["bladder pain syndrome", "interstitial cystitis", "pelvic pain", "bladder pain"],
+  blurb: "Bladder pain without an infection.",
+  understand: [
+    ["what-it-is", "What bladder pain syndrome is", 3, ["interstitial cystitis", "bladder pain"]],
+    ["symptoms", "Symptoms and flare-ups", 3, ["pain", "frequency", "flare"]],
+    ["diagnosis", "How it is diagnosed", 3, ["diagnosis", "cystoscopy"]],
+    ["triggers", "Possible triggers", 3, ["triggers", "food", "stress"]],
+  ],
+  recover: [
+    ["self-care", "Self-care and food diaries", 3, ["self-care", "diary"]],
+    ["medicines", "Medicines for bladder pain", 3, ["medicines", "amitriptyline"]],
+    ["bladder-treatments", "Treatments into the bladder", 3, ["instillation", "bladder treatments"]],
+    ["pain-support", "Pain clinics and physiotherapy", 3, ["pain clinic", "physiotherapy"]],
+  ],
+  liveWell: [
+    ["flares", "Getting through a flare", 3, ["flare", "heat"]],
+    ["sex-relationships", "Sex and relationships", 2, ["sex", "relationships"]],
+    ["work", "Work and daily life", 2, ["work", "toilets"]],
+    ["mood", "Mood and long-term pain", 3, ["mood", "support"]],
+  ],
+  sources: [source(NHS, "Interstitial cystitis"), BLADDER_HEALTH_UK, BAUS],
+  askDoctor: [
+    "Have other causes, including infection, been ruled out?",
+    "Can I be referred to a specialist or pain clinic?",
+    "Which treatments might help my symptoms?",
+    "What should I do during a flare-up?",
+  ],
+  related: [
+    { groupId: "bladder", conditionId: "overactive-bladder" },
+    { groupId: "bladder", conditionId: "uti" },
+    { groupId: "gut", conditionId: "ibs" },
+  ],
+});
+
+export const prostatitis = condition({
+  id: "prostatitis",
+  title: "Prostatitis",
+  summary: "Inflammation of the prostate gland, causing pain in the pelvis, genitals or lower back and problems peeing. It can be a sudden infection that needs urgent antibiotics, or a longer-lasting pain condition that is managed with a mix of treatments.",
+  keywords: ["prostatitis", "chronic pelvic pain", "prostate infection", "pelvic pain"],
+  blurb: "Acute infection or long-lasting pain: the two kinds.",
+  understand: [
+    ["what-it-is", "What prostatitis is", 3, ["prostate", "inflammation"]],
+    ["acute", "Acute bacterial prostatitis", 3, ["acute", "infection", "fever"]],
+    ["chronic", "Chronic prostatitis and pelvic pain", 3, ["chronic", "pelvic pain"]],
+    ["tests", "Tests and examinations", 3, ["urine test", "examination"]],
+  ],
+  recover: [
+    ["antibiotics", "Antibiotics for infection", 3, ["antibiotics"]],
+    ["pain-relief", "Pain relief and other medicines", 3, ["painkillers", "alpha blockers"]],
+    ["physio", "Physiotherapy and pelvic floor relaxation", 3, ["physiotherapy", "pelvic floor"]],
+    ["urgent", "When to get urgent help", 2, ["urgent", "cannot pee", "fever"]],
+  ],
+  liveWell: [
+    ["daily-life", "Sitting, cycling and daily life", 3, ["sitting", "cycling"]],
+    ["sex", "Sex and relationships", 2, ["sex", "ejaculation"]],
+    ["mood", "Mood and long-term pain", 3, ["mood", "stress"]],
+    ["coming-back", "When symptoms return", 2, ["flare", "recurrence"]],
+  ],
+  sources: [source(NHS, "Prostatitis"), PROSTATE_CANCER_UK, BAUS],
+  askDoctor: [
+    "Is this an infection, or longer-lasting prostatitis?",
+    "How long should I take antibiotics?",
+    "Could physiotherapy help me?",
+    "Which symptoms mean I should get urgent help?",
+  ],
+  related: [
+    { groupId: "bladder", conditionId: "enlarged-prostate" },
+    { groupId: "bladder", conditionId: "uti" },
+    { groupId: "common-cancers", conditionId: "prostate" },
+  ],
+});
+
+export const haemochromatosis = condition({
+  id: "haemochromatosis",
+  title: "Haemochromatosis",
+  summary: "An inherited condition in which the body absorbs too much iron from food, which builds up in the liver, heart, joints and pancreas over many years. Found early, it is easy to treat by regularly removing blood, which can prevent damage.",
+  keywords: ["haemochromatosis", "iron overload", "inherited", "venesection", "ferritin"],
+  blurb: "Too much iron, and where it collects.",
+  understand: [
+    ["what-it-is", "What haemochromatosis is", 3, ["iron", "inherited"]],
+    ["genes", "How it is inherited", 3, ["genes", "c282y", "family"]],
+    ["symptoms", "Symptoms, often vague", 3, ["tired", "joint pain", "symptoms"]],
+    ["tests", "Blood tests and the genetic test", 3, ["ferritin", "transferrin saturation", "genetic test"]],
+  ],
+  recover: [
+    ["venesection", "Venesection: removing blood", 3, ["venesection", "phlebotomy"]],
+    ["targets", "Iron targets and maintenance", 3, ["ferritin", "maintenance"]],
+    ["liver-checks", "Liver checks", 3, ["liver", "scan"]],
+    ["food", "Food, drink and iron", 3, ["diet", "alcohol", "vitamin c"]],
+  ],
+  liveWell: [
+    ["family", "Testing your relatives", 3, ["family", "testing"]],
+    ["joints", "Joint pain", 2, ["joints", "arthritis"]],
+    ["blood-donation", "Donating blood", 2, ["blood donation"]],
+    ["living", "Living well with haemochromatosis", 2, ["support", "living"]],
+  ],
+  sources: [source(NHS, "Haemochromatosis"), HAEMOCHROMATOSIS_UK, BRITISH_LIVER_TRUST],
+  askDoctor: [
+    "What are my ferritin and transferrin saturation levels?",
+    "How often will I need venesection?",
+    "Should my liver be checked?",
+    "Which family members should be tested?",
+  ],
+  related: [
+    { groupId: "liver", conditionId: "cirrhosis" },
+    { groupId: "diabetes", conditionId: "type-2" },
+    { groupId: "arthritis", conditionId: "osteoarthritis" },
+  ],
+});
+
+export const pbc = condition({
+  id: "primary-biliary-cholangitis",
+  title: "Primary biliary cholangitis (PBC)",
+  summary: "A long-term condition in which the immune system slowly damages the small bile ducts in the liver. It mostly affects women, often causes tiredness and itching, and is usually treated with a daily medicine that slows it down for many years.",
+  keywords: ["primary biliary cholangitis", "pbc", "bile ducts", "itching", "ursodeoxycholic acid"],
+  blurb: "The small bile ducts, and why they become damaged.",
+  understand: [
+    ["what-it-is", "What PBC is", 3, ["bile ducts", "autoimmune"]],
+    ["symptoms", "Tiredness, itching and dry eyes", 3, ["tired", "itching", "dry eyes"]],
+    ["tests", "Blood tests, antibodies and scans", 3, ["alp", "ama", "fibroscan"]],
+    ["outlook", "How it changes over time", 3, ["progress", "stages"]],
+  ],
+  recover: [
+    ["udca", "Ursodeoxycholic acid", 3, ["udca", "ursodeoxycholic acid"]],
+    ["second-line", "If the first medicine is not enough", 3, ["obeticholic acid", "second-line"]],
+    ["itching", "Managing itching", 3, ["itching", "colestyramine"]],
+    ["fatigue", "Managing fatigue", 3, ["fatigue", "tired"]],
+  ],
+  liveWell: [
+    ["bones", "Bone health", 2, ["bones", "osteoporosis"]],
+    ["checks", "Regular checks", 2, ["checks", "blood tests"]],
+    ["work", "Work and daily life", 2, ["work"]],
+    ["support", "Support and others with PBC", 2, ["support"]],
+  ],
+  sources: [source(NHS, "Primary biliary cholangitis"), BRITISH_LIVER_TRUST],
+  askDoctor: [
+    "How well is my PBC responding to treatment?",
+    "What can help my itching and tiredness?",
+    "How often should my liver and bones be checked?",
+    "Is there a second-line treatment if I need one?",
+  ],
+  related: [
+    { groupId: "liver", conditionId: "autoimmune-hepatitis" },
+    { groupId: "liver", conditionId: "cirrhosis" },
+    { groupId: "bone-health", conditionId: "osteoporosis" },
+  ],
+});
+
+export const autoimmuneHepatitis = condition({
+  id: "autoimmune-hepatitis",
+  title: "Autoimmune hepatitis",
+  summary: "A condition in which the immune system attacks the liver, causing inflammation. It can start suddenly or slowly and is usually well controlled with medicines that calm the immune system, often taken for years.",
+  keywords: ["autoimmune hepatitis", "aih", "liver inflammation", "immune", "azathioprine"],
+  blurb: "The immune system and an inflamed liver.",
+  understand: [
+    ["what-it-is", "What autoimmune hepatitis is", 3, ["immune", "liver inflammation"]],
+    ["symptoms", "Symptoms, sudden or slow", 3, ["tired", "jaundice", "symptoms"]],
+    ["tests", "Blood tests and the liver biopsy", 3, ["blood tests", "biopsy"]],
+    ["who", "Who gets it", 2, ["who", "other autoimmune conditions"]],
+  ],
+  recover: [
+    ["steroids", "Steroids to bring it under control", 3, ["prednisolone", "budesonide"]],
+    ["azathioprine", "Azathioprine and long-term treatment", 3, ["azathioprine", "maintenance"]],
+    ["side-effects", "Side effects and blood tests", 3, ["side effects", "monitoring"]],
+    ["stopping", "Can treatment ever stop?", 2, ["stopping", "relapse"]],
+  ],
+  liveWell: [
+    ["infections", "Infections and vaccines", 3, ["infection", "vaccines"]],
+    ["bones", "Bone health on steroids", 2, ["bones", "steroids"]],
+    ["pregnancy", "Pregnancy", 2, ["pregnancy"]],
+    ["urgent", "Signs to act on", 2, ["urgent", "jaundice"]],
+  ],
+  sources: [source(NHS, "Hepatitis, including autoimmune hepatitis"), BRITISH_LIVER_TRUST],
+  askDoctor: [
+    "How active is my autoimmune hepatitis now?",
+    "How long will I need treatment?",
+    "Which blood tests and vaccines do I need on my medicines?",
+    "Which symptoms mean I should contact you straight away?",
+  ],
+  related: [
+    { groupId: "liver", conditionId: "primary-biliary-cholangitis" },
+    { groupId: "liver", conditionId: "cirrhosis" },
+    { groupId: "thyroid", conditionId: "underactive" },
+  ],
+});
+
+export const indigestion = condition({
+  id: "indigestion",
+  title: "Indigestion",
+  summary: "Discomfort or burning in the upper tummy, often after eating, sometimes with feeling full, bloated or sick. It is very common and usually eased by changes to eating and simple medicines, but some symptoms need checking.",
+  keywords: ["indigestion", "dyspepsia", "upper tummy pain", "bloating", "burping"],
+  blurb: "What happens when digestion goes off course.",
+  understand: [
+    ["what-it-is", "What indigestion is", 3, ["dyspepsia", "upper tummy"]],
+    ["causes", "Common causes", 3, ["causes", "food", "medicines", "stress"]],
+    ["functional", "Functional dyspepsia", 3, ["functional dyspepsia"]],
+    ["checks", "Symptoms that need checking", 2, ["swallowing", "weight loss", "gp"]],
+  ],
+  recover: [
+    ["self-help", "Everyday changes that help", 3, ["eating", "self-help"]],
+    ["pharmacy", "Medicines from the pharmacy", 3, ["antacids", "pharmacy"]],
+    ["h-pylori", "Testing for H. pylori", 3, ["h. pylori", "test"]],
+    ["ppis", "Acid-reducing tablets", 3, ["ppi", "omeprazole"]],
+  ],
+  liveWell: [
+    ["eating", "Meals, timing and portions", 3, ["meals", "portions"]],
+    ["stress", "Stress and the stomach", 2, ["stress"]],
+    ["pregnancy", "Indigestion in pregnancy", 2, ["pregnancy"]],
+    ["medicines-review", "Medicines that can cause it", 2, ["nsaids", "medicines"]],
+  ],
+  sources: [source(NHS, "Indigestion"), GUTS_UK],
+  askDoctor: [
+    "Do I need any tests, such as for H. pylori?",
+    "Could any of my medicines be causing this?",
+    "How long should I take an acid-reducing tablet?",
+    "Which symptoms mean I should come back sooner?",
+  ],
+  related: [
+    { groupId: "stomach", conditionId: "acid-reflux" },
+    { groupId: "stomach", conditionId: "gastritis" },
+    { groupId: "stomach", conditionId: "stomach-ulcers" },
+  ],
+});
+
+export const hiatusHernia = condition({
+  id: "hiatus-hernia",
+  title: "Hiatus hernia",
+  summary: "When part of the stomach pushes up through the diaphragm into the chest. Many people have no symptoms; others get heartburn and reflux. Lifestyle changes and acid-reducing medicines usually help, and surgery is only occasionally needed.",
+  keywords: ["hiatus hernia", "hernia", "diaphragm", "heartburn", "reflux"],
+  blurb: "The stomach, the diaphragm and the gap between.",
+  understand: [
+    ["what-it-is", "What a hiatus hernia is", 3, ["diaphragm", "stomach"]],
+    ["symptoms", "Symptoms, and when there are none", 3, ["heartburn", "symptoms"]],
+    ["causes", "Why it happens", 2, ["causes", "age", "weight"]],
+    ["tests", "Tests: endoscopy and barium swallow", 3, ["endoscopy", "barium swallow"]],
+  ],
+  recover: [
+    ["self-help", "Everyday changes that help", 3, ["eating", "weight", "smoking"]],
+    ["medicines", "Medicines for reflux symptoms", 3, ["ppi", "antacids"]],
+    ["surgery", "When surgery is considered", 3, ["surgery", "fundoplication"]],
+    ["urgent", "When to get urgent help", 2, ["urgent", "vomiting", "pain"]],
+  ],
+  liveWell: [
+    ["eating", "Meals and timing", 2, ["meals", "timing"]],
+    ["sleep", "Sleeping with a hiatus hernia", 2, ["sleep", "bed"]],
+    ["exercise", "Exercise and lifting", 2, ["exercise", "lifting"]],
+    ["checks", "Follow-up", 2, ["follow-up"]],
+  ],
+  sources: [source(NHS, "Hiatus hernia"), GUTS_UK],
+  askDoctor: [
+    "Is my hiatus hernia causing my symptoms?",
+    "Do I need any tests?",
+    "Would surgery ever be worth considering for me?",
+    "Which symptoms mean I should get urgent help?",
+  ],
+  related: [
+    { groupId: "stomach", conditionId: "acid-reflux" },
+    { groupId: "stomach", conditionId: "indigestion" },
+    { groupId: "weight", conditionId: "obesity" },
+  ],
+});
+
+export const gastritis = condition({
+  id: "gastritis",
+  title: "Gastritis",
+  summary: "Inflammation of the stomach lining, often caused by H. pylori, anti-inflammatory painkillers or alcohol. It can cause indigestion, pain or feeling sick, or no symptoms at all. Treating the cause usually lets the lining heal.",
+  keywords: ["gastritis", "stomach lining", "inflammation", "h. pylori", "indigestion"],
+  blurb: "An inflamed stomach lining, and what irritates it.",
+  understand: [
+    ["what-it-is", "What gastritis is", 3, ["stomach lining", "inflammation"]],
+    ["causes", "Causes: H. pylori, painkillers, alcohol and more", 3, ["h. pylori", "nsaids", "alcohol"]],
+    ["symptoms", "Symptoms", 2, ["symptoms", "indigestion"]],
+    ["tests", "Tests", 3, ["breath test", "endoscopy"]],
+  ],
+  recover: [
+    ["treatment", "Treating the cause", 3, ["treatment", "antibiotics"]],
+    ["medicines", "Medicines that reduce acid", 3, ["ppi", "antacids"]],
+    ["painkillers", "Painkillers to avoid", 2, ["nsaids", "paracetamol"]],
+    ["urgent", "Bleeding and other warning signs", 2, ["bleeding", "999"]],
+  ],
+  liveWell: [
+    ["food-drink", "Food, alcohol and gastritis", 3, ["food", "alcohol"]],
+    ["smoking", "Smoking and the stomach", 2, ["smoking"]],
+    ["long-term", "Long-term gastritis", 2, ["chronic", "b12"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention"]],
+  ],
+  sources: [source(NHS, "Gastritis"), GUTS_UK],
+  askDoctor: [
+    "What is causing my gastritis?",
+    "Should I be tested for H. pylori?",
+    "Which painkillers are safe for me?",
+    "Which symptoms mean I should get urgent help?",
+  ],
+  related: [
+    { groupId: "stomach", conditionId: "stomach-ulcers" },
+    { groupId: "stomach", conditionId: "indigestion" },
+    { groupId: "liver", conditionId: "alcohol-related-liver-disease" },
+  ],
+});
+
+export const haemorrhoids = condition({
+  id: "haemorrhoids",
+  title: "Haemorrhoids (piles)",
+  summary: "Swollen blood vessels in and around the bottom, very common and often linked to straining. They can cause bleeding, itching or discomfort, and usually get better with simple measures, creams from a pharmacist or minor treatments. Bleeding from the bottom should always be checked.",
+  keywords: ["haemorrhoids", "piles", "bleeding bottom", "itching", "straining"],
+  blurb: "Swollen vessels around the bottom, and why they swell.",
+  understand: [
+    ["what-it-is", "What piles are", 3, ["piles", "blood vessels"]],
+    ["symptoms", "Symptoms", 2, ["bleeding", "itching", "lump"]],
+    ["causes", "Why they happen", 3, ["straining", "constipation", "pregnancy"]],
+    ["checks", "Why bleeding should be checked", 2, ["bleeding", "gp"]],
+  ],
+  recover: [
+    ["self-help", "Fibre, fluids and not straining", 3, ["fibre", "fluids", "straining"]],
+    ["pharmacy", "Creams and medicines from a pharmacist", 3, ["creams", "pharmacy"]],
+    ["treatments", "Banding and other treatments", 3, ["banding", "procedures"]],
+    ["surgery", "When surgery is needed", 2, ["surgery"]],
+  ],
+  liveWell: [
+    ["toilet", "Toilet habits that help", 2, ["toilet", "routine"]],
+    ["pregnancy", "Piles in pregnancy", 2, ["pregnancy"]],
+    ["coming-back", "Stopping them coming back", 2, ["prevention"]],
+    ["urgent", "When to get urgent help", 2, ["urgent", "heavy bleeding"]],
+  ],
+  sources: [source(NHS, "Piles (haemorrhoids)"), GUTS_UK],
+  askDoctor: [
+    "Is the bleeding from piles, or should it be checked further?",
+    "Which cream or treatment would suit me?",
+    "Would banding help?",
+    "Which symptoms mean I should get urgent help?",
+  ],
+  related: [
+    { groupId: "gut", conditionId: "constipation" },
+    { groupId: "gut", conditionId: "anal-fissure" },
+    { groupId: "common-cancers", conditionId: "bowel" },
+  ],
+});
+
+export const analFissure = condition({
+  id: "anal-fissure",
+  title: "Anal fissure",
+  summary: "A small tear in the skin around the bottom, often after passing a hard poo, causing sharp pain and sometimes bleeding. Most heal within weeks with softer stools and creams; some need further treatment.",
+  keywords: ["anal fissure", "tear", "pain pooing", "bleeding", "bottom pain"],
+  blurb: "A small tear, and why it can be slow to heal.",
+  understand: [
+    ["what-it-is", "What an anal fissure is", 3, ["tear", "fissure"]],
+    ["symptoms", "Symptoms", 2, ["pain", "bleeding"]],
+    ["causes", "Why they happen", 2, ["constipation", "causes"]],
+    ["checks", "Getting it checked", 2, ["gp", "examination"]],
+  ],
+  recover: [
+    ["softer-stools", "Softer stools: fibre, fluids and laxatives", 3, ["fibre", "laxatives"]],
+    ["creams", "Creams that help it heal", 3, ["gtn", "diltiazem", "creams"]],
+    ["pain", "Pain relief and warm baths", 2, ["pain relief", "bath"]],
+    ["further", "Botox and surgery", 3, ["botox", "surgery"]],
+  ],
+  liveWell: [
+    ["toilet", "Toilet habits that help", 2, ["toilet", "routine"]],
+    ["coming-back", "Stopping it coming back", 2, ["prevention"]],
+    ["long-lasting", "If it does not heal", 2, ["chronic"]],
+    ["urgent", "When to get help", 2, ["urgent", "bleeding"]],
+  ],
+  sources: [source(NHS, "Anal fissure"), GUTS_UK],
+  askDoctor: [
+    "Is this a fissure, or should it be checked further?",
+    "Which cream should I use, and for how long?",
+    "Which laxative would help me?",
+    "What happens if it does not heal?",
+  ],
+  related: [
+    { groupId: "gut", conditionId: "haemorrhoids" },
+    { groupId: "gut", conditionId: "constipation" },
+    { groupId: "ibd", conditionId: "crohns-disease" },
+  ],
+});
+
+export const lactoseIntolerance = condition({
+  id: "lactose-intolerance",
+  title: "Lactose intolerance",
+  summary: "When the body cannot fully digest lactose, a sugar in milk, causing wind, bloating and diarrhoea after dairy. It is not an allergy. Most people can manage by cutting down on lactose or using lactose-free foods, while keeping enough calcium.",
+  keywords: ["lactose intolerance", "dairy", "milk", "bloating", "diarrhoea"],
+  blurb: "Lactose, the enzyme that digests it, and what happens without enough.",
+  understand: [
+    ["what-it-is", "What lactose intolerance is", 3, ["lactose", "lactase"]],
+    ["symptoms", "Symptoms", 2, ["wind", "bloating", "diarrhoea"]],
+    ["not-allergy", "Intolerance or milk allergy?", 2, ["allergy", "intolerance"]],
+    ["diagnosis", "How it is diagnosed", 3, ["diagnosis", "breath test", "elimination"]],
+  ],
+  recover: [
+    ["cutting-down", "Cutting down on lactose", 3, ["diet", "dairy"]],
+    ["labels", "Reading labels", 2, ["labels"]],
+    ["calcium", "Getting enough calcium", 3, ["calcium", "bones"]],
+    ["lactase", "Lactase drops and tablets", 2, ["lactase", "supplements"]],
+  ],
+  liveWell: [
+    ["eating-out", "Eating out", 2, ["eating out"]],
+    ["after-illness", "Temporary lactose intolerance", 2, ["after illness", "gastroenteritis"]],
+    ["dietitian", "Seeing a dietitian", 2, ["dietitian"]],
+    ["other-conditions", "Linked conditions", 2, ["coeliac", "ibs"]],
+  ],
+  sources: [source(NHS, "Lactose intolerance"), GUTS_UK],
+  askDoctor: [
+    "Could this be lactose intolerance, or something else?",
+    "Do I need any tests?",
+    "How can I make sure I get enough calcium?",
+    "Could I see a dietitian?",
+  ],
+  related: [
+    { groupId: "gut", conditionId: "ibs" },
+    { groupId: "gut", conditionId: "coeliac-disease" },
+    { groupId: "bone-health", conditionId: "osteoporosis" },
+  ],
+});
+
+export const bowelIncontinence = condition({
+  id: "bowel-incontinence",
+  title: "Bowel incontinence",
+  summary: "Difficulty controlling the bowels, from occasional leaks to sudden urgency. It is more common than many people think and often linked to childbirth, surgery, diarrhoea, constipation or nerve problems. Treatments and support can make a real difference.",
+  keywords: ["bowel incontinence", "faecal incontinence", "urgency", "leakage", "bowel control"],
+  blurb: "How bowel control works, and why it can weaken.",
+  understand: [
+    ["what-it-is", "What bowel incontinence is", 3, ["bowel control", "leaks"]],
+    ["causes", "Why it happens", 3, ["childbirth", "diarrhoea", "nerves"]],
+    ["talking", "Talking to a doctor about it", 2, ["embarrassment", "gp"]],
+    ["tests", "Tests that may help", 3, ["tests", "examination"]],
+  ],
+  recover: [
+    ["diet", "Food, fibre and stool consistency", 3, ["fibre", "diet"]],
+    ["medicines", "Medicines that firm stools", 3, ["loperamide", "medicines"]],
+    ["exercises", "Pelvic floor and bowel retraining", 3, ["pelvic floor", "bowel retraining"]],
+    ["further", "Other treatments and surgery", 3, ["irrigation", "surgery"]],
+  ],
+  liveWell: [
+    ["products", "Pads, plugs and skin care", 3, ["pads", "skin care"]],
+    ["out-and-about", "Going out with confidence", 3, ["toilets", "card", "travel"]],
+    ["relationships", "Relationships and confidence", 2, ["relationships", "confidence"]],
+    ["carers", "For carers", 2, ["carers"]],
+  ],
+  sources: [source(NHS, "Bowel incontinence"), BLADDER_BOWEL_COMMUNITY, GUTS_UK],
+  askDoctor: [
+    "What is causing my bowel incontinence?",
+    "Can I be referred to a continence service or specialist physiotherapist?",
+    "Would a medicine help firm my stools?",
+    "What other treatments might help me?",
+  ],
+  related: [
+    { groupId: "gut", conditionId: "constipation" },
+    { groupId: "bladder", conditionId: "urinary-incontinence" },
+    { groupId: "ibd", conditionId: "ulcerative-colitis" },
+  ],
+});
+
+export const microscopicColitis = condition({
+  id: "microscopic-colitis",
+  title: "Microscopic colitis",
+  summary: "Inflammation of the large bowel that can only be seen under a microscope, causing long-lasting watery diarrhoea. It is more common in older adults and can be linked to some medicines. Treatment usually works well.",
+  keywords: ["microscopic colitis", "collagenous colitis", "lymphocytic colitis", "watery diarrhoea", "budesonide"],
+  blurb: "Bowel inflammation you can only see under a microscope.",
+  understand: [
+    ["what-it-is", "What microscopic colitis is", 3, ["colitis", "microscope"]],
+    ["symptoms", "Symptoms", 2, ["watery diarrhoea", "urgency"]],
+    ["causes", "Causes and medicines linked to it", 3, ["causes", "medicines", "smoking"]],
+    ["diagnosis", "Colonoscopy and biopsies", 3, ["colonoscopy", "biopsy"]],
+  ],
+  recover: [
+    ["medicines-review", "Reviewing your medicines", 3, ["medicines", "nsaids", "ppi"]],
+    ["budesonide", "Budesonide", 3, ["budesonide", "steroid"]],
+    ["other-treatments", "Other treatments", 2, ["loperamide", "treatments"]],
+    ["relapse", "If it comes back", 2, ["relapse"]],
+  ],
+  liveWell: [
+    ["daily-life", "Toilets, travel and daily life", 2, ["toilets", "travel"]],
+    ["fluids", "Fluids and avoiding dehydration", 2, ["fluids", "dehydration"]],
+    ["smoking", "Smoking and microscopic colitis", 2, ["smoking"]],
+    ["support", "Support", 2, ["support"]],
+  ],
+  sources: [source(NHS, "Inflammatory bowel disease, including microscopic colitis"), CROHNS_COLITIS_UK, GUTS_UK],
+  askDoctor: [
+    "Could any of my medicines be causing this?",
+    "How long should I take budesonide?",
+    "What should I do if the diarrhoea comes back?",
+    "Do I need any other tests?",
+  ],
+  related: [
+    { groupId: "ibd", conditionId: "ulcerative-colitis" },
+    { groupId: "ibd", conditionId: "crohns-disease" },
+    { groupId: "gut", conditionId: "coeliac-disease" },
   ],
 });
