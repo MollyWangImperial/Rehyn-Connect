@@ -8,9 +8,9 @@ describe("the Daily question", () => {
     const evening = dailyQuestion(new Date(2026, 9, 12, 23, 59));
     const tomorrow = dailyQuestion(new Date(2026, 9, 13, 0, 1));
     expect(evening).toEqual(morning);
-    expect(morning).toMatchObject({ id: "daily-2026-10-12", dateLabel: "Monday 12 October", question: "Name a colour that sums up your mood today.", key: "colour" });
+    expect(morning).toMatchObject({ id: "daily-2026-10-12", dateLabel: "Monday 12 October", question: "What do you wish someone had told you in your first week home?", key: "first week home" });
     expect(tomorrow.id).toBe("daily-2026-10-13");
-    expect(tomorrow.question).toBe("Are you an early bird or a night owl?");
+    expect(tomorrow.question).toBe("What's a small trick that makes a hard task easier for you?");
     const seen = new Set(Array.from({ length: DAILY_QUESTIONS.length }, (_, day) => dailyQuestion(new Date(2026, 9, 12 + day, 12)).question));
     expect(seen.size).toBe(DAILY_QUESTIONS.length);
   });
@@ -19,9 +19,12 @@ describe("the Daily question", () => {
     for (const question of DAILY_QUESTIONS) {
       const whole = `${question.pre}${question.key}${question.post}`;
       expect(whole.length).toBeLessThan(80);
-      expect(whole).toMatch(/[.?]$/);
+      // Open questions, so answers are stories or tips that others can reply to, never a yes, a no or one word.
+      expect(whole).toMatch(/^(What|Who|How|When|Where|Why)\b.*\?$/);
       expect(question.key.trim().length).toBeGreaterThan(0);
       expect(question.starters.length).toBeGreaterThanOrEqual(3);
+      // Starters are the beginnings of answers, not ready-made ones.
+      for (const starter of question.starters) expect(starter).toMatch(/…$/);
       expect(question.placeholder).toMatch(/…$/);
       expect(question.answers).toHaveLength(8);
       // Each of the eight example people answers once, so the window never shows the same person twice in a row.

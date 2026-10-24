@@ -120,7 +120,8 @@ function DailyQuestionThread({ name }: { name: string }) {
   }, [onScreen, all, total]);
 
   const shifted = () => { setBelt(current => current.slice(-ROWS)); setShifting(false); };
-  const fill = (words: string) => { setDraft(words); setNudge(false); input.current?.focus(); };
+  // A starter is the beginning of a sentence ("Nobody warned me…"): it fills the box without the dots, ready to carry on.
+  const fill = (words: string) => { setDraft(words.replace(/…$/, " ")); setNudge(false); input.current?.focus(); };
   const send = (event: FormEvent) => {
     event.preventDefault();
     const words = draft.trim();

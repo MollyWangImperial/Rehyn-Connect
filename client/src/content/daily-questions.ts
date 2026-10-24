@@ -1,199 +1,234 @@
 // The Daily question at the top of My community's feed ("Live thread"): one question a day from Rehyn, the same for
 // everyone, with the community's answers coming in under it and the person's own answer pinned beneath. Each
 // question has a key phrase (underlined on the card), a few starters to begin an answer from, and the answers of the
-// example people in My community (as everywhere in this preview, they are examples), some with a tag for the choice
-// they made. The meeting memo suggested taking the first prompt of the day from Krillion (krillion.me); its prompts
+// example people in My community (as everywhere in this preview, they are examples), some with a tag for the kind of
+// answer. The meeting memo suggested taking the first prompt of the day from Krillion (krillion.me); its prompts
 // load inside the game and are its own catalogue, so they would need its makers' permission (or a feed from them).
 // With one, `dailyQuestion` is the single place to swap in that source.
+//
+// The questions are for people in recovery talking to others who have been there, not general small talk: each one
+// asks about living with recovery (tips, the unseen parts, hard and good days, the people who help, what is coming
+// back) and is open, so an answer is a short story or a tip that others can reply to, never a yes, a no or one word.
+// The starters are the beginnings of sentences ("Nobody warned me…"), not ready-made answers.
 
 import type { PersonId } from "./community-samples";
 
-/** One example answer: who, what they said, the option they chose (with its colour) if the question has options, and hearts. */
+/** One example answer: who, what they said, the kind of answer (with its colour) if the question sorts them, and hearts. */
 export type DailyAnswer = { who: PersonId; text: string; tag?: { label: string; colour: string }; hearts: number };
 
 export type DailyQuestionSpec = {
-  /** "Colour", "This or that", "Picture", "Scale" or "Open answer". */
+  /** What the question is about: "Pass it on", "Tips", "Then and now", "Hard days", "Ask the group" and so on. */
   kind: string;
   /** The question in three parts: before the key phrase, the key phrase, after it. */
   pre: string;
   key: string;
   post: string;
-  /** In the answer box before the person writes ("Mine is…"). */
+  /** In the answer box before the person writes ("I wish I'd known…"). */
   placeholder: string;
-  /** Answers to start from, with one tap (they fill the box; nothing is sent until Send). */
+  /** Beginnings of answers, with one tap (they fill the box to carry on from; nothing is sent until Send). */
   starters: string[];
   answers: DailyAnswer[];
 };
 
 const tag = (label: string, colour: string) => ({ label, colour });
+const KITCHEN = tag("Kitchen", "#E8836B"), DRESSING = tag("Dressing", "#B9B4E0"), GETTING_ABOUT = tag("Getting about", "#9DBFA6");
+const MEMORY = tag("Memory", "#F2C44D"), WORDS = tag("Words", "#7FB4DB"), BATHROOM = tag("Bathroom", "#7FB4DB"), DAILY_LIFE = tag("Daily life", "#F2C44D");
 
 export const DAILY_QUESTIONS: readonly DailyQuestionSpec[] = [
   {
-    kind: "Colour", pre: "Name a ", key: "colour", post: " that sums up your mood today.", placeholder: "Mine is…",
-    starters: ["Sunny yellow", "Soft grey", "Sea blue", "Hard to say today"],
+    kind: "Pass it on", pre: "What do you wish someone had told you in your ", key: "first week home", post: "?", placeholder: "I wish I'd known…",
+    starters: ["I wish I'd known…", "Nobody warned me…", "It's normal to…"],
     answers: [
-      { who: "anne", text: "Calm after a good night of sleep.", tag: tag("Sage", "#9DBFA6"), hearts: 5 },
-      { who: "david", text: "Grey this morning, but brightening.", tag: tag("Storm", "#6F7C86"), hearts: 3 },
-      { who: "priya", text: "Walked to the corner shop on my own!", tag: tag("Sunny", "#F2C44D"), hearts: 8 },
-      { who: "joan", text: "Physio went better than expected.", tag: tag("Sky", "#7FB4DB"), hearts: 4 },
-      { who: "margaret", text: "Quiet, steady, getting on with it.", tag: tag("Teal", "#2F8F83"), hearts: 2 },
-      { who: "tomasz", text: "A bit fiery, in a good way.", tag: tag("Coral", "#E8836B"), hearts: 6 },
-      { who: "samuel", text: "Somewhere between grey and gold.", hearts: 1 },
-      { who: "liwei", text: "Tired, but peaceful.", tag: tag("Lavender", "#A99AD6"), hearts: 3 },
+      { who: "anne", text: "That tiredness is part of healing, not laziness.", hearts: 11 },
+      { who: "david", text: "Take the help. Pride doesn't do the washing up.", hearts: 8 },
+      { who: "margaret", text: "That crying at the telly is normal now. It is.", hearts: 9 },
+      { who: "samuel", text: "Buy a rocker knife before you need one.", hearts: 5 },
+      { who: "joan", text: "Progress isn't a straight line. Bad days pass.", hearts: 12 },
+      { who: "liwei", text: "Write down your questions before appointments.", hearts: 6 },
+      { who: "priya", text: "Your family is scared too. Talk to them.", hearts: 10 },
+      { who: "tomasz", text: "Still in it. Reading all of these twice.", hearts: 14 },
     ],
   },
   {
-    kind: "This or that", pre: "Are you an ", key: "early bird", post: " or a night owl?", placeholder: "I am more of a…",
-    starters: ["Early bird", "Night owl", "Depends on the day"],
+    kind: "Tips", pre: "What's a small ", key: "trick", post: " that makes a hard task easier for you?", placeholder: "My trick is…",
+    starters: ["My trick is…", "In the kitchen, I…", "Getting dressed, I…"],
     answers: [
-      { who: "margaret", text: "Up with the blackbirds at five.", tag: tag("Early bird", "#F7DC8A"), hearts: 4 },
-      { who: "tomasz", text: "Always have been, always will be.", tag: tag("Night owl", "#B9B4E0"), hearts: 6 },
-      { who: "anne", text: "Ever since rehab started.", tag: tag("Early bird", "#F7DC8A"), hearts: 3 },
-      { who: "samuel", text: "The house is so quiet after ten.", tag: tag("Night owl", "#B9B4E0"), hearts: 5 },
-      { who: "joan", text: "My best energy is before lunch.", tag: tag("Early bird", "#F7DC8A"), hearts: 2 },
-      { who: "liwei", text: "Owl by nature, bird by necessity.", tag: tag("Night owl", "#B9B4E0"), hearts: 9 },
-      { who: "david", text: "Neither. I am an afternoon nap person.", hearts: 7 },
-      { who: "priya", text: "With a cup of tea in hand.", tag: tag("Early bird", "#F7DC8A"), hearts: 2 },
+      { who: "samuel", text: "A damp cloth under the bowl stops it sliding.", tag: KITCHEN, hearts: 9 },
+      { who: "joan", text: "Sit on the bed to dress, bad arm in first.", tag: DRESSING, hearts: 7 },
+      { who: "margaret", text: "Pills in a weekly box, filled on Sundays.", tag: MEMORY, hearts: 4 },
+      { who: "david", text: "Biscuit's lead on my good wrist, never the other.", tag: GETTING_ABOUT, hearts: 6 },
+      { who: "priya", text: "Elastic laces. Never tying shoes again!", tag: DRESSING, hearts: 10 },
+      { who: "liwei", text: "A list on the fridge, ticked off with a smile.", tag: MEMORY, hearts: 3 },
+      { who: "anne", text: "Stairs: up with the good, down with the bad.", tag: GETTING_ABOUT, hearts: 8 },
+      { who: "tomasz", text: "Picture cards for words I can't find yet.", tag: WORDS, hearts: 7 },
     ],
   },
   {
-    kind: "Picture", pre: "What's the ", key: "weather", post: " inside your head today?", placeholder: "Right now it is…",
-    starters: ["Sunny", "Bright spells", "Cloudy", "A bit stormy"],
+    kind: "Then and now", pre: "What can you do now that felt ", key: "out of reach", post: " a few months ago?", placeholder: "A few months ago I couldn't…",
+    starters: ["A few months ago I couldn't…", "Now I can…", "I'm nearly able to…"],
     answers: [
-      { who: "david", text: "A few clouds after physio.", tag: tag("Bright spells", "#F3E3B5"), hearts: 4 },
-      { who: "joan", text: "Foggy first thing, clearing now.", tag: tag("Cloudy", "#D9DEDF"), hearts: 3 },
-      { who: "margaret", text: "My grandson visits today.", tag: tag("Sunny", "#F7DC8A"), hearts: 9 },
-      { who: "anne", text: "Drizzle, but I have my umbrella.", tag: tag("Rainy", "#BCD3E6"), hearts: 5 },
-      { who: "liwei", text: "Calm and overcast. No complaints.", tag: tag("Cloudy", "#D9DEDF"), hearts: 2 },
-      { who: "tomasz", text: "Words were hard to find today.", tag: tag("Stormy", "#A3ADB8"), hearts: 6 },
-      { who: "priya", text: "With a chance of naps.", tag: tag("Sunny", "#F7DC8A"), hearts: 4 },
-      { who: "samuel", text: "Light rain. It will pass.", tag: tag("Rainy", "#BCD3E6"), hearts: 3 },
+      { who: "joan", text: "Kneel in the garden and get back up.", hearts: 8 },
+      { who: "samuel", text: "Chop an onion. Slowly, but chopped.", hearts: 7 },
+      { who: "priya", text: "Sing a whole verse without losing words.", hearts: 9 },
+      { who: "david", text: "Walk Biscuit round the block, no stick.", hearts: 6 },
+      { who: "margaret", text: "Hold my granddaughter on my lap.", hearts: 12 },
+      { who: "liwei", text: "Follow a TV programme from start to end.", hearts: 4 },
+      { who: "anne", text: "Drive to the shops, with my doctor's okay.", hearts: 5 },
+      { who: "tomasz", text: "Ask me in a few months. I'll have a list.", hearts: 13 },
     ],
   },
   {
-    kind: "Scale", pre: "How full is your ", key: "battery", post: " today?", placeholder: "Today it is about…",
-    starters: ["Full", "About half", "Running low"],
+    kind: "Unseen", pre: "What's one part of your recovery that other people ", key: "can't see", post: "?", placeholder: "What people don't see is…",
+    starters: ["What people don't see is…", "I look fine, but…", "The hardest bit is…"],
     answers: [
-      { who: "priya", text: "Saving the rest for my walk.", tag: tag("Half", "#A9CDB6"), hearts: 3 },
-      { who: "samuel", text: "Slept badly. Taking it slow.", tag: tag("Low", "#CFE2D6"), hearts: 5 },
-      { who: "joan", text: "Good night, good breakfast!", tag: tag("Full", "#2E7D5B"), hearts: 7 },
-      { who: "david", text: "Three bars out of five.", tag: tag("Good", "#6FA98A"), hearts: 2 },
-      { who: "anne", text: "Holding steady.", tag: tag("Half", "#A9CDB6"), hearts: 2 },
-      { who: "tomasz", text: "Resting today, and that is fine.", tag: tag("Empty", "#E5EEE7"), hearts: 8 },
-      { who: "liwei", text: "Charging. Ask me after lunch.", tag: tag("Low", "#CFE2D6"), hearts: 6 },
-      { who: "margaret", text: "Enough for the garden.", tag: tag("Good", "#6FA98A"), hearts: 4 },
+      { who: "anne", text: "The tiredness. One outing means a day in bed.", hearts: 13 },
+      { who: "priya", text: "How hard I'm working to find each word.", hearts: 9 },
+      { who: "david", text: "The worry every time I get a headache.", hearts: 7 },
+      { who: "margaret", text: "That I plan every trip around the loo.", hearts: 6 },
+      { who: "liwei", text: "Noise. Busy places wear me out fast.", hearts: 8 },
+      { who: "samuel", text: "My arm feels like it belongs to someone else.", hearts: 5 },
+      { who: "joan", text: "How long it takes me just to get ready.", hearts: 6 },
+      { who: "tomasz", text: "In my head the words are all there.", hearts: 15 },
     ],
   },
   {
-    kind: "Open answer", pre: "What's one ", key: "small win", post: " from this week?", placeholder: "This week I…",
-    starters: ["Got dressed by myself", "Went for a walk", "Called a friend"],
+    kind: "Good days", pre: "What does a ", key: "good day", post: " look like for you now?", placeholder: "A good day is…",
+    starters: ["A good day is…", "These days it's…", "It starts with…"],
+    answers: [
+      { who: "margaret", text: "Tomatoes watered, phone call, nap. Perfect.", hearts: 7 },
+      { who: "david", text: "A walk, a pasty, and nobody fussing.", hearts: 6 },
+      { who: "joan", text: "Physio done before ten and the sun out.", hearts: 4 },
+      { who: "samuel", text: "Cooking one proper meal from scratch.", hearts: 5 },
+      { who: "priya", text: "Choir, and the words all turn up.", hearts: 8 },
+      { who: "liwei", text: "Grandson after school, a song in the kitchen.", hearts: 6 },
+      { who: "anne", text: "Smaller than before, but more of them.", hearts: 11 },
+      { who: "tomasz", text: "When I say a whole sentence first time.", hearts: 9 },
+    ],
+  },
+  {
+    kind: "Hard days", pre: "What helps you get through a day when the ", key: "tiredness", post: " wins?", placeholder: "On those days I…",
+    starters: ["On those days I…", "I've learned to…", "What helps is…"],
+    answers: [
+      { who: "anne", text: "I plan one thing only and let the rest go.", hearts: 10 },
+      { who: "samuel", text: "Soup in the freezer for exactly these days.", hearts: 8 },
+      { who: "liwei", text: "Lie down with music, eyes closed, no guilt.", hearts: 6 },
+      { who: "david", text: "Biscuit gets the garden instead of the walk.", hearts: 7 },
+      { who: "joan", text: "I tell my daughter. Then I stop pretending.", hearts: 9 },
+      { who: "margaret", text: "A blanket, the radio, and lowered standards.", hearts: 12 },
+      { who: "priya", text: "Ten minutes of rest before I need it.", hearts: 5 },
+      { who: "tomasz", text: "Sleep. And reading here, very slowly.", hearts: 6 },
+    ],
+  },
+  {
+    kind: "Your people", pre: "Who's in your ", key: "corner", post: ", and what do they do that really helps?", placeholder: "In my corner is…",
+    starters: ["In my corner is…", "What really helps is when…", "I don't say it enough, but…"],
+    answers: [
+      { who: "tomasz", text: "My wife. She waits, never finishes my words.", hearts: 14 },
+      { who: "margaret", text: "My neighbour, who brings the bins in unasked.", hearts: 6 },
+      { who: "david", text: "Biscuit. He doesn't care how slow I walk.", hearts: 11 },
+      { who: "priya", text: "My sister. Daily calls, even when I'm grumpy.", hearts: 7 },
+      { who: "joan", text: "The garden gang. They save me the easy jobs.", hearts: 5 },
+      { who: "samuel", text: "My brother. He laughs with me, not at me.", hearts: 6 },
+      { who: "liwei", text: "My daughter. She sorts the forms and the post.", hearts: 4 },
+      { who: "anne", text: "Everyone here, honestly. You get it.", hearts: 9 },
+    ],
+  },
+  {
+    kind: "The way back", pre: "What did you ", key: "love doing", post: " before, and how are you finding your way back?", placeholder: "I used to love…",
+    starters: ["I used to love…", "Now I'm trying…", "A different way to…"],
+    answers: [
+      { who: "samuel", text: "Cooking. Now one-handed, and still good.", hearts: 9 },
+      { who: "joan", text: "Gardening. Raised beds mean no kneeling.", hearts: 6 },
+      { who: "priya", text: "Singing. Choir helps the words come back.", hearts: 8 },
+      { who: "david", text: "Long walks. Building up a lamp post at a time.", hearts: 7 },
+      { who: "liwei", text: "Calligraphy. Bigger brush, slower strokes.", hearts: 5 },
+      { who: "margaret", text: "Knitting. Chunky needles for now.", hearts: 4 },
+      { who: "anne", text: "Swimming. Back in the slow lane on Fridays.", hearts: 6 },
+      { who: "tomasz", text: "Reading the paper. Now one article a day.", hearts: 8 },
+    ],
+  },
+  {
+    kind: "Honestly", pre: "When someone asks ", key: "how you are", post: ", what do you really say?", placeholder: "Usually I say…",
+    starters: ["Usually I say…", "What I want to say is…", "It depends who's asking…"],
+    answers: [
+      { who: "anne", text: "'Fine.' Here I say the truth.", hearts: 12 },
+      { who: "david", text: "'Getting there.' It's true most days.", hearts: 6 },
+      { who: "margaret", text: "Depends if they've got ten minutes.", hearts: 9 },
+      { who: "priya", text: "'Better than yesterday.' Short and honest.", hearts: 7 },
+      { who: "samuel", text: "'Still here, still cooking.'", hearts: 8 },
+      { who: "joan", text: "To the doctor, everything. To others, fine.", hearts: 5 },
+      { who: "liwei", text: "I say I'm tired. People don't expect that.", hearts: 6 },
+      { who: "tomasz", text: "'Okay.' It's the word that comes easiest.", hearts: 10 },
+    ],
+  },
+  {
+    kind: "Kit", pre: "What's a bit of ", key: "kit", post: " you'd recommend to others here, and why?", placeholder: "I'd recommend…",
+    starters: ["I'd recommend…", "It changed…", "Cheap, but…"],
+    answers: [
+      { who: "samuel", text: "A spike board. Butter toast with one hand.", tag: KITCHEN, hearts: 9 },
+      { who: "joan", text: "A perching stool by the sink. Saves my legs.", tag: KITCHEN, hearts: 5 },
+      { who: "margaret", text: "A grab rail by the bath. Worth every penny.", tag: BATHROOM, hearts: 7 },
+      { who: "david", text: "A walking stick with a seat. Rests on walks.", tag: GETTING_ABOUT, hearts: 6 },
+      { who: "priya", text: "A voice recorder for appointment notes.", tag: DAILY_LIFE, hearts: 8 },
+      { who: "anne", text: "A shower stool. I stopped dreading mornings.", tag: BATHROOM, hearts: 10 },
+      { who: "liwei", text: "A big-button phone, so calls are easy.", tag: DAILY_LIFE, hearts: 3 },
+      { who: "tomasz", text: "A notebook in my pocket for missing words.", tag: WORDS, hearts: 6 },
+    ],
+  },
+  {
+    kind: "Milestones", pre: "What moment this week made you feel you're ", key: "getting there", post: "?", placeholder: "This week I…",
+    starters: ["This week I…", "I noticed…", "Someone said…"],
     answers: [
       { who: "joan", text: "Buttoned my cardigan with both hands.", hearts: 11 },
       { who: "david", text: "Walked to the gate and back, twice.", hearts: 7 },
       { who: "margaret", text: "Made my own tea without spilling.", hearts: 9 },
-      { who: "liwei", text: "Read a whole chapter in one sitting.", hearts: 5 },
       { who: "priya", text: "Phoned my sister and found every word.", hearts: 12 },
+      { who: "tomasz", text: "Wrote my name. It looked like mine.", hearts: 14 },
       { who: "samuel", text: "Did my exercises four days running.", hearts: 6 },
       { who: "anne", text: "Got up the stairs without stopping.", hearts: 8 },
-      { who: "tomasz", text: "Wrote my name. It looked like mine.", hearts: 14 },
+      { who: "liwei", text: "My grandson said my laugh is back.", hearts: 10 },
     ],
   },
   {
-    kind: "Open answer", pre: "Name a ", key: "song", post: " that always lifts your mood.", placeholder: "Mine is…",
-    starters: ["Here Comes the Sun", "Something by Abba", "An old hymn", "Anything from the sixties"],
+    kind: "Letting go", pre: "What's a ", key: "worry", post: " you've put down, and what helped you let it go?", placeholder: "I used to worry…",
+    starters: ["I used to worry…", "What helped was…", "I'm still working on…"],
     answers: [
-      { who: "priya", text: "Que Sera, Sera. We sing it at choir.", tag: tag("Choir", "#E8836B"), hearts: 6 },
-      { who: "margaret", text: "Moon River. Our first dance.", tag: tag("Sixties", "#F2C44D"), hearts: 9 },
-      { who: "samuel", text: "Three Little Birds. Every little thing.", tag: tag("Reggae", "#6FA98A"), hearts: 7 },
-      { who: "anne", text: "Dancing Queen, loud, in the kitchen.", tag: tag("Pop", "#B9B4E0"), hearts: 5 },
-      { who: "david", text: "Here Comes the Sun. Never fails.", tag: tag("Sixties", "#F2C44D"), hearts: 4 },
-      { who: "liwei", text: "My mother's favourite, on the radio.", hearts: 3 },
-      { who: "joan", text: "Anything by Elvis, honestly.", tag: tag("Fifties", "#7FB4DB"), hearts: 4 },
-      { who: "tomasz", text: "Dad's old jazz records on Sundays.", tag: tag("Jazz", "#2F8F83"), hearts: 5 },
+      { who: "anne", text: "Being a burden. My kids said they want to help.", hearts: 11 },
+      { who: "david", text: "Going out alone. Short trips built it up.", hearts: 7 },
+      { who: "margaret", text: "Another stroke. Talking risks with my nurse helped.", hearts: 9 },
+      { who: "priya", text: "Sounding silly. Choir laughs with me.", hearts: 6 },
+      { who: "samuel", text: "Never cooking again. One recipe at a time.", hearts: 8 },
+      { who: "joan", text: "Falling. Physio taught me how to get up.", hearts: 7 },
+      { who: "liwei", text: "Work. My boss agreed a slow return.", hearts: 5 },
+      { who: "tomasz", text: "Still carrying it. Reading this helps.", hearts: 10 },
     ],
   },
   {
-    kind: "This or that", pre: "", key: "Tea", post: " or coffee, first thing?", placeholder: "For me it is…",
-    starters: ["Tea, always", "Coffee, please", "Hot water and lemon"],
+    kind: "Ask the group", pre: "What would you love to ask people here who've ", key: "been there", post: "?", placeholder: "I'd love to know…",
+    starters: ["I'd love to know…", "Does anyone else…", "How did you…"],
     answers: [
-      { who: "joan", text: "Tea, milk in first. Fight me.", tag: tag("Tea", "#C9A27E"), hearts: 10 },
-      { who: "tomasz", text: "Strong coffee, no sugar.", tag: tag("Coffee", "#6F4E37"), hearts: 4 },
-      { who: "margaret", text: "A proper pot, and the good cups.", tag: tag("Tea", "#C9A27E"), hearts: 7 },
-      { who: "liwei", text: "Green tea, quietly, by the window.", tag: tag("Tea", "#C9A27E"), hearts: 5 },
-      { who: "david", text: "Coffee, then tea, then coffee.", tag: tag("Both", "#E8C07D"), hearts: 6 },
-      { who: "priya", text: "Masala chai, my dad's way.", tag: tag("Tea", "#C9A27E"), hearts: 8 },
-      { who: "samuel", text: "Coffee. The kettle takes too long.", tag: tag("Coffee", "#6F4E37"), hearts: 3 },
-      { who: "anne", text: "Whatever someone else makes me.", hearts: 9 },
+      { who: "tomasz", text: "When did the words start coming back for you?", hearts: 13 },
+      { who: "anne", text: "How did you tell work you needed more time?", hearts: 7 },
+      { who: "samuel", text: "Best one-handed way to peel a potato?", hearts: 9 },
+      { who: "joan", text: "Does anyone else feel worse when it's cold?", hearts: 8 },
+      { who: "david", text: "How long before you trusted your balance?", hearts: 6 },
+      { who: "margaret", text: "How do you explain fatigue to grandchildren?", hearts: 7 },
+      { who: "priya", text: "Does anyone else get tired from talking?", hearts: 10 },
+      { who: "liwei", text: "What helped you sleep in the first months?", hearts: 5 },
     ],
   },
   {
-    kind: "Picture", pre: "If today were a ", key: "place", post: ", where would it be?", placeholder: "Today feels like…",
-    starters: ["By the sea", "A quiet garden", "A busy market", "My own sofa"],
+    kind: "Old skills", pre: "What did your old ", key: "job or hobby", post: " teach you that helps you now?", placeholder: "It taught me…",
+    starters: ["It taught me…", "In my old job…", "Turns out…"],
     answers: [
-      { who: "anne", text: "A bench by the sea, wind and all.", tag: tag("Seaside", "#7FB4DB"), hearts: 6 },
-      { who: "liwei", text: "A garden after rain.", tag: tag("Garden", "#9DBFA6"), hearts: 5 },
-      { who: "david", text: "A muddy path with Biscuit.", tag: tag("Woods", "#5E8C61"), hearts: 7 },
-      { who: "samuel", text: "My sofa, with the cricket on.", tag: tag("Home", "#E8C07D"), hearts: 4 },
-      { who: "priya", text: "A market full of noise and colour.", tag: tag("Market", "#E8836B"), hearts: 3 },
-      { who: "joan", text: "Whitby harbour, early morning.", tag: tag("Seaside", "#7FB4DB"), hearts: 8 },
-      { who: "tomasz", text: "A library. Quiet, warm, slow.", tag: tag("Home", "#E8C07D"), hearts: 5 },
-      { who: "margaret", text: "My windowsill, with the tomatoes.", tag: tag("Garden", "#9DBFA6"), hearts: 6 },
-    ],
-  },
-  {
-    kind: "Scale", pre: "How much ", key: "sleep", post: " did you get last night?", placeholder: "Last night I had…",
-    starters: ["Plenty", "Some", "Not much"],
-    answers: [
-      { who: "tomasz", text: "Slept right through. First time in weeks!", tag: tag("Plenty", "#2E7D5B"), hearts: 12 },
-      { who: "margaret", text: "Up twice, but back off quickly.", tag: tag("Some", "#A9CDB6"), hearts: 3 },
-      { who: "samuel", text: "The neighbours' dog had other plans.", tag: tag("Not much", "#CFE2D6"), hearts: 6 },
-      { who: "joan", text: "A good eight hours and a dream.", tag: tag("Plenty", "#2E7D5B"), hearts: 4 },
-      { who: "anne", text: "Enough. A nap later, maybe.", tag: tag("Some", "#A9CDB6"), hearts: 2 },
-      { who: "priya", text: "Woke at four with a song in my head.", tag: tag("Not much", "#CFE2D6"), hearts: 5 },
-      { who: "liwei", text: "Like a baby, after the long walk.", tag: tag("Plenty", "#2E7D5B"), hearts: 4 },
-      { who: "david", text: "Biscuit took the whole bed again.", tag: tag("Some", "#A9CDB6"), hearts: 7 },
-    ],
-  },
-  {
-    kind: "Open answer", pre: "Who made you ", key: "smile", post: " this week?", placeholder: "It was…",
-    starters: ["My family", "A friend", "Someone here", "A stranger"],
-    answers: [
-      { who: "margaret", text: "My granddaughter, pouring the tea.", hearts: 9 },
-      { who: "david", text: "Biscuit, stealing a whole sausage.", hearts: 11 },
-      { who: "priya", text: "The choir, singing happy birthday to me.", hearts: 8 },
-      { who: "tomasz", text: "Anne, telling me it gets lighter.", hearts: 7 },
-      { who: "joan", text: "The postman, who always waves.", hearts: 4 },
-      { who: "liwei", text: "My grandson with his chopsticks.", hearts: 6 },
-      { who: "samuel", text: "My brother, dancing badly.", hearts: 5 },
-      { who: "anne", text: "Everyone in the lounge on Tuesday.", hearts: 6 },
-    ],
-  },
-  {
-    kind: "Open answer", pre: "Name a ", key: "food", post: " that tastes like home.", placeholder: "For me it is…",
-    starters: ["Sunday roast", "Soup", "Something from childhood"],
-    answers: [
-      { who: "liwei", text: "Dumplings, folded with my grandmother.", hearts: 8 },
-      { who: "samuel", text: "Welsh cakes, warm off the griddle.", hearts: 6 },
-      { who: "priya", text: "Dal and rice, and nothing else.", hearts: 7 },
-      { who: "joan", text: "Fish and chips, eaten on the harbour.", hearts: 5 },
-      { who: "tomasz", text: "Pierogi, the way my mum made them.", hearts: 9 },
-      { who: "margaret", text: "A proper Sunday roast with gravy.", hearts: 6 },
-      { who: "anne", text: "Cheese on toast. Always.", hearts: 4 },
-      { who: "david", text: "My dad's stew, on a cold night.", hearts: 5 },
-    ],
-  },
-  {
-    kind: "This or that", pre: "The ", key: "sea", post: " or the mountains?", placeholder: "I would pick…",
-    starters: ["The sea", "The mountains", "Both, please"],
-    answers: [
-      { who: "joan", text: "The sea, every time. Whitby forever.", tag: tag("Sea", "#7FB4DB"), hearts: 7 },
-      { who: "tomasz", text: "The Tatras. I grew up near them.", tag: tag("Mountains", "#8C9A7B"), hearts: 6 },
-      { who: "anne", text: "Paddling, not climbing.", tag: tag("Sea", "#7FB4DB"), hearts: 4 },
-      { who: "david", text: "Hills, with a flask of tea.", tag: tag("Mountains", "#8C9A7B"), hearts: 5 },
-      { who: "margaret", text: "A view of one from the other.", tag: tag("Both", "#E8C07D"), hearts: 8 },
-      { who: "samuel", text: "The sea. Barbados, ideally.", tag: tag("Sea", "#7FB4DB"), hearts: 9 },
-      { who: "liwei", text: "Mountains that look like paintings.", tag: tag("Mountains", "#8C9A7B"), hearts: 3 },
-      { who: "priya", text: "Whichever has the ice cream.", hearts: 10 },
+      { who: "samuel", text: "Chef. Prep everything first, then cook.", hearts: 8 },
+      { who: "joan", text: "Nursing. Small steps, written down.", hearts: 6 },
+      { who: "margaret", text: "Teaching. Praise the effort, not the result.", hearts: 10 },
+      { who: "david", text: "Fishing. Patience, and a flask of tea.", hearts: 7 },
+      { who: "priya", text: "Choir. Breathing first, then the words.", hearts: 5 },
+      { who: "liwei", text: "Accounting. Track it, and the trend shows.", hearts: 4 },
+      { who: "anne", text: "Running. You don't sprint a marathon.", hearts: 9 },
+      { who: "tomasz", text: "Building. Strong foundations take time.", hearts: 8 },
     ],
   },
 ];
@@ -209,7 +244,7 @@ export type DailyQuestion = DailyQuestionSpec & {
 
 const pad = (value: number) => String(value).padStart(2, "0");
 const DAY_MS = 86_400_000;
-/** The day the questions start going round from: the colour question on Monday 12 October 2026. */
+/** The day the questions start going round from: the first-week-home question on Monday 12 October 2026. */
 const FIRST_DAY = Date.UTC(2026, 9, 12);
 
 /** The day's question, by the calendar day on this device: it changes at midnight, and is the same all day. */
