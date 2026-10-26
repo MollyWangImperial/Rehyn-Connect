@@ -11,6 +11,7 @@ import FastCheck from "./pages/FastCheck";
 import Community from "./pages/Community";
 import Library from "./pages/Library";
 import CareTeam from "./pages/CareTeam";
+import Clinicians from "./pages/Clinicians";
 import { SettingsProvider } from "./components/AccountSettings";
 import "./pages/recovery-pages.css";
 
@@ -41,6 +42,8 @@ function Router() {
       <Route path={"/community"} component={Community} />
       {/* The Library: /library, /library/:section, /library/:group/:condition (nested routing inside the page). */}
       <Route path={"/library"} nest component={Library} />
+      {/* Clinicians: /clinicians (the directory) and /clinicians/:id (a profile), nested like the Library. */}
+      <Route path={"/clinicians"} nest component={Clinicians} />
       <Route path={"/care-team"} component={CareTeam} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

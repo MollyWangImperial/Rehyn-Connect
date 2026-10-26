@@ -31,7 +31,7 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
       // (The Poker night tab appears on Fridays only, so it is left out of the comparison.)
       const tabHrefs = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab ')).map(tag => tag.match(/href="([^"]*)"/)![1].replace(/&amp;/g, "&")).filter(href => href !== "/community?space=poker");
       expect(tabHrefs).toEqual([
-        "/community", "/library", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages",
+        "/community", "/library", "/clinicians", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages",
       ]);
       const active = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab is-active"'));
       expect(active).toHaveLength(1);
@@ -108,6 +108,8 @@ describe("which tab an address belongs to", () => {
     ["/community", "?space=safety", null],
     ["/library", "", "library"],
     ["/library/stroke/ischaemic", "", "library"],
+    ["/clinicians", "", "clinicians"],
+    ["/clinicians/amara-osei", "", "clinicians"],
     ["/care-team", "", null],
   ])("%s%s is %s", (pathname, search, tab) => {
     expect(siteTabFor(pathname, search)).toBe(tab);

@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouter, useSearch } from "wouter";
-import { BookOpen, CircleDot, Coffee, Home as HomeIcon, MessageCircle, UsersRound } from "lucide-react";
+import { BookOpen, CircleDot, Coffee, Home as HomeIcon, MessageCircle, Stethoscope, UsersRound } from "lucide-react";
 import { lounge } from "@/content/community-samples";
 import { communityHref, communityViewFromQuery, leadsHere, unreadCount, useCommunity, type CommunitySpace } from "@/lib/community-store";
 import { pokerNightOn, secondsToTables, usePokerNight } from "@/lib/poker-night";
@@ -7,12 +7,13 @@ import CircleTab from "./community/CirclePeek";
 import { SuitGlyph } from "./community/games/PokerParts";
 import { unreadMessages } from "./community/messages-model";
 
-export type SiteTab = "feed" | "library" | "lounge" | "circle" | "poker" | "groups" | "messages";
+export type SiteTab = "feed" | "library" | "clinicians" | "lounge" | "circle" | "poker" | "groups" | "messages";
 const COMMUNITY_TABS: SiteTab[] = ["feed", "lounge", "circle", "poker", "groups", "messages"];
 
 /** Which top tab an address belongs to, if any: Safety, Settings and the Care team have none. */
 export function siteTabFor(pathname: string, search: string): SiteTab | null {
   if (pathname === "/library" || pathname.startsWith("/library/")) return "library";
+  if (pathname === "/clinicians" || pathname.startsWith("/clinicians/")) return "clinicians";
   if (pathname !== "/community") return null;
   const space = communityViewFromQuery(search).space;
   if (space === "start") return "groups";
@@ -33,7 +34,7 @@ const Count = ({ count, what }: { count: number; what: string }) =>
   count > 0 ? <span className="site-tab-count"><span aria-hidden="true">{count}</span><span className="cm-sr">{`, ${count} ${what}`}</span></span> : null;
 
 /**
- * The tabs at the top right of every page: the Feed (Rehyn: Connect's home), the Library, then the
+ * The tabs at the top right of every page: the Feed (Rehyn: Connect's home), the Library, Clinicians, then the
  * community's spaces. Poker night joins them on Fridays. Friends has no tab: requests and friends are
  * in the Friends drawer, and privacy and blocked people under Settings → Your profile. The links start with "~" so they lead to the
  * same place from the Library's nested pages; a tab for the view already showing doesn't add it to
@@ -56,7 +57,8 @@ export default function SiteTabs({ here = lounge.here }: { here?: number }) {
   return (
     <nav className="site-tabs" aria-label="Main">
       <Link {...space("feed")}><span className="site-tab-icon"><HomeIcon size={20} /></span><span>Feed</span></Link>
-      <Link {...tab("library", "/library")}><span className="site-tab-icon"><BookOpen size={20} /><span className="site-tab-new" aria-hidden="true">New</span></span><span>Library</span></Link>
+      <Link {...tab("library", "/library")}><span className="site-tab-icon"><BookOpen size={20} /></span><span>Library</span></Link>
+      <Link {...tab("clinicians", "/clinicians")}><span className="site-tab-icon"><Stethoscope size={20} /><span className="site-tab-new" aria-hidden="true">New</span></span><span>Clinicians</span></Link>
       <Link {...space("lounge")}>
         <span className="site-tab-icon"><Coffee size={20} /><span className="site-tab-live"><i aria-hidden="true" />{here}<span className="cm-sr"> here now</span></span></span>
         <span>The lounge</span>

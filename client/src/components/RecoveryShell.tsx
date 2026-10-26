@@ -13,7 +13,7 @@ import { communityViewFromQuery, placeOf } from "@/lib/community-store";
 import { useDisplayPrefs } from "@/lib/display-prefs";
 import "./site-shell.css";
 
-type ViewName = "Library" | "My Community" | "Care Team";
+type ViewName = "Library" | "Clinicians" | "My Community" | "Care Team";
 
 type RecoveryShellProps = {
   active: ViewName;
