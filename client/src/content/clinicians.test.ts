@@ -5,13 +5,15 @@ import { Route, Router } from "wouter";
 import { SettingsContext } from "@/components/settings-context";
 import Clinicians from "@/pages/Clinicians";
 import { findCondition } from "@/lib/library";
-import { CLINICIANS, bookingDays, clinicianGroups, nextFree } from "./clinicians";
+import { CLINICIANS, SEEN_BY, bookingDays, clinicianGroups, directoryFilters, nextFree } from "./clinicians";
+import { librarySections } from "./library";
 
 /** Draws the Clinicians tab at an address ("/clinicians" is the directory) inside its nested route, as the app does. */
-function draw(path: string) {
+function draw(address: string) {
+  const [path, search = ""] = address.split("?");
   const hook = () => [path, () => {}] as [string, (to: string) => void];
   const html = renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} },
-    createElement(Router, { hook, searchHook: () => "" }, createElement(Route, { path: "/clinicians", nest: true }, createElement(Clinicians))))).replace(/ data-loc="[^"]*"/g, "");
+    createElement(Router, { hook, searchHook: () => search }, createElement(Route, { path: "/clinicians", nest: true }, createElement(Clinicians))))).replace(/ data-loc="[^"]*"/g, "");
   return { html, text: html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") };
 }
 
@@ -20,6 +22,7 @@ describe("the clinicians", () => {
     expect(new Set(CLINICIANS.map(person => person.id)).size).toBe(CLINICIANS.length);
     for (const person of CLINICIANS) {
       expect(person.id).toMatch(/^[a-z-]+$/);
+      expect(person.id).not.toBe("by-condition");
       expect(person.modes.length).toBeGreaterThan(0);
       // Video only means online across the UK; in person needs a town.
       expect(person.town === null).toBe(!person.modes.includes("person"));
@@ -58,6 +61,33 @@ describe("the Clinicians tab", () => {
     expect(html).toContain('id="book"');
     expect(text).toContain("Request this appointment");
     expect(text).toContain("Nothing is booked until then");
+  });
+
+  it("points 'Not sure who you need?' at starting from a condition", () => {
+    expect(draw("/clinicians").html).toContain('href="/clinicians/by-condition"');
+  });
+
+  it("starts from a condition with every Library section and group, each opening the directory narrowed to it", () => {
+    const { html, text } = draw("/clinicians/by-condition");
+    expect(text).toContain("What would you like help with");
+    expect(text).not.toContain("We couldn&#x27;t find that clinician");
+    for (const section of librarySections) {
+      expect(SEEN_BY[section.id], section.id).toBeTruthy();
+      expect(text).toContain(`${section.groups.length} groups`);
+      expect(html).toContain(`href="/clinicians/?area=${section.id}"`);
+      for (const group of section.groups) expect(html).toContain(`href="/clinicians/?area=${section.id}&amp;group=${group.id}"`);
+    }
+    expect(html).toContain('href="/clinicians/" class="cl-request">Browse all clinicians');
+  });
+
+  it("opens the directory already narrowed by its address, ignoring areas and groups the Library doesn't have", () => {
+    expect(directoryFilters("area=heart-lungs&group=heart-rhythm&group=stroke")).toEqual({ area: "heart-lungs", groups: ["heart-rhythm"] });
+    expect(directoryFilters("area=nowhere&group=stroke")).toEqual({ area: "all", groups: [] });
+    const rhythm = CLINICIANS.filter(person => person.conditions.some(([groupId]) => groupId === "heart-rhythm"));
+    const { html, text } = draw("/clinicians?area=heart-lungs&group=heart-rhythm");
+    expect(text).toContain(`${rhythm.length} ${rhythm.length === 1 ? "clinician" : "clinicians"}`);
+    expect(html).toContain('aria-label="Remove filter Heart &amp; lungs"');
+    expect(html).toContain('aria-label="Remove filter Heart rhythm"');
   });
 
   it("says so when a clinician isn't found", () => {

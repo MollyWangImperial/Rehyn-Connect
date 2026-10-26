@@ -1,6 +1,6 @@
 // The Clinicians tab: people who work with the conditions in the Library, to browse by condition, the kind of care
 // and how to meet, each with a profile and a booking panel. From the design canvas "Rehyn Clinicians Tab"
-// (artboards 1, the directory with filters, and 3, the clinician profile). The clinicians are examples while the
+// (artboards 1, the directory with filters, 2, start from a condition, and 3, the clinician profile). The clinicians are examples while the
 // directory is set up, as the page says: there are no real registrations, fees or bookings behind them yet, so the
 // profile names the register each profession belongs to rather than a number, and a request sends nothing.
 // Each clinician's conditions are Library conditions ([group id, condition id]), so the directory's filters are the
@@ -135,6 +135,34 @@ export const CLINICIANS: Clinician[] = [
     about: "Elena looks after people with kidney disease at every stage. A first appointment goes through your results and what they mean, and what can help protect your kidneys.",
   },
 ];
+
+/** "Often seen by", on each Library section's card on the by-condition page (artboard 2), keyed by section id. */
+export const SEEN_BY: Record<string, string> = {
+  "brain-nervous-system": "Neurologists, stroke physicians, neuro physios, speech & language therapists",
+  "heart-lungs": "Cardiologists, respiratory physicians, cardiac rehab nurses",
+  "diabetes-metabolism": "Diabetologists, endocrinologists, dietitians, diabetes nurses",
+  "bones-joints-muscles": "Rheumatologists, orthopaedic surgeons, MSK physios, OTs",
+  "cancer-recovery": "Oncologists, haematologists, specialist cancer nurses, palliative care",
+  "mind-mood": "Psychologists, psychiatrists, counsellors, mental health nurses",
+  "kidneys-liver-digestion": "Nephrologists, hepatologists, gastroenterologists, urologists",
+};
+
+/** The directory, already narrowed to a Library section and, optionally, one of its groups: "/?area=heart-lungs&group=heart-rhythm". */
+export const directoryHref = (sectionId?: string, groupId?: string) => {
+  const query = new URLSearchParams();
+  if (sectionId) query.set("area", sectionId);
+  if (groupId) query.set("group", groupId);
+  const text = query.toString();
+  return text ? `/?${text}` : "/";
+};
+
+/** The directory's starting filters from its address: a known section, and only the groups that belong to it. */
+export function directoryFilters(search: string): { area: string; groups: string[] } {
+  const query = new URLSearchParams(search);
+  const section = librarySections.find(item => item.id === query.get("area"));
+  if (!section) return { area: "all", groups: [] };
+  return { area: section.id, groups: query.getAll("group").filter(id => section.groups.some(group => group.id === id)) };
+}
 
 export type GroupPlace = { section: LibrarySection; group: LibraryGroup };
 

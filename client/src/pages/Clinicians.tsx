@@ -1,17 +1,19 @@
 import { useEffect, useId, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
-import { Link, Route, Switch, useLocation } from "wouter";
-import { ArrowLeft, Bookmark, BookOpen, CalendarDays, Check, ChevronRight, Globe, MapPin, MessageCircle, Search, ShieldCheck, SlidersHorizontal, Video, X } from "lucide-react";
+import { Link, Route, Switch, useLocation, useSearch } from "wouter";
+import { ArrowLeft, ArrowRight, Bookmark, BookOpen, CalendarDays, Check, ChevronRight, Globe, MapPin, MessageCircle, Search, ShieldCheck, SlidersHorizontal, Video, X } from "lucide-react";
 import RecoveryShell from "@/components/RecoveryShell";
 import {
-  APPOINTMENT_MINUTES, BOOKING_TIMES, CLINICIAN_TYPES, CLINICIANS, CONFIRM_WORKING_DAYS, REGISTER, bookingDays, clinicianGroups,
-  findClinician, groupPlace, mainSection, modeText, nextFree, placeText, shortDate, type Clinician, type ClinicianType, type MeetMode,
+  APPOINTMENT_MINUTES, BOOKING_TIMES, CLINICIAN_TYPES, CLINICIANS, CONFIRM_WORKING_DAYS, REGISTER, SEEN_BY, bookingDays, clinicianGroups,
+  directoryFilters, directoryHref, findClinician, groupPlace, mainSection, modeText, nextFree, placeText, shortDate, type Clinician,
+  type ClinicianType, type MeetMode,
 } from "@/content/clinicians";
 import { librarySections, type Hue } from "@/content/library";
 import { todayLabel } from "./Welcome";
 import "./clinicians.css";
 
 // The Clinicians tab, from the design canvas "Rehyn Clinicians Tab": the directory with its filters (artboard 1) at
-// /clinicians, and a clinician's profile with the booking panel (artboard 3) at /clinicians/:id. It is a nested
+// /clinicians, starting from a condition (artboard 2) at /clinicians/by-condition, which opens the directory already
+// narrowed (?area=…&group=…), and a clinician's profile with the booking panel (artboard 3) at /clinicians/:id. It is a nested
 // route, like the Library, so the paths below are relative to it. The people are examples (content/clinicians.ts):
 // a request or a message sends nothing yet, and the page says so. Saved clinicians and the questions written for a
 // visit are kept on this device only.
@@ -64,8 +66,9 @@ type Sort = "soonest" | "name";
 const surname = (name: string) => name.replace(/^Dr\.? /, "");
 
 function Directory() {
-  const [area, setArea] = useState<Area>("all");
-  const [groups, setGroups] = useState<string[]>([]);
+  const start = directoryFilters(useSearch());
+  const [area, setArea] = useState<Area>(start.area);
+  const [groups, setGroups] = useState<string[]>(start.groups);
   const [types, setTypes] = useState<ClinicianType[]>([]);
   const [mode, setMode] = useState<Mode>("any");
   const [query, setQuery] = useState("");
@@ -111,9 +114,9 @@ function Directory() {
           <h1 className="cl-h1" data-page-heading>Find a clinician<span aria-hidden="true">.</span></h1>
           <p className="cl-lead">Browse people who work with the conditions in our Library. Narrow it down by condition, the kind of care you need, and how you would like to meet.</p>
         </div>
-        <Link href="~/library" className="cl-start">
+        <Link href="/by-condition" className="cl-start">
           <span className="cl-start-icon"><BookOpen size={20} aria-hidden="true" /></span>
-          <span className="cl-start-text"><strong>Not sure who you need?</strong><span>Start from your condition in the Library</span></span>
+          <span className="cl-start-text"><strong>Not sure who you need?</strong><span>Start from your condition</span></span>
           <ChevronRight size={18} aria-hidden="true" />
         </Link>
       </div>
@@ -244,6 +247,54 @@ function ClinicianCard({ clinician }: { clinician: Clinician }) {
         <Link href={`/${clinician.id}#book`} className="cl-btn is-light">Book a visit</Link>
       </div>
     </article>
+  );
+}
+
+// ------------------------------------------------------------------------------------------ start from a condition
+
+const STEPS = ["Your condition", "Kind of help", "Choose a person"];
+
+/** The Library's sections as cards: the arrow opens the directory at that section, a group chip at that group. The
+ *  next two steps happen there, with the type-of-clinician filter and the results. */
+function ByCondition() {
+  return (
+    <div className="cl-page">
+      <p className="cl-kicker"><span aria-hidden="true" />Clinicians · Step 1 of 3</p>
+      <h1 className="cl-h1" data-page-heading>What would you like help with<span aria-hidden="true">?</span></h1>
+      <p className="cl-lead">Pick the area closest to what you are living with. We will show the clinicians who work with it, and you can narrow down from there.</p>
+
+      <ol className="cl-steps" aria-label="Steps">
+        {STEPS.map((step, index) => (
+          <li key={step} aria-current={index === 0 ? "step" : undefined}><span>{index + 1}</span>{step}</li>
+        ))}
+      </ol>
+
+      <div className="cl-areas">
+        {librarySections.map(section => (
+          <section key={section.id} className="cl-area-card" style={hueStyle(section.hue)} aria-labelledby={`cl-area-${section.id}`}>
+            <div className="cl-area-head">
+              <div>
+                <p className="cl-area-count">{section.groups.length} groups</p>
+                <h2 className="cl-area-title" id={`cl-area-${section.id}`}>{section.title}</h2>
+              </div>
+              <Link href={directoryHref(section.id)} className="cl-area-go" aria-label={`See all clinicians for ${section.title}`}><ArrowRight size={20} aria-hidden="true" /></Link>
+            </div>
+            <div className="cl-area-chips">
+              {section.groups.map(group => <Link key={group.id} href={directoryHref(section.id, group.id)} className="cl-area-chip">{group.title}</Link>)}
+            </div>
+            {SEEN_BY[section.id] && <p className="cl-area-who"><strong>Often seen by</strong> · {SEEN_BY[section.id]}</p>}
+          </section>
+        ))}
+      </div>
+
+      <div className="cl-skip">
+        <div className="cl-skip-text">
+          <h2 className="cl-h2">Already know who you want?</h2>
+          <p>Skip ahead and browse everyone with filters.</p>
+        </div>
+        <Link href="/" className="cl-request">Browse all clinicians</Link>
+      </div>
+    </div>
   );
 }
 
@@ -398,6 +449,8 @@ export default function Clinicians() {
     <RecoveryShell active="Clinicians" dateLabel={todayLabel()} className="clinicians-shell" panel={false}>
       <Switch>
         <Route path="/"><Directory /></Route>
+        {/* Before /:id, so it is not taken for a clinician. */}
+        <Route path="/by-condition"><ByCondition /></Route>
         <Route path="/:id">{params => { const clinician = findClinician(params.id); return clinician ? <Profile key={clinician.id} clinician={clinician} /> : <Missing />; }}</Route>
         <Route><Missing /></Route>
       </Switch>

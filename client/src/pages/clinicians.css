@@ -1,5 +1,5 @@
 /* The Clinicians tab (pages/Clinicians.tsx): the directory with its filters and a clinician's profile, from the design
-   canvas "Rehyn Clinicians Tab" (artboards 1 and 3). Colours, type and spacing are the design's. A section's colours
+   canvas "Rehyn Clinicians Tab" (artboards 1, 3 and 2, start from a condition). Colours, type and spacing are the design's. A section's colours
    come in as --cl-tint and --cl-ink (the Library's section hues). */
 
 .clinicians-shell .site-main { font-family: "DM Sans", system-ui, sans-serif; color: #24362f; }
@@ -103,6 +103,31 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
 .cl-btn:hover { background: #285b49; color: #fff; }
 .cl-btn.is-light { border: 1px solid #e8e4da; background: #fff; color: #2f6851; }
 .cl-btn.is-light:hover { background: #f5f8f3; }
+
+/* ----------------------------------------------------------------------------- start from a condition */
+
+.cl-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 28px; padding: 0; list-style: none; }
+.cl-steps li { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 14px 0 6px; border-radius: 999px; background: #eff1eb; color: #42544b; font: 700 13px "Manrope", sans-serif; }
+.cl-steps li span { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fffefa; color: #42544b; }
+.cl-steps li[aria-current="step"] { background: #183d34; color: #fffefa; }
+.cl-steps li[aria-current="step"] span { background: #739c8c; color: #112e28; }
+.cl-areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 18px; }
+.cl-area-card { --cl-text: color-mix(in srgb, var(--cl-ink) 72%, #000); display: flex; flex-direction: column; gap: 16px; padding: 22px; border-radius: 23px; background: var(--cl-tint); box-shadow: 0 8px 22px rgba(46, 82, 62, .045); }
+.cl-area-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cl-area-count { margin-bottom: 6px !important; color: var(--cl-ink); font: 800 10px "Manrope", sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
+.cl-area-title { color: var(--cl-text); font: 600 27px/1.1 "Newsreader", Georgia, serif; letter-spacing: -.5px; }
+.cl-area-go { display: grid; flex: none; place-items: center; width: 46px; height: 46px; border-radius: 15px; background: var(--cl-ink); color: #fff; }
+.cl-area-go:hover { background: var(--cl-text); color: #fff; }
+.cl-area-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cl-area-chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 13px; border-radius: 999px; background: #fffefa; color: var(--cl-text); font: 600 13px "DM Sans", sans-serif; text-decoration: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .05); }
+.cl-area-chip:hover { color: var(--cl-text); box-shadow: inset 0 0 0 1.5px var(--cl-ink); }
+.cl-area-who { margin-top: auto !important; padding-top: 12px; border-top: 1px solid rgba(0, 0, 0, .07); color: var(--cl-text); font-size: 13px; line-height: 1.45; }
+.cl-area-who strong { font-weight: 700; }
+.cl-skip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; padding: 22px 24px; border-radius: 23px; background: #edf0e9; }
+.cl-skip-text { flex: 1 1 380px; }
+.cl-skip-text p { margin-top: 6px !important; color: #596a62; font-size: 15px; }
+.cl-skip .cl-request { padding: 0 22px; text-decoration: none; }
+.cl-skip .cl-request:hover { color: #fffdf7; }
 
 /* ----------------------------------------------------------------------------------------- profile */
 
