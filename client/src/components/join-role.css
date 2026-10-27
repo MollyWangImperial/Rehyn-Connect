@@ -1,0 +1,13 @@
+/* Joining: the first step, patient (or carer) or clinician (pages/Join.tsx), and the clinician's extra fields. */
+
+.join-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.join-role { display: flex; align-items: flex-start; gap: 14px; padding: 20px; border: 1.5px solid #dfe4da; border-radius: 22px; background: #fff; color: #4f6158; font: inherit; font-size: 15px; line-height: 1.5; text-align: left; cursor: pointer; }
+.join-role:hover { border-color: #285b49; background: #f5f8f3; }
+.join-role:focus-visible { outline: 3px solid #285b49; outline-offset: 3px; }
+.join-role-icon { display: grid; flex: none; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: #e2ece4; color: #183d34; }
+.join-role.is-clinician .join-role-icon { background: #EEEBFA; color: #4A3F9C; }
+.join-role-text { display: flex; flex-direction: column; gap: 6px; }
+.join-role-text strong { color: #183d34; font: 700 18px/1.3 "Manrope", sans-serif; }
+.join-role-back { display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid #dfe4da; border-radius: 999px; background: #fff; color: #285b49; font: 700 13px "Manrope", sans-serif; cursor: pointer; }
+.join-select { min-height: 48px; padding: 0 12px; border: 1px solid #cfd8cf; border-radius: 12px; background: #fff; color: #24362f; font: inherit; font-size: 16px; }
+.join-select:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }

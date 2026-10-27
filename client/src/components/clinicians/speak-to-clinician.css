@@ -1,0 +1,10 @@
+/* "Speak to a clinician" at the foot of every Library page (SpeakToClinician.tsx), in the Clinicians tab's colours. */
+
+.speak-clinician { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; max-width: 1342px; margin: 8px auto 40px; padding: 18px 22px; border-radius: 22px; background: #183d34; color: #edf5ee; box-shadow: 0 10px 25px rgba(28, 71, 56, .14); font-family: "DM Sans", system-ui, sans-serif; }
+.speak-clinician-icon { display: grid; flex: none; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: #285b49; color: #dcebe0; }
+.speak-clinician-text { display: flex; flex: 1 1 280px; flex-direction: column; gap: 3px; margin: 0; }
+.speak-clinician-text strong { font: 700 16px "Manrope", sans-serif; }
+.speak-clinician-text span { color: #c4dccf; font-size: 14px; line-height: 1.45; }
+.speak-clinician-button { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 14px; background: #a96c54; color: #fffdf7; font: 750 15px "Manrope", sans-serif; text-decoration: none; }
+.speak-clinician-button:hover { background: #9a5f48; color: #fff; }
+.speak-clinician-button:focus-visible { outline: 3px solid #9fe0c9; outline-offset: 2px; }

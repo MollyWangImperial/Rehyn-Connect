@@ -17,3 +17,7 @@ services:
       # Read aloud in Alira's voice (Library, My Time). Without it the device's own voice reads.
       - key: ELEVENLABS_API_KEY
         sync: false
+      # A Slack incoming webhook: the Rehyn team is told there when an urgent consultation request has had no clinician
+      # answer in 5 minutes (server/urgent-alert.ts). Without it the alert goes to the server log only.
+      - key: SLACK_WEBHOOK_URL
+        sync: false

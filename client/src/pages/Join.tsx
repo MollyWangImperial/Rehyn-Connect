@@ -1,6 +1,9 @@
 import { useId, useRef, useState, type FormEvent, type MouseEvent } from "react";
-import { Link } from "wouter";
-import { Check } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { ArrowLeft, Check, HeartHandshake, Stethoscope } from "lucide-react";
+import { CLINICIAN_TYPES, REGISTER, type ClinicianType } from "@/content/clinicians";
+import { joinAsClinician, setRole, useRole, type Role } from "@/lib/clinician-portal";
+import "@/components/join-role.css";
 import { useSettings, type SettingsView } from "@/components/AccountSettings";
 import HeartRateMark from "@/components/HeartRateMark";
 import { ageOn, agreedTo, consentStore, HEALTH_CONSENT_TEXT, MIN_AGE, useConsents } from "@/lib/consent";
@@ -29,18 +32,54 @@ function ConsentBox({ title, text, note, checked, onChange, read, problem }: {
   );
 }
 
+/** The first step for someone new: are they joining as a patient (or carer) or as a clinician? */
+function ChooseRole({ choose }: { choose: (role: Role) => void }) {
+  return (
+    <main className="join-page">
+      <div className="join-card">
+        <p className="join-brand"><span className="join-brand-mark"><HeartRateMark size={22} /></span><span>Rehyn<em>: Connect</em></span></p>
+        <h1 className="join-title">Join Rehyn: <em className="join-connect">Connect</em></h1>
+        <p className="join-lede">First, how will you use Rehyn?</p>
+        <div className="join-roles" role="group" aria-label="I'm joining as">
+          <button type="button" className="join-role" onClick={() => choose("patient")}>
+            <span className="join-role-icon" aria-hidden="true"><HeartHandshake size={26} /></span>
+            <span className="join-role-text"><strong>I'm living with a condition, or caring for someone who is</strong>Join the community, read the Library and talk to clinicians.</span>
+          </button>
+          <button type="button" className="join-role is-clinician" onClick={() => choose("clinician")}>
+            <span className="join-role-icon" aria-hidden="true"><Stethoscope size={26} /></span>
+            <span className="join-role-text"><strong>I'm a clinician</strong>Offer consultations by video, answer urgent requests and host free group sessions.</span>
+          </button>
+        </div>
+        <p className="join-safety">Rehyn is not an emergency service. If you think someone is having a stroke, call 999. <Link href={fastCheckPath("/")}>See the warning signs</Link></p>
+      </div>
+    </main>
+  );
+}
+
 /**
- * Joining Rehyn: Connect (and coming back after withdrawing a consent): the name other members see,
- * then three separate agreements: the Terms of Use, the Privacy Notice and the health information
- * consent. Nothing else opens until all three are ticked. The documents open in Settings to read first.
+ * Joining Rehyn: Connect (and coming back after withdrawing a consent). Someone new first says whether they are a
+ * patient (or carer) or a clinician; a clinician also gives their profession, role and registration number, which
+ * starts their profile in the clinician portal. Then the name other members see and three separate agreements: the
+ * Terms of Use, the Privacy Notice and the health information consent (the same documents for both, for now). Nothing
+ * else opens until all three are ticked. The documents open in Settings to read first.
  */
-export default function Join() {
+export default function Join({ startAs }: { startAs?: Role } = {}) {
   const openSettings = useSettings();
   const profile = useProfile();
   const consents = useConsents();
   const agreed = agreedTo(consents);
+  const [, navigate] = useLocation();
+  const savedRole = useRole();
   // Back here only when a document has a new version (withdrawing the health consent keeps the account; it just stops sharing).
   const returning = consents.terms !== null;
+  const [as, setAs] = useState<Role | null>(returning ? savedRole ?? "patient" : startAs ?? null);
+  const clinician = as === "clinician";
+  const [profession, setProfession] = useState<ClinicianType | "">("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [registration, setRegistration] = useState("");
+  const professionId = useId();
+  const jobId = useId();
+  const registrationId = useId();
   const [name, setName] = useState(() => (returning ? profileName(profile) : ""));
   const [born, setBorn] = useState(consents.dateOfBirth ?? "");
   const [ticked, setTicked] = useState<Record<Box, boolean>>({ terms: agreed.terms, privacy: agreed.privacy, health: agreed.health });
@@ -54,6 +93,8 @@ export default function Join() {
   const missing = [
     !name.trim() && "your name",
     age === null && "your date of birth",
+    clinician && !profession && "your profession",
+    clinician && !registration.trim() && "your registration number",
     !ticked.terms && "the Terms of Use",
     !ticked.privacy && "the Privacy Notice",
     !ticked.health && "the health information consent",
@@ -72,17 +113,26 @@ export default function Join() {
     if (tooYoung) { setTried(true); requestAnimationFrame(() => problemBox.current?.focus()); return; }
     const typed = name.trim();
     if (typed !== profileName(profile)) profileStore.save({ ...profile, name: typed, preferredName: "" });
+    if (clinician && !returning && profession) joinAsClinician({ name: typed, role: jobTitle, type: profession, registration });
+    else if (!returning) setRole("patient");
     consentStore.register(born, ticked.health);
+    // A new clinician starts in their portal, to finish their profile and set their hours.
+    if (clinician && !returning) navigate("/clinicians/portal");
   };
+
+  if (!as) return <ChooseRole choose={setAs} />;
 
   return (
     <main className="join-page">
       <div className="join-card">
         <p className="join-brand"><span className="join-brand-mark"><HeartRateMark size={22} /></span><span>Rehyn<em>: Connect</em></span></p>
-        <h1 className="join-title">{returning ? "Welcome back" : <>Join Rehyn: <em className="join-connect">Connect</em></>}</h1>
+        {!returning && <button type="button" className="join-role-back" onClick={() => setAs(null)}><ArrowLeft size={16} aria-hidden="true" />{clinician ? "Joining as a clinician" : "Joining as a patient or carer"} · change</button>}
+        <h1 className="join-title">{returning ? "Welcome back" : clinician ? <>Join as a <em className="join-connect">clinician</em></> : <>Join Rehyn: <em className="join-connect">Connect</em></>}</h1>
         <p className="join-lede">{returning
           ? "The Terms of Use or the Privacy Notice have changed since you agreed to them. Please look at these again: all three are needed to use Rehyn: Connect."
-          : "A warm, safe community for people living with stroke, Parkinson's, MS and other conditions, and the people who care for them."}</p>
+          : clinician
+            ? "Meet patients by video, answer urgent requests and host free group sessions. We check your registration before patients can book you."
+            : "A warm, safe community for people living with stroke, Parkinson's, MS and other conditions, and the people who care for them."}</p>
 
         {tried && (missing.length > 0 || tooYoung) && (
           <div ref={problemBox} className="join-problem" role="alert" tabIndex={-1}>{tooYoung ? `Rehyn Connect is for people aged ${MIN_AGE} or over, so we can't create an account for you.` : `To join, please add ${listed}.`}</div>
@@ -90,10 +140,29 @@ export default function Join() {
 
         <form className="join-form" onSubmit={join} noValidate>
           <div className={`join-field ${tried && !name.trim() ? "is-missing" : ""}`}>
-            <label htmlFor={nameId}>Your first name</label>
-            <p className="join-hint" id={`${nameId}-hint`}>This is the name other members will see.</p>
-            <input id={nameId} value={name} onChange={event => setName(event.target.value)} autoComplete="given-name" maxLength={80} aria-describedby={`${nameId}-hint`} aria-invalid={(tried && !name.trim()) || undefined} />
+            <label htmlFor={nameId}>{clinician ? "Your name" : "Your first name"}</label>
+            <p className="join-hint" id={`${nameId}-hint`}>{clinician ? "As patients will see it, with Dr if you use it." : "This is the name other members will see."}</p>
+            <input id={nameId} value={name} onChange={event => setName(event.target.value)} autoComplete={clinician ? "name" : "given-name"} maxLength={80} aria-describedby={`${nameId}-hint`} aria-invalid={(tried && !name.trim()) || undefined} />
           </div>
+          {clinician && !returning && <>
+            <div className={`join-field ${tried && !profession ? "is-missing" : ""}`}>
+              <label htmlFor={professionId}>Your profession</label>
+              <select id={professionId} className="join-select" value={profession} onChange={event => setProfession(event.target.value as ClinicianType)} aria-invalid={(tried && !profession) || undefined}>
+                <option value="">Choose…</option>
+                {CLINICIAN_TYPES.map(type => <option key={type.id} value={type.id}>{type.label}</option>)}
+              </select>
+            </div>
+            <div className="join-field">
+              <label htmlFor={jobId}>Your role</label>
+              <p className="join-hint" id={`${jobId}-hint`}>For example: Consultant stroke physician, or Neurological physiotherapist.</p>
+              <input id={jobId} value={jobTitle} onChange={event => setJobTitle(event.target.value)} maxLength={80} autoComplete="organization-title" aria-describedby={`${jobId}-hint`} />
+            </div>
+            <div className={`join-field ${tried && !registration.trim() ? "is-missing" : ""}`}>
+              <label htmlFor={registrationId}>{profession ? `Your ${REGISTER[profession]} registration number` : "Your registration number"}</label>
+              <p className="join-hint" id={`${registrationId}-hint`}>Doctors are on the GMC register, nurses on the NMC, and therapists, psychologists and dietitians on the HCPC. Rehyn checks it before patients can book you.</p>
+              <input id={registrationId} value={registration} onChange={event => setRegistration(event.target.value)} maxLength={20} aria-describedby={`${registrationId}-hint`} aria-invalid={(tried && !registration.trim()) || undefined} />
+            </div>
+          </>}
           <div className={`join-field ${tried && (age === null || tooYoung) ? "is-missing" : ""}`}>
             <label htmlFor={bornId}>Your date of birth</label>
             <p className="join-hint" id={`${bornId}-hint`}>{`Rehyn Connect is for people aged ${MIN_AGE} or over. Under 18s get extra protections. Your date of birth is never shown to anyone.`}</p>
@@ -111,7 +180,7 @@ export default function Join() {
           </fieldset>
 
           <button type="submit" className={`join-submit ${missing.length ? "is-waiting" : ""}`} aria-disabled={missing.length > 0}>
-            {missing.length ? "Join Rehyn: Connect" : <><Check size={18} aria-hidden="true" />Join Rehyn: Connect</>}
+            {!missing.length && <Check size={18} aria-hidden="true" />}{clinician && !returning ? "Join as a clinician" : "Join Rehyn: Connect"}
           </button>
           <p className="join-safety">Rehyn is not an emergency service. If you think someone is having a stroke, call 999. <Link href={fastCheckPath("/")}>See the warning signs</Link></p>
         </form>

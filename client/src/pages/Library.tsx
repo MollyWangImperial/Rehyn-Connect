@@ -5,6 +5,7 @@ import ConditionPage from "@/components/library/ConditionPage";
 import ItemPage from "@/components/library/ItemPage";
 import LibraryFront from "@/components/library/LibraryFront";
 import SectionPage from "@/components/library/SectionPage";
+import SpeakToClinician from "@/components/clinicians/SpeakToClinician";
 import { LetterPage, StoriesPage, StoryPage } from "@/components/library/Stories";
 import { findCondition, findItem, findLetter, findSection, findStory } from "@/lib/library";
 import { todayLabel } from "./Welcome";
@@ -57,5 +58,7 @@ export default function Library() {
       <Route path="/:groupId/:conditionId/:itemId">{params => { const place = findItem(params.groupId, params.conditionId, params.itemId); return or(place, place && <ItemPage key={`${place.group.id}/${place.condition.id}/${place.item.id}`} place={place} />); }}</Route>
       <Route><Missing /></Route>
     </Switch>
+    {/* On every Library page: a way to talk to a clinician about what you're reading. */}
+    <SpeakToClinician />
   </RecoveryShell>;
 }

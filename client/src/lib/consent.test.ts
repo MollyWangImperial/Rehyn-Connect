@@ -85,7 +85,8 @@ describe("joining needs all three agreements", () => {
 });
 
 describe("the Join page", () => {
-  const page = () => words(renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} }, createElement(Router, { ssrPath: "/community" }, createElement(Join)))));
+  // After the first step, where someone new chooses to join as a patient (or carer) or as a clinician.
+  const page = () => words(renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} }, createElement(Router, { ssrPath: "/community" }, createElement(Join, { startAs: "patient" })))));
 
   it("asks for a name, a date of birth and three separate agreements, the health information consent word for word", () => {
     const text = page();
@@ -101,11 +102,18 @@ describe("the Join page", () => {
   });
 
   it("starts with nothing ticked and the Join button waiting", () => {
-    const html = renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} }, createElement(Router, { ssrPath: "/community" }, createElement(Join))));
+    const html = renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} }, createElement(Router, { ssrPath: "/community" }, createElement(Join, { startAs: "patient" }))));
     expect((html.match(/type="checkbox"/g) ?? []).length).toBe(3);
     expect(html).not.toMatch(/type="checkbox"[^>]*checked/);
     expect(html).toMatch(/type="date"/);
     expect(html).toMatch(/<button[^>]*type="submit"[^>]*aria-disabled="true"/);
+  });
+
+  it("asks a clinician for the same three agreements, and their profession, role and registration number", () => {
+    const text = words(renderToStaticMarkup(createElement(SettingsContext.Provider, { value: () => {} }, createElement(Router, { ssrPath: "/community" }, createElement(Join, { startAs: "clinician" })))));
+    expect(text).toContain("Join as a clinician");
+    for (const field of ["Your name", "Your profession", "Your role", "Your registration number"]) expect(text).toContain(field);
+    for (const title of ["Terms of Use", "Privacy Notice", "Health information consent"]) expect(text).toContain(title);
   });
 
   it("stands in front of every page until the person has joined, but never in front of Warning signs", () => {

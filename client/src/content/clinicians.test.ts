@@ -4,8 +4,11 @@ import { describe, expect, it } from "vitest";
 import { Route, Router } from "wouter";
 import { SettingsContext } from "@/components/settings-context";
 import Clinicians from "@/pages/Clinicians";
+import { clinicianHref } from "@/components/clinicians/SpeakToClinician";
 import { findCondition } from "@/lib/library";
-import { CLINICIANS, SEEN_BY, bookingDays, clinicianGroups, directoryFilters, nextFree } from "./clinicians";
+import {
+  CLINICIANS, SEEN_BY, WEEKLY_SESSIONS, directoryFilters, findClinician, freeSoon, freeTimes, nextFree, nextWeeklySessions, sessionOpen, upcomingSessions,
+} from "./clinicians";
 import { librarySections } from "./library";
 
 /** Draws the Clinicians tab at an address ("/clinicians" is the directory) inside its nested route, as the app does. */
@@ -17,54 +20,80 @@ function draw(address: string) {
   return { html, text: html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") };
 }
 
+const RESERVED = ["by-condition", "consultations", "urgent", "portal", "meet"];
+// Monday 26 October 2026, 9am.
+const MONDAY = new Date(2026, 9, 26, 9);
+
 describe("the clinicians", () => {
-  it("each have a unique address and work only with conditions that are in the Library", () => {
+  it("each have a unique address, a price, experience and hours, and work only with conditions that are in the Library", () => {
     expect(new Set(CLINICIANS.map(person => person.id)).size).toBe(CLINICIANS.length);
     for (const person of CLINICIANS) {
       expect(person.id).toMatch(/^[a-z-]+$/);
-      expect(person.id).not.toBe("by-condition");
-      expect(person.modes.length).toBeGreaterThan(0);
-      // Video only means online across the UK; in person needs a town.
-      expect(person.town === null).toBe(!person.modes.includes("person"));
+      expect(RESERVED).not.toContain(person.id);
+      expect(person.price).toBeGreaterThan(0);
+      expect(person.years).toBeGreaterThan(0);
+      expect(person.hours).toBeGreaterThan(0);
+      expect(person.schedule.length).toBeGreaterThan(0);
       for (const [groupId, conditionId] of person.conditions) expect(findCondition(groupId, conditionId), `${person.id}: ${groupId}/${conditionId}`).toBeTruthy();
-      expect(clinicianGroups(person).length).toBeGreaterThan(0);
       expect(person.help.length).toBeGreaterThanOrEqual(3);
     }
   });
 
-  it("offer working days only, starting from their first free day", () => {
-    const monday = new Date(2026, 9, 26, 9);
-    const amara = CLINICIANS.find(person => person.id === "amara-osei")!;
-    // Nine days on from Monday 26 October is Wednesday 4 November; then the next two days and the Monday after.
-    expect(nextFree(amara, monday).toDateString()).toBe(new Date(2026, 10, 4).toDateString());
-    expect(bookingDays(amara, monday).map(day => day.getDate())).toEqual([4, 5, 6, 10]);
-    for (const person of CLINICIANS) for (const day of bookingDays(person, monday)) expect([0, 6]).not.toContain(day.getDay());
+  it("are free on the hour within their working hours, from an hour after now, for the next 48 hours", () => {
+    for (const person of CLINICIANS) {
+      for (const time of freeTimes(person, MONDAY)) {
+        expect(time.getMinutes()).toBe(0);
+        expect(time.getTime()).toBeGreaterThan(MONDAY.getTime() + 3_600_000 - 1);
+        expect(time.getTime()).toBeLessThan(MONDAY.getTime() + 48 * 3_600_000);
+        expect(person.schedule.some(hours => hours.days.includes(time.getDay()) && time.getHours() >= hours.from && time.getHours() < hours.to)).toBe(true);
+      }
+      // The same times each time it is asked.
+      expect(freeTimes(person, MONDAY).map(time => time.getTime())).toEqual(freeTimes(person, MONDAY).map(time => time.getTime()));
+    }
+    // Ruth works every morning, so she is free soon; Grace works only Tuesdays and Thursdays.
+    expect(freeSoon(findClinician("ruth-calloway")!, MONDAY)).toBe(true);
+    expect(nextFree(findClinician("grace-whitlow")!, MONDAY)!.getDay()).toBe(2);
+    // Someone is free soon on a Saturday night too, for urgent requests.
+    expect(CLINICIANS.some(person => freeSoon(person, new Date(2026, 9, 31, 22)))).toBe(true);
+  });
+
+  it("host weekly group sessions that come round each week, with the room open from ten minutes before", () => {
+    const next = nextWeeklySessions(MONDAY);
+    expect(next).toHaveLength(WEEKLY_SESSIONS.length);
+    for (const session of next) {
+      expect(findClinician(session.clinicianId)).toBeTruthy();
+      expect(session.start).toBeGreaterThanOrEqual(MONDAY.getTime());
+      expect(session.start - MONDAY.getTime()).toBeLessThan(7 * 86_400_000);
+      expect(`group-${session.id}`).toMatch(/^[a-z0-9-]{6,64}$/);
+    }
+    const priya = next.find(session => session.clinicianId === "priya-raman")!;
+    expect(new Date(priya.start).toDateString()).toBe(MONDAY.toDateString());
+    expect(sessionOpen(priya, priya.start - 11 * 60_000)).toBe(false);
+    expect(sessionOpen(priya, priya.start - 9 * 60_000)).toBe(true);
+    expect(sessionOpen(priya, priya.start + priya.minutes * 60_000)).toBe(false);
+    // A session set up in the portal is listed until it ends, soonest first.
+    const created = { id: "s-test", clinicianId: "ruth-calloway", title: "Test", about: "", start: MONDAY.getTime() + 60_000, minutes: 30, spaces: 5, weekly: false };
+    expect(upcomingSessions([created], MONDAY)[0].id).toBe("s-test");
+    expect(upcomingSessions([created], new Date(MONDAY.getTime() + 40 * 60_000)).some(session => session.id === "s-test")).toBe(false);
   });
 });
 
 describe("the Clinicians tab", () => {
-  it("lists every clinician with the Library's condition areas as filters, and says they are examples", () => {
+  it("lists every clinician with a price, the Library's condition areas as filters, group sessions, and says they are examples", () => {
     const { html, text } = draw("/clinicians");
     expect(text).toContain("Find a clinician");
     expect(text).toContain(`${CLINICIANS.length} clinicians`);
-    for (const person of CLINICIANS) expect(html).toContain(`href="/clinicians/${person.id}"`);
+    for (const person of CLINICIANS) {
+      expect(html).toContain(`href="/clinicians/${person.id}"`);
+      expect(text).toContain(`£${person.price} per consultation`);
+    }
     for (const area of ["All areas", "Brain &amp; nervous system", "Kidneys, liver &amp; digestion"]) expect(html).toContain(area);
+    expect(text).toContain("Weekly group sessions");
+    expect(text).toContain("Book a consultation");
+    expect(text).not.toMatch(/in person/i);
     expect(text).toContain("If something feels urgent, call 999");
     expect(text).toContain("examples while the directory is being set up");
-  });
-
-  it("opens a profile with its conditions leading to the Library and a booking panel", () => {
-    const { html, text } = draw("/clinicians/amara-osei");
-    expect(text).toContain("Dr Amara Osei");
-    expect(text).toContain("Registered with the GMC");
-    expect(html).toContain('href="/library/stroke/ischaemic"');
-    expect(html).toContain('id="book"');
-    expect(text).toContain("Request this appointment");
-    expect(text).toContain("Nothing is booked until then");
-  });
-
-  it("points 'Not sure who you need?' at starting from a condition", () => {
-    expect(draw("/clinicians").html).toContain('href="/clinicians/by-condition"');
+    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/urgent", "/clinicians/portal"]) expect(html).toContain(`href="${href}"`);
   });
 
   it("starts from a condition with every Library section and group, each opening the directory narrowed to it", () => {
@@ -90,7 +119,42 @@ describe("the Clinicians tab", () => {
     expect(html).toContain('aria-label="Remove filter Heart rhythm"');
   });
 
+  it("opens a profile with price and experience, conditions leading to the Library, and Book a consultation asking if it's urgent", () => {
+    const { html, text } = draw("/clinicians/amara-osei");
+    expect(text).toContain("Dr Amara Osei");
+    expect(text).toContain("Registered with the GMC");
+    expect(text).toContain("Consultant · 14 years");
+    expect(text).toContain("1,320 consultation hours");
+    expect(text).toContain("£85");
+    expect(html).toContain('href="/library/stroke/ischaemic"');
+    expect(html).toContain('id="book"');
+    expect(text).toContain("Book a consultation");
+    expect(text).toContain("Is it urgent?");
+    expect(html).toContain('href="/clinicians/urgent"');
+    expect(text).toContain("Call 999 now");
+    expect(text).not.toMatch(/in person/i);
+  });
+
+  it("has an urgent page, My consultations, the clinician portal and the meeting room, none taken for a clinician", () => {
+    expect(draw("/clinicians/urgent").text).toContain("Alert clinicians now");
+    expect(draw("/clinicians/consultations").text).toContain("No consultations yet");
+    expect(draw("/clinicians/portal").text).toContain("Try the portal as");
+    for (const page of ["requests", "schedule", "consultations", "sessions", "earnings", "profile"]) expect(draw(`/clinicians/portal/${page}`).text).toContain("Try the portal as");
+    expect(draw("/clinicians/meet/abcdefghijklmnop").text).toContain("isn&#x27;t on this device");
+    for (const path of ["/clinicians/urgent", "/clinicians/consultations", "/clinicians/portal"]) expect(draw(path).text).not.toContain("We couldn&#x27;t find that clinician");
+  });
+
   it("says so when a clinician isn't found", () => {
     expect(draw("/clinicians/nobody").text).toContain("We couldn&#x27;t find that clinician");
+  });
+});
+
+describe("Speak to a clinician, on Library pages", () => {
+  it("opens the Clinicians tab narrowed to the condition or section being read", () => {
+    expect(clinicianHref("/stroke/ischaemic")).toBe("~/clinicians?area=brain-nervous-system&group=stroke");
+    expect(clinicianHref("/stroke/ischaemic/fatigue")).toBe("~/clinicians?area=brain-nervous-system&group=stroke");
+    expect(clinicianHref("/heart-lungs")).toBe("~/clinicians?area=heart-lungs");
+    expect(clinicianHref("/")).toBe("~/clinicians");
+    expect(clinicianHref("/stories/li-wei")).toBe("~/clinicians");
   });
 });

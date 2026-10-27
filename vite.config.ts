@@ -9,6 +9,8 @@ import { createAliraSpeaker, createAliraVoiceRouter } from "./server/alira-voice
 import { createAliraSpeakRouter } from "./server/alira-speak";
 import { createLoungePhotoCheckRouter } from "./server/lounge-photo-check";
 import { createFeedbackRouter } from "./server/feedback";
+import { createMeetRouter } from "./server/meet";
+import { createUrgentAlertRouter } from "./server/urgent-alert";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -238,7 +240,15 @@ const feedbackPlugin: Plugin = {
   configureServer(server) { server.middlewares.use("/api/feedback", createFeedbackRouter()); },
   configurePreviewServer(server) { server.middlewares.use("/api/feedback", createFeedbackRouter()); },
 };
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraSpeakPlugin, loungePhotoCheckPlugin, feedbackPlugin];
+// Clinician consultations: the meeting room's signalling and the urgent-request alert (server/meet.ts, server/urgent-alert.ts).
+const meetRouter = createMeetRouter();
+const urgentAlertRouter = createUrgentAlertRouter();
+const cliniciansPlugin: Plugin = {
+  name: "clinicians",
+  configureServer(server) { server.middlewares.use("/api/meet", meetRouter); server.middlewares.use("/api/clinicians/urgent-alert", urgentAlertRouter); },
+  configurePreviewServer(server) { server.middlewares.use("/api/meet", meetRouter); server.middlewares.use("/api/clinicians/urgent-alert", urgentAlertRouter); },
+};
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), aliraVoicePlugin, aliraSpeakPlugin, loungePhotoCheckPlugin, feedbackPlugin, cliniciansPlugin];
 
 export default defineConfig({
   plugins,

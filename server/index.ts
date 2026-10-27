@@ -6,6 +6,8 @@ import { createAliraSpeaker, createAliraVoiceRouter } from "./alira-voice";
 import { createAliraSpeakRouter } from "./alira-speak";
 import { createLoungePhotoCheckRouter } from "./lounge-photo-check";
 import { createFeedbackRouter } from "./feedback";
+import { createMeetRouter } from "./meet";
+import { createUrgentAlertRouter } from "./urgent-alert";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +21,9 @@ async function startServer() {
   app.use("/api/lounge/photo-check", createLoungePhotoCheckRouter({ root: path.resolve(__dirname, "..") }));
   // The Library's Feedback button: each message goes to the server log (server/feedback.ts).
   app.use("/api/feedback", createFeedbackRouter());
+  // Clinician consultations: the meeting room's signalling, and telling the team about an unanswered urgent request.
+  app.use("/api/meet", createMeetRouter());
+  app.use("/api/clinicians/urgent-alert", createUrgentAlertRouter());
   // Its /status is Render's health check.
   app.use(
     "/api/alira/voice",
