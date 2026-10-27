@@ -69,7 +69,7 @@ function UrgentAlert({ me, list, now }: { me: Clinician; list: Consultation[]; n
           <button type="button" className="pt-urgent-close" aria-label="Not now" onClick={() => hide(waiting.id)}><X size={18} aria-hidden="true" /></button>
         </div>
         <h2 className="pt-urgent-title" id="pt-urgent-title">{waiting.questions ? `“${waiting.questions}”` : "Someone needs to talk to a clinician today."}</h2>
-        <p>You're free in the next 48 hours, so you were alerted. If you answer, the patient sees your profile and chooses whether to go ahead.</p>
+        <p>{me.urgentAlerts === "always" ? "You asked for every urgent request, even when you're busy." : "You're free in the next 48 hours, so you were alerted."} If you answer, the patient sees your profile and chooses whether to go ahead.</p>
         <div className="pt-urgent-actions">
           <button type="button" className="pt-urgent-main" onClick={() => updateConsultation(waiting.id, item => answer(item, me.id))}>Answer</button>
           <button type="button" className="pt-urgent-later" onClick={() => hide(waiting.id)}>Not now</button>
@@ -95,7 +95,6 @@ function Shell({ me, everyone, ownId }: { me: Clinician; everyone: Clinician[]; 
   const now = useNow(1000);
   const list = useConsultations();
   const waiting = list.filter(item => item.clinicianId === me.id && item.status === "requested").length;
-  const alertsOn = (me.urgentAlerts ?? "free48") !== "never";
   const here = (href: string) => (href === "/" ? location === "/" || location === "" : location.startsWith(href));
   return (
     <div className="pt-portal" style={hueStyle(mainSection(me).hue)}>
@@ -107,13 +106,6 @@ function Shell({ me, everyone, ownId }: { me: Clinician; everyone: Clinician[]; 
               {item.icon}{item.label}{item.href === "/requests" && waiting > 0 && <span className="pt-badge">{waiting}</span>}
             </Link>
           ))}
-        </div>
-        <div className="pt-side-card">
-          <p className="pt-side-label">Urgent requests</p>
-          <button type="button" className="pt-switch" aria-pressed={alertsOn} onClick={() => updateClinician(me.id, { urgentAlerts: alertsOn ? "never" : "free48" })}>
-            <span className="pt-switch-track" aria-hidden="true"><span /></span>
-            <span><strong>{alertsOn ? "On during my hours" : "Off for now"}</strong><span>{alertsOn ? "Alerts when you're free in the next 48 hours" : "You won't get urgent alerts"}</span></span>
-          </button>
         </div>
         <label className="pt-side-card pt-as">
           <span className="pt-side-label">{ownId === me.id ? "Signed in as" : "Trying the portal as"}</span>
@@ -151,7 +143,7 @@ export default function ClinicianPortal() {
     <div className="cl-page cl-narrow">
       <p className="cl-kicker"><span aria-hidden="true" />Clinician portal</p>
       <h1 className="cl-h1" data-page-heading>For clinicians<span aria-hidden="true">.</span></h1>
-      <p className="cl-lead">Set your hours and prices, answer requests and urgent alerts, meet patients by video and host free group sessions.</p>
+      <p className="cl-lead">Set your hours and prices, answer requests and urgent alerts, meet patients by video and host group sessions.</p>
       <PreviewNote>{role === "patient"
         ? "You joined as a patient or carer, so there's no portal of your own. To see how it works, try it as one of the example clinicians."
         : "Clinicians join from the sign-up page. To see how it works, try it as one of the example clinicians."}</PreviewNote>

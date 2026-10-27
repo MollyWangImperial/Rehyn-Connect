@@ -38,8 +38,26 @@ export function scheduleFromWeek(week: Record<number, Day>): Hours[] {
   return Array.from(byTimes.values());
 }
 
+/** The week in a few lines: neighbouring days with the same hours share a line ("Mon – Fri", "Sat, Sun"). */
+export function summariseWeek(week: Record<number, Day>): { days: string; hours: string }[] {
+  const keyOf = (day: number) => (week[day]?.on && week[day].to > week[day].from ? `${week[day].from}-${week[day].to}` : "off");
+  const runs: { key: string; names: string[] }[] = [];
+  for (const [day, short] of DAYS) {
+    const key = keyOf(day);
+    const last = runs[runs.length - 1];
+    if (last && last.key === key) last.names.push(short); else runs.push({ key, names: [short] });
+  }
+  return runs.map(({ key, names }) => {
+    const days = names.length > 2 ? `${names[0]} – ${names[names.length - 1]}` : names.join(", ");
+    if (key === "off") return { days, hours: "Not working" };
+    const [from, to] = key.split("-").map(Number);
+    return { days, hours: `${hourText(from)} – ${hourText(to)}` };
+  });
+}
+
 const URGENT: [UrgentAlerts, string][] = [
-  ["free48", "Alert me whenever I'm free in the next 48 hours"],
+  ["always", "Always, even when I'm busy"],
+  ["free48", "When I'm free in the next 48 hours"],
   ["today", "Only when I'm free today"],
   ["never", "Never"],
 ];
@@ -49,31 +67,29 @@ export default function PortalSchedule({ me }: { me: Clinician }) {
   const created = useCreatedSessions();
   const [week, setWeek] = useState(() => weekFromSchedule(me.schedule));
   const [saved, setSaved] = useState(false);
-  const [offFrom, setOffFrom] = useState("");
-  const [offTo, setOffTo] = useState("");
-  const [offLabel, setOffLabel] = useState("");
+  const [editing, setEditing] = useState(false);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const days = Array.from({ length: 7 }, (_, index) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + index));
   const booked = busyTimes(list, me.id);
   const sessions = upcomingSessions(created, now).filter(session => session.clinicianId === me.id);
-  const change = (day: number, patch: Partial<Day>) => { setWeek(current => ({ ...current, [day]: { ...current[day], ...patch } })); setSaved(false); };
-  const save = () => { updateClinician(me.id, { schedule: scheduleFromWeek(week) }); setSaved(true); };
-  const timeOff = me.timeOff ?? [];
-  const addOff = () => {
-    if (!offFrom) return;
-    const from = new Date(`${offFrom}T00:00`).getTime();
-    const to = new Date(`${offTo || offFrom}T00:00`).getTime() + 86_400_000;
-    if (!(to > from)) return;
-    updateClinician(me.id, { timeOff: [...timeOff, { from, to, label: offLabel.trim() || "Away" }].sort((a, b) => a.from - b.from) });
-    setOffFrom(""); setOffTo(""); setOffLabel("");
+  const change = (day: number, patch: Partial<Day>) => {
+    setWeek(current => {
+      const next = { ...current[day], ...patch };
+      if (next.to <= next.from) next.to = Math.min(next.from + 1, LAST_HOUR); // "to" always comes after "from"
+      return { ...current, [day]: next };
+    });
+    setSaved(false);
   };
+  const startEditing = () => { setWeek(weekFromSchedule(me.schedule)); setSaved(false); setEditing(true); };
+  const cancel = () => { setWeek(weekFromSchedule(me.schedule)); setEditing(false); };
+  const save = () => { updateClinician(me.id, { schedule: scheduleFromWeek(week) }); setSaved(true); setEditing(false); };
+  const summary = summariseWeek(weekFromSchedule(me.schedule));
   const cell = (day: Date, hour: number) => {
     const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour).getTime();
     if (booked.some(start => Math.abs(start - at) < 3_600_000)) return { kind: "booked", text: "Booked" };
     const session = sessions.find(entry => entry.start >= at && entry.start < at + 3_600_000);
     if (session) return { kind: "session", text: "Group" };
-    if (timeOff.some(off => at < off.to && at + 3_600_000 > off.from)) return { kind: "off", text: "" };
     return works(me, new Date(at)) ? { kind: "open", text: "" } : { kind: "closed", text: "" };
   };
 
@@ -91,7 +107,7 @@ export default function PortalSchedule({ me }: { me: Clinician }) {
         <section className="pt-card pt-wide" aria-labelledby="pt-week-h">
           <div className="pt-card-head">
             <h2 className="cl-h2" id="pt-week-h">The next 7 days</h2>
-            <div className="pt-legend" aria-hidden="true"><span className="is-open">Open</span><span className="is-booked">Booked</span><span className="is-session">Group session</span><span className="is-off">Time off</span></div>
+            <div className="pt-legend" aria-hidden="true"><span className="is-open">Open</span><span className="is-booked">Booked</span><span className="is-session">Group session</span></div>
           </div>
           <div className="pt-grid-wrap">
             <table className="pt-grid">
@@ -107,26 +123,44 @@ export default function PortalSchedule({ me }: { me: Clinician }) {
               </tbody>
             </table>
           </div>
-          <p className="cl-small">Consultations are {CONSULTATION_MINUTES} minutes, starting on the hour. Patients can ask only for open hours in the next 48 hours.</p>
+          <p className="cl-small">Green hours are open for patients to book. Each consultation lasts {CONSULTATION_MINUTES} minutes and starts on the hour. Patients can only request times within the next 48 hours.</p>
         </section>
 
         <div className="pt-stack">
           <section className="pt-card" aria-labelledby="pt-usual">
-            <h2 className="cl-h2" id="pt-usual">My usual week</h2>
-            {DAYS.map(([day, short, long]) => (
-              <div key={day} className="pt-day">
-                <button type="button" className="pt-day-toggle" aria-pressed={week[day].on} aria-label={`${long}: ${week[day].on ? "working" : "not working"}`} onClick={() => change(day, { on: !week[day].on })}>{short}</button>
-                {week[day].on ? (
-                  <span className="pt-day-hours">
-                    <select aria-label={`${long} from`} value={week[day].from} onChange={event => change(day, { from: Number(event.target.value) })}>{HOURS.map(hour => <option key={hour} value={hour}>{hourText(hour)}</option>)}</select>
-                    <span aria-hidden="true">to</span>
-                    <select aria-label={`${long} to`} value={week[day].to} onChange={event => change(day, { to: Number(event.target.value) })}>{[...HOURS.slice(1), LAST_HOUR].map(hour => <option key={hour} value={hour}>{hourText(hour)}</option>)}</select>
-                  </span>
-                ) : <span className="pt-day-off">Not working</span>}
+            <h2 className="cl-h2" id="pt-usual">Hours I'm available each week</h2>
+            {!editing ? <>
+              <dl className="pt-week-summary">
+                {summary.map(row => (
+                  <div key={row.days} className={row.hours === "Not working" ? "is-off" : ""}><dt>{row.days}</dt><dd>{row.hours}</dd></div>
+                ))}
+              </dl>
+              <button type="button" className="cl-btn is-light" onClick={startEditing}>Change hours</button>
+              {saved && <p className="cl-small" role="status">Saved. Patients now see these hours. Anything already booked stays booked.</p>}
+            </> : <>
+              <p className="cl-small">Switch off any day you don't work.</p>
+              <div className="pt-week-edit">
+                {DAYS.map(([day, short, long]) => (
+                  <div key={day} className={`pt-day${week[day].on ? "" : " is-off"}`}>
+                    <label className="pt-dayswitch">
+                      <input type="checkbox" role="switch" checked={week[day].on} aria-label={`Working on ${long}`} onChange={event => change(day, { on: event.target.checked })} />
+                      <span className="pt-day-name" aria-hidden="true">{short}</span>
+                    </label>
+                    {week[day].on ? (
+                      <span className="pt-day-hours">
+                        <select aria-label={`${long} from`} value={week[day].from} onChange={event => change(day, { from: Number(event.target.value) })}>{HOURS.map(hour => <option key={hour} value={hour}>{hourText(hour)}</option>)}</select>
+                        <span aria-hidden="true">to</span>
+                        <select aria-label={`${long} to`} value={week[day].to} onChange={event => change(day, { to: Number(event.target.value) })}>{[...HOURS.slice(1), LAST_HOUR].filter(hour => hour > week[day].from).map(hour => <option key={hour} value={hour}>{hourText(hour)}</option>)}</select>
+                      </span>
+                    ) : <span className="pt-day-off">Not working</span>}
+                  </div>
+                ))}
               </div>
-            ))}
-            <button type="button" className="cl-btn" onClick={save}>Save my hours</button>
-            {saved && <p className="cl-small" role="status">Saved. Patients now see these hours; anything already booked stays booked.</p>}
+              <div className="pt-week-actions">
+                <button type="button" className="cl-btn" onClick={save}>Save my hours</button>
+                <button type="button" className="cl-btn is-light" onClick={cancel}>Cancel</button>
+              </div>
+            </>}
           </section>
 
           <section className="pt-card" aria-labelledby="pt-urgent-h">
@@ -136,23 +170,6 @@ export default function PortalSchedule({ me }: { me: Clinician }) {
                 <label key={value} className="cl-check"><input type="radio" name="urgent" checked={(me.urgentAlerts ?? "free48") === value} onChange={() => updateClinician(me.id, { urgentAlerts: value })} />{label}</label>
               ))}
             </div>
-          </section>
-
-          <section className="pt-card" aria-labelledby="pt-off">
-            <h2 className="cl-h2" id="pt-off">Time off</h2>
-            {timeOff.filter(off => off.to > Date.now()).map(off => (
-              <p key={`${off.from}-${off.label}`} className="pt-off-row">
-                <span><strong>{new Date(off.from).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}{off.to - off.from > 86_400_000 ? ` – ${new Date(off.to - 1).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}</strong> · {off.label}</span>
-                <button type="button" className="cl-clear" onClick={() => updateClinician(me.id, { timeOff: timeOff.filter(item => item !== off) })}>Remove</button>
-              </p>
-            ))}
-            <div className="cl-form-row">
-              <label className="cl-field"><span className="cl-label">From</span><input className="cl-text" type="date" value={offFrom} onChange={event => setOffFrom(event.target.value)} /></label>
-              <label className="cl-field"><span className="cl-label">To</span><input className="cl-text" type="date" value={offTo} min={offFrom} onChange={event => setOffTo(event.target.value)} /></label>
-            </div>
-            <label className="cl-field"><span className="cl-label">Label</span><input className="cl-text" value={offLabel} maxLength={40} placeholder="Holiday, hospital clinic…" onChange={event => setOffLabel(event.target.value)} /></label>
-            <button type="button" className="cl-btn is-light" disabled={!offFrom} onClick={addOff}>Add time off</button>
-            <p className="cl-small">Consultations already booked in time you take off stay booked: let those patients know if you need to move them.</p>
           </section>
         </div>
       </div>

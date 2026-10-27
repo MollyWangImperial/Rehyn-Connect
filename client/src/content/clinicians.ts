@@ -16,7 +16,8 @@ export type Hours = { days: number[]; from: number; to: number };
 /** Days away, from one moment to another, with a label ("Holiday"). */
 export type TimeOff = { from: number; to: number; label: string };
 /** When urgent requests reach them: whenever they're free in the next 48 hours, only when free today, or never. */
-export type UrgentAlerts = "free48" | "today" | "never";
+/** When urgent requests reach a clinician: always (even when busy), when free in the next 48 hours, only when free today, or never. */
+export type UrgentAlerts = "always" | "free48" | "today" | "never";
 
 export type Clinician = {
   /** In the address: /clinicians/amara-osei. */
@@ -120,7 +121,7 @@ export const CLINICIANS: Clinician[] = [
   },
   {
     id: "ruth-calloway", name: "Ruth Calloway", first: "Ruth", initials: "RC", role: "Cardiac rehabilitation nurse", type: "nurse",
-    level: "Specialist", years: 10, hours: 2300, price: 40,
+    level: "Specialist", years: 10, hours: 2300, price: 50,
     conditions: [["heart-attack", "heart-attack"], ["heart-attack", "angina"], ["blood-pressure", "high-blood-pressure"]],
     languages: ["English"], schedule: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 8, to: 12 }],
     help: ["Getting active again after a heart attack", "Knowing which symptoms to act on", "Blood pressure checks at home", "Confidence for everyday life"],
@@ -136,7 +137,7 @@ export const CLINICIANS: Clinician[] = [
   },
   {
     id: "sophie-adair", name: "Sophie Adair", first: "Sophie", initials: "SA", role: "Specialist dietitian", type: "diet",
-    level: "Specialist", years: 7, hours: 840, price: 45,
+    level: "Specialist", years: 7, hours: 840, price: 55,
     conditions: [["diabetes", "type-2"], ["diabetes", "prediabetes"], ["weight", "obesity"], ["kidneys", "chronic-kidney-disease"]],
     languages: ["English"], schedule: [{ days: [2, 3, 4, 5, 6], from: 12, to: 18 }],
     help: ["Eating well with diabetes", "Weight, at a pace that suits you", "Food choices for kidney health", "Simple meals when energy is low"],
@@ -239,6 +240,14 @@ export const hoursText = (clinician: Clinician) =>
 /** "£85". */
 export const priceText = (price: number) => `£${price}`;
 
+/** What a clinician can charge for a 30-minute consultation, in pounds, in line with the market rate. */
+export const PRICE_MIN = 50;
+export const PRICE_MAX = 100;
+/** Added to the clinician's price for an urgent consultation, in pounds, and paid to them with it. */
+export const URGENT_FEE = 20;
+/** What a patient pays for an urgent consultation with this clinician. */
+export const urgentPrice = (clinician: Pick<Clinician, "price">) => clinician.price + URGENT_FEE;
+
 // ----------------------------------------------------------------------------------------------- free times
 
 const HOUR_MS = 3_600_000;
@@ -277,10 +286,11 @@ export function freeTimes(clinician: Clinician, now = new Date(), hours = WINDOW
 /** Whether they have any free time in the next 48 hours. */
 export const freeSoon = (clinician: Clinician, now = new Date()) => freeTimes(clinician, now).length > 0;
 
-/** Whether an urgent request reaches them now: free in the next 48 hours (or today only, if they chose that), unless they switched alerts off. */
+/** Whether an urgent request reaches them now: always if they chose that, otherwise free in the next 48 hours (or today only), unless they switched alerts off. */
 export function alertable(clinician: Clinician, now = new Date()) {
   const choice = clinician.urgentAlerts ?? "free48";
   if (choice === "never") return false;
+  if (choice === "always") return true;
   const times = freeTimes(clinician, now);
   return choice === "today" ? times.some(time => time.toDateString() === now.toDateString()) : times.length > 0;
 }
@@ -318,8 +328,18 @@ export const WEEKLY_SESSIONS: WeeklySession[] = [
 ];
 
 /** One sitting of a group session: a weekly one on a given day, or one a clinician set up in their portal (which may
- *  repeat weekly too). `groupId` is the Library group it is listed with. */
-export type GroupSession = { id: string; clinicianId: string; title: string; about: string; start: number; minutes: number; spaces: number; weekly: boolean; groupId?: string };
+ *  repeat weekly too). `groupIds` are the Library groups it is listed with (`groupId` is the single group older saved
+ *  sessions have). `price` is what the host charges for a place, in pounds: set by the clinician, free when missing or 0. */
+export type GroupSession = { id: string; clinicianId: string; title: string; about: string; start: number; minutes: number; spaces: number; weekly: boolean; groupIds?: string[]; groupId?: string; price?: number };
+
+/** The Library groups a session is listed with, from either the list or an older saved session's single group. */
+export const sessionGroupIds = (session: Pick<GroupSession, "groupIds" | "groupId">): string[] => session.groupIds ?? (session.groupId ? [session.groupId] : []);
+
+/** The most a clinician can charge for one place in a group session, in pounds. */
+export const MAX_SESSION_PRICE = 200;
+
+/** "Free" or "£10 a place". */
+export const sessionPriceText = (session: Pick<GroupSession, "price">) => (session.price && session.price > 0 ? `£${session.price} a place` : "Free");
 
 /** The next sitting of each weekly session (one still running counts), as dated sessions. */
 export function nextWeeklySessions(now = new Date()): GroupSession[] {

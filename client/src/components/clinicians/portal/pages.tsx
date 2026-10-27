@@ -1,8 +1,8 @@
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Check, Video } from "lucide-react";
 import {
-  WINDOW_HOURS, clinicianGroups, clockText, freeTimes, upcomingSessions, whenText, works, type Clinician,
+  MAX_SESSION_PRICE, WINDOW_HOURS, clinicianGroups, clockText, freeTimes, sessionPriceText, upcomingSessions, whenText, works, type Clinician,
 } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
 import { profileGaps, registerText } from "@/lib/clinician-portal";
@@ -154,7 +154,7 @@ export function PortalRequests({ me, now }: { me: Clinician; now: number }) {
   const open = shown.find(item => item.id === openId) ?? shown[0];
   return (
     <div className="pt-page">
-      <Head kicker={`Not urgent · within ${WINDOW_HOURS} hours`} title="Requests">
+      <Head kicker="Patients asking for your time" title="Requests">
         <div className="pt-tabs" role="group" aria-label="Show">
           {([["waiting", "Waiting"], ["confirmed", "Confirmed"], ["closed", "Declined or expired"]] as [Tab, string][]).map(([id, label]) => (
             <button key={id} type="button" aria-pressed={tab === id} onClick={() => { setTab(id); setOpenId(null); }}>{label} · {lists[id].length}</button>
@@ -258,7 +258,7 @@ export function PortalConsultations({ me }: { me: Clinician }) {
   const finished = mine.filter(item => item.status === "done").sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
   return (
     <div className="pt-page">
-      <Head kicker="By video on Rehyn" title="Consultations" />
+      <Head kicker="Your video calls with patients" title="Consultations" />
       <section className="pt-section" aria-labelledby="pt-coming">
         <h2 className="cl-h2" id="pt-coming">Coming up</h2>
         {upcoming.length === 0 ? <p className="cl-small">Nothing booked yet. Confirmed requests and urgent consultations appear here.</p> : upcoming.map(item => (
@@ -298,21 +298,28 @@ export function PortalSessions({ me }: { me: Clinician }) {
   const times = useMemo(() => freeTimes(me, new Date(now), 24 * 14), [me]); // eslint-disable-line react-hooks/exhaustive-deps
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
-  const [groupId, setGroupId] = useState(groups[0]?.id ?? "");
+  const [groupIds, setGroupIds] = useState<string[]>(groups[0] ? [groups[0].id] : []);
+  const toggleGroup = (id: string) => setGroupIds(current => (current.includes(id) ? current.filter(item => item !== id) : [...current, id]));
   const [start, setStart] = useState("now");
   const [minutes, setMinutes] = useState(45);
   const [spaces, setSpaces] = useState(15);
   const [weekly, setWeekly] = useState(false);
+  const [price, setPrice] = useState("");
   const [done, setDone] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const checkHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (confirming) checkHeading.current?.focus(); }, [confirming]);
   const at = start === "now" ? null : Number(start);
+  const pounds = Math.min(MAX_SESSION_PRICE, Math.max(0, Math.round(Number(price) || 0)));
+  const chosenGroups = groups.filter(group => groupIds.includes(group.id));
   const create = () => {
-    addSession({ ...newSession({ clinicianId: me.id, title: title.trim(), about: about.trim() || "Bring your questions.", start: at ?? Date.now() + 60_000, minutes, spaces, groupId }), weekly });
-    setTitle(""); setAbout(""); setDone(true);
+    addSession({ ...newSession({ clinicianId: me.id, title: title.trim(), about: about.trim() || "Bring your questions.", start: at ?? Date.now() + 60_000, minutes, spaces, groupIds: chosenGroups.map(group => group.id), price: pounds }), weekly });
+    setTitle(""); setAbout(""); setPrice(""); setConfirming(false); setDone(true);
   };
   return (
     <div className="pt-page">
-      <Head kicker="Free for everyone" title="Group sessions" />
-      <p className="cl-lead">Answer questions for a group, free. Sessions are listed on the Clinicians tab, so new patients can meet you and see how you work.</p>
+      <Head kicker="Meet more patients at once" title="Group sessions" />
+      <p className="cl-lead">Answer questions for a group to grow your reach. Your sessions are listed on the Clinicians tab, so new patients can find you and see how you work before they book a consultation. You set the price: keep it free, or charge for each place.</p>
       <div className="pt-cols">
         <section className="pt-section pt-wide" aria-labelledby="pt-up">
           <h2 className="cl-h2" id="pt-up">Coming up</h2>
@@ -330,13 +337,29 @@ export function PortalSessions({ me }: { me: Clinician }) {
             );
           })}
         </section>
-        <form className="pt-card pt-form" onSubmit={event => { event.preventDefault(); if (title.trim()) create(); }}>
+        {confirming ? (
+          <section className="pt-card pt-form" aria-labelledby="pt-check">
+            <h2 className="cl-h2" id="pt-check" ref={checkHeading} tabIndex={-1}>Check your session</h2>
+            <p className="cl-small">This is how patients will see it on the Clinicians tab.</p>
+            <div className="pt-listing">
+              <span className="cl-label">How it will be listed</span>
+              <strong>{title.trim()}</strong>
+              {about.trim() && <span>{about.trim()}</span>}
+              <span>{at ? whenText(new Date(at), new Date(now)) : "Starting now"} · {minutes} min · {sessionPriceText({ price: pounds })} · {weekly ? "every week" : "one-off"}</span>
+              <span>{spaces} places · listed with {chosenGroups.map(group => group.title).join(", ")}</span>
+            </div>
+            <button type="button" className="cl-request" onClick={create}>Confirm and add</button>
+            <button type="button" className="cl-btn is-light" onClick={() => setConfirming(false)}>Go back and edit</button>
+          </section>
+        ) : (
+        <form className="pt-card pt-form" onSubmit={event => { event.preventDefault(); if (title.trim() && groupIds.length) { setDone(false); setConfirming(true); } }}>
           <h2 className="cl-h2">Start a new session</h2>
           <label className="cl-field"><span className="cl-label">Title</span><input className="cl-text" value={title} maxLength={80} onChange={event => { setTitle(event.target.value); setDone(false); }} placeholder="Your questions about…" required /></label>
           <label className="cl-field"><span className="cl-label">What it's about</span><input className="cl-text" value={about} maxLength={160} onChange={event => setAbout(event.target.value)} placeholder="One line on who it's for" /></label>
-          <label className="cl-field"><span className="cl-label">Listed with</span>
-            <select className="cl-text" value={groupId} onChange={event => setGroupId(event.target.value)}>{groups.map(group => <option key={group.id} value={group.id}>{group.title}</option>)}</select>
-          </label>
+          <div className="cl-field" role="group" aria-labelledby="pt-listed-with">
+            <span className="cl-label" id="pt-listed-with">Listed with · choose one or more</span>
+            <div className="pt-pick">{groups.map(group => <button key={group.id} type="button" aria-pressed={groupIds.includes(group.id)} onClick={() => toggleGroup(group.id)}>{group.title}</button>)}</div>
+          </div>
           <div className="cl-form-row">
             <label className="cl-field"><span className="cl-label">When</span>
               <select className="cl-text" value={start} onChange={event => setStart(event.target.value)}>
@@ -351,16 +374,16 @@ export function PortalSessions({ me }: { me: Clinician }) {
               <select className="cl-text" value={spaces} onChange={event => setSpaces(Number(event.target.value))}>{[5, 8, 15, 20].map(value => <option key={value} value={value}>{value}</option>)}</select>
             </label>
           </div>
+          <label className="cl-field pt-price-field"><span className="cl-label">Price per place</span>
+            <span className="pt-price-input"><strong aria-hidden="true">£</strong><input type="number" inputMode="numeric" min={0} max={MAX_SESSION_PRICE} step={1} value={price} placeholder="0" aria-label="Price per place in pounds" aria-describedby="pt-price-hint" onChange={event => setPrice(event.target.value)} /></span>
+            <span className="cl-small" id="pt-price-hint">Leave it at 0 to make the session free.</span>
+          </label>
           <label className="cl-check"><input type="checkbox" checked={weekly} onChange={() => setWeekly(!weekly)} />Repeat every week</label>
-          <div className="pt-listing">
-            <span className="cl-label">How it will be listed</span>
-            <strong>{title.trim() || "Give your session a title"}</strong>
-            <span>{at ? whenText(new Date(at), new Date(now)) : "Starting now"} · {minutes} min · Free · {weekly ? "every week" : "one-off"}</span>
-          </div>
-          <button type="submit" className="cl-request" disabled={!title.trim()}>Add the session</button>
+          <button type="submit" className="cl-request" disabled={!title.trim() || !groupIds.length}>Add the session</button>
+          {!groupIds.length && <p className="cl-small">Choose at least one condition area to list it with.</p>}
           {done && <p className="cl-small" role="status">Added. It shows under Weekly group sessions on the Clinicians tab.</p>}
-          <p className="cl-small">Group sessions are general advice for everyone. Personal advice belongs in a one-to-one consultation.</p>
         </form>
+        )}
       </div>
     </div>
   );
@@ -392,11 +415,9 @@ export function PortalEarnings({ me }: { me: Clinician }) {
       <section className="pt-flow" aria-labelledby="pt-flow">
         <h2 className="cl-h2" id="pt-flow">How a payment moves</h2>
         <ol>
-          <li><strong>1 · Patient books</strong>Their card is authorised and the amount held. Urgent: held once they choose you.</li>
+          <li><strong>1 · Patient books</strong>Their card is authorised and the amount held.</li>
           <li><strong>2 · You finish the call</strong>"Finish consultation" takes the held amount.</li>
-          <li><strong>3 · Paid out on Friday</strong>Everything finished by Thursday night goes out that Friday.</li>
-          <li className="is-warm"><strong>Not going ahead?</strong>Declined, expired or cancelled: the hold is released and nothing is taken.</li>
-        </ol>
+          <li><strong>3 · Paid out on Friday</strong>Everything finished by Thursday night goes out that Friday.</li>        </ol>
       </section>
       <section className="pt-card" aria-labelledby="pt-money-list">
         <div className="pt-card-head">

@@ -12,7 +12,7 @@
 // Payments are not taken yet: "held" and "paid" are what will happen through Stripe, and the page says so.
 
 import { useSyncExternalStore } from "react";
-import { alertable, allClinicians, findClinician, type Clinician, type GroupSession } from "@/content/clinicians";
+import { URGENT_FEE, alertable, allClinicians, findClinician, urgentPrice, type Clinician, type GroupSession } from "@/content/clinicians";
 
 export type Status = "requested" | "scheduled" | "declined" | "matching" | "matched" | "escalated" | "done" | "cancelled";
 export type Payment = "none" | "held" | "paid" | "released";
@@ -146,7 +146,7 @@ export function answer(consultation: Consultation, clinicianId: string, now = Da
   if (!clinician || !["matching", "matched", "escalated"].includes(consultation.status) || consultation.answered.includes(clinicianId)) return consultation;
   const answered = [...consultation.answered, clinicianId];
   if (consultation.status === "matched") return { ...consultation, answered };
-  return { ...consultation, answered, status: "matched", clinicianId, price: clinician.price, steps: step(consultation, `${clinician.name} answered`, now) };
+  return { ...consultation, answered, status: "matched", clinicianId, price: urgentPrice(clinician), steps: step(consultation, `${clinician.name} answered`, now) };
 }
 
 /** Who an urgent request is sent to: everyone it can reach now (free in the next 48 hours, alerts on, listed). */
@@ -165,14 +165,15 @@ export function nextChoice(consultation: Consultation, now = new Date()): Consul
   if (choices.length < 2) return consultation;
   const here = choices.findIndex(clinician => clinician.id === consultation.clinicianId);
   const next = choices[(here + 1) % choices.length];
-  return { ...consultation, clinicianId: next.id, price: next.price };
+  return { ...consultation, clinicianId: next.id, price: urgentPrice(next) };
 }
 
 /** Urgent: the patient chooses the clinician, the payment is held, and the call can start now. */
 export function confirmUrgent(consultation: Consultation, now = Date.now()): Consultation {
   const clinician = findClinician(consultation.clinicianId);
   if (consultation.status !== "matched" || !clinician) return consultation;
-  return { ...consultation, status: "scheduled", at: now, payment: "held", steps: [...step(consultation, `You chose ${clinician.name}`, now), { at: now, what: `£${clinician.price} held on your card` }] };
+  const price = urgentPrice(clinician);
+  return { ...consultation, status: "scheduled", at: now, price, payment: "held", steps: [...step(consultation, `You chose ${clinician.name}`, now), { at: now, what: `£${price} held on your card, with the £${URGENT_FEE} urgent fee` }] };
 }
 
 /** Urgent: no one answered in five minutes, so the Rehyn team has been told. */

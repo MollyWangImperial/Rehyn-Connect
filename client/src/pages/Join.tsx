@@ -47,7 +47,7 @@ function ChooseRole({ choose }: { choose: (role: Role) => void }) {
           </button>
           <button type="button" className="join-role is-clinician" onClick={() => choose("clinician")}>
             <span className="join-role-icon" aria-hidden="true"><Stethoscope size={26} /></span>
-            <span className="join-role-text"><strong>I'm a clinician</strong>Offer consultations by video, answer urgent requests and host free group sessions.</span>
+            <span className="join-role-text"><strong>I'm a clinician</strong>Offer consultations by video, answer urgent requests and host group sessions.</span>
           </button>
         </div>
         <p className="join-safety">Rehyn is not an emergency service. If you think someone is having a stroke, call 999. <Link href={fastCheckPath("/")}>See the warning signs</Link></p>
@@ -131,7 +131,7 @@ export default function Join({ startAs }: { startAs?: Role } = {}) {
         <p className="join-lede">{returning
           ? "The Terms of Use or the Privacy Notice have changed since you agreed to them. Please look at these again: all three are needed to use Rehyn: Connect."
           : clinician
-            ? "Meet patients by video, answer urgent requests and host free group sessions. We check your registration before patients can book you."
+            ? "Meet patients by video, answer urgent requests and host group sessions. We check your registration before patients can book you."
             : "A warm, safe community for people living with stroke, Parkinson's, MS and other conditions, and the people who care for them."}</p>
 
         {tried && (missing.length > 0 || tooYoung) && (

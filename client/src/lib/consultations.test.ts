@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findClinician } from "@/content/clinicians";
+import { URGENT_FEE, findClinician } from "@/content/clinicians";
 import {
   URGENT_WAIT_MS, accept, answer, cancel, confirmUrgent, decline, escalate, finish, nextChoice, request, startUrgent, transcriptText, urgentChoices, waitedTooLong,
 } from "./consultations";
@@ -42,7 +42,8 @@ describe("an urgent consultation", () => {
     const alerted = startUrgent("High readings", NOW);
     expect(alerted).toMatchObject({ status: "matching", payment: "none", clinicianId: null, urgent: true });
     const first = answer(alerted, "ruth-calloway", NOW + 60_000);
-    expect(first).toMatchObject({ status: "matched", clinicianId: "ruth-calloway", price: 40, payment: "none" });
+    // An urgent consultation costs the clinician's price plus the urgent fee: Ruth's £50 + £20.
+    expect(first).toMatchObject({ status: "matched", clinicianId: "ruth-calloway", price: 50 + URGENT_FEE, payment: "none" });
     // A second answer doesn't take the match from the first.
     const second = answer(first, "hannah-brooks");
     expect(second.clinicianId).toBe("ruth-calloway");
@@ -52,12 +53,12 @@ describe("an urgent consultation", () => {
     expect(choices.slice(0, 2).map(clinician => clinician.id)).toEqual(["ruth-calloway", "hannah-brooks"]);
     const moved = nextChoice(second, now);
     expect(moved.clinicianId).toBe("hannah-brooks");
-    expect(moved.price).toBe(50);
+    expect(moved.price).toBe(findClinician("hannah-brooks")!.price + URGENT_FEE);
     let around = moved;
     for (let index = 1; index < choices.length; index++) around = nextChoice(around, now);
     expect(around.clinicianId).toBe("ruth-calloway");
     const chosen = confirmUrgent(moved, NOW + 120_000);
-    expect(chosen).toMatchObject({ status: "scheduled", payment: "held", at: NOW + 120_000, clinicianId: "hannah-brooks" });
+    expect(chosen).toMatchObject({ status: "scheduled", payment: "held", at: NOW + 120_000, clinicianId: "hannah-brooks", price: moved.price });
     expect(finish(chosen, [])).toMatchObject({ status: "done", payment: "paid" });
   });
 

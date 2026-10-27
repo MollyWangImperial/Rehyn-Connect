@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, ArrowRight, BellRing, Globe, ShieldCheck, Video } from "lucide-react";
-import { WINDOW_HOURS, clinicianGroups, experienceText, findClinician, hoursText, mainSection, priceText } from "@/content/clinicians";
+import { URGENT_FEE, WINDOW_HOURS, clinicianGroups, experienceText, findClinician, hoursText, mainSection, priceText, urgentPrice } from "@/content/clinicians";
 import { registerText, useClinicians } from "@/lib/clinician-portal";
 import {
   URGENT_WAIT_MS, alerted, cancel, confirmUrgent, escalate, findConsultation, nextChoice, saveConsultation, startUrgent, updateConsultation,
@@ -79,7 +79,7 @@ function MatchCard({ consultation }: { consultation: Consultation }) {
             <h2 className="cl-match-name">{clinician.name}</h2>
             <p className="cl-hero-role">{clinician.role}</p>
           </div>
-          <p className="cl-price is-big"><strong>{priceText(clinician.price)}</strong><span>30 minutes</span></p>
+          <p className="cl-price is-big"><strong>{priceText(urgentPrice(clinician))}</strong><span>30 minutes · includes £{URGENT_FEE} urgent fee</span></p>
         </div>
         <ul className="cl-match-facts">
           <li><ShieldCheck size={16} aria-hidden="true" />{experienceText(clinician)} · {registerText(clinician).replace(/^R/, "r")}</li>
@@ -89,7 +89,7 @@ function MatchCard({ consultation }: { consultation: Consultation }) {
         <div className="cl-chips">{clinicianGroups(clinician).map(place => <span key={place.group.id} className="cl-chip" style={hueStyle(place.section.hue)}>{place.group.title}</span>)}</div>
       </article>
       <div className="cl-match-actions">
-        <button type="button" className="cl-request" onClick={() => updateConsultation(consultation.id, item => confirmUrgent(item))}>Continue with {clinician.first} · hold {priceText(clinician.price)}</button>
+        <button type="button" className="cl-request" onClick={() => updateConsultation(consultation.id, item => confirmUrgent(item))}>Continue with {clinician.first} · hold {priceText(urgentPrice(clinician))}</button>
         {choices.length > 1 && <button type="button" className="cl-btn is-light" onClick={next}>Next available clinician<ArrowRight size={18} aria-hidden="true" /></button>}
       </div>
       <p className="cl-small">{choices.length > 1 ? `Not the right fit? Swipe the card, or tap Next, to see the next of ${choices.length} clinicians free in the next ${WINDOW_HOURS} hours. ` : ""}Your payment is held, not taken, until the consultation is finished.</p>

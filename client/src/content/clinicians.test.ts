@@ -7,7 +7,7 @@ import Clinicians from "@/pages/Clinicians";
 import { clinicianHref } from "@/components/clinicians/SpeakToClinician";
 import { findCondition } from "@/lib/library";
 import {
-  CLINICIANS, SEEN_BY, WEEKLY_SESSIONS, directoryFilters, findClinician, freeSoon, freeTimes, nextFree, nextWeeklySessions, sessionOpen, upcomingSessions,
+  CLINICIANS, PRICE_MAX, PRICE_MIN, SEEN_BY, WEEKLY_SESSIONS, directoryFilters, findClinician, freeSoon, freeTimes, nextFree, nextWeeklySessions, sessionOpen, upcomingSessions,
 } from "./clinicians";
 import { librarySections } from "./library";
 
@@ -30,7 +30,8 @@ describe("the clinicians", () => {
     for (const person of CLINICIANS) {
       expect(person.id).toMatch(/^[a-z-]+$/);
       expect(RESERVED).not.toContain(person.id);
-      expect(person.price).toBeGreaterThan(0);
+      expect(person.price).toBeGreaterThanOrEqual(PRICE_MIN);
+      expect(person.price).toBeLessThanOrEqual(PRICE_MAX);
       expect(person.years).toBeGreaterThan(0);
       expect(person.hours).toBeGreaterThan(0);
       expect(person.schedule.length).toBeGreaterThan(0);

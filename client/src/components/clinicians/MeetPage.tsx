@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { CheckCircle2 } from "lucide-react";
-import { findClinician, upcomingSessions, whenText } from "@/content/clinicians";
+import { findClinician, sessionPriceText, upcomingSessions, whenText } from "@/content/clinicians";
 import { useClinicians } from "@/lib/clinician-portal";
 import {
   findConsultation, finish, keepTranscript, questionLines, sessionRoom, updateConsultation, useConsultations, useCreatedSessions,
@@ -25,7 +25,7 @@ export default function MeetPage({ room }: { room: string }) {
       <div className="cl-page">
         <MeetingRoom key={room} room={room} transcripts={false}
           me={{ name: asClinician && host ? host.name : "Member", who: asClinician ? "clinician" : "patient" }}
-          title={session.title} subtitle={`Free group session with ${host?.name ?? "a clinician"} · ${session.minutes} minutes`}
+          title={session.title} subtitle={`Group session with ${host?.name ?? "a clinician"} · ${session.minutes} minutes · ${sessionPriceText(session)}`}
           onLeave={() => navigate(asClinician ? "/portal/sessions" : "/")} />
       </div>
     );

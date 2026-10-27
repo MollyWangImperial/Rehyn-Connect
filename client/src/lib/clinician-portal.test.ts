@@ -3,9 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Router } from "wouter";
 import { SettingsContext } from "@/components/settings-context";
-import { scheduleFromWeek, weekFromSchedule } from "@/components/clinicians/portal/Schedule";
+import { scheduleFromWeek, summariseWeek, weekFromSchedule } from "@/components/clinicians/portal/Schedule";
 import Join from "@/pages/Join";
-import { CLINICIANS, alertable, findClinician, freeTimes, works } from "@/content/clinicians";
+import { aboutFromTemplate } from "@/components/clinicians/portal/ProfileEditor";
+import { CLINICIANS, alertable, findClinician, freeTimes, sessionGroupIds, sessionPriceText, works } from "@/content/clinicians";
 import { combine, getOwnClinician, getRole, joinAsClinician, logOut, newOwnClinician, profileGaps, registerText } from "./clinician-portal";
 import { accept, busyTimes, expire, finish, hasExpired, pickSuggested, request, suggest } from "./consultations";
 
@@ -69,6 +70,37 @@ describe("hours, time off and urgent alerts", () => {
     expect(scheduleFromWeek({ ...week, 1: { on: true, from: 17, to: 9 } })).toEqual([{ days: [3, 5], from: 9, to: 17 }, { days: [6], from: 10, to: 12 }]);
   });
 
+  it("prices a group session as the host set it, free when no price was set, and lists it with one or more groups", () => {
+    expect(sessionPriceText({})).toBe("Free");
+    expect(sessionPriceText({ price: 0 })).toBe("Free");
+    expect(sessionPriceText({ price: 12 })).toBe("£12 a place");
+    expect(sessionGroupIds({ groupIds: ["stroke", "dementia"] })).toEqual(["stroke", "dementia"]);
+    // A session saved before it could be listed with several groups keeps its one group.
+    expect(sessionGroupIds({ groupId: "stroke" })).toEqual(["stroke"]);
+    expect(sessionGroupIds({})).toEqual([]);
+  });
+
+  it("writes the About text from the template, with the clinician's role, level and years and the words they chose", () => {
+    const picks = { who: "condition:Multiple sclerosis", family: "and the family who care for them", first: "we agree a plan you can keep to at home", leave: "a written plan" };
+    expect(aboutFromTemplate({ level: "Senior", role: "Neurological physiotherapist", years: 11 }, picks)).toBe(
+      "I'm a senior neurological physiotherapist with 11 years' experience. I mostly look after people living with multiple sclerosis and the family who care for them. In a first consultation, we agree a plan you can keep to at home, and you leave with a written plan.",
+    );
+    // The level isn't repeated when the role already says it; names and short forms keep their capitals.
+    expect(aboutFromTemplate({ level: "Consultant", role: "Consultant stroke physician", years: 1 }, { ...picks, who: "condition:Parkinson's disease", family: "" }))
+      .toMatch(/^I'm a consultant stroke physician with 1 year's experience\. I mostly look after people living with Parkinson's disease\./);
+    expect(aboutFromTemplate({ level: "Specialist", role: "Occupational therapist", years: 0 }, { ...picks, who: "condition:COPD" }))
+      .toMatch(/^I'm a specialist occupational therapist\. I mostly look after people living with COPD and/);
+  });
+
+  it("sums up the week in a few lines, neighbouring days with the same hours together", () => {
+    expect(summariseWeek(weekFromSchedule([{ days: [1, 2, 3, 4, 5], from: 9, to: 17 }]))).toEqual([
+      { days: "Mon – Fri", hours: "09:00 – 17:00" },
+      { days: "Sat, Sun", hours: "Not working" },
+    ]);
+    expect(summariseWeek(weekFromSchedule([]))).toEqual([{ days: "Mon – Sun", hours: "Not working" }]);
+    expect(summariseWeek(weekFromSchedule([{ days: [1, 3, 5], from: 9, to: 17 }, { days: [6], from: 10, to: 12 }])).map(row => row.days)).toEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+  });
+
   it("keeps time off out of their free times, and alerts only as they chose", () => {
     const tuesday = new Date(2026, 9, 27, 10);
     expect(works(ruth, tuesday)).toBe(true);
@@ -77,6 +109,9 @@ describe("hours, time off and urgent alerts", () => {
     expect(freeTimes(away, MONDAY).some(time => time.getDate() === 27)).toBe(false);
     expect(alertable(ruth, MONDAY)).toBe(true);
     expect(alertable({ ...ruth, urgentAlerts: "never" }, MONDAY)).toBe(false);
+    // "Always" reaches them even with no free time at all.
+    expect(alertable({ ...ruth, schedule: [], urgentAlerts: "always" }, MONDAY)).toBe(true);
+    expect(alertable({ ...ruth, schedule: [] }, MONDAY)).toBe(false);
     // Ruth works mornings: at 11pm she isn't free again today, so "today only" doesn't reach her.
     expect(alertable({ ...ruth, urgentAlerts: "today" }, new Date(2026, 9, 26, 23))).toBe(false);
     expect(alertable({ ...ruth, urgentAlerts: "today" }, new Date(2026, 9, 26, 6))).toBe(true);
