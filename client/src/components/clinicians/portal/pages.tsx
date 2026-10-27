@@ -91,7 +91,7 @@ export function PortalToday({ me, now }: { me: Clinician; now: number }) {
 
   return (
     <div className="pt-page">
-      <Head kicker={new Date(now).toLocaleString("en-GB", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })} title={`${greeting}, ${me.first}`}>
+      <Head kicker={`Your day with patients · ${new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}`} title={`${greeting}, ${me.first}`}>
         {next && <Link href={`~/clinicians/meet/${next.room}?as=clinician`} className="cl-btn pt-join"><Video size={18} aria-hidden="true" />Join {whenText(new Date(next.at!), new Date(now))}</Link>}
       </Head>
       <p className="cl-lead">{upcoming.length ? `${upcoming.length} consultation${upcoming.length === 1 ? "" : "s"} coming up.` : "No consultations booked yet."} {requests.length ? `${requests.length} request${requests.length === 1 ? " is" : "s are"} waiting for a time.` : ""}</p>
