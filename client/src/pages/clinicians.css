@@ -244,6 +244,9 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
 .cl-price span { margin-top: 3px; color: #596a62; font-size: 11px; }
 .cl-price.is-big strong { font-size: 34px; color: color-mix(in srgb, var(--cl-ink, #285b49) 78%, #000); }
 .cl-card-actions .cl-save { width: 48px; height: 48px; }
+/* Each button's words stay on one line; on a card too narrow for both, the second moves to its own row. */
+.cl-card-actions { flex-wrap: wrap; }
+.cl-card-actions > .cl-btn { flex: 1 1 auto; padding: 0 12px; font-size: 14px; white-space: nowrap; }
 .cl-hero-side { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; margin-left: auto; }
 
 /* --------------------------------------------------------------------------------------- book a consultation */

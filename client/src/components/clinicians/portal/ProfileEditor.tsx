@@ -27,28 +27,8 @@ type Picks = { conditions: string[]; who: string[]; focus: string[] };
 /** "a", "a and b", "a, b and c". */
 const listText = (items: string[]) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`);
 
-/** "How you can help" lines to start from: the words before and after, and the choices for the box in between. */
-const HELP_LINES: { before: string; choices: string[]; after?: string }[] = [
-  { before: "Making sense of", choices: ["your test results", "a new diagnosis", "your scan or hospital letter", "your medicines"] },
-  { before: "A plan for", choices: ["getting active again", "eating well", "sleeping better", "going back to work"], after: "you can keep to at home" },
-  { before: "Help with", choices: ["tiredness", "pain", "low mood and worry", "memory and concentration"] },
-  { before: "Support for", choices: ["family and carers", "getting back to driving", "life after hospital", "living alone"] },
-];
-
 /** Languages to choose from: English, Welsh and BSL, then those most spoken in the UK. */
 const LANGUAGES = ["English", "Welsh", "British Sign Language", "Polish", "Romanian", "Punjabi", "Urdu", "Bengali", "Gujarati", "Hindi", "Tamil", "Arabic", "Portuguese", "Spanish", "Italian", "French", "Turkish", "Somali", "Cantonese", "Mandarin"];
-
-/** One fill-in "How you can help" line: the box for the clinician's words, and Add. */
-function HelpLine({ line, onAdd }: { line: (typeof HELP_LINES)[number]; onAdd: (text: string) => void }) {
-  const [choice, setChoice] = useState(line.choices[0]);
-  const text = `${line.before} ${choice}${line.after ? ` ${line.after}` : ""}`;
-  return (
-    <li>
-      <span>{line.before} <select aria-label={`${line.before}…`} value={choice} onChange={event => setChoice(event.target.value)}>{line.choices.map(item => <option key={item}>{item}</option>)}</select>{line.after ? ` ${line.after}` : ""}</span>
-      <button type="button" className="cl-btn is-light" onClick={() => onAdd(text)} aria-label={`Add “${text}”`}>Add</button>
-    </li>
-  );
-}
 
 const titleOf = (person: Pick<Clinician, "level" | "role">) => {
   const role = person.role.trim() || "clinician";
@@ -108,7 +88,6 @@ function AboutTemplate({ draft, onUse }: { draft: Clinician; onUse: (text: strin
 
 export default function PortalProfile({ me }: { me: Clinician }) {
   const [draft, setDraft] = useState<Clinician>(me);
-  const [helpText, setHelpText] = useState(me.help.join("\n"));
   const [languages, setLanguages] = useState<string[]>(me.languages);
   const [otherLanguage, setOtherLanguage] = useState("");
   const languageMenu = useRef<HTMLDetailsElement>(null);
@@ -125,11 +104,6 @@ export default function PortalProfile({ me }: { me: Clinician }) {
     if (language && !languages.some(item => item.toLowerCase() === language.toLowerCase())) { setLanguages(current => [...current, language]); setSaved(false); }
     setOtherLanguage("");
   };
-  const addHelp = (text: string) => {
-    const lines = helpText.split("\n").map(line => line.trim()).filter(Boolean);
-    if (!lines.some(line => line.toLowerCase() === text.toLowerCase())) setHelpText([...lines, text].join("\n"));
-    setSaved(false);
-  };
   const [sectionId, setSectionId] = useState(groupPlace(me.conditions[0]?.[0] ?? "")?.section.id ?? librarySections[0].id);
   const section = librarySections.find(item => item.id === sectionId) ?? librarySections[0];
   const [groupId, setGroupId] = useState(section.groups[0]?.id ?? "");
@@ -138,7 +112,6 @@ export default function PortalProfile({ me }: { me: Clinician }) {
   const set = (patch: Partial<Clinician>) => { setDraft(current => ({ ...current, ...patch })); setSaved(false); };
   const preview: Clinician = {
     ...draft,
-    help: helpText.split("\n").map(line => line.trim()).filter(Boolean),
     languages: languageChoices.filter(item => languages.includes(item)),
     initials: draft.name.replace(/^Dr\.? /i, "").split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join("") || draft.initials,
   };
@@ -149,7 +122,7 @@ export default function PortalProfile({ me }: { me: Clinician }) {
     const name = preview.name.trim() || me.name;
     updateClinician(me.id, {
       name, first: name.replace(/^Dr\.? /i, "").split(/\s+/)[0] || me.first, initials: preview.initials, role: preview.role.trim() || me.role,
-      level: preview.level, years: preview.years, about: preview.about.trim(), help: preview.help, languages: preview.languages.length ? preview.languages : me.languages,
+      level: preview.level, years: preview.years, about: preview.about.trim(), languages: preview.languages.length ? preview.languages : me.languages,
       conditions: preview.conditions, price: Math.min(PRICE_MAX, Math.max(PRICE_MIN, Math.round(preview.price || 0))),
     });
     setSaved(true);
@@ -188,12 +161,6 @@ export default function PortalProfile({ me }: { me: Clinician }) {
             <AboutTemplate draft={draft} onUse={about => set({ about })} />
             <label className="cl-field"><span className="cl-label">About you, in plain words</span>
               <textarea className="pt-textarea" rows={4} value={draft.about} maxLength={600} placeholder="Who you look after, and what a first consultation with you is like. Start from the template above, or write your own." onChange={event => set({ about: event.target.value })} /></label>
-            <div className="pt-template" role="group" aria-labelledby="pf-help-template">
-              <p className="cl-label" id="pf-help-template">How you can help · choose the words, then Add</p>
-              <ul className="pt-help-lines">{HELP_LINES.map(line => <HelpLine key={line.before} line={line} onAdd={addHelp} />)}</ul>
-            </div>
-            <label className="cl-field"><span className="cl-label">How you can help · one per line</span>
-              <textarea className="pt-textarea" rows={4} value={helpText} placeholder={"Add lines from above, or write your own, one per line."} onChange={event => { setHelpText(event.target.value); setSaved(false); }} /></label>
             <div className="cl-field">
               <span className="cl-label" id="pf-languages">Languages you can consult in</span>
               <details className="pt-multi" ref={languageMenu} onKeyDown={event => { if (event.key === "Escape" && languageMenu.current?.open) { languageMenu.current.open = false; languageMenu.current.querySelector("summary")?.focus(); } }}>

@@ -132,6 +132,5 @@ export function profileGaps(clinician: Clinician) {
   return [
     !clinician.about.trim() && "a few words about you",
     clinician.conditions.length === 0 && "the conditions you work with",
-    clinician.help.length === 0 && "how you can help",
   ].filter((item): item is string => Boolean(item));
 }

@@ -90,7 +90,8 @@ describe("the Clinicians tab", () => {
     }
     for (const area of ["All areas", "Brain &amp; nervous system", "Kidneys, liver &amp; digestion"]) expect(html).toContain(area);
     expect(text).toContain("Weekly group sessions");
-    expect(text).toContain("Book a consultation");
+    // Each card's short "Book" button still says in full what it does, for screen readers.
+    expect(html).toContain(`aria-label="Book a consultation with ${CLINICIANS[0].name}"`);
     expect(text).not.toMatch(/in person/i);
     expect(text).toContain("If something feels urgent, call 999");
     expect(text).toContain("examples while the directory is being set up");

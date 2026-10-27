@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useLocation } from "wouter";
-import { ChevronRight, Eye, FileText, HeartPulse, LogOut, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Eye, FileText, HeartPulse, LogOut, Settings, ShieldCheck, SlidersHorizontal, Stethoscope, UserRound, X } from "lucide-react";
 import { logOut, useRole } from "@/lib/clinician-portal";
 import PictureDialog from "./community/PictureDialog";
 import CommunitySettingsView from "./community/SettingsView";
@@ -96,6 +96,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   // "Choose your picture", opened from Your profile: the button that opened it, for the focus to return to.
   const [pictureFrom, setPictureFrom] = useState<HTMLElement | null>(null);
   const profile = useProfile();
+  const [, navigate] = useLocation();
   const title = sections.find(section => section.id === view)!.label;
 
   const openSettings: OpenSettings = (source, nextView = "display", nextFocus) => {
@@ -136,6 +137,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                     <Icon size={19} aria-hidden="true" /><span>{label}</span><ChevronRight size={15} aria-hidden="true" />
                   </button>
                 ))}
+                {/* For the Rehyn team: straight to the clinician portal, where any example clinician can be tried. */}
+                <button type="button" className="account-settings-portal" onClick={() => { setOpen(false); navigate("/clinicians/portal"); }}>
+                  <Stethoscope size={19} aria-hidden="true" /><span>Go to clinician portal</span><ArrowRight size={15} aria-hidden="true" />
+                </button>
               </nav>
               <section key={view} ref={panel} id="account-settings-panel" className={`account-settings-panel ${view === "profile" ? "cm-layer is-profile" : ""}`} aria-labelledby="account-settings-panel-title" tabIndex={0} onClick={onPanelClick}>
                 <h2 id="account-settings-panel-title">{title}</h2>

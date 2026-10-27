@@ -90,7 +90,7 @@ function Directory() {
         <div>
           <p className="cl-kicker"><span aria-hidden="true" />Care that fits you</p>
           <h1 className="cl-h1" data-page-heading>Clinicians<span aria-hidden="true">.</span></h1>
-          <p className="cl-lead">People who work with the conditions in our Library, by video here on Rehyn.</p>
+          <p className="cl-lead">Talk to a clinician who knows your condition, by video from home, often within 48 hours.</p>
         </div>
         <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
       </div>
@@ -329,12 +329,14 @@ function Profile({ clinician }: { clinician: Clinician }) {
               </div>
               <p className="cl-small">Tap a condition to read about it in the Library.</p>
             </section>
-            <section className="cl-panel">
-              <h2 className="cl-h2">How I can help</h2>
-              <ul className="cl-help">
-                {clinician.help.map(line => <li key={line}><Check size={18} aria-hidden="true" />{line}</li>)}
-              </ul>
-            </section>
+            {clinician.help.length > 0 && (
+              <section className="cl-panel">
+                <h2 className="cl-h2">How I can help</h2>
+                <ul className="cl-help">
+                  {clinician.help.map(line => <li key={line}><Check size={18} aria-hidden="true" />{line}</li>)}
+                </ul>
+              </section>
+            )}
           </div>
 
           <section className="cl-panel is-soft">

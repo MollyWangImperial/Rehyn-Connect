@@ -62,11 +62,11 @@ export default function ClinicianCard({ clinician, now, preview = false }: { cli
         <li><CalendarDays size={16} aria-hidden="true" />Next free <strong>{first ? whenText(first, now) : "in a few weeks"}</strong></li>
       </ul>
       {preview ? (
-        <div className="cl-card-actions" aria-hidden="true"><span className="cl-btn">View profile</span><span className="cl-btn is-light">Book a consultation</span></div>
+        <div className="cl-card-actions" aria-hidden="true"><span className="cl-btn">View profile</span><span className="cl-btn is-light">Book</span></div>
       ) : (
         <div className="cl-card-actions">
           <Link href={`/${clinician.id}`} className="cl-btn">View profile</Link>
-          <Link href={`/${clinician.id}#book`} className="cl-btn is-light">Book a consultation</Link>
+          <Link href={`/${clinician.id}#book`} className="cl-btn is-light" aria-label={`Book a consultation with ${clinician.name}`}>Book</Link>
           <SaveButton clinician={clinician} />
         </div>
       )}

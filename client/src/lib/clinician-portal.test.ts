@@ -31,7 +31,7 @@ describe("a clinician's own profile", () => {
     expect(own.id).toMatch(/^me-[a-z]{8}$/);
     expect(registerText(own)).toBe("GMC registration check pending");
     expect(registerText(CLINICIANS[0])).toBe("Registered with the GMC");
-    expect(profileGaps(own)).toEqual(["a few words about you", "the conditions you work with", "how you can help"]);
+    expect(profileGaps(own)).toEqual(["a few words about you", "the conditions you work with"]);
     // No made-up bookings for a clinician of your own: every weekday hour is free.
     expect(freeTimes(own, MONDAY).filter(time => time.getDay() === 1).map(time => time.getHours())).toEqual([11, 12, 13, 14, 15, 16]);
   });

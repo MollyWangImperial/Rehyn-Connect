@@ -46,7 +46,10 @@ export default function RecoveryShell({ active, children, dateLabel = "THURSDAY,
   const drawer = panel && narrow && panelOpen;
   // The Messages window stays out of the way on Messages itself and while a group is being started.
   const search = useSearch();
-  const space = usePathname() === "/community" ? communityViewFromQuery(search).space : "feed";
+  const pathname = usePathname();
+  const space = pathname === "/community" ? communityViewFromQuery(search).space : "feed";
+  // The clinician portal is a workspace of its own: no community tabs and no Messages window there.
+  const portal = pathname === "/clinicians/portal" || pathname.startsWith("/clinicians/portal/");
   // Alerts: opened from the profile panel's row, closed by its Close button, Escape or a new address.
   const alerts = useAlertsPanel();
   useEffect(() => { alertsPanel.close(); }, [search]);
@@ -83,7 +86,7 @@ export default function RecoveryShell({ active, children, dateLabel = "THURSDAY,
             <span className="site-brand-name">Rehyn<em>: Connect</em></span>
           </button>
         </div>
-        <SiteTabs here={loungeHere} />
+        {!portal && <SiteTabs here={loungeHere} />}
         <div className="site-top-tools">
           <button type="button" className="site-settings" aria-label="Settings" aria-haspopup="dialog" title="Settings" onClick={event => openSettings(event.currentTarget)}><Settings size={20} /><span>Settings</span></button>
         </div>
@@ -100,7 +103,7 @@ export default function RecoveryShell({ active, children, dateLabel = "THURSDAY,
       </div>
 
       {/* The Messages window and the Alerts panel, on every page, over everything else. */}
-      <div className="cm-layer site-dock"><MessagesDock space={space} /></div>
+      {!portal && <div className="cm-layer site-dock"><MessagesDock space={space} /></div>}
       {/* In a layer of its own, so it sits above the slide-in panel it opened from. */}
       {alerts.open && <div className="cm-layer"><AlertsPanel onClose={alertsPanel.close} anchor={alerts.anchor} over={placeOf(communityViewFromQuery(search))} fallbackFocus={headingNow} /></div>}
     </div>

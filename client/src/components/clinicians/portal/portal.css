@@ -195,9 +195,6 @@
 .pt-template select { max-width: 100%; min-height: 34px; padding: 0 6px; border: 1px solid #8cc3a8; border-radius: 8px; background: #fff; color: #173d2f; font: 600 14px "DM Sans", sans-serif; }
 .pt-template select:focus-visible { outline: 3px solid #d8eee6; }
 .pt-template .cl-btn { padding: 0 16px; }
-.pt-help-lines { display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 0; padding: 0; list-style: none; }
-.pt-help-lines li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; color: #24362f; font-size: 15px; }
-.pt-help-lines .cl-btn { flex: none; min-height: 34px; }
 .pt-multi { position: relative; }
 .pt-multi summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 12px 0 14px; border: 1px solid #dfe4da; border-radius: 12px; background: #fff; color: #24362f; font: 400 15px "DM Sans", sans-serif; list-style: none; cursor: pointer; }
 .pt-multi summary::-webkit-details-marker { display: none; }
