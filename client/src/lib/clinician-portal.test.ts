@@ -81,15 +81,16 @@ describe("hours, time off and urgent alerts", () => {
   });
 
   it("writes the About text from the template, with the clinician's role, level and years and the words they chose", () => {
-    const picks = { who: "condition:Multiple sclerosis", family: "and the family who care for them", first: "we agree a plan you can keep to at home", leave: "a written plan" };
+    const picks = { conditions: ["Multiple sclerosis", "Ischaemic stroke"], who: ["adults", "carers"], focus: ["balance", "strength", "pain"] };
     expect(aboutFromTemplate({ level: "Senior", role: "Neurological physiotherapist", years: 11 }, picks)).toBe(
-      "I'm a senior neurological physiotherapist with 11 years' experience. I mostly look after people living with multiple sclerosis and the family who care for them. In a first consultation, we agree a plan you can keep to at home, and you leave with a written plan.",
+      "I'm a senior neurological physiotherapist with 11 years' experience, specialising in multiple sclerosis and ischaemic stroke. I help adults and carers with balance, strength and pain.",
     );
     // The level isn't repeated when the role already says it; names and short forms keep their capitals.
-    expect(aboutFromTemplate({ level: "Consultant", role: "Consultant stroke physician", years: 1 }, { ...picks, who: "condition:Parkinson's disease", family: "" }))
-      .toMatch(/^I'm a consultant stroke physician with 1 year's experience\. I mostly look after people living with Parkinson's disease\./);
-    expect(aboutFromTemplate({ level: "Specialist", role: "Occupational therapist", years: 0 }, { ...picks, who: "condition:COPD" }))
-      .toMatch(/^I'm a specialist occupational therapist\. I mostly look after people living with COPD and/);
+    expect(aboutFromTemplate({ level: "Consultant", role: "Consultant stroke physician", years: 1 }, { ...picks, conditions: ["Parkinson's disease", "COPD"] }))
+      .toMatch(/^I'm a consultant stroke physician with 1 year's experience, specialising in Parkinson's disease and COPD\./);
+    // Gaps left empty drop out, so the sentence still reads.
+    expect(aboutFromTemplate({ level: "Specialist", role: "Occupational therapist", years: 0 }, { conditions: [], who: [], focus: ["memory"] }))
+      .toBe("I'm a specialist occupational therapist. I help people with memory.");
   });
 
   it("sums up the week in a few lines, neighbouring days with the same hours together", () => {

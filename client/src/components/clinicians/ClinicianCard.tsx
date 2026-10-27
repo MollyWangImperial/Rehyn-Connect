@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { Link } from "wouter";
-import { Bookmark, CalendarDays, Check, ShieldCheck, Video } from "lucide-react";
-import { clinicianGroups, experienceText, hoursText, mainSection, nextFree, priceText, whenText, type Clinician } from "@/content/clinicians";
+import { Bookmark, CalendarDays, Check, ShieldCheck } from "lucide-react";
+import { clinicianGroups, experienceText, mainSection, nextFree, priceText, whenText, type Clinician } from "@/content/clinicians";
 import { hueStyle } from "./parts";
 
 // A clinician's card in the directory (and its live preview in the portal's profile editor), and the Save bookmark.
@@ -59,7 +59,6 @@ export default function ClinicianCard({ clinician, now, preview = false }: { cli
       )}
       <ul className="cl-facts">
         <li><Check size={16} aria-hidden="true" />{experienceText(clinician)}</li>
-        <li><Video size={16} aria-hidden="true" />{hoursText(clinician)} · video on Rehyn</li>
         <li><CalendarDays size={16} aria-hidden="true" />Next free <strong>{first ? whenText(first, now) : "in a few weeks"}</strong></li>
       </ul>
       {preview ? (

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ShieldCheck, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ShieldCheck, X } from "lucide-react";
 import { PRICE_MAX, PRICE_MIN, REGISTER, URGENT_FEE, groupPlace, urgentPrice, type Clinician } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
 import { profileGaps, registerText, updateClinician } from "@/lib/clinician-portal";
@@ -18,18 +18,14 @@ const inSentence = (text: string) => {
   return first.includes("'") || first.includes("’") || first.length < 2 || first[1] !== first[1].toLowerCase() ? text : text[0].toLowerCase() + text.slice(1);
 };
 
-// The parts of the About template the clinician picks; everything else comes from the fields above it.
-const WHO = ["people newly diagnosed", "people recovering at home", "people living with a long-term condition", "people of all ages"];
-const FAMILY = [["and the family who care for them", "and the family who care for them"], ["", "on their own"]] as const;
-const FIRST = [
-  "we go through your story and the questions you bring",
-  "we make sense of your test results together",
-  "we look at what has changed and what to try next",
-  "we agree a plan you can keep to at home",
-];
-const LEAVE = ["a clear next step", "a written plan", "answers in plain words", "a few things to try this week"];
+// The parts of the About template the clinician picks, one or more of each; the rest comes from the fields above it.
+const WHO = ["adults", "older people", "young people", "carers"];
+const FOCUS = ["movement", "balance", "strength", "pain", "tiredness", "mood", "memory", "speech", "diet", "medicines", "sleep", "returning to work"];
 
-type Picks = { who: string; family: string; first: string; leave: string };
+type Picks = { conditions: string[]; who: string[]; focus: string[] };
+
+/** "a", "a and b", "a, b and c". */
+const listText = (items: string[]) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`);
 
 /** "How you can help" lines to start from: the words before and after, and the choices for the box in between. */
 const HELP_LINES: { before: string; choices: string[]; after?: string }[] = [
@@ -54,47 +50,58 @@ function HelpLine({ line, onAdd }: { line: (typeof HELP_LINES)[number]; onAdd: (
   );
 }
 
-/** The About text from the template: "I'm a senior neurological physiotherapist with 11 years' experience. …" */
-export function aboutFromTemplate(person: Pick<Clinician, "level" | "role" | "years">, picks: Picks): string {
+const titleOf = (person: Pick<Clinician, "level" | "role">) => {
   const role = person.role.trim() || "clinician";
-  const title = role.toLowerCase().startsWith(person.level.toLowerCase()) ? inSentence(role) : `${person.level.toLowerCase()} ${inSentence(role)}`;
-  const years = person.years > 0 ? ` with ${person.years} year${person.years === 1 ? "'s" : "s'"} experience` : "";
-  const who = picks.who.startsWith("condition:") ? `people living with ${inSentence(picks.who.slice(10))}` : picks.who;
-  return [
-    `I'm ${/^[aeiou]/i.test(title) ? "an" : "a"} ${title}${years}.`,
-    `I mostly look after ${who}${picks.family ? ` ${picks.family}` : ""}.`,
-    `In a first consultation, ${picks.first}, and you leave with ${picks.leave}.`,
-  ].join(" ");
+  return role.toLowerCase().startsWith(person.level.toLowerCase()) ? inSentence(role) : `${person.level.toLowerCase()} ${inSentence(role)}`;
+};
+const yearsOf = (years: number) => (years > 0 ? `${years} year${years === 1 ? "'s" : "s'"}` : "");
+
+/** The About text from the template: "I'm a senior physiotherapist with 11 years' experience, specialising in
+ *  stroke and MS. I help adults and carers with balance and pain." */
+export function aboutFromTemplate(person: Pick<Clinician, "level" | "role" | "years">, picks: Picks): string {
+  const title = titleOf(person);
+  const years = yearsOf(person.years);
+  const specialising = picks.conditions.length ? `, specialising in ${listText(picks.conditions.map(inSentence))}` : "";
+  const help = `I help ${picks.who.length ? listText(picks.who) : "people"}${picks.focus.length ? ` with ${listText(picks.focus)}` : ""}.`;
+  return `I'm ${/^[aeiou]/i.test(title) ? "an" : "a"} ${title}${years ? ` with ${years} experience` : ""}${specialising}. ${help}`;
 }
 
-/** A fill-in About text: the sentence with option boxes for the parts only the clinician can answer. */
+/** One gap in the template: the words chosen so far, and the choices, any number of them. */
+function Gap({ label, choices, chosen, onToggle, empty }: { label: string; choices: string[]; chosen: string[]; onToggle: (item: string) => void; empty?: string }) {
+  return (
+    <div className="pt-gap" role="group" aria-label={label}>
+      <span className="pt-gap-label">{label}</span>
+      {choices.length ? <div className="pt-gap-choices">{choices.map(item => <button key={item} type="button" aria-pressed={chosen.includes(item)} onClick={() => onToggle(item)}>{item}</button>)}</div> : <span className="cl-small">{empty}</span>}
+    </div>
+  );
+}
+
+/** A short fill-in About text: one sentence, with the gaps that set a clinician apart chosen from short options. */
 function AboutTemplate({ draft, onUse }: { draft: Clinician; onUse: (text: string) => void }) {
   const conditions = draft.conditions.map(([g, c]) => groupPlace(g)?.group.conditions.find(item => item.id === c)?.title).filter((title): title is string => !!title);
-  const [picks, setPicks] = useState<Picks>({ who: conditions[0] ? `condition:${conditions[0]}` : WHO[0], family: FAMILY[0][0], first: FIRST[0], leave: LEAVE[0] });
-  const pick = (key: keyof Picks) => (event: { target: { value: string } }) => setPicks(current => ({ ...current, [key]: event.target.value }));
-  const role = draft.role.trim() || "clinician";
-  const title = role.toLowerCase().startsWith(draft.level.toLowerCase()) ? inSentence(role) : `${draft.level.toLowerCase()} ${inSentence(role)}`;
+  const [picks, setPicks] = useState<Picks>({ conditions: conditions.slice(0, 2), who: [WHO[0]], focus: [] });
+  // Keep the order of the choices, whatever order they were tapped in.
+  const toggle = (key: keyof Picks, order: string[]) => (item: string) => setPicks(current => {
+    const next = current[key].includes(item) ? current[key].filter(entry => entry !== item) : [...current[key], item];
+    return { ...current, [key]: order.filter(entry => next.includes(entry)) };
+  });
+  const picked = { ...picks, conditions: picks.conditions.filter(item => conditions.includes(item)) };
+  const blank = <span className="pt-template-blank">…</span>;
+  const title = titleOf(draft);
+  const years = yearsOf(draft.years);
   return (
     <div className="pt-template" role="group" aria-labelledby="pf-template">
-      <p className="cl-label" id="pf-template">Start from a template · choose the words in the boxes</p>
+      <p className="cl-label" id="pf-template">Start from a template · tap one or more in each gap</p>
       <p className="pt-template-text">
         I'm {/^[aeiou]/i.test(title) ? "an" : "a"} <span className="pt-template-filled">{title}</span>
-        {draft.years > 0 && <> with <span className="pt-template-filled">{draft.years} year{draft.years === 1 ? "'s" : "s'"}</span> experience</>}.
-        {" "}I mostly look after{" "}
-        <select aria-label="Who you mostly look after" value={picks.who} onChange={pick("who")}>
-          {conditions.map(item => <option key={item} value={`condition:${item}`}>people living with {inSentence(item)}</option>)}
-          {WHO.map(item => <option key={item} value={item}>{item}</option>)}
-        </select>{" "}
-        <select aria-label="Whether their family comes too" value={picks.family} onChange={pick("family")}>
-          {FAMILY.map(([value, label]) => <option key={label} value={value}>{label}</option>)}
-        </select>.
-        {" "}In a first consultation,{" "}
-        <select aria-label="What happens in a first consultation" value={picks.first} onChange={pick("first")}>{FIRST.map(item => <option key={item}>{item}</option>)}</select>,
-        {" "}and you leave with{" "}
-        <select aria-label="What patients leave with" value={picks.leave} onChange={pick("leave")}>{LEAVE.map(item => <option key={item}>{item}</option>)}</select>.
+        {years && <> with <span className="pt-template-filled">{years}</span> experience</>}
+        {conditions.length > 0 && <>, specialising in {picked.conditions.length ? <span className="pt-template-filled">{listText(picked.conditions.map(inSentence))}</span> : blank}</>}.
+        {" "}I help {picked.who.length ? <span className="pt-template-filled">{listText(picked.who)}</span> : blank} with {picked.focus.length ? <span className="pt-template-filled">{listText(picked.focus)}</span> : blank}.
       </p>
-      <p className="cl-small">Your role, level and years come from the fields above.{conditions.length ? "" : " Add the conditions you work with below to choose them here too."}</p>
-      <button type="button" className="cl-btn is-light" onClick={() => onUse(aboutFromTemplate(draft, picks))}>{draft.about.trim() ? "Replace my text with this" : "Use this text"}</button>
+      <Gap label="Specialising in" choices={conditions} chosen={picked.conditions} onToggle={toggle("conditions", conditions)} empty="Add the conditions you work with below, then choose them here." />
+      <Gap label="I help" choices={WHO} chosen={picked.who} onToggle={toggle("who", WHO)} />
+      <Gap label="With" choices={FOCUS} chosen={picked.focus} onToggle={toggle("focus", FOCUS)} />
+      <button type="button" className="cl-btn is-light" disabled={!picked.focus.length} onClick={() => onUse(aboutFromTemplate(draft, picked))}>{draft.about.trim() ? "Replace my text with this" : "Use this text"}</button>
     </div>
   );
 }
@@ -104,6 +111,13 @@ export default function PortalProfile({ me }: { me: Clinician }) {
   const [helpText, setHelpText] = useState(me.help.join("\n"));
   const [languages, setLanguages] = useState<string[]>(me.languages);
   const [otherLanguage, setOtherLanguage] = useState("");
+  const languageMenu = useRef<HTMLDetailsElement>(null);
+  // The languages menu closes when you click or tap anywhere outside it.
+  useEffect(() => {
+    const close = (event: PointerEvent) => { const menu = languageMenu.current; if (menu?.open && !menu.contains(event.target as Node)) menu.open = false; };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, []);
   const languageChoices = [...LANGUAGES, ...languages.filter(item => !LANGUAGES.includes(item))];
   const toggleLanguage = (language: string) => { setLanguages(current => (current.includes(language) ? current.filter(item => item !== language) : [...current, language])); setSaved(false); };
   const addOtherLanguage = () => {
@@ -180,13 +194,22 @@ export default function PortalProfile({ me }: { me: Clinician }) {
             </div>
             <label className="cl-field"><span className="cl-label">How you can help · one per line</span>
               <textarea className="pt-textarea" rows={4} value={helpText} placeholder={"Add lines from above, or write your own, one per line."} onChange={event => { setHelpText(event.target.value); setSaved(false); }} /></label>
-            <div className="cl-field" role="group" aria-labelledby="pf-languages">
-              <span className="cl-label" id="pf-languages">Languages you can consult in · choose all that apply</span>
-              <div className="pt-pick">{languageChoices.map(language => <button key={language} type="button" aria-pressed={languages.includes(language)} onClick={() => toggleLanguage(language)}>{language}</button>)}</div>
-              <span className="pt-other-language">
-                <input className="cl-text" value={otherLanguage} maxLength={40} placeholder="Another language" aria-label="Another language" onChange={event => setOtherLanguage(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); addOtherLanguage(); } }} />
-                <button type="button" className="cl-btn is-light" disabled={!otherLanguage.trim()} onClick={addOtherLanguage}>Add</button>
-              </span>
+            <div className="cl-field">
+              <span className="cl-label" id="pf-languages">Languages you can consult in</span>
+              <details className="pt-multi" ref={languageMenu} onKeyDown={event => { if (event.key === "Escape" && languageMenu.current?.open) { languageMenu.current.open = false; languageMenu.current.querySelector("summary")?.focus(); } }}>
+                <summary aria-labelledby="pf-languages pf-languages-chosen"><span id="pf-languages-chosen">{preview.languages.length ? preview.languages.join(", ") : "Choose languages"}</span><ChevronDown size={18} aria-hidden="true" /></summary>
+                <div className="pt-multi-menu">
+                  <div className="pt-multi-list" role="group" aria-labelledby="pf-languages">
+                    {languageChoices.map(language => (
+                      <label key={language} className="cl-check"><input type="checkbox" checked={languages.includes(language)} onChange={() => toggleLanguage(language)} />{language}</label>
+                    ))}
+                  </div>
+                  <span className="pt-other-language">
+                    <input className="cl-text" value={otherLanguage} maxLength={40} placeholder="Another language" aria-label="Another language" onChange={event => setOtherLanguage(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); addOtherLanguage(); } }} />
+                    <button type="button" className="cl-btn is-light" disabled={!otherLanguage.trim()} onClick={addOtherLanguage}>Add</button>
+                  </span>
+                </div>
+              </details>
             </div>
           </section>
 

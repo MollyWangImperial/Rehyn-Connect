@@ -113,8 +113,6 @@
 .pt-stat { display: flex; flex-direction: column; gap: 4px; padding: 20px; border: 1px solid #e6ebe1; border-radius: 20px; background: #fffefa; color: #596a62; font-size: 13px; }
 .pt-stat span:first-child { font: 800 10px "Manrope", sans-serif; letter-spacing: 1.4px; text-transform: uppercase; }
 .pt-stat strong { color: #1f3029; font: 600 38px/1.05 "Newsreader", Georgia, serif; }
-.pt-stat.is-dark { border: 0; background: #183d34; color: #c4dccf; }
-.pt-stat.is-dark strong { color: #fffefa; font-size: 28px; }
 .pt-flow { display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 22px; background: #edf0e9; }
 .pt-flow ol { display: flex; flex-wrap: wrap; gap: 10px; }
 .pt-flow li { display: flex; flex: 1 1 200px; flex-direction: column; gap: 4px; padding: 14px; border-radius: 16px; background: #fff; color: #42544b; font-size: 14px; line-height: 1.45; }
@@ -187,12 +185,32 @@
 .pt-template { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; border: 1px dashed #c9d6cb; border-radius: 16px; background: #f7f8f3; }
 .pt-template-text { margin: 0; color: #24362f; font-size: 15px; line-height: 2.3; }
 .pt-template-filled { padding: 2px 8px; border-radius: 8px; background: #e2ece4; color: #173d2f; font-weight: 600; }
+.pt-template-blank { display: inline-block; min-width: 44px; border-bottom: 2px dashed #8cc3a8; color: #7a8a82; text-align: center; }
+.pt-gap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; width: 100%; }
+.pt-gap-label { flex: none; width: 112px; color: #596a62; font: 800 11px "Manrope", sans-serif; letter-spacing: .6px; text-transform: uppercase; }
+.pt-gap-choices { display: flex; flex: 1 1 260px; flex-wrap: wrap; gap: 6px; }
+.pt-gap-choices button { min-height: 32px; padding: 0 12px; border: 1px solid #dfe4da; border-radius: 999px; background: #fff; color: #24362f; font: 600 13px "DM Sans", sans-serif; cursor: pointer; }
+.pt-gap-choices button[aria-pressed="true"] { border-color: #2f6851; background: #2f6851; color: #fffefa; }
+.pt-gap-choices button:focus-visible { outline: 3px solid #d8eee6; outline-offset: 1px; }
 .pt-template select { max-width: 100%; min-height: 34px; padding: 0 6px; border: 1px solid #8cc3a8; border-radius: 8px; background: #fff; color: #173d2f; font: 600 14px "DM Sans", sans-serif; }
 .pt-template select:focus-visible { outline: 3px solid #d8eee6; }
 .pt-template .cl-btn { padding: 0 16px; }
 .pt-help-lines { display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 0; padding: 0; list-style: none; }
 .pt-help-lines li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; color: #24362f; font-size: 15px; }
 .pt-help-lines .cl-btn { flex: none; min-height: 34px; }
+.pt-multi { position: relative; }
+.pt-multi summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 12px 0 14px; border: 1px solid #dfe4da; border-radius: 12px; background: #fff; color: #24362f; font: 400 15px "DM Sans", sans-serif; list-style: none; cursor: pointer; }
+.pt-multi summary::-webkit-details-marker { display: none; }
+.pt-multi summary > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-multi summary svg { flex: none; color: #596a62; transition: transform .15s; }
+.pt-multi[open] summary { border-color: #43a98d; box-shadow: 0 0 0 3px #d8eee6; }
+.pt-multi[open] summary svg { transform: rotate(180deg); }
+.pt-multi summary:focus-visible { outline: 3px solid #d8eee6; outline-offset: 2px; }
+.pt-multi-menu { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; padding: 10px; border: 1px solid #dfe4da; border-radius: 14px; background: #fffefa; box-shadow: 0 12px 28px #1f302926; }
+.pt-multi-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); max-height: 240px; overflow-y: auto; }
+.pt-multi-list .cl-check { min-height: 40px; padding: 0 8px; border-radius: 10px; }
+.pt-multi-list .cl-check:hover { background: #f4f3ee; }
+@media (prefers-reduced-motion: reduce) { .pt-multi summary svg { transition: none; } }
 .pt-other-language { display: flex; gap: 8px; margin-top: 8px; }
 .pt-other-language .cl-text { flex: 1; min-width: 0; }
 .pt-other-language .cl-btn { flex: none; padding: 0 16px; }

@@ -16,7 +16,6 @@ import { SessionCard, useMinute } from "../GroupSessions";
 // The clinician portal's pages (ClinicianPortal.tsx holds the side menu and the urgent alert): Today, Requests,
 // Consultations, Group sessions and Earnings. Schedule and Profile & pricing have their own files.
 
-const DAY_MS = 86_400_000;
 const sameDay = (a: number, b: number) => new Date(a).toDateString() === new Date(b).toDateString();
 const startOfWeek = (now: number) => { const date = new Date(now); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return date.getTime(); };
 const pounds = (amount: number) => `£${amount.toLocaleString("en-GB")}`;
@@ -402,7 +401,6 @@ export function PortalEarnings({ me }: { me: Clinician }) {
   const monthStart = new Date(new Date(now).getFullYear(), new Date(now).getMonth(), 1).getTime();
   const held = mine.filter(item => item.payment === "held");
   const paidMonth = mine.filter(item => item.payment === "paid" && (item.at ?? item.createdAt) >= monthStart);
-  const nextFriday = new Date(now + ((5 - new Date(now).getDay() + 7) % 7 || 7) * DAY_MS);
   const rows = mine.filter(item => show === "all" || item.payment === show).sort((a, b) => (b.at ?? b.createdAt) - (a.at ?? a.createdAt));
   return (
     <div className="pt-page">
@@ -410,14 +408,14 @@ export function PortalEarnings({ me }: { me: Clinician }) {
       <div className="pt-stats">
         <p className="pt-stat"><span>Held now</span><strong>{pounds(held.reduce((sum, item) => sum + item.price, 0))}</strong><span>{held.length} booked, paid when you finish each one</span></p>
         <p className="pt-stat"><span>Paid this month</span><strong>{pounds(paidMonth.reduce((sum, item) => sum + item.price, 0))}</strong><span>{paidMonth.length} consultation{paidMonth.length === 1 ? "" : "s"}, before Rehyn's fee</span></p>
-        <p className="pt-stat is-dark"><span>Next payout · {nextFriday.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</span><strong>Through Stripe</strong><span>Payouts open with real payments. In this preview nothing is charged or paid.</span></p>
       </div>
       <section className="pt-flow" aria-labelledby="pt-flow">
         <h2 className="cl-h2" id="pt-flow">How a payment moves</h2>
         <ol>
           <li><strong>1 · Patient books</strong>Their card is authorised and the amount held.</li>
           <li><strong>2 · You finish the call</strong>"Finish consultation" takes the held amount.</li>
-          <li><strong>3 · Paid out on Friday</strong>Everything finished by Thursday night goes out that Friday.</li>        </ol>
+          <li><strong>3 · Paid out on Friday</strong>Everything finished by Thursday night goes out that Friday.</li>
+        </ol>
       </section>
       <section className="pt-card" aria-labelledby="pt-money-list">
         <div className="pt-card-head">
