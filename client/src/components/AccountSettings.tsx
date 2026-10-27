@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronRight, Eye, FileText, HeartPulse, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import { useLocation } from "wouter";
+import { ChevronRight, Eye, FileText, HeartPulse, LogOut, Settings, ShieldCheck, SlidersHorizontal, UserRound, X } from "lucide-react";
+import { logOut, useRole } from "@/lib/clinician-portal";
 import PictureDialog from "./community/PictureDialog";
 import CommunitySettingsView from "./community/SettingsView";
 import type { SettingsSection } from "./community/settings-model";
@@ -30,7 +32,22 @@ const sections = [
   { id: "terms", label: "Terms of Use", icon: FileText },
   { id: "health", label: "Health information consent", icon: HeartPulse },
   { id: "data", label: "Data and permissions", icon: SlidersHorizontal },
+  { id: "logout", label: "Log out", icon: LogOut },
 ] as const;
+
+/** Log out of this device, then the Join page opens: join again as a patient (or carer) or as a clinician. */
+function LogOutPanel({ onDone }: { onDone: () => void }) {
+  const role = useRole();
+  const [, navigate] = useLocation();
+  const leave = () => { onDone(); logOut(); navigate("/"); };
+  return (
+    <div className="settings-logout">
+      <p>{role === "clinician" ? "You're signed in as a clinician." : "You're signed in as a patient or carer."} Logging out takes you back to the Join page, where you can join again as a patient or as a clinician.</p>
+      <p>Your posts, consultations and saved places stay on this device. A clinician profile made here is removed.</p>
+      <button type="button" className="settings-logout-button" onClick={leave}><LogOut size={18} aria-hidden="true" />Log out</button>
+    </div>
+  );
+}
 
 /** Display: larger text and stronger contrast, which used to be buttons in the top bar. */
 function DisplaySettings() {
@@ -133,6 +150,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                   <><AgreementLine document="terms" /><SettingsDocument intro={TERMS_INTRO} sections={TERMS_SECTIONS} focus={focus} /></>
                 ) : view === "health" ? (
                   <HealthConsentPanel onReadPrivacy={() => show("privacy", "4.")} />
+                ) : view === "logout" ? (
+                  <LogOutPanel onDone={() => setOpen(false)} />
                 ) : (
                   <DataPermissions onOpenDocument={(which, focus) => show(which, focus)} onOpenProfile={() => show("profile")} onClose={() => setOpen(false)} />
                 )}

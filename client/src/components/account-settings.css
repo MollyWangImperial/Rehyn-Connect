@@ -60,6 +60,11 @@
 @media (max-width:620px) { .settings-profile-fields { grid-template-columns:1fr; } }
 .settings-document-version { margin:0 0 12px; padding:8px 12px; border-radius:10px; background:#eff1eb; color:#596a62; font:650 12.5px "Manrope",sans-serif; }
 .settings-display { display:flex; flex-direction:column; gap:10px; }
+.settings-logout { display:flex; flex-direction:column; align-items:flex-start; gap:12px; color:#42544b; font-size:15px; line-height:1.55; }
+.settings-logout p { margin:0; }
+.settings-logout-button { display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:0 22px; border:0; border-radius:14px; background:#a96c54; color:#fffdf7; font:700 15px "Manrope", sans-serif; cursor:pointer; }
+.settings-logout-button:hover { background:#9a5f48; }
+.settings-logout-button:focus-visible { outline:3px solid #285b49; outline-offset:2px; }
 .settings-display-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:12px 16px; border:1px solid #e1e7da; border-radius:14px; background:#fff; }
 .settings-display-row > span { display:flex; flex-direction:column; gap:3px; }
 .settings-display-row b { color:#2e4938; font-size:15px; }

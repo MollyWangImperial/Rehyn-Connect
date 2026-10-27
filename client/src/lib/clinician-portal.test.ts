@@ -6,7 +6,7 @@ import { SettingsContext } from "@/components/settings-context";
 import { scheduleFromWeek, weekFromSchedule } from "@/components/clinicians/portal/Schedule";
 import Join from "@/pages/Join";
 import { CLINICIANS, alertable, findClinician, freeTimes, works } from "@/content/clinicians";
-import { combine, newOwnClinician, profileGaps, registerText } from "./clinician-portal";
+import { combine, getOwnClinician, getRole, joinAsClinician, logOut, newOwnClinician, profileGaps, registerText } from "./clinician-portal";
 import { accept, busyTimes, expire, finish, hasExpired, pickSuggested, request, suggest } from "./consultations";
 
 // Monday 26 October 2026, 9am.
@@ -42,6 +42,19 @@ describe("a clinician's own profile", () => {
     expect(list.find(person => person.id === own.id)!.price).toBe(70);
     // The examples themselves are untouched.
     expect(findClinician("amara-osei")!.price).toBe(85);
+  });
+});
+
+describe("logging out", () => {
+  it("forgets the role and a clinician's own profile, so someone can join again as either", () => {
+    const own = joinAsClinician({ name: "Sam Lee", role: "Physiotherapist", type: "physio", registration: "PH12345" });
+    expect(getRole()).toBe("clinician");
+    expect(findClinician(own.id)).toBeTruthy();
+    logOut();
+    expect(getRole()).toBeNull();
+    expect(getOwnClinician()).toBeNull();
+    expect(findClinician(own.id)).toBeUndefined();
+    expect(findClinician("amara-osei")).toBeTruthy();
   });
 });
 

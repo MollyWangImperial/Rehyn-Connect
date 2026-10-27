@@ -9,6 +9,8 @@
 
 import { useSyncExternalStore } from "react";
 import { CLINICIANS, REGISTER, setAllClinicians, type Clinician, type ClinicianType } from "@/content/clinicians";
+import { consentStore } from "./consent";
+import { setPortalClinician } from "./consultations";
 
 export type Role = "patient" | "clinician";
 
@@ -106,6 +108,19 @@ export function joinAsClinician(details: ClinicianSignUp) {
   writeJson(OWN_KEY, own);
   setRole("clinician");
   return own;
+}
+
+/**
+ * Log out of this device: forget the sign-up (the agreements, the role, a clinician's own profile and which clinician
+ * the portal was tried as), so the Join page opens again and someone can join as a patient or a clinician. What was
+ * written on this device (posts, consultations, saved places) stays here.
+ */
+export function logOut() {
+  own = null;
+  try { window.localStorage.removeItem(OWN_KEY); } catch { /* Gone from memory anyway. */ }
+  setPortalClinician(null);
+  setRole(null);
+  consentStore.clear();
 }
 
 /** "Registered with the GMC", or the check still to come. */
