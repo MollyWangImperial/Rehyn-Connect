@@ -95,16 +95,32 @@ describe("the Clinicians tab", () => {
     expect(text).not.toMatch(/in person/i);
     expect(text).toContain("If something feels urgent, call 999");
     expect(text).toContain("examples while the directory is being set up");
-    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/sessions", "/clinicians/urgent", "/clinicians/portal"]) expect(html).toContain(`href="${href}"`);
-    // The search band is the main thing: the sessions are a tab of their own, not cards on the page, and the urgent route is one button.
+    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/sessions", "/clinicians/urgent"]) expect(html).toContain(`href="${href}"`);
+    // No portal link beside the tabs.
+    expect(html).not.toContain('href="/clinicians/portal"');
+    // The search band is the main thing, and the urgent route is one button.
     expect(html).toContain('class="cl-band"');
     expect(html).toMatch(/<a (?=[^>]*class="cl-tab")(?=[^>]*aria-current="page")[^>]*href="\/clinicians\/"/);
-    expect(html).not.toContain('class="cl-session"');
     expect(text).toContain("Need someone urgently");
     expect(text).not.toContain("Need someone today");
   });
 
-  it("lists every upcoming group session on its own page, with how sessions work", () => {
+  /** The three parts' panels on the tab's page: [id, hidden]. */
+  const panels = (html: string) => [...html.matchAll(/<div id="cl-panel-(\w+)" class="cl-tab-panel"( hidden="")?/g)].map(match => [match[1], !!match[2]]);
+
+  it("shows the chosen tab's part beneath the tabs on the same page, the others there but hidden", () => {
+    expect(panels(draw("/clinicians").html)).toEqual([["find", false], ["consultations", true], ["sessions", true]]);
+    expect(panels(draw("/clinicians/consultations").html)).toEqual([["find", true], ["consultations", false], ["sessions", true]]);
+    expect(panels(draw("/clinicians/sessions").html)).toEqual([["find", true], ["consultations", true], ["sessions", false]]);
+    // The heading and tabs stay the same whichever part is showing.
+    for (const path of ["/clinicians", "/clinicians/consultations", "/clinicians/sessions"]) {
+      const { html } = draw(path);
+      expect(html.match(/<h1[^>]*>Clinicians/g)).toHaveLength(1);
+      expect((html.match(/class="cl-tab"/g) ?? []).length).toBe(3);
+    }
+  });
+
+  it("lists every upcoming group session under the Weekly group sessions tab, with how sessions work", () => {
     const { html, text } = draw("/clinicians/sessions");
     expect(text).toContain("Weekly group sessions");
     expect(text).toContain("How sessions work");

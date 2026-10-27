@@ -316,15 +316,16 @@ export const whenText = (date: Date, now = new Date()) => `${dayText(date, now)}
 
 // ------------------------------------------------------------------------------------------- group sessions
 
-/** A free weekly group session a clinician hosts to answer questions. */
+/** A free weekly group session a clinician hosts to answer questions. The title is the question people actually ask,
+ *  so it is clear at a glance who it is for; `about` says what you come away with. */
 export type WeeklySession = { id: string; clinicianId: string; title: string; about: string; day: number; hour: number; minute: number; minutes: number; spaces: number };
 
 export const WEEKLY_SESSIONS: WeeklySession[] = [
-  { id: "moving-after-stroke", clinicianId: "priya-raman", title: "Moving again after a stroke", about: "Walking, balance and exercises at home: bring your questions for a neuro physio.", day: 1, hour: 17, minute: 0, minutes: 45, spaces: 12 },
-  { id: "low-mood-after-illness", clinicianId: "kwame-mensah", title: "Low mood after an illness", about: "An open hour on worry, low mood and getting your confidence back.", day: 2, hour: 18, minute: 30, minutes: 60, spaces: 15 },
-  { id: "diabetes-questions", clinicianId: "meilin-chau", title: "Your diabetes questions", about: "Blood sugar, medicines and test results, answered in plain words.", day: 3, hour: 19, minute: 0, minutes: 45, spaces: 20 },
-  { id: "heart-recovery", clinicianId: "ruth-calloway", title: "After a heart attack", about: "Getting active again, symptoms to act on and living with angina.", day: 4, hour: 12, minute: 30, minutes: 45, spaces: 15 },
-  { id: "words-and-swallowing", clinicianId: "hannah-brooks", title: "Words, speech and swallowing", about: "For people with aphasia or swallowing changes, and the family who help.", day: 6, hour: 11, minute: 0, minutes: 45, spaces: 10 },
+  { id: "moving-after-stroke", clinicianId: "priya-raman", title: "How do I walk further without falling?", about: "A neuro physio shows balance exercises you can do at home after a stroke, then takes your questions on walking, stairs and falls.", day: 1, hour: 17, minute: 0, minutes: 45, spaces: 12 },
+  { id: "low-mood-after-illness", clinicianId: "kwame-mensah", title: "Why do I feel low now the worst is over?", about: "Many people feel flat or anxious weeks after an illness or treatment ends. A psychologist explains why, and the small steps that help.", day: 2, hour: 18, minute: 30, minutes: 60, spaces: 15 },
+  { id: "diabetes-questions", clinicianId: "meilin-chau", title: "What is my HbA1c really telling me?", about: "Bring your latest results. A diabetologist explains HbA1c, highs and lows, and what to ask at your next diabetes review.", day: 3, hour: 19, minute: 0, minutes: 45, spaces: 20 },
+  { id: "heart-recovery", clinicianId: "ruth-calloway", title: "How active can I be after a heart attack?", about: "A cardiac rehab nurse on building up activity step by step, which chest symptoms to act on, and getting back to everyday life.", day: 4, hour: 12, minute: 30, minutes: 45, spaces: 15 },
+  { id: "words-and-swallowing", clinicianId: "hannah-brooks", title: "When the words won't come: help with aphasia", about: "A speech and language therapist shares ways to make talking and swallowing easier after a stroke, for you and the family who help.", day: 6, hour: 11, minute: 0, minutes: 45, spaces: 10 },
 ];
 
 /** One sitting of a group session: a weekly one on a given day, or one a clinician set up in their portal (which may

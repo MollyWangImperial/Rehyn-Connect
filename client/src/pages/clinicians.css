@@ -191,8 +191,7 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
 .cl-tab:hover { color: #173d2f; }
 .cl-tab[aria-current="page"] { background: #fff; color: #173d2f; box-shadow: 0 2px 6px rgba(42, 63, 48, .12); }
 .cl-tab-count { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: #183d34; color: #fffefa; font: 800 11px "Manrope", sans-serif; }
-.cl-tabs-aside { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border-radius: 12px; color: #596a62; font: 700 13px "Manrope", sans-serif; text-decoration: none; }
-.cl-tabs-aside:hover { background: #eceee6; color: #173d2f; }
+.cl-tab-intro { max-width: 760px; margin: 0 0 20px !important; color: #596a62; font-size: 16px; line-height: 1.55; }
 
 .cl-band { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 24px; border-radius: 24px; background: #e9efe6; }
 .cl-band-row { display: flex; gap: 10px; }

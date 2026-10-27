@@ -1,14 +1,13 @@
 import { useEffect } from "react";
 import { Link } from "wouter";
 import { Video } from "lucide-react";
-import ClinicianTabs from "./ClinicianTabs";
 import { findClinician, mainSection, whenText } from "@/content/clinicians";
 import { useClinicians } from "@/lib/clinician-portal";
 import { cancel, expire, hasExpired, isOpen, pickSuggested, updateConsultation, useConsultations, type Consultation } from "@/lib/consultations";
 import { PreviewNote, Timeline, Transcript, hueStyle, paymentText } from "./parts";
 
-// The patient's consultations (/clinicians/consultations): what's waiting, the call when it's time, and afterwards the
-// transcript and the payment, all kept on this device.
+// The patient's consultations (the "My consultations" tab on /clinicians): what's waiting, the call when it's time, and
+// afterwards the transcript and the payment, all kept on this device.
 
 const STATUS: Record<Consultation["status"], string> = {
   requested: "Waiting for the clinician to choose a time",
@@ -60,6 +59,7 @@ function Item({ consultation }: { consultation: Consultation }) {
   );
 }
 
+/** The consultations, shown beneath the Clinicians tabs when "My consultations" is chosen. */
 export default function MyConsultations() {
   const list = useConsultations();
   useClinicians();
@@ -68,10 +68,8 @@ export default function MyConsultations() {
   const open = list.filter(isOpen);
   const past = list.filter(item => !isOpen(item));
   return (
-    <div className="cl-page cl-narrow">
-      <p className="cl-kicker"><span aria-hidden="true" />Your care</p>
-      <h1 className="cl-h1" data-page-heading>My consultations<span aria-hidden="true">.</span></h1>
-      <ClinicianTabs active="consultations" />
+    <div className="cl-narrow">
+      <h2 className="cl-sr">My consultations</h2>
       <PreviewNote />
       {list.length === 0 && (
         <div className="cl-empty">

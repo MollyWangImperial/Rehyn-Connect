@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Route, Switch, useLocation, useSearch } from "wouter";
 import { ArrowLeft, ArrowRight, Check, Clock, Globe, Search, ShieldCheck, SlidersHorizontal, Video, X } from "lucide-react";
 import RecoveryShell from "@/components/RecoveryShell";
 import BookConsultation from "@/components/clinicians/BookConsultation";
 import ClinicianCard, { SaveButton } from "@/components/clinicians/ClinicianCard";
 import ClinicianPortal from "@/components/clinicians/ClinicianPortal";
-import ClinicianTabs from "@/components/clinicians/ClinicianTabs";
+import ClinicianTabs, { TAB_PATH, panelId, type ClinicianPage } from "@/components/clinicians/ClinicianTabs";
 import { SessionCard, useMinute } from "@/components/clinicians/GroupSessions";
 import MeetPage from "@/components/clinicians/MeetPage";
 import MyConsultations from "@/components/clinicians/MyConsultations";
@@ -22,13 +22,14 @@ import { todayLabel } from "./Welcome";
 import "./clinicians.css";
 
 // The Clinicians tab, from the design canvas "Rehyn Clinicians Tab". It is a nested route, like the Library, so the
-// paths below are relative to /clinicians. The directory, My consultations and the weekly group sessions are the
-// tab's three pages, as a row of tabs under the heading (ClinicianTabs), with "Need someone urgently" beside it:
-//   /                     the directory: the search band (search, condition areas and groups), filters and results;
+// paths below are relative to /clinicians. Finding a clinician, My consultations and the weekly group sessions are the
+// tab's three parts: one page with a row of tabs under the heading (ClinicianHub, ClinicianTabs) and "Need someone
+// urgently" beside it, the chosen part showing beneath the tabs:
+//   /                     find a clinician: the search band (search, condition areas and groups), filters and results;
 //                         ?area=…&group=… opens it already narrowed
-//   /sessions             the weekly group sessions, a page of their own
+//   /consultations        the same page with My consultations showing: the patient's consultations and transcripts
+//   /sessions             the same page with the weekly group sessions showing
 //   /by-condition         start from a condition (artboard 2)
-//   /consultations        the patient's consultations, and their transcripts
 //   /urgent, /urgent/:id  an urgent consultation: alert every clinician free in the next 48 hours, then match
 //   /portal               the clinician portal (a preview: try it as one of the example clinicians)
 //   /meet/:room           the meeting room, for a consultation or a group session
@@ -85,18 +86,8 @@ function Directory() {
   if (soon) active.push({ label: `Free in the next ${WINDOW_HOURS} hours`, remove: () => setSoon(false) });
 
   return (
-    <div className="cl-page">
-      <div className="cl-head">
-        <div>
-          <p className="cl-kicker"><span aria-hidden="true" />Care that fits you</p>
-          <h1 className="cl-h1" data-page-heading>Clinicians<span aria-hidden="true">.</span></h1>
-          <p className="cl-lead">Talk to a clinician who knows your condition, by video from home, often within 48 hours.</p>
-        </div>
-        <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
-      </div>
-
-      <ClinicianTabs active="find" />
-
+    <>
+      <h2 className="cl-sr">Find a clinician</h2>
       {/* The search band: the main thing on the page. Filtering is live; Search takes you to the results. */}
       <form className="cl-band" aria-label="Search" onSubmit={event => { event.preventDefault(); count.current?.focus(); count.current?.scrollIntoView({ block: "start", behavior: "smooth" }); }}>
         <div className="cl-band-row">
@@ -187,30 +178,21 @@ function Directory() {
           <p className="cl-note">Rehyn helps you find people to talk to. It does not replace your GP or your hospital team. If something feels urgent, call 999. The clinicians, prices and experience shown are examples while the directory is being set up.</p>
         </section>
       </div>
-    </div>
+    </>
   );
 }
 
 // ------------------------------------------------------------------------------------------- weekly group sessions
 
-/** The weekly group sessions, a page of their own: every upcoming session, and how sessions work. */
-function SessionsPage() {
+/** The weekly group sessions, shown beneath the tabs: every upcoming session, and how sessions work. */
+function Sessions() {
   const now = useMinute();
   useClinicians();
   const sessions = upcomingSessions(useCreatedSessions(), new Date(now));
   return (
-    <div className="cl-page">
-      <div className="cl-head">
-        <div>
-          <p className="cl-kicker"><span aria-hidden="true" />Clinicians · Group sessions</p>
-          <h1 className="cl-h1" data-page-heading>Weekly group sessions<span aria-hidden="true">.</span></h1>
-          <p className="cl-lead">Open sessions where a clinician answers questions from everyone who joins. Listen in with your camera off, or ask your own. Save a place and the room opens here ten minutes before.</p>
-        </div>
-        <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
-      </div>
-
-      <ClinicianTabs active="sessions" />
-
+    <>
+      <h2 className="cl-sr">Weekly group sessions</h2>
+      <p className="cl-tab-intro">Open sessions where a clinician answers questions from everyone who joins. Listen in with your camera off, or ask your own. Save a place and the room opens here ten minutes before.</p>
       <div className="cl-sessions-layout">
         <section className="cl-sessions-main" aria-label="Sessions">
           {sessions.length === 0
@@ -236,6 +218,42 @@ function SessionsPage() {
           <p className="cl-note">Sessions are general information, not advice about you. If something feels urgent, call 999.</p>
         </aside>
       </div>
+    </>
+  );
+}
+
+// ------------------------------------------------------------------------------------- the tab's front: three parts
+
+/** Where the address points among the tab's three parts, if it is one of them. */
+export function hubPage(location: string): ClinicianPage | null {
+  const path = location.replace(/\/+$/, "") || "/";
+  return (Object.keys(TAB_PATH) as ClinicianPage[]).find(page => TAB_PATH[page] === path) ?? null;
+}
+
+/**
+ * The heading, "Need someone urgently" and the tabs, with the chosen part beneath them on the same page. All three
+ * parts stay mounted and only the chosen one shows, so switching tabs keeps the search and filters as they were.
+ */
+function ClinicianHub({ page }: { page: ClinicianPage }) {
+  const panel = (which: ClinicianPage, body: ReactNode) => (
+    <div id={panelId(which)} className="cl-tab-panel" hidden={page !== which}>{body}</div>
+  );
+  return (
+    <div className="cl-page">
+      <div className="cl-head">
+        <div>
+          <p className="cl-kicker"><span aria-hidden="true" />Care that fits you</p>
+          <h1 className="cl-h1" data-page-heading>Clinicians<span aria-hidden="true">.</span></h1>
+          <p className="cl-lead">Talk to a clinician who knows your condition, by video from home, often within 48 hours.</p>
+        </div>
+        <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
+      </div>
+
+      <ClinicianTabs active={page} />
+
+      {panel("find", <Directory />)}
+      {panel("consultations", <MyConsultations />)}
+      {panel("sessions", <Sessions />)}
     </div>
   );
 }
@@ -373,10 +391,15 @@ function Missing() {
   );
 }
 
-/** A new page starts at the top, or at the part its address names (#book). */
+/** A new page starts at the top, or at the part its address names (#book). Switching between the tab's three parts
+ *  stays where you are, since they share the page. */
 function useScrollOnArrival() {
   const [location] = useLocation();
+  const last = useRef(location);
   useEffect(() => {
+    const before = last.current;
+    last.current = location;
+    if (before !== location && hubPage(before) && hubPage(location)) return;
     const hash = window.location.hash.slice(1);
     const target = hash ? document.getElementById(hash) : null;
     if (target) target.scrollIntoView({ block: "start" });
@@ -386,14 +409,14 @@ function useScrollOnArrival() {
 
 export default function Clinicians() {
   useScrollOnArrival();
+  const [location] = useLocation();
+  const page = hubPage(location);
   return (
     <RecoveryShell active="Clinicians" dateLabel={todayLabel()} className="clinicians-shell" panel={false}>
+      {page ? <ClinicianHub page={page} /> : (
       <Switch>
-        <Route path="/"><Directory /></Route>
         {/* These come before /:id, so none is taken for a clinician. */}
         <Route path="/by-condition"><ByCondition /></Route>
-        <Route path="/sessions"><SessionsPage /></Route>
-        <Route path="/consultations"><MyConsultations /></Route>
         <Route path="/urgent"><UrgentStart /></Route>
         <Route path="/urgent/:id">{params => <UrgentStatus id={params.id} />}</Route>
         <Route path="/portal" nest><ClinicianPortal /></Route>
@@ -401,6 +424,7 @@ export default function Clinicians() {
         <Route path="/:id">{params => <ProfileRoute id={params.id} />}</Route>
         <Route><Missing /></Route>
       </Switch>
+      )}
     </RecoveryShell>
   );
 }
