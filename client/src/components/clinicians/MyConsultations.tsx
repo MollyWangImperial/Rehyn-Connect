@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Video } from "lucide-react";
+import { Video } from "lucide-react";
+import ClinicianTabs from "./ClinicianTabs";
 import { findClinician, mainSection, whenText } from "@/content/clinicians";
 import { useClinicians } from "@/lib/clinician-portal";
 import { cancel, expire, hasExpired, isOpen, pickSuggested, updateConsultation, useConsultations, type Consultation } from "@/lib/consultations";
@@ -68,9 +69,9 @@ export default function MyConsultations() {
   const past = list.filter(item => !isOpen(item));
   return (
     <div className="cl-page cl-narrow">
-      <Link href="/" className="cl-back"><ArrowLeft size={18} aria-hidden="true" />Back to clinicians</Link>
       <p className="cl-kicker"><span aria-hidden="true" />Your care</p>
       <h1 className="cl-h1" data-page-heading>My consultations<span aria-hidden="true">.</span></h1>
+      <ClinicianTabs active="consultations" />
       <PreviewNote />
       {list.length === 0 && (
         <div className="cl-empty">

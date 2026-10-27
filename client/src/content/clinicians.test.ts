@@ -94,7 +94,21 @@ describe("the Clinicians tab", () => {
     expect(text).not.toMatch(/in person/i);
     expect(text).toContain("If something feels urgent, call 999");
     expect(text).toContain("examples while the directory is being set up");
-    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/urgent", "/clinicians/portal"]) expect(html).toContain(`href="${href}"`);
+    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/sessions", "/clinicians/urgent", "/clinicians/portal"]) expect(html).toContain(`href="${href}"`);
+    // The search band is the main thing: the sessions are a tab of their own, not cards on the page, and the urgent route is one button.
+    expect(html).toContain('class="cl-band"');
+    expect(html).toMatch(/<a (?=[^>]*class="cl-tab")(?=[^>]*aria-current="page")[^>]*href="\/clinicians\/"/);
+    expect(html).not.toContain('class="cl-session"');
+    expect(text).toContain("Need someone urgently");
+    expect(text).not.toContain("Need someone today");
+  });
+
+  it("lists every upcoming group session on its own page, with how sessions work", () => {
+    const { html, text } = draw("/clinicians/sessions");
+    expect(text).toContain("Weekly group sessions");
+    expect(text).toContain("How sessions work");
+    expect((html.match(/class="cl-session"/g) ?? []).length).toBe(nextWeeklySessions(new Date()).length);
+    expect(html).toMatch(/<a (?=[^>]*class="cl-tab")(?=[^>]*aria-current="page")[^>]*href="\/clinicians\/sessions"/);
   });
 
   it("starts from a condition with every Library section and group, each opening the directory narrowed to it", () => {

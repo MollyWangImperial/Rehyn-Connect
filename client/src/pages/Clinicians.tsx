@@ -1,29 +1,32 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Route, Switch, useLocation, useSearch } from "wouter";
-import { ArrowLeft, ArrowRight, BookOpen, CalendarCheck, Check, ChevronRight, Clock, Globe, Search, ShieldCheck, SlidersHorizontal, Stethoscope, Video, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock, Globe, Search, ShieldCheck, SlidersHorizontal, Video, X } from "lucide-react";
 import RecoveryShell from "@/components/RecoveryShell";
 import BookConsultation from "@/components/clinicians/BookConsultation";
 import ClinicianCard, { SaveButton } from "@/components/clinicians/ClinicianCard";
 import ClinicianPortal from "@/components/clinicians/ClinicianPortal";
-import GroupSessions from "@/components/clinicians/GroupSessions";
+import ClinicianTabs from "@/components/clinicians/ClinicianTabs";
+import { SessionCard, useMinute } from "@/components/clinicians/GroupSessions";
 import MeetPage from "@/components/clinicians/MeetPage";
 import MyConsultations from "@/components/clinicians/MyConsultations";
 import { UrgentStart, UrgentStatus } from "@/components/clinicians/Urgent";
 import { hueStyle } from "@/components/clinicians/parts";
 import {
   CLINICIAN_TYPES, CONSULTATION_MINUTES, SEEN_BY, WINDOW_HOURS, clinicianGroups, directoryFilters, directoryHref,
-  experienceText, freeSoon, groupPlace, hoursText, mainSection, nextFree, priceText, type Clinician, type ClinicianType,
+  experienceText, freeSoon, groupPlace, hoursText, mainSection, nextFree, priceText, upcomingSessions, type Clinician, type ClinicianType,
 } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
-import { registerText, useClinicians, useRole } from "@/lib/clinician-portal";
-import { isOpen, useConsultations } from "@/lib/consultations";
+import { registerText, useClinicians } from "@/lib/clinician-portal";
+import { useCreatedSessions } from "@/lib/consultations";
 import { todayLabel } from "./Welcome";
 import "./clinicians.css";
 
 // The Clinicians tab, from the design canvas "Rehyn Clinicians Tab". It is a nested route, like the Library, so the
-// paths below are relative to /clinicians:
-//   /                     the directory with its filters (artboard 1), weekly group sessions above it; ?area=…&group=…
-//                         opens it already narrowed
+// paths below are relative to /clinicians. The directory, My consultations and the weekly group sessions are the
+// tab's three pages, as a row of tabs under the heading (ClinicianTabs), with "Need someone urgently" beside it:
+//   /                     the directory: the search band (search, condition areas and groups), filters and results;
+//                         ?area=…&group=… opens it already narrowed
+//   /sessions             the weekly group sessions, a page of their own
 //   /by-condition         start from a condition (artboard 2)
 //   /consultations        the patient's consultations, and their transcripts
 //   /urgent, /urgent/:id  an urgent consultation: alert every clinician free in the next 48 hours, then match
@@ -51,8 +54,7 @@ function Directory() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [now] = useState(() => new Date());
   const everyone = useClinicians();
-  const role = useRole();
-  const open = useConsultations().filter(isOpen).length;
+  const count = useRef<HTMLHeadingElement>(null);
   const section = librarySections.find(item => item.id === area);
   const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter(item => item !== value) : [...list, value]);
   const pickArea = (id: Area) => { setArea(id); setGroups([]); };
@@ -84,25 +86,49 @@ function Directory() {
 
   return (
     <div className="cl-page">
-      <div className="cl-intro">
-        <div className="cl-intro-text">
+      <div className="cl-head">
+        <div>
           <p className="cl-kicker"><span aria-hidden="true" />Care that fits you</p>
-          <h1 className="cl-h1" data-page-heading>Find a clinician<span aria-hidden="true">.</span></h1>
-          <p className="cl-lead">Browse people who work with the conditions in our Library, and meet them by video here on Rehyn. Narrow it down by condition and the kind of care you need.</p>
-          <div className="cl-intro-links">
-            <Link href="/consultations" className="cl-pill-link"><CalendarCheck size={16} aria-hidden="true" />My consultations{open > 0 && <span className="cl-filters-count">{open}</span>}</Link>
-            <Link href="/urgent" className="cl-pill-link is-urgent"><Clock size={16} aria-hidden="true" />Need someone today?</Link>
-            <Link href="/portal" className={`cl-pill-link ${role === "clinician" ? "is-mine" : ""}`}><Stethoscope size={16} aria-hidden="true" />{role === "clinician" ? "My clinician portal" : "Clinician portal"}</Link>
-          </div>
+          <h1 className="cl-h1" data-page-heading>Clinicians<span aria-hidden="true">.</span></h1>
+          <p className="cl-lead">People who work with the conditions in our Library, by video here on Rehyn.</p>
         </div>
-        <Link href="/by-condition" className="cl-start">
-          <span className="cl-start-icon"><BookOpen size={20} aria-hidden="true" /></span>
-          <span className="cl-start-text"><strong>Not sure who you need?</strong><span>Start from your condition</span></span>
-          <ChevronRight size={18} aria-hidden="true" />
-        </Link>
+        <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
       </div>
 
-      <GroupSessions />
+      <ClinicianTabs active="find" />
+
+      {/* The search band: the main thing on the page. Filtering is live; Search takes you to the results. */}
+      <form className="cl-band" aria-label="Search" onSubmit={event => { event.preventDefault(); count.current?.focus(); count.current?.scrollIntoView({ block: "start", behavior: "smooth" }); }}>
+        <div className="cl-band-row">
+          <label className="cl-band-search">
+            <Search size={22} aria-hidden="true" />
+            <span className="cl-sr">Search clinicians</span>
+            <input type="search" placeholder="Search by name, condition or speciality, e.g. stroke, physiotherapist" value={query} onChange={event => setQuery(event.target.value)} />
+          </label>
+          <button type="submit" className="cl-band-go">Search</button>
+        </div>
+        <div className="cl-band-areas" role="group" aria-label="Condition area">
+          <span className="cl-label">Condition area</span>
+          <button type="button" className="cl-area-pill" aria-pressed={area === "all"} style={hueStyle({ tint: "#EFF1EB", ink: "#285B49" })} onClick={() => pickArea("all")}>
+            <span className="cl-area-dot" aria-hidden="true" />All areas
+          </button>
+          {librarySections.map(item => (
+            <button key={item.id} type="button" className="cl-area-pill" aria-pressed={area === item.id} style={hueStyle(item.hue)} onClick={() => pickArea(item.id)}>
+              <span className="cl-area-dot" aria-hidden="true" />{item.title}
+            </button>
+          ))}
+          {!section && <Link href="/by-condition" className="cl-band-start">Not sure? Start from your condition →</Link>}
+        </div>
+        {section && (
+          <div className="cl-band-groups" style={hueStyle(section.hue)} role="group" aria-label={`Within ${section.title}`}>
+            <p className="cl-groups-title">Within {section.title}</p>
+            {section.groups.map(group => (
+              <button key={group.id} type="button" className="cl-group-chip" aria-pressed={groups.includes(group.id)} onClick={() => setGroups(toggle(groups, group.id))}>{group.title}</button>
+            ))}
+            <Link href="/by-condition" className="cl-band-start">Not sure? Start from your condition →</Link>
+          </div>
+        )}
+      </form>
 
       <div className="cl-layout">
         <aside className={`cl-filters ${filtersOpen ? "is-open" : ""}`} aria-label="Filters">
@@ -111,35 +137,6 @@ function Directory() {
             <SlidersHorizontal size={18} aria-hidden="true" /><span>{filtersOpen ? "Hide filters" : "Filters"}</span>
             {active.length > 0 && <span className="cl-filters-count">{active.length}<span className="cl-sr"> on</span></span>}
           </button>
-          <div className="cl-field">
-            <label htmlFor="cl-search" className="cl-label">Search</label>
-            <div className="cl-input"><Search size={18} aria-hidden="true" />
-              <input id="cl-search" type="search" placeholder="Name, condition or speciality" value={query} onChange={event => setQuery(event.target.value)} />
-            </div>
-          </div>
-          <div className="cl-rule" />
-          <fieldset className="cl-fieldset">
-            <legend className="cl-label">Condition area</legend>
-            <button type="button" className="cl-area" aria-pressed={area === "all"} style={hueStyle({ tint: "#EFF1EB", ink: "#285B49" })} onClick={() => pickArea("all")}>
-              <span className="cl-area-dot" aria-hidden="true" /><span>All areas</span>
-            </button>
-            {librarySections.map(item => (
-              <button key={item.id} type="button" className="cl-area" aria-pressed={area === item.id} style={hueStyle(item.hue)} onClick={() => pickArea(item.id)}>
-                <span className="cl-area-dot" aria-hidden="true" /><span>{item.title}</span>
-              </button>
-            ))}
-          </fieldset>
-          {section && (
-            <div className="cl-groups" style={hueStyle(section.hue)}>
-              <p className="cl-groups-title">Within {section.title}</p>
-              <div className="cl-group-chips">
-                {section.groups.map(group => (
-                  <button key={group.id} type="button" className="cl-group-chip" aria-pressed={groups.includes(group.id)} onClick={() => setGroups(toggle(groups, group.id))}>{group.title}</button>
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="cl-rule" />
           <fieldset className="cl-fieldset">
             <legend className="cl-label">Type of clinician</legend>
             {CLINICIAN_TYPES.map(type => (
@@ -156,7 +153,7 @@ function Directory() {
 
         <section className="cl-results" aria-label="Results">
           <div className="cl-results-head">
-            <h2 className="cl-count" aria-live="polite">{people.length} {people.length === 1 ? "clinician" : "clinicians"}</h2>
+            <h2 ref={count} tabIndex={-1} className="cl-count" aria-live="polite">{people.length} {people.length === 1 ? "clinician" : "clinicians"}{section && <span className="cl-count-for"> for {(groups.length === 1 ? groupPlace(groups[0])?.group.title : undefined) ?? section.title}</span>}</h2>
             <label className="cl-sort">Sort by
               <select value={sort} onChange={event => setSort(event.target.value as Sort)}>
                 <option value="soonest">Soonest available</option>
@@ -189,6 +186,55 @@ function Directory() {
 
           <p className="cl-note">Rehyn helps you find people to talk to. It does not replace your GP or your hospital team. If something feels urgent, call 999. The clinicians, prices and experience shown are examples while the directory is being set up.</p>
         </section>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------------------------------- weekly group sessions
+
+/** The weekly group sessions, a page of their own: every upcoming session, and how sessions work. */
+function SessionsPage() {
+  const now = useMinute();
+  useClinicians();
+  const sessions = upcomingSessions(useCreatedSessions(), new Date(now));
+  return (
+    <div className="cl-page">
+      <div className="cl-head">
+        <div>
+          <p className="cl-kicker"><span aria-hidden="true" />Clinicians · Group sessions</p>
+          <h1 className="cl-h1" data-page-heading>Weekly group sessions<span aria-hidden="true">.</span></h1>
+          <p className="cl-lead">Open sessions where a clinician answers questions from everyone who joins. Listen in with your camera off, or ask your own. Save a place and the room opens here ten minutes before.</p>
+        </div>
+        <Link href="/urgent" className="cl-urgent-btn"><Clock size={18} aria-hidden="true" />Need someone urgently</Link>
+      </div>
+
+      <ClinicianTabs active="sessions" />
+
+      <div className="cl-sessions-layout">
+        <section className="cl-sessions-main" aria-label="Sessions">
+          {sessions.length === 0
+            ? <div className="cl-empty"><p className="cl-empty-title">No sessions are planned yet</p><p>Clinicians set them up in their portal. Check back soon.</p></div>
+            : <div className="cl-session-grid">{sessions.map(session => <SessionCard key={session.id} session={session} now={now} />)}</div>}
+        </section>
+        <aside className="cl-sessions-aside" aria-label="About the sessions">
+          <section className="cl-panel">
+            <h2 className="cl-h2">How sessions work</h2>
+            <ul className="cl-help">
+              <li><Check size={18} aria-hidden="true" />Open to everyone on Rehyn; many are free, and each shows its price</li>
+              <li><Check size={18} aria-hidden="true" />Keep your camera off if you prefer; only the host is on screen</li>
+              <li><Check size={18} aria-hidden="true" />Send a question in advance; the host sees it without your name</li>
+              <li><Check size={18} aria-hidden="true" />The room opens here ten minutes before the start</li>
+              <li><Check size={18} aria-hidden="true" />General answers only; book a consultation for your own situation</li>
+            </ul>
+          </section>
+          <section className="cl-panel is-tinted">
+            <p className="cl-label">Like what you hear?</p>
+            <p className="cl-small">Every host also offers private {CONSULTATION_MINUTES}-minute consultations. Their profile has a Book button.</p>
+            <Link href="/" className="cl-text-link">Find a clinician →</Link>
+          </section>
+          <p className="cl-note">Sessions are general information, not advice about you. If something feels urgent, call 999.</p>
+        </aside>
       </div>
     </div>
   );
@@ -344,6 +390,7 @@ export default function Clinicians() {
         <Route path="/"><Directory /></Route>
         {/* These come before /:id, so none is taken for a clinician. */}
         <Route path="/by-condition"><ByCondition /></Route>
+        <Route path="/sessions"><SessionsPage /></Route>
         <Route path="/consultations"><MyConsultations /></Route>
         <Route path="/urgent"><UrgentStart /></Route>
         <Route path="/urgent/:id">{params => <UrgentStatus id={params.id} />}</Route>

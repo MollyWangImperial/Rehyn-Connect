@@ -177,6 +177,63 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
 
 /* ----------------------------------------------------------------- prices, experience and the directory's links */
 
+/* ------------------------------------------------------------ the heading row, the tabs and the search band
+   (design canvas "Rehyn Clinicians Tab": the search band of layout A on the tinted ground of layout C, and
+   layout C's tabs and single urgent button) */
+
+.cl-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px; }
+.cl-head .cl-lead { margin-top: 12px !important; }
+.cl-urgent-btn { display: inline-flex; flex: none; align-items: center; gap: 10px; min-height: 50px; padding: 0 20px; border-radius: 16px; background: #a96c54; color: #fffdf7; font: 750 15px "Manrope", sans-serif; text-decoration: none; box-shadow: 0 6px 14px rgba(99, 72, 56, .16); }
+.cl-urgent-btn:hover { background: #9a5f48; color: #fff; }
+.cl-tabs-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 22px 0 24px; }
+.cl-tabs { display: flex; gap: 4px; max-width: 100%; padding: 4px; border-radius: 18px; background: #eceee6; overflow-x: auto; scrollbar-width: none; }
+.cl-tab { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 14px; color: #42544b; font: 700 15px "Manrope", sans-serif; text-decoration: none; white-space: nowrap; }
+.cl-tab:hover { color: #173d2f; }
+.cl-tab[aria-current="page"] { background: #fff; color: #173d2f; box-shadow: 0 2px 6px rgba(42, 63, 48, .12); }
+.cl-tab-count { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: #183d34; color: #fffefa; font: 800 11px "Manrope", sans-serif; }
+.cl-tabs-aside { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border-radius: 12px; color: #596a62; font: 700 13px "Manrope", sans-serif; text-decoration: none; }
+.cl-tabs-aside:hover { background: #eceee6; color: #173d2f; }
+
+.cl-band { display: flex; flex-direction: column; gap: 16px; margin: 0; padding: 24px; border-radius: 24px; background: #e9efe6; }
+.cl-band-row { display: flex; gap: 10px; }
+.cl-band-search { display: flex; flex: 1; align-items: center; gap: 12px; height: 60px; padding: 0 20px; border: 1.5px solid #cbded0; border-radius: 18px; background: #fff; color: #2f6851; }
+.cl-band-search:focus-within { border-color: #43a98d; box-shadow: 0 0 0 3px #d8eee6; }
+.cl-band-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; color: #24362f; font: 400 17px "DM Sans", sans-serif; }
+.cl-band-go { min-width: 140px; height: 60px; border: 0; border-radius: 18px; background: #2f6851; color: #fffefa; font: 700 16px "Manrope", sans-serif; cursor: pointer; }
+.cl-band-go:hover { background: #285b49; }
+.cl-band-areas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cl-band-areas .cl-label { margin-right: 6px; }
+.cl-area-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid #e4e8df; border-radius: 999px; background: #fff; color: #24362f; font: 600 14px "DM Sans", sans-serif; cursor: pointer; }
+.cl-area-pill:hover { border-color: var(--cl-ink); }
+.cl-area-pill[aria-pressed="true"] { border-color: var(--cl-ink); background: var(--cl-tint); color: var(--cl-ink); font-weight: 700; box-shadow: inset 0 0 0 1px var(--cl-ink); }
+.cl-band-groups { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--cl-tint); }
+.cl-band-groups .cl-groups-title { margin-right: 6px; }
+.cl-band-groups .cl-group-chip { border-color: #fff; }
+.cl-band-start { margin-left: auto; color: var(--cl-ink, #2f6851); font: 700 13px "Manrope", sans-serif; text-decoration: none; white-space: nowrap; }
+.cl-band-start:hover { text-decoration: underline; }
+.cl-count-for { color: #596a62; font: 400 16px "DM Sans", sans-serif; }
+.cl-count:focus { outline: none; }
+@media (max-width: 640px) {
+  .cl-band { padding: 16px; }
+  .cl-band-row { flex-direction: column; }
+  .cl-band-search { height: 52px; padding: 0 16px; }
+  .cl-band-search input { font-size: 16px; }
+  .cl-band-go { height: 48px; }
+  .cl-band-start { margin-left: 0; }
+  /* The tabs wrap onto two lines rather than scrolling, so every page stays in view. */
+  .cl-tabs { flex-wrap: wrap; overflow: visible; }
+  .cl-tab { min-height: 44px; padding: 0 14px; font-size: 14px; }
+}
+
+/* The weekly group sessions page */
+.cl-sessions-layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; }
+.cl-sessions-main { flex: 999 1 560px; min-width: 0; }
+.cl-sessions-main .cl-session-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.cl-sessions-aside { display: flex; flex: 1 1 280px; flex-direction: column; gap: 14px; max-width: 340px; }
+.cl-panel.is-tinted { border: 0; background: #e9efe6; box-shadow: none; }
+.cl-text-link { color: #2f6851; font: 700 14px "Manrope", sans-serif; text-decoration: none; }
+.cl-text-link:hover { text-decoration: underline; }
+
 .cl-intro-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .cl-pill-link { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border: 1px solid #dfe4da; border-radius: 999px; background: #fffefa; color: #2f6851; font: 700 13px "Manrope", sans-serif; text-decoration: none; }
 .cl-pill-link:hover { border-color: #2f6851; color: #183d34; }
