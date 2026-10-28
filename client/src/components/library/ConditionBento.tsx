@@ -697,7 +697,7 @@ function WatchTiles({ place, items }: { place: ConditionPlace; items: LibraryIte
  * What the page fills in around the bento: `opening` is a story that opens the page (it sits above
  * Understand), `letter` a letter that closes it; `stories` is left out of the parts bar when empty.
  */
-type Slots = { opening?: ReactNode; sources: ReactNode; stories: ReactNode; letter?: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell" | "watch") => string };
+type Slots = { opening?: ReactNode; sources: ReactNode; stories: ReactNode; clinicians?: ReactNode; letter?: ReactNode; ask: ReactNode; related: ReactNode; footer: string; purpose: (part: "understand" | "recover" | "liveWell" | "watch") => string };
 
 export function ConditionBento({ place, state, slots }: { place: ConditionPlace; state: LibraryState; slots: Slots }) {
   const { condition } = place;
@@ -744,6 +744,7 @@ export function ConditionBento({ place, state, slots }: { place: ConditionPlace;
         </section>}
         {slots.sources}
         {slots.stories}
+        {slots.clinicians}
         {slots.letter}
       </main>
       <aside className="lib-v2-aside" aria-label="Alongside this page">

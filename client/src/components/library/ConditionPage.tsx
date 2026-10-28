@@ -37,6 +37,7 @@ import {
   SourceRow,
   useLines,
 } from "./parts";
+import AskClinicians from "./AskClinicians";
 import { ConditionBento } from "./ConditionBento";
 import "@/pages/library-condition-v2.css";
 
@@ -305,6 +306,7 @@ export default function ConditionPage({ place }: { place: ConditionPlace }) {
     opening: storyLed && content.opening ? <OpeningStory storyId={content.opening.storyId} quote={content.opening.quote} /> : undefined,
     sources: sourcesPart,
     stories: hasStories ? <StoriesPanel place={place} /> : null,
+    clinicians: <AskClinicians topic={{ sectionId: section.id, groupId: group.id, conditionId: condition.id, title: condition.title }} />,
     letter: content.letterId ? <LetterBand letterId={content.letterId} state={state} /> : undefined,
     ask: <AskDoctor place={place} questions={content.askDoctor} state={state} />,
     related: <Related content={content} />,
@@ -342,6 +344,7 @@ function PlaceholderCondition({ place, mobileBar, crumbs, state }: { place: Cond
           {siblings.map(candidate => <li key={candidate.id}><Link href={conditionHref(group.id, candidate.id)} className="lib-condition-pill">{candidate.title}{ready.includes(candidate) ? null : <span className="lib-pill-count">soon</span>}</Link></li>)}
         </ul>
       </section>}
+      <AskClinicians topic={{ sectionId: place.section.id, groupId: group.id, conditionId: condition.id, title: condition.title }} />
     </div>
     <footer className="lib-wrap lib-foot"><span>{LIBRARY_NOTE}</span></footer>
   </div>;

@@ -1,32 +1,28 @@
 import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "wouter";
-import { circleNow } from "@/content/circle-events";
-import { CIRCLE_SEATS, feedPosts, feelings, isPersonId, lounge, members, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SamplePost } from "@/content/community-samples";
+import { feedPosts, feelings, isPersonId, members, people, sampleGroups, settingsChoices, type FeelingId, type PersonId, type PostsSeenBy, type SamplePost } from "@/content/community-samples";
 import {
   canSee,
-  circleSeatsTaken,
   commentKey,
   communityHref,
   communityStore,
   friendList,
   hiddenThisVisit,
-  isBlocked,
   listNames,
   postVisibility,
   preparePostPhoto,
   timeAgo,
   useCommunity,
-  type CommunityMemory,
   type OpenSafetyMenu,
   type OwnPost,
   type PostVisibility,
 } from "@/lib/community-store";
 import { SharingLocked, useCanShare } from "@/components/SharingLocked";
-import CircleScene from "./CircleScene";
-import DailyQuestionCard from "./DailyQuestion";
+import LibraryCard from "@/components/LibraryCard";
+import SessionsTile from "./SessionsTile";
 import { useVoiceNote, voiceSeconds } from "./hooks";
 import { ArrowIcon, ChatIcon, CloseIcon, DotsIcon, EyeIcon, EyeOffIcon, GlobeIcon, HeartPulseIcon, LockIcon, MicIcon, PhotoIcon, SmileIcon, SpeakerIcon, StarIcon, StopIcon, ThumbDownIcon, UsersIcon } from "./icons";
-import { Face, FriendButton, LiveDot, MemberFace, MyFace, ReactionButton, VoiceNote } from "./parts";
+import { Face, FriendButton, MemberFace, MyFace, ReactionButton, VoiceNote } from "./parts";
 import { postsAudience } from "./settings-model";
 
 const feelingLabel = (id: FeelingId | null) => feelings.find(item => item.id === id)?.label.toLowerCase();
@@ -449,65 +445,17 @@ function HiddenWordsNote({ words, onShow }: { words: string[]; onShow: () => voi
   );
 }
 
-/* ------------------------------------------------------------ side column */
-
-// Blocked people are out of sight everywhere in My community, their faces included.
-const loungeFaces: PersonId[] = ["margaret", "david", "anne", "tomasz"];
-const loungeQuote = lounge.messages.find(message => message.id === "l3");
-
-function LoungeCard({ here }: { here: number }) {
-  const memory = useCommunity();
-  const titleId = useId();
-  return (
-    <section className="cm-side-card cm-side-plain cm-rise-3" aria-labelledby={titleId}>
-      <div className="cm-card-row">
-        <h3 className="cm-side-title" id={titleId}>The lounge</h3>
-        <span className="cm-live-pill"><LiveDot />Live</span>
-      </div>
-      <div className="cm-card-foot">
-        <span className="cm-face-stack" aria-hidden="true">{loungeFaces.filter(who => !isBlocked(memory, who)).map(who => <Face key={who} who={who} size={28} />)}</span>
-        <span className="cm-here">{`${here} people chatting now`}</span>
-      </div>
-      <Link className="cm-btn cm-btn-green cm-btn-wide" href={communityHref("lounge")}>Join the conversation<span className="cm-sr"> in the lounge</span></Link>
-    </section>
-  );
-}
-
-function CircleCard({ seated, memory }: { seated: boolean; memory: CommunityMemory }) {
-  const titleId = useId();
-  const taken = circleSeatsTaken(memory);
-  // Today's get-together, with a little of its scene behind the card.
-  const [today] = useState(() => circleNow());
-  return (
-    <section className="cm-circle-card has-scene cm-rise-2" aria-labelledby={titleId}>
-      <CircleScene theme={today.event.id} mini />
-      <p className="cm-circle-card-over"><LiveDot /><span>Live now</span></p>
-      <div className="cm-circle-card-text">
-        <h3 id={titleId}>{`Sunday circle: ${today.event.name}`}</h3>
-        <p>{today.event.topic}</p>
-      </div>
-      <div className="cm-seat-meter">
-        <span className="cm-seat-bar" role="progressbar" aria-label="Seats taken" aria-valuemin={0} aria-valuemax={CIRCLE_SEATS} aria-valuenow={taken} aria-valuetext={`${taken} of ${CIRCLE_SEATS} seats taken`}>
-          <span style={{ width: `${Math.round((taken * 100) / CIRCLE_SEATS)}%` }} />
-        </span>
-        {/* The count under the bar was removed in review; the bar still says it to a screen reader. */}
-      </div>
-      <Link className="cm-btn cm-btn-gold" href={communityHref("circle")} onClick={() => communityStore.takeSeat()}>{seated ? "Go to your seat" : "Take your seat"}</Link>
-    </section>
-  );
-}
-
 /* ------------------------------------------------------------------- view */
 
 /**
- * F: the feed in the middle, with the Sunday circle and the lounge alongside (the left panel has the
- * person's groups and friends, so the feed's rail keeps to the two live places). Posts
+ * F: the feed in the middle, with the Library card and this week's clinician group sessions alongside (the left
+ * panel has the person's groups and friends; the lounge and the Sunday circle have their own tabs). Posts
  * from people the person has blocked or hidden, and posts they hid, are left out (with an Undo
  * where one was hidden during this visit); posts mentioning a hidden word wait behind a note.
  * `onMore` opens the hide, block or report sheet from a post's ··· button; `openPostId` is the
  * post that sheet is about while it is open, which is marked.
  */
-export default function FeedView({ name, here, onMore, openPostId = null }: { name: string; here: number; onMore: OpenSafetyMenu; openPostId?: string | null }) {
+export default function FeedView({ name, onMore, openPostId = null }: { name: string; here?: number; onMore: OpenSafetyMenu; openPostId?: string | null }) {
   const memory = useCommunity();
   const [showWords, setShowWords] = useState(false);
   const seen = feedPosts.map(post => ({ post, state: postVisibility(memory, post) }));
@@ -519,7 +467,6 @@ export default function FeedView({ name, here, onMore, openPostId = null }: { na
       <div className="cm-lane">
         <h2 className="cm-sr">Feed</h2>
         <PostComposer name={name} />
-        <DailyQuestionCard name={name} />
         {memory.posts.map(post => <OwnPostCard key={post.id} post={post} name={name} />)}
         {seen.map(({ post, state }) => {
           if (shown(state)) return <SamplePostCard key={post.id} post={post} onMore={onMore} acting={openPostId === post.id} rise={["cm-rise-2", "cm-rise-3", "cm-rise-4"][rise++] ?? "cm-rise-4"} />;
@@ -529,9 +476,9 @@ export default function FeedView({ name, here, onMore, openPostId = null }: { na
         {byWords.length > 0 && !showWords && <HiddenWordsNote words={byWords} onShow={() => setShowWords(true)} />}
       </div>
       <aside className="cm-side" aria-labelledby="cm-side-feed">
-        <h2 className="cm-sr" id="cm-side-feed">Around the community</h2>
-        <CircleCard seated={memory.seated} memory={memory} />
-        <LoungeCard here={here} />
+        <h2 className="cm-sr" id="cm-side-feed">Read and ask</h2>
+        <LibraryCard className="cm-rise-2" />
+        <SessionsTile />
         <div className="cm-side-foot">
           <Link className="cm-inline-link" href={communityHref("safety")}>Community guidelines and safety</Link>
           <p>Rehyn is not an emergency service. If you think someone is having a stroke, call 999.</p>

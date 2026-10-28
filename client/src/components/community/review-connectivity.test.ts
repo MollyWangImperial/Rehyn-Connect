@@ -81,15 +81,19 @@ function labelOf(props: Record<string, unknown>): string {
 const hrefOf = (link: Seen) => String(link.props.href ?? link.props.to ?? "");
 /** The settings section a community address names (`?space=settings&section=quiet`), as Settings → Your profile receives it. */
 const sectionOf = (href: string) => communityViewFromQuery(href.split("?")[1] ?? "").section ?? null;
-const APP_PATHS = ["/", "/fast-check", "/library", "/community", "/care-team"];
+const APP_PATHS = ["/", "/fast-check", "/library", "/community", "/care-team", "/clinicians"];
+/** Routes with pages nested under them (the Library's sections and conditions, the Clinicians tab's pages). */
+const NESTED = ["/library/", "/clinicians/"];
 
 /** Why a link would not land where it says, or null when it does. */
-function problemWith(href: string, groups: string[]): string | null {
+function problemWith(given: string, groups: string[]): string | null {
+  // "~/library" is wouter's way of saying the app's own /library from inside a nested route.
+  const href = given.replace(/^~(?=\/)/, "");
   if (!href || href.startsWith("#")) return `"${href}" goes nowhere`;
   if (/\.dc\.html|_blob|javascript:/i.test(href)) return `"${href}" is left over from the mockup`;
   const url = new URL(href, "https://rehyn.test");
   if (url.origin !== "https://rehyn.test") return `"${href}" leaves the app`;
-  if (!APP_PATHS.includes(url.pathname)) return `"${href}" is not a route in App.tsx`;
+  if (!APP_PATHS.includes(url.pathname) && !NESTED.some(base => url.pathname.startsWith(base))) return `"${href}" is not a route in App.tsx`;
   if (url.pathname === "/community") {
     const view = communityViewFromQuery(url.search);
     const again = viewHref(view);

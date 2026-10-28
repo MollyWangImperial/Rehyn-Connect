@@ -42,17 +42,18 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     }
   });
 
-  it("shows your profile, friends, saved pages, events, alerts, the Library and two of your groups on the left; the care team only when switched on", () => {
+  it("shows your profile, friends, saved pages, events, alerts and two of your groups on the left (the Library card is in the feed's right lane); the care team only when switched on", () => {
     // Midday, outside the default quiet hours, when the Alerts row counts what is new.
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 9, 17, 12, 0));
     const drawn = draw("/community");
     vi.useRealTimers();
     const { html, text, hrefs } = drawn;
-    for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "The library", "Look up a topic", "Open the library", "Your groups", "See all", "Start a group"]) {
+    for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }
-    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/library", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
+    for (const gone of ["The library", "Look up a topic", "Open the library"]) expect(text, gone).not.toContain(gone);
+    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
       expect(hrefs, href).toContain(href);
     }
     // "View your profile" opens Settings → Your profile (a window), not a page.

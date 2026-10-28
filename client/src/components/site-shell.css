@@ -1,7 +1,8 @@
 /* The page shell: the top bar (logo, tabs, larger text, contrast, profile), the profile panel down
    the left and the page beside it. Below 1180px the panel slides in from the left instead. */
 
-.recovery-shell.site-shell { display: block; min-height: 100vh; background: #f4f2ec; }
+/* A bright, clean page with white cards and a white top bar, so everything is easy to read. */
+.recovery-shell.site-shell { display: block; min-height: 100vh; background: #f7f8f5; }
 .site-shell *, .site-shell *::before, .site-shell *::after { box-sizing: border-box; }
 
 /* ------------------------------------------------------------------ top bar */
@@ -13,7 +14,7 @@
   --cm-gold-soft: #F6EEDB; --cm-gold-ink: #7A5C22; --cm-rust: #B5522E; --cm-night: #1A2238;
   --cm-serif: "Instrument Serif", Georgia, serif;
   position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px 18px; min-height: 76px;
-  padding: 8px clamp(16px, 2.4vw, 32px); border-bottom: 1px solid #e3e7dd; background: #f8f7f3;
+  padding: 8px clamp(16px, 2.4vw, 32px); border-bottom: 1px solid #e6e9e3; background: #ffffff;
   font-family: "DM Sans", system-ui, sans-serif; color: #1B2A24;
 }
 .site-top :where(p) { margin: 0; }
@@ -38,7 +39,7 @@
 .site-tab-live { background: #183d34; color: #fffefa; }
 .site-tab-live i { width: 6px; height: 6px; border-radius: 50%; background: #e0704f; }
 .site-tab-live.is-gold { background: #d9ba73; color: #173d2f; }
-.site-tab-dot { position: absolute; top: -1px; right: -4px; width: 9px; height: 9px; border: 2px solid #f8f7f3; border-radius: 50%; background: #2e7d5b; }
+.site-tab-dot { position: absolute; top: -1px; right: -4px; width: 9px; height: 9px; border: 2px solid #ffffff; border-radius: 50%; background: #2e7d5b; }
 /* The Sunday circle's tab is wrapped for its peek, which opens under the bar. */
 .site-tabs .cm-tab-wrap { flex: none; }
 
@@ -146,7 +147,7 @@
   .site-tabs .cm-peek { display: none; }
   .site-menu { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #e3e7dd; border-radius: 14px; background: rgba(255, 255, 255, .8); color: #285b49; cursor: pointer; }
   .site-body { grid-template-columns: minmax(0, 1fr); }
-  .site-panel { position: fixed; z-index: 60; top: 0; bottom: 0; left: 0; width: min(320px, 88vw); max-height: none; padding: 16px 14px; background: #f4f2ec; box-shadow: 18px 0 40px rgba(20, 54, 40, .18); transform: translateX(-105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+  .site-panel { position: fixed; z-index: 60; top: 0; bottom: 0; left: 0; width: min(320px, 88vw); max-height: none; padding: 16px 14px; background: #f7f8f5; box-shadow: 18px 0 40px rgba(20, 54, 40, .18); transform: translateX(-105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
   .site-panel.is-open { transform: none; visibility: visible; transition: transform .22s ease; }
   .site-scrim { position: fixed; z-index: 55; inset: 0; border: 0; background: rgba(16, 32, 26, .35); }
 }

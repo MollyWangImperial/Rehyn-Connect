@@ -1,16 +1,15 @@
-import { useId, useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation } from "wouter";
-import { ArrowRight, Bell, BookOpen, Bookmark, CalendarDays, ChevronRight, Heart, Plus, Search, ShieldCheck } from "lucide-react";
+import { useId, useMemo, useState } from "react";
+import { Link } from "wouter";
+import { Bell, Bookmark, CalendarDays, ChevronRight, Heart, Plus, ShieldCheck } from "lucide-react";
 import { SAMPLE_GOING, sampleGatherings } from "@/content/circle-events";
 import { PERSON_IDS } from "@/content/community-samples";
-import { librarySections, MOST_READ } from "@/content/library";
 import { administrativeControlsEnabled } from "@/lib/administrative-controls";
 import { CARE_TEAM_PATH, useCareTeamEnabled, useCareTeamWaiting } from "@/lib/care-team";
 import { useCircleEvents } from "@/lib/circle-events-store";
 import { mergeGatherings, myEvents } from "@/lib/circle-listing";
 import { alertsPanel, useAlertsPanel } from "@/lib/alerts-panel";
 import { alertsQuiet, communityHref, friendList, hourLabel, inQuietHours, isBlocked, unseenAlertCount, useCommunity } from "@/lib/community-store";
-import { conditionByKey, conditionHref, itemByKey, itemHref } from "@/lib/library";
+import { conditionByKey, conditionHref } from "@/lib/library";
 import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
 import { useOptionalSettings } from "./AccountSettings";
@@ -26,11 +25,10 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 
 /**
  * The left of every page: who you are, and the things you come back to: friends, saved Library pages,
- * your events, the Library, your groups and, for the care team, its review queue. Everything is a link
+ * your events, your groups and, for the care team, its review queue. (The Library card is in the feed's right lane.) Everything is a link
  * that starts with "~", so it works from the Library's nested pages too.
  */
 export default function ProfilePanel({ careTeam = false, onNavigate }: { careTeam?: boolean; onNavigate?: () => void }) {
-  const [, navigate] = useLocation();
   const openSettings = useOptionalSettings();
   const profile = useProfile();
   const memory = useCommunity();
@@ -39,7 +37,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
   const waiting = useCareTeamWaiting();
   const staff = useCareTeamEnabled();
   const [savedOpen, setSavedOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const savedId = useId();
   const searchId = useId();
 
@@ -53,7 +50,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
     return { upcoming: mine.hosting.length + mine.waiting.length + mine.going.length, waiting: mine.waiting.length };
   }, [circle, memory]);
   const groups = myGroups(memory);
-  const mostRead = MOST_READ.slice(0, 2).map(itemByKey).filter(place => place !== undefined);
   const alerts = useAlertsPanel();
   const fresh = unseenAlertCount(memory);
   const quiet = alertsQuiet(memory.settings);
@@ -61,12 +57,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
     ? `Alerts, quiet ${inQuietHours(memory.settings) ? `until ${hourLabel(memory.settings.quietUntil)}` : "during your break"}`
     : `Alerts, ${fresh > 0 ? `${fresh} new` : "nothing new"}`;
 
-  const go = (href: string) => { onNavigate?.(); navigate(`~${href}`); };
-  const search = (event: FormEvent) => {
-    event.preventDefault();
-    const words = query.trim();
-    go(words ? `/library?q=${encodeURIComponent(words)}` : "/library");
-  };
   const link = (href: string) => ({ href: `~${href}`, onClick: onNavigate });
 
   return (
@@ -122,37 +112,7 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
         </ul>
       </section>
 
-      <section className="site-card site-library" aria-labelledby={`${searchId}-title`}>
-        <div className="site-library-head">
-          <span className="site-library-icon" aria-hidden="true"><BookOpen size={18} /></span>
-          <span><b id={`${searchId}-title`}>The library</b><span>Trusted info, in plain English</span></span>
-        </div>
-        <form role="search" className="site-library-search" onSubmit={search}>
-          <label htmlFor={searchId} className="cm-sr">Look up a topic in the Library</label>
-          <Search size={15} aria-hidden="true" />
-          <input id={searchId} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Look up a topic" autoComplete="off" />
-        </form>
-        <div className="site-chips">
-          {librarySections.slice(0, 5).map(section => <Link key={section.id} className="site-chip" {...link(`/library/${section.id}`)}>{section.short}</Link>)}
-        </div>
-        {mostRead.length > 0 && (
-          <>
-            <p className="site-caption">Most read this week</p>
-            <ul className="site-reads">
-              {mostRead.map(place => (
-                <li key={itemHref(place)}>
-                  <Link className="site-read" {...link(`/library${itemHref(place)}`)}>
-                    <b>{place.item.title}</b>
-                    <span>{place.condition.title}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-        <Link className="site-library-open" {...link("/library")}>Open the library<ArrowRight size={16} aria-hidden="true" /></Link>
-      </section>
-
+      {/* The Library card moved to the feed's right-hand lane (components/LibraryCard.tsx). */}
       <section className="site-groups" aria-labelledby={`${searchId}-groups`}>
         <div className="site-caption-row">
           <p className="site-caption" id={`${searchId}-groups`}>Your groups</p>

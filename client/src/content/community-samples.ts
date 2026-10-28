@@ -1,6 +1,6 @@
 // Sample content for the My community preview. Every person, post, group, message, poll, friend
 // request, alert and number here is invented, and nothing a person does on the page leaves their
-// device. The pictures are small drawings kept in /public/community-art.
+// device. Faces and group covers are small drawings kept in /public/community-art; posted photos are real ones (below).
 
 // The pictures live in public/community-art: a folder called "community" would make the server
 // redirect the /community page to /community/.
@@ -51,9 +51,12 @@ export const pronounWords: Record<Pronoun, { subject: string; object: string; po
 export const myDrawnFace = { face: art("e927f84031712ed18b12258221414d71"), tint: "#E6E2DA" };
 
 export type SamplePhoto = { src: string; alt: string; tint: string };
+// The photos posted in the preview are real photographs from Unsplash (free to use under the Unsplash License), kept
+// in public/photos: tomatoes in pots by Tom Jur (unsplash.com/photos/BQgNC4arlKY) and a golden retriever puppy by
+// Florian Schindler (unsplash.com/photos/v-WVryDsM0I). Neither shows a person.
 export const photos = {
-  tomatoes: { src: art("040900486d4ce34d68fd29407eb0c2f7"), alt: "Tomato plants in pots on a sunny windowsill", tint: "#F7E7C6" },
-  dog: { src: art("461a30320ec936927d678a9926b05791"), alt: "A dog on a lead in the park", tint: "#EFEBE2" },
+  tomatoes: { src: "/photos/tomatoes-in-pots.jpg", alt: "Ripe red cherry tomatoes on plants in pots, in the sun", tint: "#E8EFE4" },
+  dog: { src: "/photos/puppy-on-a-lead.jpg", alt: "A golden retriever puppy on a blue lead, walking on the grass in a park", tint: "#EFEBE2" },
 } satisfies Record<string, SamplePhoto>;
 
 /** The one-tap ways to join in, so nobody has to type to take part. */
@@ -161,7 +164,7 @@ export const sampleGroups: SampleGroup[] = [
     challenge: { text: "This week: a photo of something growing", done: 4, total: 6 },
     messages: [
       { id: "g1", who: "anne", text: "Morning, gardeners. Anyone's sweet peas up yet?", hearts: 2 },
-      { id: "g2", who: "margaret", text: "First tomatoes! Left hand did the picking.", photo: { ...photos.tomatoes, alt: "Tomato plants on a sunny windowsill" }, hearts: 11 },
+      { id: "g2", who: "margaret", text: "First tomatoes! Left hand did the picking.", photo: photos.tomatoes, hearts: 11 },
       { id: "g3", who: "joan", text: "Mine are still green. I'm not jealous at all.", hearts: 5 },
     ],
     incoming: { id: "g4", who: "samuel", text: "Tomato tart recipe going in One-handed cooks tonight!", hearts: 3 },
@@ -175,7 +178,7 @@ export const sampleGroups: SampleGroup[] = [
     tint: "#DCECF4", ink: "#1F4E66", members: 8, online: 2, faces: ["david", "tomasz", "priya", "liwei"], unread: 0, active: false,
     challenge: { text: "This week: one walk a little further than last week", done: 5, total: 8 },
     messages: [
-      { id: "w1", who: "david", text: "Biscuit and I made it to the corner shop and back.", photo: { ...photos.dog, alt: "A dog on a lead walking in a park" }, hearts: 14 },
+      { id: "w1", who: "david", text: "Biscuit and I made it to the corner shop and back.", photo: photos.dog, hearts: 14 },
       { id: "w2", who: "tomasz", text: "Can I join you tomorrow? I can do the first bit.", hearts: 6 },
     ],
     incoming: { id: "w3", who: "david", text: "Of course! 7 at the park gate. We go at your pace.", hearts: 4 },

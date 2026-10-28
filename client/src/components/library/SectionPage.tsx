@@ -6,6 +6,7 @@ import { conditionHref, groupStories, numberWord, sectionStories, storyHref } fr
 import { searchLibrary } from "@/lib/library-search";
 import { ArrowIcon, Crumbs, HeadphonesIcon, hueStyle, Initial, jumpTo, PauseIcon } from "./parts";
 import { BentoHero, hasBento, SectionBento } from "./SectionBento";
+import AskClinicians from "./AskClinicians";
 import "@/pages/library-bento.css";
 
 // One section of the Library: its groups, each opening into conditions, then stories from
@@ -155,6 +156,8 @@ export default function SectionPage({ section }: { section: LibrarySection }) {
         <Link href="~/community" className="lib-pill-link is-coral">Go to My community</Link>
       </div>
     </section>}
+
+    <div className="lib-wrap"><AskClinicians topic={{ sectionId: section.id, title: section.title }} /></div>
 
     <footer className="lib-wrap lib-foot"><span>{LIBRARY_NOTE}</span></footer>
   </div>;

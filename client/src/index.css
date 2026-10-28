@@ -54,7 +54,7 @@
   --chart-4: #a5b8aa;
   --chart-5: #dce9df;
   --radius: 1rem;
-  --background: #f7f6f2;
+  --background: #f7f8f5;
   --foreground: #24362f;
   --card: #fffefa;
   --card-foreground: #24362f;
@@ -94,7 +94,7 @@ button { color: inherit; }
 :focus-visible { outline: 3px solid #159a8e !important; outline-offset: 3px; }
 ::selection { background: #c4e3da; color: #183d34; }
 
-.app-shell { min-height: 100vh; display: flex; background: #f7f6f2; transition: font-size .18s ease; }
+.app-shell { min-height: 100vh; display: flex; background: #f7f8f5; transition: font-size .18s ease; }
 .sidebar { position: fixed; z-index: 10; inset: 0 auto 0 0; width: 236px; padding: 30px 17px 22px; background: linear-gradient(175deg, #1c453b 0%, #183d34 70%, #15372f 100%); color: #f2f5ef; display: flex; flex-direction: column; box-shadow: 8px 0 34px rgba(22,54,45,.055); }
 .brand-mark { min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 12px; text-decoration: none; color: inherit; }
 .brand-symbol { height: 41px; width: 41px; border-radius: 14px; display: grid; place-items: center; color: #173e34; background: #eff5ec; box-shadow: 0 3px 12px #102c2444; }

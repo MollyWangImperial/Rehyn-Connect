@@ -7,6 +7,7 @@ import { libraryStore } from "@/lib/library-store";
 import { Interactive, QuickCheck, TryThisWeek } from "./Interactives";
 import { MediaPieceView } from "./MediaPieces";
 import { NewsArticle } from "./NewsArticle";
+import AskClinicians from "./AskClinicians";
 import { BackIcon, ChevronIcon, Crumbs, ExternalIcon, KindBadge, SoonTag, SourceCard } from "./parts";
 import { ListenBar, useNarration, type Block } from "./Reading";
 import "@/pages/library-media.css";
@@ -133,6 +134,7 @@ export default function ItemPage({ place }: { place: ItemPlace }) {
           </li>)}
         </ul>
       </section>}
+      <AskClinicians topic={{ sectionId: section.id, groupId: group.id, conditionId: condition.id, title: condition.title }} />
       <Link href={back} className="lib-back-link"><BackIcon size={16} />Back to {condition.title}</Link>
     </div>
     <footer className="lib-wrap lib-foot"><span>{LIBRARY_NOTE}</span></footer>

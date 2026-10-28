@@ -1,0 +1,37 @@
+/* "Still have questions?" at the foot of Library pages (components/library/AskClinicians.tsx): a quiet card after the
+   reading, with a few clinicians who work with the topic. Its own colours, so it reads the same on every page theme. */
+
+.lib-ask-clin { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr); gap: 18px 28px; margin: 36px 0 8px; padding: 26px; border: 1px solid #e3e8e1; border-radius: 24px; background: #ffffff; color: #24362f; font-family: "DM Sans", system-ui, sans-serif; box-shadow: 0 8px 24px rgba(20, 54, 40, .05); }
+.lib-ask-clin :where(h2, p, ul) { margin: 0; }
+.lib-ask-clin a { text-decoration: none; }
+.lib-ask-clin :focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
+.lib-ask-clin-intro { display: flex; flex-direction: column; gap: 10px; }
+.lib-ask-clin-kicker { color: #2f6851; font: 800 11px "Manrope", sans-serif; letter-spacing: 1.4px; text-transform: uppercase; }
+.lib-ask-clin h2 { color: #1f3029; font: 600 26px/1.15 "Newsreader", Georgia, serif; letter-spacing: -.4px; }
+.lib-ask-clin-intro > p:last-child { color: #4f6158; font-size: 15px; line-height: 1.55; }
+.lib-ask-clin-list { display: flex; flex-direction: column; gap: 8px; padding: 0; list-style: none; }
+.lib-ask-clin-person { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #f6f8f5; }
+.lib-ask-clin-face { display: grid; flex: none; place-items: center; width: 46px; height: 46px; border-radius: 15px; font: 800 15px "Manrope", sans-serif; }
+.lib-ask-clin-who { display: flex; flex: 1; flex-direction: column; gap: 1px; min-width: 0; font-size: 13.5px; color: #4f6158; }
+.lib-ask-clin-who strong { color: #1f3029; font-size: 15px; }
+.lib-ask-clin-meta { color: #2f6851 !important; font-weight: 600; }
+.lib-ask-clin-ask { display: inline-flex; flex: none; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border-radius: 13px; background: #2f6851; color: #fffefa !important; font: 700 14px "Manrope", sans-serif; }
+.lib-ask-clin-ask:hover { background: #24503f; }
+.lib-ask-clin-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; grid-column: 1 / -1; padding-top: 4px; }
+.lib-ask-clin-session { display: inline-flex; align-items: flex-start; gap: 10px; max-width: 560px; padding: 10px 14px; border-radius: 14px; background: #eef4ef; color: #24362f !important; font-size: 13.5px; line-height: 1.4; }
+.lib-ask-clin-session svg { flex: none; margin-top: 2px; color: #2f6851; }
+.lib-ask-clin-session strong { display: block; color: #183d34; font-size: 13px; }
+.lib-ask-clin-session:hover { box-shadow: inset 0 0 0 1px #b9d3c1; }
+.lib-ask-clin-all { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; color: #2f6851 !important; font: 700 14px "Manrope", sans-serif; }
+.lib-ask-clin-all:hover { text-decoration: underline !important; }
+.lib-ask-clin-note { grid-column: 1 / -1; color: #6a786f; font-size: 12px; }
+
+@media (max-width: 860px) {
+  .lib-ask-clin { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+  .lib-ask-clin h2 { font-size: 23px; }
+  .lib-ask-clin-all { margin-left: 0; }
+}
+@media (max-width: 480px) {
+  .lib-ask-clin-person { flex-wrap: wrap; }
+  .lib-ask-clin-ask { width: 100%; }
+}

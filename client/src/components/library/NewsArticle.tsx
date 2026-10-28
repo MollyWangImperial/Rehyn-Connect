@@ -4,6 +4,7 @@ import { LIBRARY_NOTE } from "@/content/library";
 import { LEARN_CHECKED, type LearnArticle } from "@/content/my-time-learn";
 import { newsExtrasFor, WRITTEN_ON, type NewsChart, type NewsReference } from "@/content/ischaemic-news";
 import { NewsPieceView } from "./NewsPieces";
+import AskClinicians from "./AskClinicians";
 import { conditionHref, conditionKey, contentTitle, itemHref, isReadable, type ItemPlace } from "@/lib/library";
 import { libraryStore, useLibraryState } from "@/lib/library-store";
 import { paletteFor, themeOf, themeVars } from "@/lib/library-theme";
@@ -221,6 +222,8 @@ export function NewsArticle({ place, article, media }: { place: ItemPlace; artic
           <div className="lib-news-ask-kicker">Take this to your next appointment</div>
           <p>“{say("ask")}”</p>
         </div>
+
+        <AskClinicians topic={{ sectionId: place.section.id, groupId: group.id, conditionId: condition.id, title: condition.title }} />
 
         <section id="lib-news-sources" className="lib-news-sources" aria-labelledby="lib-news-sources-title">
           <div className="lib-news-sources-about">

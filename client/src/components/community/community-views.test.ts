@@ -34,7 +34,7 @@ describe("My community views", () => {
     expect(tagWith(html, "button", 'aria-label="Play Priya&#x27;s voice note, 12 seconds"')).toBe(true);
     expect(text).toContain("Words Sang the whole chorus");
     expect(tagWith(html, "button", 'class="cm-react cm-tone-love "', 'aria-pressed="false"')).toBe(true);
-    // Comments are open under every post, with "Write a comment" (no button to open them first), and the Daily question.
+    // Comments are open under every post, with "Write a comment" (no button to open them first).
     expect(html).not.toContain("cm-comments-toggle");
     // Margaret's post shows its two latest comments, the rest behind "View all".
     expect(text).toContain("David Save me one, Margaret.");
@@ -42,23 +42,17 @@ describe("My community views", () => {
     expect(text).toContain("View all comments");
     expect(text).not.toMatch(/View all \d+ comments/);
     expect((html.match(/placeholder="Write a comment"/g) ?? []).length).toBeGreaterThanOrEqual(4);
-    // The Daily question as a live thread: Rehyn's card (with "Daily question" as its small label, no date line), today's
-    // question with its key phrase, the first answers, the starters without a hint above them, and the answer box.
-    expect(text).toContain("Rehyn Daily question");
-    expect(text).not.toContain("From Rehyn");
-    expect(html).toMatch(/class="dq-key"><span class="dq-key-text">[^<]+<\/span>/);
-    expect((html.match(/class="dq-row /g) ?? []).length).toBe(3);
-    expect(text).toContain("3 answered");
-    expect(text).toContain("See all answers");
-    expect(text).not.toMatch(/See all \d+ answers/);
-    expect(text).not.toContain("Add yours in a few words");
-    expect(tagWith(html, "div", 'class="dq-chips"', 'role="group"')).toBe(true);
-    expect(html).toContain('aria-label="Post your answer"');
-    // The right rail: the Sunday circle first ("Live now", nobody named as host), then the lounge; no groups or people cards.
-    expect(text).toContain("Live now Sunday circle");
-    expect(text).not.toContain("Hosted by Alira");
-    expect(text).toContain("Take your seat");
-    expect(html.indexOf("Take your seat")).toBeLessThan(html.indexOf("Join the conversation"));
+    // No Daily question in the feed.
+    expect(html).not.toContain("dq-card");
+    expect(text).not.toContain("Daily question");
+    // The right rail: the Library card first, then this week's clinician group sessions; no Sunday circle or lounge
+    // cards (they have their own tabs), and no groups or people cards.
+    expect(text).toContain("The library");
+    expect(text).toContain("Ask a clinician this week");
+    expect(html.indexOf("Open the library")).toBeLessThan(html.indexOf("Ask a clinician this week"));
+    expect(html).toContain('href="/clinicians/sessions"');
+    expect(text).not.toContain("Take your seat");
+    expect(text).not.toContain("Join the conversation");
     expect(text).not.toContain("Your groups");
     expect(text).not.toContain("People you may know");
     expect(tagWith(html, "a", 'href="/community?space=start"')).toBe(false);
