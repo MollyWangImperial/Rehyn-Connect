@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, ArrowRight, BellRing, Globe, ShieldCheck, Video } from "lucide-react";
-import { URGENT_FEE, WINDOW_HOURS, clinicianGroups, experienceText, findClinician, hoursText, mainSection, priceText, urgentPrice } from "@/content/clinicians";
+import { URGENT_FEE, WINDOW_HOURS, clinicianGroups, experienceText, findClinician, hoursText, mainSection, priceText, professionalTitle, urgentPrice } from "@/content/clinicians";
 import { registerText, useClinicians } from "@/lib/clinician-portal";
 import {
   URGENT_WAIT_MS, alerted, cancel, confirmUrgent, escalate, findConsultation, nextChoice, saveConsultation, startUrgent, updateConsultation,
@@ -77,7 +77,7 @@ function MatchCard({ consultation }: { consultation: Consultation }) {
           <span className="cl-hero-avatar" aria-hidden="true">{clinician.initials}</span>
           <div>
             <h2 className="cl-match-name">{clinician.name}</h2>
-            <p className="cl-hero-role">{clinician.role}</p>
+            <p className="cl-hero-role">{professionalTitle(clinician)}</p>
           </div>
           <p className="cl-price is-big"><strong>{priceText(urgentPrice(clinician))}</strong><span>30 minutes · includes £{URGENT_FEE} urgent fee</span></p>
         </div>

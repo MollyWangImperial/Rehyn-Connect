@@ -3,6 +3,8 @@ import { Link, useSearch } from "wouter";
 import RecoveryShell from "@/components/RecoveryShell";
 import { careHref, Members, Overview, Reports, Settings, type CareSection } from "@/components/care-team/CareTeamSections";
 import LoungeSafety from "@/components/care-team/LoungeSafety";
+import ClinicianPrices from "@/components/care-team/ClinicianPrices";
+import { usePriceRequests } from "@/lib/clinician-portal";
 import { useYourName } from "@/components/care-team/parts";
 import { LockIcon } from "@/components/community/icons";
 import { applyCareTeamSwitch, useCareTeamEnabled } from "@/lib/care-team";
@@ -19,6 +21,7 @@ const SECTIONS: { id: CareSection; label: string }[] = [
   { id: "members", label: "Members" },
   { id: "lounge", label: "Lounge safety" },
   { id: "reports", label: "Reports" },
+  { id: "prices", label: "Clinician prices" },
   { id: "settings", label: "Settings" },
 ];
 
@@ -53,6 +56,7 @@ function CareTeamPages({ search }: { search: string }) {
   const state = useLoungeModeration();
   const yourName = useYourName();
   const waiting = needsPerson(state).length;
+  const prices = usePriceRequests().filter(item => item.status === "waiting").length;
   const page = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
@@ -71,6 +75,7 @@ function CareTeamPages({ search }: { search: string }) {
             <Link key={item.id} href={careHref(item.id)} className={`ct-subnav-link ${section === item.id ? "is-on" : ""}`} aria-current={section === item.id ? "page" : undefined}>
               <span>{item.label}</span>
               {item.id === "lounge" && waiting > 0 && <span className="ct-count">{waiting}<span className="ct-sr"> waiting</span></span>}
+              {item.id === "prices" && prices > 0 && <span className="ct-count">{prices}<span className="ct-sr"> waiting</span></span>}
             </Link>
           ))}
         </nav>
@@ -80,6 +85,7 @@ function CareTeamPages({ search }: { search: string }) {
         {section === "members" && <Members state={state} yourName={yourName} />}
         {section === "lounge" && <LoungeSafety state={state} yourName={yourName} />}
         {section === "reports" && <Reports state={state} yourName={yourName} />}
+        {section === "prices" && <ClinicianPrices />}
         {section === "settings" && <Settings state={state} />}
       </div>
     </RecoveryShell>

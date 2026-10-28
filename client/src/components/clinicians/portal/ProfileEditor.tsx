@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ShieldCheck, X } from "lucide-react";
-import { PRICE_MAX, PRICE_MIN, REGISTER, URGENT_FEE, groupPlace, urgentPrice, type Clinician } from "@/content/clinicians";
+import {
+  PRICE_MAX, PRICE_MIN, PRICE_REQUEST_MAX, PRICE_REQUEST_MIN, REGISTER, REHYN_SHARE, URGENT_FEE, clinicianShare, groupPlace, poundsText, shareText,
+  urgentPrice, type Clinician,
+} from "@/content/clinicians";
 import { librarySections } from "@/content/library";
-import { profileGaps, registerText, updateClinician } from "@/lib/clinician-portal";
+import { cancelPriceRequest, profileGaps, registerText, requestPriceChange, updateClinician, usePriceRequests } from "@/lib/clinician-portal";
 import ClinicianCard from "../ClinicianCard";
 import { hueStyle } from "../parts";
 
@@ -86,6 +89,64 @@ function AboutTemplate({ draft, onUse }: { draft: Clinician; onUse: (text: strin
   );
 }
 
+/**
+ * Pricing: your current price and what you receive of it after Rehyn's share, the suggested range, the urgent fee, and
+ * a request to change your price. A new price only takes effect once Rehyn's administrator approves it.
+ */
+function PricingCard({ me }: { me: Clinician }) {
+  const request = usePriceRequests().find(item => item.clinicianId === me.id);
+  const waiting = request?.status === "waiting" ? request : undefined;
+  const [asking, setAsking] = useState(false);
+  const [price, setPrice] = useState(me.price);
+  const [reason, setReason] = useState("");
+  const inRange = price >= PRICE_MIN && price <= PRICE_MAX;
+  const allowed = price >= PRICE_REQUEST_MIN && price <= PRICE_REQUEST_MAX && price !== me.price;
+  const send = () => { if (!allowed) return; requestPriceChange(me, price, reason); setAsking(false); setReason(""); };
+  const urgent = urgentPrice(me);
+  return (
+    <section className="pt-card" aria-labelledby="pf-price">
+      <h2 className="cl-h2" id="pf-price">Pricing</h2>
+      <div className="pt-price-now">
+        <p><span className="cl-label">A 30-minute consultation</span><strong>{poundsText(me.price)}</strong></p>
+        <p><span className="cl-label">You receive</span><strong>{poundsText(clinicianShare(me.price))}</strong><span className="cl-small">after Rehyn's {shareText(REHYN_SHARE)} share</span></p>
+      </div>
+      <ul className="pt-price-notes">
+        <li id="pf-price-range"><strong>Suggested range: £{PRICE_MIN} to £{PRICE_MAX}</strong>In line with what a 30-minute private consultation usually costs.</li>
+        <li><strong>Rehyn's share: {shareText(REHYN_SHARE)}</strong>Rehyn keeps {shareText(REHYN_SHARE)} of what the patient pays, and you receive {shareText(1 - REHYN_SHARE)}: {poundsText(clinicianShare(me.price))} of each {poundsText(me.price)} consultation.</li>
+        <li><strong>Urgent: £{URGENT_FEE} more</strong>Urgent consultations cost your price plus £{URGENT_FEE}, so {poundsText(urgent)}. You receive {poundsText(clinicianShare(urgent))} of it.</li>
+      </ul>
+
+      {waiting ? (
+        <div className="pt-price-request is-waiting" role="status">
+          <p><strong>Waiting for approval: {poundsText(waiting.to)}</strong> Requested {new Date(waiting.at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}. Your price stays {poundsText(me.price)} until Rehyn's administrator approves it.</p>
+          <button type="button" className="cl-btn is-light" onClick={() => cancelPriceRequest(me.id)}>Withdraw request</button>
+        </div>
+      ) : asking ? (
+        <div className="pt-price-request">
+          <label className="cl-field pt-price-field"><span className="cl-label">New price for 30 minutes</span>
+            <span className="pt-price-input"><strong aria-hidden="true">£</strong><input type="number" min={PRICE_REQUEST_MIN} max={PRICE_REQUEST_MAX} value={price} onChange={event => setPrice(Number(event.target.value) || 0)} aria-label="New price in pounds" aria-describedby="pf-price-range" /></span></label>
+          {price > 0 && <p className="cl-small">You would receive {poundsText(clinicianShare(price))} of each consultation.{!inRange && price >= PRICE_REQUEST_MIN && price <= PRICE_REQUEST_MAX ? " This is outside the suggested range, so say why below." : ""}</p>}
+          {(price < PRICE_REQUEST_MIN || price > PRICE_REQUEST_MAX) && <p className="cl-small pt-price-warn" role="status">A price can be from £{PRICE_REQUEST_MIN} to £{PRICE_REQUEST_MAX}.</p>}
+          <label className="cl-field"><span className="cl-label">Reason for the change {inRange ? "(optional)" : ""}</span>
+            <textarea className="pt-textarea" rows={2} maxLength={300} value={reason} placeholder="For example: more years of experience, or a new qualification." onChange={event => setReason(event.target.value)} /></label>
+          <div className="pt-price-actions">
+            <button type="button" className="cl-request" disabled={!allowed || (!inRange && !reason.trim())} onClick={send}>Send request for approval</button>
+            <button type="button" className="cl-btn is-light" onClick={() => { setAsking(false); setPrice(me.price); }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div className="pt-price-request">
+          {request?.status === "approved" && <p className="cl-sent" role="status"><strong>Approved.</strong> Your price is now {poundsText(request.to)}.</p>}
+          {request?.status === "declined" && <p className="cl-notice" role="status">Your request for {poundsText(request.to)} wasn't approved. Your price stays {poundsText(me.price)}.</p>}
+          <button type="button" className="cl-btn is-light" onClick={() => { setAsking(true); setPrice(me.price); }}>Request a price change</button>
+          <p className="cl-small">Changes of price are approved by Rehyn's administrator before patients see them.</p>
+        </div>
+      )}
+      <p className="cl-small">The patient's payment is held when they book and paid to you, less Rehyn's share, when you finish the consultation. You set the price of group sessions on the Group sessions page.</p>
+    </section>
+  );
+}
+
 export default function PortalProfile({ me }: { me: Clinician }) {
   const [draft, setDraft] = useState<Clinician>(me);
   const [languages, setLanguages] = useState<string[]>(me.languages);
@@ -123,7 +184,7 @@ export default function PortalProfile({ me }: { me: Clinician }) {
     updateClinician(me.id, {
       name, first: name.replace(/^Dr\.? /i, "").split(/\s+/)[0] || me.first, initials: preview.initials, role: preview.role.trim() || me.role,
       level: preview.level, years: preview.years, about: preview.about.trim(), languages: preview.languages.length ? preview.languages : me.languages,
-      conditions: preview.conditions, price: Math.min(PRICE_MAX, Math.max(PRICE_MIN, Math.round(preview.price || 0))),
+      conditions: preview.conditions,
     });
     setSaved(true);
   };
@@ -140,7 +201,7 @@ export default function PortalProfile({ me }: { me: Clinician }) {
           <button type="button" className="cl-request" onClick={save}>Save changes</button>
         </div>
       </div>
-      {saved && <p className="cl-sent" role="status"><strong>Saved.</strong> Your profile and price are updated in the directory on this device.</p>}
+      {saved && <p className="cl-sent" role="status"><strong>Saved.</strong> Your profile is updated in the directory on this device. A change of price is a request, below.</p>}
       {!me.own && <p className="cl-preview">Preview: {me.name} is an example clinician. Changes you make are kept on this device only.</p>}
 
       <div className="pt-cols">
@@ -212,17 +273,7 @@ export default function PortalProfile({ me }: { me: Clinician }) {
             )}
           </section>
 
-          <section className="pt-card" aria-labelledby="pf-price">
-            <h2 className="cl-h2" id="pf-price">Pricing</h2>
-            <label className="cl-field pt-price-field"><span className="cl-label">A 30-minute consultation</span>
-              <span className="pt-price-input"><strong aria-hidden="true">£</strong><input type="number" min={PRICE_MIN} max={PRICE_MAX} value={draft.price} onChange={event => set({ price: Number(event.target.value) || 0 })} aria-label="Price in pounds" aria-describedby="pf-price-range" /></span></label>
-            {(draft.price < PRICE_MIN || draft.price > PRICE_MAX) && <p className="cl-small pt-price-warn" role="status">Choose a price from £{PRICE_MIN} to £{PRICE_MAX}. Saving keeps it within that range.</p>}
-            <ul className="pt-price-notes">
-              <li id="pf-price-range"><strong>£{PRICE_MIN} to £{PRICE_MAX}</strong>The range you can set, in line with what a 30-minute private consultation usually costs.</li>
-              <li><strong>Urgent: £{URGENT_FEE} more</strong>Urgent consultations cost your price plus £{URGENT_FEE}, so £{urgentPrice({ price: Math.min(PRICE_MAX, Math.max(PRICE_MIN, draft.price || PRICE_MIN)) })} for you. The extra £{URGENT_FEE} is paid to you too.</li>
-            </ul>
-            <p className="cl-small">The patient's payment is held when they book and paid to you when you finish the consultation. Rehyn's fee is [to be confirmed]. You set the price of group sessions on the Group sessions page.</p>
-          </section>
+          <PricingCard me={me} />
         </div>
 
         <aside className="pt-stack" aria-label="How patients see you">

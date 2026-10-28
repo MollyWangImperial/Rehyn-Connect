@@ -17,6 +17,10 @@ export type Role = "patient" | "clinician";
 const ROLE_KEY = "rehyn.role.v1";
 const OWN_KEY = "rehyn.clinicians.own.v1";
 const EDITS_KEY = "rehyn.clinicians.edits.v1";
+const PRICE_REQUESTS_KEY = "rehyn.clinicians.price-requests.v1";
+
+/** A clinician asking to change their consultation price: it takes effect only once Rehyn's administrator approves it. */
+export type PriceRequest = { clinicianId: string; from: number; to: number; at: number; reason: string; status: "waiting" | "approved" | "declined"; decidedAt?: number };
 
 function readJson<T>(key: string, fallback: T): T {
   try { const raw = window.localStorage.getItem(key); return raw ? (JSON.parse(raw) as T) : fallback; } catch { return fallback; }
@@ -30,6 +34,8 @@ const browser = typeof window !== "undefined";
 let role: Role | null = browser ? readJson<Role | null>(ROLE_KEY, null) : null;
 let own: Clinician | null = browser ? readJson<Clinician | null>(OWN_KEY, null) : null;
 let edits: Record<string, Partial<Clinician>> = browser ? readJson<Record<string, Partial<Clinician>>>(EDITS_KEY, {}) : {};
+let priceRequests: PriceRequest[] = browser ? readJson<PriceRequest[]>(PRICE_REQUESTS_KEY, []) : [];
+const NO_REQUESTS: PriceRequest[] = [];
 
 /** The examples and this device's own clinician, each with its changes. */
 export function combine(base: Clinician[], ownClinician: Clinician | null, changes: Record<string, Partial<Clinician>>): Clinician[] {
@@ -50,10 +56,11 @@ refresh();
 
 if (browser) {
   window.addEventListener("storage", event => {
-    if (event.key && ![ROLE_KEY, OWN_KEY, EDITS_KEY].includes(event.key)) return;
+    if (event.key && ![ROLE_KEY, OWN_KEY, EDITS_KEY, PRICE_REQUESTS_KEY].includes(event.key)) return;
     role = readJson<Role | null>(ROLE_KEY, null);
     own = readJson<Clinician | null>(OWN_KEY, null);
     edits = readJson<Record<string, Partial<Clinician>>>(EDITS_KEY, {});
+    priceRequests = readJson<PriceRequest[]>(PRICE_REQUESTS_KEY, []);
     refresh();
   });
 }
@@ -81,6 +88,34 @@ export function updateClinician(id: string, change: Partial<Clinician>) {
   }
   refresh();
 }
+
+// ------------------------------------------------------------------------------------- price change requests
+// A clinician doesn't set their own price: they ask for a change, and Rehyn's administrator approves or declines it on
+// the care team's pages (Clinician prices). One request per clinician at a time; asking again replaces it.
+
+/** Every clinician's latest price request: waiting for the administrator, or the decision on it. */
+export const usePriceRequests = () => useSyncExternalStore(subscribe, () => priceRequests, () => NO_REQUESTS);
+export const getPriceRequests = () => priceRequests;
+const savePriceRequests = (next: PriceRequest[]) => { priceRequests = next; writeJson(PRICE_REQUESTS_KEY, next); refresh(); };
+const decide = (clinicianId: string, status: "approved" | "declined", now: number) =>
+  savePriceRequests(priceRequests.map(item => (item.clinicianId === clinicianId && item.status === "waiting" ? { ...item, status, decidedAt: now } : item)));
+
+/** Ask for a new price, with a short reason for the administrator. It replaces any earlier request. */
+export function requestPriceChange(clinician: Clinician, to: number, reason = "", now = Date.now()) {
+  const others = priceRequests.filter(request => request.clinicianId !== clinician.id);
+  savePriceRequests([...others, { clinicianId: clinician.id, from: clinician.price, to: Math.round(to), at: now, reason: reason.trim().slice(0, 300), status: "waiting" }]);
+}
+/** Take back a request before it is decided (or clear a decision once read). */
+export const cancelPriceRequest = (clinicianId: string) => savePriceRequests(priceRequests.filter(request => request.clinicianId !== clinicianId));
+/** The administrator approves: the new price is the clinician's from now on. */
+export function approvePriceRequest(clinicianId: string, now = Date.now()) {
+  const request = priceRequests.find(item => item.clinicianId === clinicianId && item.status === "waiting");
+  if (!request) return;
+  updateClinician(clinicianId, { price: request.to });
+  decide(clinicianId, "approved", now);
+}
+/** The administrator declines: the price stays as it was. */
+export const declinePriceRequest = (clinicianId: string, now = Date.now()) => decide(clinicianId, "declined", now);
 
 const initialsOf = (name: string) => name.replace(/^Dr\.? /i, "").split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join("") || "?";
 const randomId = () => {

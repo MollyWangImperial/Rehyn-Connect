@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Users, Video } from "lucide-react";
-import { CONSULTATION_MINUTES, clinicianGroups, dayText, directoryHref, groupPlace, mainSection, nextFree, nextWeeklySessions, whenText, type Clinician } from "@/content/clinicians";
+import { CONSULTATION_MINUTES, clinicianGroups, dayText, directoryHref, groupPlace, isToday, mainSection, nextFree, nextWeeklySessions, professionalTitle, whenText, type Clinician } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
 import { useClinicians } from "@/lib/clinician-portal";
 import "@/pages/library-clinicians.css";
@@ -63,8 +63,8 @@ export default function AskClinicians({ topic }: { topic: ClinicianTopic }) {
               <span className="lib-ask-clin-face" aria-hidden="true" style={{ background: hue.tint, color: hue.ink }}>{person.initials}</span>
               <span className="lib-ask-clin-who">
                 <strong>{person.name}</strong>
-                <span>{person.role}</span>
-                <span className="lib-ask-clin-meta">{free ? `Next free ${dayText(free, now).replace(/^(Today|Tomorrow)$/, word => word.toLowerCase())}` : "Booking soon"} · {CONSULTATION_MINUTES} min by video</span>
+                <span>{professionalTitle(person)}</span>
+                <span className="lib-ask-clin-meta">{!free ? "Booking soon" : isToday(free, now) ? "Available now" : `Next free ${dayText(free, now).replace(/^Tomorrow$/, "tomorrow")}`} · {CONSULTATION_MINUTES} min by video</span>
               </span>
               <Link href={`~/clinicians/${person.id}#book`} className="lib-ask-clin-ask" aria-label={`Ask ${person.name} a question in a consultation`}>Ask {person.first}</Link>
             </li>

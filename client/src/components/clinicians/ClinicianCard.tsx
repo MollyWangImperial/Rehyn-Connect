@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { Link } from "wouter";
 import { Bookmark, CalendarDays, Check, ShieldCheck } from "lucide-react";
-import { clinicianGroups, experienceText, mainSection, nextFree, priceText, whenText, type Clinician } from "@/content/clinicians";
+import { clinicianGroups, experienceText, isToday, mainSection, nextFree, priceText, professionalTitle, whenText, type Clinician } from "@/content/clinicians";
+import { registerText } from "@/lib/clinician-portal";
 import { hueStyle } from "./parts";
 
 // A clinician's card in the directory (and its live preview in the portal's profile editor), and the Save bookmark.
@@ -47,8 +48,8 @@ export default function ClinicianCard({ clinician, now, preview = false }: { cli
         <span className="cl-avatar" aria-hidden="true" style={hueStyle(mainSection(clinician).hue)}>{clinician.initials}</span>
         <div className="cl-card-who">
           <h3 className="cl-card-name">{clinician.name}</h3>
-          <p className="cl-card-role">{clinician.role}</p>
-          <p className={`cl-registered ${pending ? "is-pending" : ""}`}><ShieldCheck size={14} aria-hidden="true" />{pending ? "Registration check pending" : "Registered"}</p>
+          <p className="cl-card-role">{professionalTitle(clinician)}</p>
+          <p className={`cl-registered ${pending ? "is-pending" : ""}`}><ShieldCheck size={14} aria-hidden="true" />{registerText(clinician)}</p>
         </div>
         <p className="cl-price"><strong>{priceText(clinician.price)}</strong><span>per consultation</span></p>
       </div>
@@ -59,7 +60,7 @@ export default function ClinicianCard({ clinician, now, preview = false }: { cli
       )}
       <ul className="cl-facts">
         <li><Check size={16} aria-hidden="true" />{experienceText(clinician)}</li>
-        <li><CalendarDays size={16} aria-hidden="true" />Next free <strong>{first ? whenText(first, now) : "in a few weeks"}</strong></li>
+        <li><CalendarDays size={16} aria-hidden="true" />{first && isToday(first, now) ? <strong>Available now</strong> : <>Next free <strong>{first ? whenText(first, now) : "in a few weeks"}</strong></>}</li>
       </ul>
       {preview ? (
         <div className="cl-card-actions" aria-hidden="true"><span className="cl-btn">View profile</span><span className="cl-btn is-light">Book</span></div>

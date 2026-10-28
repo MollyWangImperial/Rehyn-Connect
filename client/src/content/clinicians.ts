@@ -232,17 +232,41 @@ export const listedClinicians = () => everyone.filter(clinician => clinician.lis
 
 export const findClinician = (id: string | null | undefined) => everyone.find(clinician => clinician.id === id);
 
-/** "Consultant · 14 years". */
-export const experienceText = (clinician: Clinician) => `${clinician.level} · ${clinician.years} ${clinician.years === 1 ? "year" : "years"}`;
+/** Their specific professional title: the level and the role together, "Senior neurological physiotherapist" or
+ *  "Specialist speech & language therapist", and the role alone when it already starts with the level ("Consultant
+ *  stroke physician"). A level on its own ("Specialist") says too little about who someone is. */
+export function professionalTitle(clinician: Pick<Clinician, "level" | "role">) {
+  const role = clinician.role.trim() || "Clinician";
+  if (!clinician.level || role.toLowerCase().startsWith(clinician.level.toLowerCase())) return role;
+  const keepCase = /^[A-Z]{2,}\b/.test(role);
+  return `${clinician.level} ${keepCase ? role : role.charAt(0).toLowerCase() + role.slice(1)}`;
+}
+/** "14 years' experience". */
+export const experienceText = (clinician: Pick<Clinician, "years">) =>
+  clinician.years > 0 ? `${clinician.years} ${clinician.years === 1 ? "year's" : "years'"} experience` : "Less than a year's experience";
+/** Whether a time is later today: their next free time shows as "Available now" rather than as a time. */
+export const isToday = (date: Date, now = new Date()) => date.toDateString() === now.toDateString();
 /** "1,320 consultation hours", or "New on Rehyn". */
 export const hoursText = (clinician: Clinician) =>
   clinician.hours > 0 ? `${clinician.hours.toLocaleString("en-GB")} consultation ${clinician.hours === 1 ? "hour" : "hours"}` : "New on Rehyn";
 /** "£85". */
 export const priceText = (price: number) => `£${price}`;
 
-/** What a clinician can charge for a 30-minute consultation, in pounds, in line with the market rate. */
+/** The suggested price range for a 30-minute consultation, in pounds, in line with the market rate. A clinician can ask
+ *  for a price outside it; every change of price is a request that Rehyn's administrator approves. */
 export const PRICE_MIN = 50;
 export const PRICE_MAX = 100;
+/** The prices a change can be requested for at all, in pounds. */
+export const PRICE_REQUEST_MIN = 20;
+export const PRICE_REQUEST_MAX = 300;
+/** Rehyn's share of what a patient pays: the clinician receives the rest. 50% for now, as an example rate. */
+export const REHYN_SHARE = 0.5;
+/** What the clinician receives of an amount a patient pays, after Rehyn's share: "£25" of £50. */
+export const clinicianShare = (amount: number) => Math.round(amount * (1 - REHYN_SHARE) * 100) / 100;
+/** "£25", or "£27.50" when it isn't whole pounds. */
+export const poundsText = (amount: number) => `£${Number.isInteger(amount) ? amount : amount.toFixed(2)}`;
+/** "50%". */
+export const shareText = (share: number) => `${Math.round(share * 100)}%`;
 /** Added to the clinician's price for an urgent consultation, in pounds, and paid to them with it. */
 export const URGENT_FEE = 20;
 /** What a patient pays for an urgent consultation with this clinician. */

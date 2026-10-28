@@ -2,7 +2,8 @@ import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "
 import { Link } from "wouter";
 import { ArrowRight, Check, Video } from "lucide-react";
 import {
-  MAX_SESSION_PRICE, WINDOW_HOURS, clinicianGroups, clockText, freeTimes, sessionPriceText, upcomingSessions, whenText, works, type Clinician,
+  MAX_SESSION_PRICE, REHYN_SHARE, WINDOW_HOURS, clinicianGroups, clinicianShare, clockText, freeTimes, poundsText, sessionPriceText, shareText,
+  upcomingSessions, whenText, works, type Clinician,
 } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
 import { profileGaps, registerText } from "@/lib/clinician-portal";
@@ -406,8 +407,8 @@ export function PortalEarnings({ me }: { me: Clinician }) {
     <div className="pt-page">
       <Head kicker={new Date(now).toLocaleDateString("en-GB", { month: "long", year: "numeric" })} title="Earnings & payouts" />
       <div className="pt-stats">
-        <p className="pt-stat"><span>Held now</span><strong>{pounds(held.reduce((sum, item) => sum + item.price, 0))}</strong><span>{held.length} booked, paid when you finish each one</span></p>
-        <p className="pt-stat"><span>Paid this month</span><strong>{pounds(paidMonth.reduce((sum, item) => sum + item.price, 0))}</strong><span>{paidMonth.length} consultation{paidMonth.length === 1 ? "" : "s"}, before Rehyn's fee</span></p>
+        <p className="pt-stat"><span>Held now · yours</span><strong>{poundsText(clinicianShare(held.reduce((sum, item) => sum + item.price, 0)))}</strong><span>{held.length} booked, paid when you finish each one</span></p>
+        <p className="pt-stat"><span>Paid this month · yours</span><strong>{poundsText(clinicianShare(paidMonth.reduce((sum, item) => sum + item.price, 0)))}</strong><span>{paidMonth.length} consultation{paidMonth.length === 1 ? "" : "s"}, after Rehyn's {shareText(REHYN_SHARE)} share</span></p>
       </div>
       <section className="pt-flow" aria-labelledby="pt-flow">
         <h2 className="cl-h2" id="pt-flow">How a payment moves</h2>
@@ -427,13 +428,14 @@ export function PortalEarnings({ me }: { me: Clinician }) {
         {rows.length === 0 ? <p className="cl-small">Nothing here yet.</p> : (
           <div className="pt-table-wrap">
             <table className="pt-table">
-              <thead><tr><th>When</th><th>Reference</th><th>Kind</th><th>Amount</th><th>Status</th></tr></thead>
+              <thead><tr><th>When</th><th>Reference</th><th>Kind</th><th>Patient paid</th><th>Yours</th><th>Status</th></tr></thead>
               <tbody>{rows.map(item => (
                 <tr key={item.id}>
                   <td>{item.at ? whenText(new Date(item.at)) : whenText(new Date(item.createdAt))}</td>
                   <td>{item.ref}</td>
                   <td>{item.urgent ? "Urgent" : "Consultation"}</td>
                   <td className="pt-amount">£{item.price}</td>
+                  <td className="pt-amount">{poundsText(clinicianShare(item.price))}</td>
                   <td><span className={`pt-chip is-${item.payment}`}>{MONEY_TEXT[item.payment]}</span></td>
                 </tr>
               ))}</tbody>
@@ -441,7 +443,7 @@ export function PortalEarnings({ me }: { me: Clinician }) {
           </div>
         )}
       </section>
-      <p className="cl-small">Rehyn's fee: [to be confirmed]. Amounts above are what patients pay.</p>
+      <p className="cl-small">Rehyn's share is {shareText(REHYN_SHARE)} of what each patient pays; you receive the other {shareText(1 - REHYN_SHARE)}, shown as "Yours".</p>
     </div>
   );
 }

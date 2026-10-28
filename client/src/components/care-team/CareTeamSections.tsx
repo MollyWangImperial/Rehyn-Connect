@@ -10,7 +10,7 @@ import { AuthorBadge, CheckExplainer, Empty, RulesForm, ago, nameOf, withYourNam
 // The care team's other sections: an overview, the members seen in the lounge, every report (the
 // lounge's, and the ones made on this device about My community's feed), and the rules.
 
-export type CareSection = "overview" | "members" | "lounge" | "reports" | "settings";
+export type CareSection = "overview" | "members" | "lounge" | "reports" | "prices" | "settings";
 export const careHref = (section: CareSection) => (section === "lounge" ? "/care-team" : `/care-team?section=${section}`);
 
 function Heading({ title, intro }: { title: string; intro: string }) {

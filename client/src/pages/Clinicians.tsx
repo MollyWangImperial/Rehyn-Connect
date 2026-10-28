@@ -12,8 +12,8 @@ import MyConsultations from "@/components/clinicians/MyConsultations";
 import { UrgentStart, UrgentStatus } from "@/components/clinicians/Urgent";
 import { hueStyle } from "@/components/clinicians/parts";
 import {
-  CLINICIAN_TYPES, CONSULTATION_MINUTES, SEEN_BY, WINDOW_HOURS, clinicianGroups, directoryFilters, directoryHref,
-  experienceText, freeSoon, groupPlace, hoursText, mainSection, nextFree, priceText, upcomingSessions, type Clinician, type ClinicianType,
+  CLINICIAN_TYPES, CONSULTATION_MINUTES, WINDOW_HOURS, clinicianGroups, directoryFilters, directoryHref,
+  experienceText, freeSoon, groupPlace, hoursText, mainSection, nextFree, priceText, professionalTitle, upcomingSessions, type Clinician, type ClinicianType,
 } from "@/content/clinicians";
 import { librarySections } from "@/content/library";
 import { registerText, useClinicians } from "@/lib/clinician-portal";
@@ -29,7 +29,7 @@ import "./clinicians.css";
 //                         ?area=…&group=… opens it already narrowed
 //   /consultations        the same page with My consultations showing: the patient's consultations and transcripts
 //   /sessions             the same page with the weekly group sessions showing
-//   /by-condition         start from a condition (artboard 2)
+//   /by-condition         browse by condition area (artboard 2)
 //   /urgent, /urgent/:id  an urgent consultation: alert every clinician free in the next 48 hours, then match
 //   /portal               the clinician portal (a preview: try it as one of the example clinicians)
 //   /meet/:room           the meeting room, for a consultation or a group session
@@ -72,7 +72,7 @@ function Directory() {
       if (types.length && !types.includes(person.type)) return false;
       if (soon && !freeSoon(person, now)) return false;
       if (words) {
-        const text = `${person.name} ${person.role} ${places.map(place => place.group.title).join(" ")}`.toLowerCase();
+        const text = `${person.name} ${professionalTitle(person)} ${places.map(place => place.group.title).join(" ")}`.toLowerCase();
         if (!text.includes(words)) return false;
       }
       return true;
@@ -108,7 +108,7 @@ function Directory() {
               <span className="cl-area-dot" aria-hidden="true" />{item.title}
             </button>
           ))}
-          {!section && <Link href="/by-condition" className="cl-band-start">Not sure? Start from your condition →</Link>}
+          {!section && <Link href="/by-condition" className="cl-band-start">Browse clinicians by condition area →</Link>}
         </div>
         {section && (
           <div className="cl-band-groups" style={hueStyle(section.hue)} role="group" aria-label={`Within ${section.title}`}>
@@ -116,7 +116,7 @@ function Directory() {
             {section.groups.map(group => (
               <button key={group.id} type="button" className="cl-group-chip" aria-pressed={groups.includes(group.id)} onClick={() => setGroups(toggle(groups, group.id))}>{group.title}</button>
             ))}
-            <Link href="/by-condition" className="cl-band-start">Not sure? Start from your condition →</Link>
+            <Link href="/by-condition" className="cl-band-start">Browse clinicians by condition area →</Link>
           </div>
         )}
       </form>
@@ -260,16 +260,19 @@ function ClinicianHub({ page }: { page: ClinicianPage }) {
 
 // ------------------------------------------------------------------------------------------ start from a condition
 
-const STEPS = ["Your condition", "Kind of help", "Choose a person"];
+const STEPS = ["Condition area", "Type of clinician", "Clinicians listed"];
 
 /** The Library's sections as cards: the arrow opens the directory at that section, a group chip at that group. The
- *  next two steps happen there, with the type-of-clinician filter and the results. */
+ *  next two steps happen there, with the type-of-clinician filter and the results. It only lists: nothing here says who
+ *  someone should see (that would be advice about their care), so each card counts the clinicians listed for it. */
 function ByCondition() {
+  const listed = useClinicians().filter(person => person.listed !== false);
+  const countFor = (sectionId: string) => listed.filter(person => clinicianGroups(person).some(place => place.section.id === sectionId)).length;
   return (
     <div className="cl-page">
-      <p className="cl-kicker"><span aria-hidden="true" />Clinicians · Step 1 of 3</p>
-      <h1 className="cl-h1" data-page-heading>What would you like help with<span aria-hidden="true">?</span></h1>
-      <p className="cl-lead">Pick the area closest to what you are living with. We will show the clinicians who work with it, and you can narrow down from there.</p>
+      <p className="cl-kicker"><span aria-hidden="true" />Clinicians · By condition area</p>
+      <h1 className="cl-h1" data-page-heading>Browse by condition area<span aria-hidden="true">.</span></h1>
+      <p className="cl-lead">Choose a Library section, or a group within it, to see the clinicians who list it among the conditions they work with. You can narrow the list from there.</p>
 
       <ol className="cl-steps" aria-label="Steps">
         {STEPS.map((step, index) => (
@@ -290,15 +293,15 @@ function ByCondition() {
             <div className="cl-area-chips">
               {section.groups.map(group => <Link key={group.id} href={directoryHref(section.id, group.id)} className="cl-area-chip">{group.title}</Link>)}
             </div>
-            {SEEN_BY[section.id] && <p className="cl-area-who"><strong>Often seen by</strong> · {SEEN_BY[section.id]}</p>}
+            <p className="cl-area-who"><strong>{countFor(section.id)} {countFor(section.id) === 1 ? "clinician" : "clinicians"} listed</strong> for this area</p>
           </section>
         ))}
       </div>
 
       <div className="cl-skip">
         <div className="cl-skip-text">
-          <h2 className="cl-h2">Already know who you want?</h2>
-          <p>Skip ahead and browse everyone with filters.</p>
+          <h2 className="cl-h2">Prefer to search?</h2>
+          <p>Browse everyone, with search and filters.</p>
         </div>
         <Link href="/" className="cl-request">Browse all clinicians</Link>
       </div>
@@ -320,7 +323,7 @@ function Profile({ clinician }: { clinician: Clinician }) {
             <div className="cl-hero-text">
               <p className="cl-hero-kicker">{section.title}</p>
               <h1 className="cl-hero-name" data-page-heading>{clinician.name}</h1>
-              <p className="cl-hero-role">{clinician.role}</p>
+              <p className="cl-hero-role">{professionalTitle(clinician)}</p>
               <div className="cl-hero-pills">
                 <span className={`cl-pill ${clinician.own && !clinician.verified ? "is-pending" : "is-ok"}`}><ShieldCheck size={14} aria-hidden="true" />{registerText(clinician)}</span>
                 <span className="cl-pill"><Check size={14} aria-hidden="true" />{experienceText(clinician)}</span>

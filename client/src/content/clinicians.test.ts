@@ -128,9 +128,9 @@ describe("the Clinicians tab", () => {
     expect(html).toMatch(/<a (?=[^>]*class="cl-tab")(?=[^>]*aria-current="page")[^>]*href="\/clinicians\/sessions"/);
   });
 
-  it("starts from a condition with every Library section and group, each opening the directory narrowed to it", () => {
+  it("browses by condition area with every Library section and group, each opening the directory narrowed to it", () => {
     const { html, text } = draw("/clinicians/by-condition");
-    expect(text).toContain("What would you like help with");
+    expect(text).toContain("Browse by condition area");
     expect(text).not.toContain("We couldn&#x27;t find that clinician");
     for (const section of librarySections) {
       expect(SEEN_BY[section.id], section.id).toBeTruthy();
@@ -155,7 +155,8 @@ describe("the Clinicians tab", () => {
     const { html, text } = draw("/clinicians/amara-osei");
     expect(text).toContain("Dr Amara Osei");
     expect(text).toContain("Registered with the GMC");
-    expect(text).toContain("Consultant · 14 years");
+    expect(text).toContain("Consultant stroke physician");
+    expect(text).toContain("14 years&#x27; experience");
     expect(text).toContain("1,320 consultation hours");
     expect(text).toContain("£85");
     expect(html).toContain('href="/library/stroke/ischaemic"');

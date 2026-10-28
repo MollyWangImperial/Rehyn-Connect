@@ -152,6 +152,12 @@
 .ct-rows li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 0; font-size: 14.5px; }
 .ct-rows li + li { border-top: 1px solid var(--ct-line); }
 .ct-rows li > .ct-soft:last-child { margin-left: auto; }
+/* Clinician prices: who, the change, their reason, and Approve / Decline. */
+.ct-price-rows li { align-items: flex-start; }
+.ct-price-who { flex: 1 1 100%; }
+.ct-price-change { flex: 1 1 auto; }
+.ct-price-reason { flex: 1 1 100%; color: var(--ct-ink); font-style: italic; }
+.ct-price-actions { display: flex; gap: 8px; margin-left: auto; }
 .ct-rows-text li { justify-content: space-between; }
 .ct-row-main { display: flex; flex: 1 1 260px; flex-direction: column; gap: 2px; min-width: 0; }
 .ct-table-wrap { overflow-x: auto; }

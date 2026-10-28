@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Bookmark, Users, Video } from "lucide-react";
-import { findClinician, groupPlace, mainSection, sessionGroupIds, sessionOpen, sessionPriceText, upcomingSessions, whenText, type GroupSession } from "@/content/clinicians";
+import { findClinician, groupPlace, mainSection, professionalTitle, sessionGroupIds, sessionOpen, sessionPriceText, upcomingSessions, whenText, type GroupSession } from "@/content/clinicians";
 import { useClinicians } from "@/lib/clinician-portal";
 import { askInAdvance, sessionRoom, togglePlace, useCreatedSessions, usePlaces } from "@/lib/consultations";
 import { hueStyle } from "./parts";
@@ -43,7 +43,7 @@ export function SessionCard({ session, now, host = false }: { session: GroupSess
       <p className="cl-session-when">{live && open ? <span className="cl-live">Live now</span> : whenText(new Date(session.start), new Date(now))} · {session.minutes} min · {sessionPriceText(session)}</p>
       <h3 className="cl-session-title">{session.title}</h3>
       <p className="cl-session-about">{session.about}{listedWith ? ` · ${listedWith}` : ""}</p>
-      <p className="cl-session-host"><span className="cl-avatar is-small" aria-hidden="true">{clinician.initials}</span><span><strong>{clinician.name}</strong>{clinician.role}</span></p>
+      <p className="cl-session-host"><span className="cl-avatar is-small" aria-hidden="true">{clinician.initials}</span><span><strong>{clinician.name}</strong>{professionalTitle(clinician)}</span></p>
       <div className="cl-card-actions">
         {open
           ? <Link href={`~/clinicians/meet/${sessionRoom(session)}${host ? "?as=clinician" : ""}`} className="cl-btn"><Video size={18} aria-hidden="true" />{host ? "Start the session" : "Join the session"}</Link>
