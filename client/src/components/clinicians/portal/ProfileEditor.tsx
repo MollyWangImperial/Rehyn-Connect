@@ -90,7 +90,7 @@ function AboutTemplate({ draft, onUse }: { draft: Clinician; onUse: (text: strin
 }
 
 /**
- * Pricing: your current price and what you receive of it after Rehyn's share, the suggested range, the urgent fee, and
+ * Pricing: your current price, Rehyn's share of it, the urgent fee, and
  * a request to change your price. A new price only takes effect once Rehyn's administrator approves it.
  */
 function PricingCard({ me }: { me: Clinician }) {
@@ -108,12 +108,11 @@ function PricingCard({ me }: { me: Clinician }) {
       <h2 className="cl-h2" id="pf-price">Pricing</h2>
       <div className="pt-price-now">
         <p><span className="cl-label">A 30-minute consultation</span><strong>{poundsText(me.price)}</strong></p>
-        <p><span className="cl-label">You receive</span><strong>{poundsText(clinicianShare(me.price))}</strong><span className="cl-small">after Rehyn's {shareText(REHYN_SHARE)} share</span></p>
+        {!waiting && !asking && <button type="button" className="cl-btn is-light" onClick={() => { setAsking(true); setPrice(me.price); }}>Request a price change</button>}
       </div>
-      <ul className="pt-price-notes">
-        <li id="pf-price-range"><strong>Suggested range: £{PRICE_MIN} to £{PRICE_MAX}</strong>In line with what a 30-minute private consultation usually costs.</li>
-        <li><strong>Rehyn's share: {shareText(REHYN_SHARE)}</strong>Rehyn keeps {shareText(REHYN_SHARE)} of what the patient pays, and you receive {shareText(1 - REHYN_SHARE)}: {poundsText(clinicianShare(me.price))} of each {poundsText(me.price)} consultation.</li>
-        <li><strong>Urgent: £{URGENT_FEE} more</strong>Urgent consultations cost your price plus £{URGENT_FEE}, so {poundsText(urgent)}. You receive {poundsText(clinicianShare(urgent))} of it.</li>
+      <ul className="pt-price-lines">
+        <li>Rehyn's share is {shareText(REHYN_SHARE)}: you receive {poundsText(clinicianShare(me.price))} of each {poundsText(me.price)} consultation.</li>
+        <li>Urgent consultations are £{URGENT_FEE} more ({poundsText(urgent)}), of which you receive {poundsText(clinicianShare(urgent))}.</li>
       </ul>
 
       {waiting ? (
@@ -124,8 +123,8 @@ function PricingCard({ me }: { me: Clinician }) {
       ) : asking ? (
         <div className="pt-price-request">
           <label className="cl-field pt-price-field"><span className="cl-label">New price for 30 minutes</span>
-            <span className="pt-price-input"><strong aria-hidden="true">£</strong><input type="number" min={PRICE_REQUEST_MIN} max={PRICE_REQUEST_MAX} value={price} onChange={event => setPrice(Number(event.target.value) || 0)} aria-label="New price in pounds" aria-describedby="pf-price-range" /></span></label>
-          {price > 0 && <p className="cl-small">You would receive {poundsText(clinicianShare(price))} of each consultation.{!inRange && price >= PRICE_REQUEST_MIN && price <= PRICE_REQUEST_MAX ? " This is outside the suggested range, so say why below." : ""}</p>}
+            <span className="pt-price-input"><strong aria-hidden="true">£</strong><input type="number" min={PRICE_REQUEST_MIN} max={PRICE_REQUEST_MAX} value={price} onChange={event => setPrice(Number(event.target.value) || 0)} aria-label="New price in pounds" /></span></label>
+          {price > 0 && <p className="cl-small">You would receive {poundsText(clinicianShare(price))} of each consultation.{!inRange && price >= PRICE_REQUEST_MIN && price <= PRICE_REQUEST_MAX ? ` This is outside the usual £${PRICE_MIN} to £${PRICE_MAX}, so say why below.` : ""}</p>}
           {(price < PRICE_REQUEST_MIN || price > PRICE_REQUEST_MAX) && <p className="cl-small pt-price-warn" role="status">A price can be from £{PRICE_REQUEST_MIN} to £{PRICE_REQUEST_MAX}.</p>}
           <label className="cl-field"><span className="cl-label">Reason for the change {inRange ? "(optional)" : ""}</span>
             <textarea className="pt-textarea" rows={2} maxLength={300} value={reason} placeholder="For example: more years of experience, or a new qualification." onChange={event => setReason(event.target.value)} /></label>
@@ -134,16 +133,9 @@ function PricingCard({ me }: { me: Clinician }) {
             <button type="button" className="cl-btn is-light" onClick={() => { setAsking(false); setPrice(me.price); }}>Cancel</button>
           </div>
         </div>
-      ) : (
-        <div className="pt-price-request">
-          {request?.status === "approved" && <p className="cl-sent" role="status"><strong>Approved.</strong> Your price is now {poundsText(request.to)}.</p>}
-          {request?.status === "declined" && <p className="cl-notice" role="status">Your request for {poundsText(request.to)} wasn't approved. Your price stays {poundsText(me.price)}.</p>}
-          <button type="button" className="cl-btn is-light" onClick={() => { setAsking(true); setPrice(me.price); }}>Request a price change</button>
-          <p className="cl-small">Changes of price are approved by Rehyn's administrator before patients see them.</p>
-        </div>
-      )}
-      <p className="cl-small">The patient's payment is held when they book and paid to you, less Rehyn's share, when you finish the consultation. You set the price of group sessions on the Group sessions page.</p>
-    </section>
+      ) : request?.status === "approved" ? <p className="cl-sent" role="status"><strong>Approved.</strong> Your price is now {poundsText(request.to)}.</p>
+        : request?.status === "declined" ? <p className="cl-notice" role="status">Your request for {poundsText(request.to)} wasn't approved. Your price stays {poundsText(me.price)}.</p>
+        : null}    </section>
   );
 }
 
