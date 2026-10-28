@@ -28,9 +28,11 @@
 /* The tabs fit on one row on a wide screen, so the Sunday circle's peek can open below the bar.
    On a narrower one they scroll sideways and the peek stays shut. */
 .site-tabs { display: flex; flex: 0 1 auto; align-items: stretch; gap: 2px; min-width: 0; margin-left: auto; padding: 8px 2px 2px; }
-.site-tab { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 66px; min-height: 58px; padding: 6px 10px; border-radius: 16px; color: #42544b; font-size: 12.5px; font-weight: 650; line-height: 1.1; white-space: nowrap; text-decoration: none; transition: background .16s ease, color .16s ease; }
-.site-tab:hover { background: #ebf0ea; color: #173d2f; }
-.site-tab.is-active { background: #e2ece4; color: #173d2f; box-shadow: inset 0 0 0 1px #cbded0; }
+/* The page you are on is underlined, LinkedIn-style, rather than sat on a coloured pill. */
+.site-tab { position: relative; display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 66px; min-height: 58px; padding: 6px 10px; border-radius: 8px; color: #5e6a64; font-size: 12.5px; font-weight: 650; line-height: 1.1; white-space: nowrap; text-decoration: none; transition: background .16s ease, color .16s ease; }
+.site-tab:hover { background: #f1f3ee; color: #173d2f; }
+.site-tab.is-active { color: #173d2f; }
+.site-tab.is-active::after { content: ""; position: absolute; right: 6px; bottom: 0; left: 6px; height: 2px; border-radius: 2px 2px 0 0; background: #173d2f; }
 .site-tab:focus-visible { outline: 3px solid #285b49; outline-offset: 2px; }
 .site-tab-icon { position: relative; display: grid; place-items: center; height: 22px; }
 .site-tab-count, .site-tab-new, .site-tab-live { position: absolute; top: -9px; left: calc(100% - 6px); display: inline-flex; align-items: center; gap: 3px; height: 18px; padding: 0 6px; border-radius: 999px; font: 800 10px/1 "Manrope", sans-serif; white-space: nowrap; }
@@ -82,15 +84,11 @@
 .site-rows { display: flex; flex-direction: column; gap: 2px; margin-top: 12px !important; }
 .site-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; padding: 6px 8px; border: 0; border-radius: 14px; background: transparent; color: #1B2A24; font: inherit; font-size: 14.5px; font-weight: 650; text-align: left; cursor: pointer; }
 .site-row:hover { background: #f1f3ee; color: #1B2A24; }
-.site-row.is-active { background: #e2ece4; }
-.site-row-icon { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 11px; }
-.site-row-icon.is-rose { background: #fbe3db; color: #a84232; }
-.site-row-icon.is-sun { background: #fbf0dc; color: #8a5a12; }
-.site-row-icon.is-mint { background: #e5eee7; color: #205345; }
-.site-row-icon.is-green { background: #183d34; color: #eff5ec; }
-.site-row-icon.is-sky { background: #e1ebf5; color: #1F5FA8; }
-.site-row-icon.is-lilac { background: #ece7f7; color: #4a3f9c; }
-.site-row[aria-expanded="true"] { background: #e2ece4; }
+.site-row.is-active { background: #eef0ec; }
+/* One quiet tile for every row (as LinkedIn keeps its side rail grey): the colour is saved for counts and the active page. */
+.site-row-icon { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: #eef0ec; color: #42544b; }
+.site-row:hover .site-row-icon, .site-row.is-active .site-row-icon, .site-row[aria-expanded="true"] .site-row-icon { color: #173d2f; }
+.site-row[aria-expanded="true"] { background: #eef0ec; }
 .site-row-badge.is-new { background: #a84232; }
 .site-row-label { flex: 1; min-width: 0; }
 .site-row-note { display: inline-flex; align-items: center; gap: 4px; color: #5e6a64; font-size: 13px; font-weight: 600; }
@@ -129,7 +127,7 @@
 .site-groups ul { display: flex; flex-direction: column; gap: 2px; }
 .site-group { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 4px 8px; border-radius: 14px; color: #1B2A24; font-size: 14px; font-weight: 600; }
 .site-group:hover { background: #ebeee8; color: #1B2A24; }
-.site-group-tile { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e5eee7; color: #205345; font: 800 11px "Manrope", sans-serif; }
+.site-group-tile { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: #eef0ec; color: #42544b; font: 800 11px "Manrope", sans-serif; }
 .site-group.is-more { color: #285b49; }
 .site-group.is-more .site-group-tile { border: 1.5px dashed #9fb3a7; background: transparent; color: #285b49; }
 .site-group-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

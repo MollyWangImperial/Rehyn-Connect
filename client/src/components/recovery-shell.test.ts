@@ -49,11 +49,11 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     const drawn = draw("/community");
     vi.useRealTimers();
     const { html, text, hrefs } = drawn;
-    for (const words of ["View your profile", "Friends", "Saved", "My events", "Alerts", "Your groups", "See all", "Start a group"]) {
+    for (const words of ["View your profile", "Friends", "Saved", "My events", "My consultations", "Alerts", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }
     for (const gone of ["The library", "Look up a topic", "Open the library"]) expect(text, gone).not.toContain(gone);
-    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
+    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/clinicians/consultations", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
       expect(hrefs, href).toContain(href);
     }
     // "View your profile" opens Settings → Your profile (a window), not a page.
