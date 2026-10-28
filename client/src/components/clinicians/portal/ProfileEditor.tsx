@@ -111,8 +111,8 @@ function PricingCard({ me }: { me: Clinician }) {
         {!waiting && !asking && <button type="button" className="cl-btn is-light" onClick={() => { setAsking(true); setPrice(me.price); }}>Request a price change</button>}
       </div>
       <ul className="pt-price-lines">
-        <li>Rehyn's share is {shareText(REHYN_SHARE)}: you receive {poundsText(clinicianShare(me.price))} of each {poundsText(me.price)} consultation.</li>
-        <li>Urgent consultations are £{URGENT_FEE} more ({poundsText(urgent)}), of which you receive {poundsText(clinicianShare(urgent))}.</li>
+        <li>Rehyn takes {shareText(REHYN_SHARE)} of each booking, so you're paid {poundsText(clinicianShare(me.price))} for every {poundsText(me.price)} consultation.</li>
+        <li>Urgent bookings cost patients £{URGENT_FEE} extra ({poundsText(urgent)} in total). You're paid {poundsText(clinicianShare(urgent))} for these.</li>
       </ul>
 
       {waiting ? (
