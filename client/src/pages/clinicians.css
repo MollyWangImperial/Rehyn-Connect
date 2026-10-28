@@ -208,8 +208,6 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
 .cl-band-groups { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 16px; background: var(--cl-tint); }
 .cl-band-groups .cl-groups-title { margin-right: 6px; }
 .cl-band-groups .cl-group-chip { border-color: #fff; }
-.cl-band-start { margin-left: auto; color: var(--cl-ink, #2f6851); font: 700 13px "Manrope", sans-serif; text-decoration: none; white-space: nowrap; }
-.cl-band-start:hover { text-decoration: underline; }
 .cl-count-for { color: #596a62; font: 400 16px "DM Sans", sans-serif; }
 .cl-count:focus { outline: none; }
 @media (max-width: 640px) {
@@ -218,7 +216,6 @@ legend.cl-label { margin-bottom: 8px; padding: 0; }
   .cl-band-search { height: 52px; padding: 0 16px; }
   .cl-band-search input { font-size: 16px; }
   .cl-band-go { height: 48px; }
-  .cl-band-start { margin-left: 0; }
   /* The tabs wrap onto two lines rather than scrolling, so every page stays in view. */
   .cl-tabs { flex-wrap: wrap; overflow: visible; }
   .cl-tab { min-height: 44px; padding: 0 14px; font-size: 14px; }

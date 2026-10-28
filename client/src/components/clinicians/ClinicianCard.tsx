@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { Link } from "wouter";
 import { Bookmark, CalendarDays, Check, ShieldCheck } from "lucide-react";
-import { clinicianGroups, experienceText, isToday, mainSection, nextFree, priceText, professionalTitle, whenText, type Clinician } from "@/content/clinicians";
+import { clinicianGroups, experienceText, mainSection, priceText, professionalTitle, type Clinician } from "@/content/clinicians";
 import { registerText } from "@/lib/clinician-portal";
 import { hueStyle } from "./parts";
 
@@ -37,10 +37,9 @@ export function SaveButton({ clinician, labelled = false }: { clinician: Clinici
   );
 }
 
-/** `preview`: drawn in the portal, with no links out. */
-export default function ClinicianCard({ clinician, now, preview = false }: { clinician: Clinician; now: Date; preview?: boolean }) {
+/** `preview`: drawn in the portal, with no links out. `now` is kept so callers that sort by it can pass it on. */
+export default function ClinicianCard({ clinician, preview = false }: { clinician: Clinician; now: Date; preview?: boolean }) {
   const places = clinicianGroups(clinician);
-  const first = nextFree(clinician, now);
   const pending = clinician.own && !clinician.verified;
   return (
     <article className="cl-card">
@@ -60,7 +59,8 @@ export default function ClinicianCard({ clinician, now, preview = false }: { cli
       )}
       <ul className="cl-facts">
         <li><Check size={16} aria-hidden="true" />{experienceText(clinician)}</li>
-        <li><CalendarDays size={16} aria-hidden="true" />{first && isToday(first, now) ? <strong>Available now</strong> : <>Next free <strong>{first ? whenText(first, now) : "in a few weeks"}</strong></>}</li>
+        {/* Every listed clinician is shown as available: a "next free" time read as a promise of that slot, which booking may not keep. */}
+        <li><CalendarDays size={16} aria-hidden="true" /><strong>Available now</strong></li>
       </ul>
       {preview ? (
         <div className="cl-card-actions" aria-hidden="true"><span className="cl-btn">View profile</span><span className="cl-btn is-light">Book</span></div>

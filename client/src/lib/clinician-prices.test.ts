@@ -29,14 +29,15 @@ describe("a clinician's card", () => {
     expect(text).not.toMatch(/\b(Senior|Specialist|Consultant) · \d+ years\b/);
   });
 
-  it("says Available now when the next free time is today, rather than a time", () => {
+  it("says Available now on every card, never a next free time", () => {
     const now = new Date(2026, 9, 26, 9);
     const today = CLINICIANS.find(person => freeTimes(person, now, 24 * 14)[0]?.toDateString() === now.toDateString())!;
     const later = CLINICIANS.find(person => { const first = freeTimes(person, now, 24 * 14)[0]; return first && first.toDateString() !== now.toDateString(); })!;
-    const textToday = words(html(createElement(ClinicianCard, { clinician: today, now, preview: true })));
-    expect(textToday).toContain("Available now");
-    expect(textToday).not.toContain("Next free Today");
-    expect(words(html(createElement(ClinicianCard, { clinician: later, now, preview: true })))).toContain("Next free");
+    for (const person of [today, later]) {
+      const text = words(html(createElement(ClinicianCard, { clinician: person, now, preview: true })));
+      expect(text).toContain("Available now");
+      expect(text).not.toContain("Next free");
+    }
   });
 });
 
@@ -45,8 +46,8 @@ describe("the directory's wording", () => {
     const draw = (path: string) => words(html(createElement(Router, { hook: () => [path, () => {}] as [string, (to: string) => void], searchHook: () => "" },
       createElement(Route, { path: "/clinicians", nest: true }, createElement(Clinicians)))));
     const directory = draw("/clinicians");
-    expect(directory).toContain("Browse clinicians by condition area");
-    expect(directory).not.toMatch(/Start from your condition|Not sure\?/);
+    // The condition pills are the way in; the "Browse clinicians by condition area" link under them is gone.
+    expect(directory).not.toMatch(/Browse clinicians by condition area|Start from your condition|Not sure\?/);
     const byCondition = draw("/clinicians/by-condition");
     expect(byCondition).toContain("Browse by condition area");
     expect(byCondition).not.toMatch(/Often seen by|What would you like help with/);

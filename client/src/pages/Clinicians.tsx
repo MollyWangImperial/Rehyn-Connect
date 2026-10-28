@@ -108,7 +108,6 @@ function Directory() {
               <span className="cl-area-dot" aria-hidden="true" />{item.title}
             </button>
           ))}
-          {!section && <Link href="/by-condition" className="cl-band-start">Browse clinicians by condition area →</Link>}
         </div>
         {section && (
           <div className="cl-band-groups" style={hueStyle(section.hue)} role="group" aria-label={`Within ${section.title}`}>
@@ -116,7 +115,6 @@ function Directory() {
             {section.groups.map(group => (
               <button key={group.id} type="button" className="cl-group-chip" aria-pressed={groups.includes(group.id)} onClick={() => setGroups(toggle(groups, group.id))}>{group.title}</button>
             ))}
-            <Link href="/by-condition" className="cl-band-start">Browse clinicians by condition area →</Link>
           </div>
         )}
       </form>

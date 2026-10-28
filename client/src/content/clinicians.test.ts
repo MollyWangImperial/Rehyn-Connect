@@ -95,7 +95,9 @@ describe("the Clinicians tab", () => {
     expect(text).not.toMatch(/in person/i);
     expect(text).toContain("If something feels urgent, call 999");
     expect(text).toContain("examples while the directory is being set up");
-    for (const href of ["/clinicians/by-condition", "/clinicians/consultations", "/clinicians/sessions", "/clinicians/urgent"]) expect(html).toContain(`href="${href}"`);
+    for (const href of ["/clinicians/consultations", "/clinicians/sessions", "/clinicians/urgent"]) expect(html).toContain(`href="${href}"`);
+    // The "Browse clinicians by condition area" link was removed from the search band (the page itself stays reachable).
+    expect(html).not.toContain('href="/clinicians/by-condition"');
     // No portal link beside the tabs.
     expect(html).not.toContain('href="/clinicians/portal"');
     // The search band is the main thing, and the urgent route is one button.
