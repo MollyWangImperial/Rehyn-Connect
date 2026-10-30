@@ -31,8 +31,10 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
       // (The Poker night tab appears on Fridays only, so it is left out of the comparison.)
       const tabHrefs = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab ')).map(tag => tag.match(/href="([^"]*)"/)![1].replace(/&amp;/g, "&")).filter(href => href !== "/community?space=poker");
       expect(tabHrefs).toEqual([
-        "/community", "/library", "/clinicians", "/community?space=lounge", "/community?space=circle", "/community?space=groups", "/community?space=messages",
+        "/community", "/library", "/clinicians", "/community?space=circle", "/community?space=groups", "/community?space=messages",
       ]);
+      // The lounge is no longer a tab.
+      expect(html).not.toContain("The lounge");
       const active = (html.match(/<a\b[^>]*>/g) ?? []).filter(tag => tag.includes('class="site-tab is-active"'));
       expect(active).toHaveLength(1);
       expect(active[0]).toContain('href="/library"');
@@ -42,18 +44,21 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
     }
   });
 
-  it("shows your profile, friends, saved pages, events, alerts and two of your groups on the left (the Library card is in the feed's right lane); the care team only when switched on", () => {
+  it("shows your profile, friends, saved pages, alerts and two of your groups on the left (the Library card is in the feed's right lane); the care team only when switched on", () => {
     // Midday, outside the default quiet hours, when the Alerts row counts what is new.
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 9, 17, 12, 0));
     const drawn = draw("/community");
     vi.useRealTimers();
     const { html, text, hrefs } = drawn;
-    for (const words of ["View your profile", "Friends", "Saved", "My events", "My consultations", "Alerts", "Your groups", "See all", "Start a group"]) {
+    for (const words of ["View your profile", "Friends", "Saved", "My consultations", "Alerts", "Your groups", "See all", "Start a group"]) {
       expect(text, words).toContain(words);
     }
+    // My events (a link to the circle's My events tab) was taken out of the patient sidebar.
+    expect(text).not.toContain("My events");
+    expect(hrefs).not.toContain("/community?space=circle&tab=mine");
     for (const gone of ["The library", "Look up a topic", "Open the library"]) expect(text, gone).not.toContain(gone);
-    for (const href of ["/community?panel=friends", "/community?space=circle&tab=mine", "/clinicians/consultations", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
+    for (const href of ["/community?panel=friends", "/clinicians/consultations", "/community?space=groups&group=garden", "/community?space=groups", "/community?space=start"]) {
       expect(hrefs, href).toContain(href);
     }
     // "View your profile" opens Settings → Your profile (a window), not a page.
@@ -100,7 +105,8 @@ describe("the shell: tabs at the top right, your panel on the left", () => {
 describe("which tab an address belongs to", () => {
   it.each([
     ["/community", "", "feed"],
-    ["/community", "?space=lounge", "lounge"],
+    // The lounge was removed: its old address is the feed.
+    ["/community", "?space=lounge", "feed"],
     ["/community", "?space=circle&tab=mine", "circle"],
     ["/community", "?space=start", "groups"],
     ["/community", "?space=groups&group=garden&game=new", "groups"],

@@ -37,7 +37,8 @@ afterAll(() => { vi.useRealTimers(); });
 beforeEach(() => { vi.setSystemTime(MIDDAY); held.memory = blankCommunityMemory(); });
 
 const FEED: CommunityPlace = { space: "feed", group: null };
-const LOUNGE: CommunityPlace = { space: "lounge", group: null };
+// A view other than the feed, for links that open over it (the lounge, used before, was removed).
+const SAFETY: CommunityPlace = { space: "safety", group: null };
 const noop = () => {};
 const memory = (change: Partial<CommunityMemory>): CommunityMemory => ({ ...blankCommunityMemory(), ...change });
 
@@ -76,8 +77,8 @@ describe("the Alerts panel", () => {
   });
 
   it("opens a friend request over the view the person is on", () => {
-    const html = alertsPanel(LOUNGE, "/community?space=lounge");
-    expect(tags(html, "a", 'href="/community?space=lounge&amp;panel=friends"', "cm-al-row")).toHaveLength(2);
+    const html = alertsPanel(SAFETY, "/community?space=safety");
+    expect(tags(html, "a", 'href="/community?space=safety&amp;panel=friends"', "cm-al-row")).toHaveLength(2);
     expect(tagWith(html, "a", 'href="/community?space=circle"', "cm-al-row")).toBe(true);
     expect(tagWith(html, "a", 'href="/community?space=groups&amp;group=garden"', "cm-al-row")).toBe(true);
   });
@@ -144,7 +145,7 @@ describe("what findInCommunity finds", () => {
     const none = findInCommunity(blank, "zzz", FEED);
     expect(none.total).toBe(0);
     expect(foundLabel(none)).toBe("Nothing found");
-    expect(findInCommunity(blank, "   ", FEED).browse.map(place => place.id)).toEqual(["feed", "lounge", "circle", "groups", "messages", "start", "friends", "safety", "settings"]);
+    expect(findInCommunity(blank, "   ", FEED).browse.map(place => place.id)).toEqual(["feed", "circle", "groups", "messages", "start", "friends", "safety", "settings"]);
   });
 
   it("never finds someone blocked, and Gary is not one of the people to find", () => {
@@ -199,11 +200,11 @@ describe("the logic behind the panels", () => {
 
   it("leads a friend request to the request (or the 'not now' left by declining it), and to the friend once accepted", () => {
     const alert = (id: string) => communityAlerts.find(item => item.id === id)!;
-    expect(alertLink(blankCommunityMemory(), alert("a-joan"), LOUNGE)).toBe("/community?space=lounge&panel=friends");
-    expect(alertLink(memory({ answers: { joan: "declined" } }), alert("a-joan"), LOUNGE)).toBe("/community?space=lounge&panel=friends");
-    expect(alertLink(memory({ answers: { joan: "accepted" } }), alert("a-joan"), LOUNGE)).toBe("/community?space=lounge&panel=friends&tab=friends");
-    expect(alertLink(memory({ answers: { joan: "accepted" } }), alert("a-garden"), LOUNGE)).toBe("/community?space=groups&group=garden");
-    expect(alertLink(blankCommunityMemory(), alert("a-circle"), LOUNGE)).toBe("/community?space=circle");
+    expect(alertLink(blankCommunityMemory(), alert("a-joan"), SAFETY)).toBe("/community?space=safety&panel=friends");
+    expect(alertLink(memory({ answers: { joan: "declined" } }), alert("a-joan"), SAFETY)).toBe("/community?space=safety&panel=friends");
+    expect(alertLink(memory({ answers: { joan: "accepted" } }), alert("a-joan"), SAFETY)).toBe("/community?space=safety&panel=friends&tab=friends");
+    expect(alertLink(memory({ answers: { joan: "accepted" } }), alert("a-garden"), SAFETY)).toBe("/community?space=groups&group=garden");
+    expect(alertLink(blankCommunityMemory(), alert("a-circle"), SAFETY)).toBe("/community?space=circle");
   });
 
   it("says times and breaks the way the app does", () => {

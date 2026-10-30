@@ -1,15 +1,11 @@
-import { useId, useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { Link } from "wouter";
-import { Bell, Bookmark, CalendarDays, ChevronRight, Heart, Plus, ShieldCheck, Stethoscope } from "lucide-react";
-import { SAMPLE_GOING, sampleGatherings } from "@/content/circle-events";
-import { PERSON_IDS } from "@/content/community-samples";
+import { Bell, Bookmark, ChevronRight, Heart, Plus, ShieldCheck, Stethoscope } from "lucide-react";
 import { administrativeControlsEnabled } from "@/lib/administrative-controls";
 import { CARE_TEAM_PATH, useCareTeamEnabled, useCareTeamWaiting } from "@/lib/care-team";
-import { useCircleEvents } from "@/lib/circle-events-store";
 import { isOpen, useConsultations } from "@/lib/consultations";
-import { mergeGatherings, myEvents } from "@/lib/circle-listing";
 import { alertsPanel, useAlertsPanel } from "@/lib/alerts-panel";
-import { alertsQuiet, communityHref, friendList, hourLabel, inQuietHours, isBlocked, unseenAlertCount, useCommunity } from "@/lib/community-store";
+import { alertsQuiet, communityHref, friendList, hourLabel, inQuietHours, unseenAlertCount, useCommunity } from "@/lib/community-store";
 import { conditionByKey, conditionHref } from "@/lib/library";
 import { useLibraryState } from "@/lib/library-store";
 import { profileInitial, profileName, useProfile } from "@/lib/profile";
@@ -26,7 +22,8 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 
 /**
  * The left of every page: who you are, and the things you come back to: friends, saved Library pages,
- * your events, your groups and, for the care team, its review queue. (The Library card is in the feed's right lane.) Everything is a link
+ * consultations, your groups and, for the care team, its review queue. (My events was taken out of the patient
+ * portal; the Sunday circle's own tab still lists its events.) (The Library card is in the feed's right lane.) Everything is a link
  * that starts with "~", so it works from the Library's nested pages too.
  */
 export default function ProfilePanel({ careTeam = false, onNavigate }: { careTeam?: boolean; onNavigate?: () => void }) {
@@ -34,7 +31,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
   const profile = useProfile();
   const memory = useCommunity();
   const library = useLibraryState();
-  const circle = useCircleEvents();
   const waiting = useCareTeamWaiting();
   const staff = useCareTeamEnabled();
   const [savedOpen, setSavedOpen] = useState(false);
@@ -44,12 +40,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
   const friends = friendList(memory);
   const online = friends.filter(friend => friend.online).length;
   const saved = library.saved.map(conditionByKey).filter(place => place !== undefined);
-  const events = useMemo(() => {
-    const now = Date.now();
-    const hidden = PERSON_IDS.filter(who => isBlocked(memory, who));
-    const mine = myEvents(mergeGatherings(sampleGatherings(new Date(now)), circle), circle, SAMPLE_GOING, now, hidden);
-    return { upcoming: mine.hosting.length + mine.waiting.length + mine.going.length, waiting: mine.waiting.length };
-  }, [circle, memory]);
   const groups = myGroups(memory);
   // Consultations with clinicians (lib/consultations.ts): how many are still to come, and how many wait for an answer
   // from this person (a clinician suggested other times, or an urgent request was answered).
@@ -93,12 +83,6 @@ export default function ProfilePanel({ careTeam = false, onNavigate }: { careTea
                 ) : <p>Nothing saved yet. Press “Save to my pages” on any Library page and it will wait here.</p>}
               </div>
             )}
-          </li>
-          <li>
-            <Link className="site-row" {...link("/community?space=circle&tab=mine")}>
-              <span className="site-row-icon"><CalendarDays size={17} /></span><span className="site-row-label">My events</span>
-              {events.waiting > 0 ? <span className="site-row-badge">{events.waiting}<span className="cm-sr"> invitations waiting</span></span> : <span className="site-row-note">{events.upcoming || ""}</span>}
-            </Link>
           </li>
           <li>
             {/* The patient's consultations with clinicians: what's waiting, the call when it's time, and the transcripts after. */}

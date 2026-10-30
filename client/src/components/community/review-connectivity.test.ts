@@ -318,10 +318,12 @@ describe("problems found in review stay fixed", () => {
     // The spaces' tabs are at the top of every page (SiteTabs); their links start with "~".
     const feed = draw(createElement(SiteTabs), "/community").links;
     expect(replaces(feed, "~/community")).toEqual([true]);
-    expect(replaces(feed, "~/community?space=lounge")).toEqual([false]);
-    const lounge = draw(createElement(SiteTabs), "/community?space=lounge").links;
-    expect(replaces(lounge, "~/community?space=lounge")).toEqual([true]);
-    expect(replaces(lounge, "~/community")).toEqual([false]);
+    expect(replaces(feed, "~/community?space=groups")).toEqual([false]);
+    // The lounge has no tab any more.
+    expect(replaces(feed, "~/community?space=lounge")).toEqual([]);
+    const groups = draw(createElement(SiteTabs), "/community?space=groups").links;
+    expect(replaces(groups, "~/community?space=groups")).toEqual([true]);
+    expect(replaces(groups, "~/community")).toEqual([false]);
 
     // Alerts: the circle alert while on the circle, and Quiet time's Change while on Settings.
     const circle: CommunityPlace = { space: "circle", group: null };

@@ -8,7 +8,6 @@ import PokerNightDialog from "@/components/community/games/PokerNightDialog";
 import PokerSpace from "@/components/community/games/PokerSpace";
 import GroupsView from "@/components/community/Groups";
 import { BackIcon } from "@/components/community/icons";
-import LoungeView from "@/components/community/Lounge";
 import MessagesView from "@/components/community/Messages";
 import PostMenu from "@/components/community/PostMenu";
 import { useOptionalSettings } from "@/components/AccountSettings";
@@ -40,7 +39,7 @@ import "./community-poker.css";
 // preview: the people in it are examples, and nothing leaves the device.
 // The address says which view is open, so every button that opens a page is a link and Back works:
 //   /community                           the feed
-//   /community?space=lounge              the lounge
+//   /community?space=lounge              retired: the lounge was removed (review comment 12), so this opens the feed
 //   /community?space=circle              the Sunday circle
 //   /community?space=poker               Friday poker night: tonight's tables and a table to play at
 //   /community?space=groups&group=walk   my groups, with one open
@@ -173,7 +172,6 @@ export default function Community() {
         <h1 className="cm-sr" tabIndex={-1} data-page-heading>My community</h1>
 
         {isOpen("feed") && <div className="cm-space" data-space="feed" hidden={view.space !== "feed"}><FeedView name={name} here={here} onMore={openMenu} openPostId={menu?.target.postId ?? null} /></div>}
-        {isOpen("lounge") && <div className="cm-space" data-space="lounge" hidden={view.space !== "lounge"}><LoungeView active={view.space === "lounge"} here={here} onHere={setHere} /></div>}
         {isOpen("circle") && <div className="cm-space" data-space="circle" hidden={view.space !== "circle"}><CircleView active={view.space === "circle"} name={name} /></div>}
         {isOpen("poker") && <div className="cm-space" data-space="poker" hidden={view.space !== "poker"}><PokerSpace active={view.space === "poker"} /></div>}
         {isOpen("groups") && <div className="cm-space" data-space="groups" hidden={view.space !== "groups"}><GroupsView active={view.space === "groups"} requested={view.group} /></div>}

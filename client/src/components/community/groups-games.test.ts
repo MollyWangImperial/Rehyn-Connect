@@ -233,7 +233,7 @@ describe("old saved groups and games", () => {
     expect(communityHref("groups", null, { game: "new-open" })).toBe("/community?space=groups&game=new-open");
     expect(communityHref("groups", null, { game: "new-open", cond: "ms" })).toBe("/community?space=groups&game=new-open&cond=ms");
     expect(communityViewFromQuery("space=groups&game=new-open")).toMatchObject({ group: null, game: "new-open" });
-    expect(communityHref("lounge", null, { game: "new-open" })).toBe("/community?space=lounge");
+    expect(communityHref("circle", null, { game: "new-open" })).toBe("/community?space=circle");
   });
 });
 

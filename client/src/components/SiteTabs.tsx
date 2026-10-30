@@ -1,14 +1,14 @@
 import { Link, useLocation, useRouter, useSearch } from "wouter";
-import { BookOpen, CircleDot, Coffee, Home as HomeIcon, MessageCircle, Stethoscope, UsersRound } from "lucide-react";
-import { lounge } from "@/content/community-samples";
+import { BookOpen, CircleDot, Home as HomeIcon, MessageCircle, Stethoscope, UsersRound } from "lucide-react";
 import { communityHref, communityViewFromQuery, leadsHere, unreadCount, useCommunity, type CommunitySpace } from "@/lib/community-store";
 import { pokerNightOn, secondsToTables, usePokerNight } from "@/lib/poker-night";
 import CircleTab from "./community/CirclePeek";
 import { SuitGlyph } from "./community/games/PokerParts";
 import { unreadMessages } from "./community/messages-model";
 
-export type SiteTab = "feed" | "library" | "clinicians" | "lounge" | "circle" | "poker" | "groups" | "messages";
-const COMMUNITY_TABS: SiteTab[] = ["feed", "lounge", "circle", "poker", "groups", "messages"];
+export type SiteTab = "feed" | "library" | "clinicians" | "circle" | "poker" | "groups" | "messages";
+// The lounge has no tab: it was removed for patients and clinicians alike (review comment 12).
+const COMMUNITY_TABS: SiteTab[] = ["feed", "circle", "poker", "groups", "messages"];
 
 /** Which top tab an address belongs to, if any: Safety, Settings and the Care team have none. */
 export function siteTabFor(pathname: string, search: string): SiteTab | null {
@@ -40,7 +40,7 @@ const Count = ({ count, what }: { count: number; what: string }) =>
  * same place from the Library's nested pages; a tab for the view already showing doesn't add it to
  * Back again. The Sunday circle's tab opens a live peek of the circle on hover (CirclePeek).
  */
-export default function SiteTabs({ here = lounge.here }: { here?: number }) {
+export default function SiteTabs(_: { here?: number }) {
   const search = useSearch();
   const memory = useCommunity();
   const pathname = usePathname();
@@ -59,10 +59,6 @@ export default function SiteTabs({ here = lounge.here }: { here?: number }) {
       <Link {...space("feed")}><span className="site-tab-icon"><HomeIcon size={20} /></span><span>Feed</span></Link>
       <Link {...tab("library", "/library")}><span className="site-tab-icon"><BookOpen size={20} /></span><span>Library</span></Link>
       <Link {...tab("clinicians", "/clinicians")}><span className="site-tab-icon"><Stethoscope size={20} /><span className="site-tab-new" aria-hidden="true">New</span></span><span>Clinicians</span></Link>
-      <Link {...space("lounge")}>
-        <span className="site-tab-icon"><Coffee size={20} /><span className="site-tab-live"><i aria-hidden="true" />{here}<span className="cm-sr"> here now</span></span></span>
-        <span>The lounge</span>
-      </Link>
       <CircleTab {...space("circle")} active={current === "circle"}>
         <span className="site-tab-icon"><CircleDot size={20} /><span className="site-tab-dot" aria-hidden="true" /></span><span>Sunday circle</span><span className="cm-sr">, live now</span>
       </CircleTab>

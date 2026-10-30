@@ -127,7 +127,8 @@ describe("comments under every post, and their likes", () => {
 describe("My community addresses", () => {
   it("reads each view from the query string and builds links back to it", () => {
     expect(communityViewFromQuery("")).toEqual({ space: "feed", group: null });
-    expect(communityViewFromQuery("space=lounge")).toEqual({ space: "lounge", group: null });
+    // The lounge was removed: its old address opens the feed.
+    expect(communityViewFromQuery("space=lounge")).toEqual({ space: "feed", group: null });
     expect(communityViewFromQuery("space=circle")).toEqual({ space: "circle", group: null });
     expect(communityViewFromQuery("space=groups&group=walk")).toEqual({ space: "groups", group: "walk" });
     expect(communityViewFromQuery("space=start&group=walk")).toEqual({ space: "start", group: null });
@@ -135,7 +136,8 @@ describe("My community addresses", () => {
     expect(communityViewFromQuery("space=groups&group=../../etc")).toEqual({ space: "groups", group: null });
     expect(communityHref()).toBe("/community");
     expect(communityHref("feed")).toBe("/community");
-    expect(communityHref("lounge")).toBe("/community?space=lounge");
+    expect(communityHref("lounge")).toBe("/community");
+    expect(communityHref("circle")).toBe("/community?space=circle");
     expect(communityHref("groups", "garden")).toBe("/community?space=groups&group=garden");
     expect(communityHref("groups", "<script>")).toBe("/community?space=groups");
     expect(communityHref("start", "garden")).toBe("/community?space=start");
@@ -149,13 +151,15 @@ describe("My community addresses", () => {
     expect(communityHref("safety")).toBe("/community?space=safety");
 
     expect(communityViewFromQuery("panel=friends")).toEqual({ space: "feed", group: null, panel: "friends", tab: "requests" });
-    expect(communityViewFromQuery("space=lounge&panel=friends&tab=sent")).toEqual({ space: "lounge", group: null, panel: "friends", tab: "sent" });
+    expect(communityViewFromQuery("space=circle&panel=friends&tab=sent")).toEqual({ space: "circle", group: null, panel: "friends", tab: "sent" });
+    expect(communityViewFromQuery("space=lounge&panel=friends&tab=sent")).toEqual({ space: "feed", group: null, panel: "friends", tab: "sent" });
     expect(communityViewFromQuery("space=groups&group=walk&panel=friends&tab=blocked")).toEqual({ space: "groups", group: "walk", panel: "friends", tab: "blocked" });
     expect(communityViewFromQuery("panel=friends&tab=enemies")).toMatchObject({ panel: "friends", tab: "requests" });
     expect(communityViewFromQuery("panel=secrets&tab=sent")).toEqual({ space: "feed", group: null });
 
     expect(communityHref(null, null, { panel: "friends" })).toBe("/community?panel=friends");
-    expect(communityHref("lounge", null, { panel: "friends", tab: "sent" })).toBe("/community?space=lounge&panel=friends&tab=sent");
+    expect(communityHref("circle", null, { panel: "friends", tab: "sent" })).toBe("/community?space=circle&panel=friends&tab=sent");
+    expect(communityHref("lounge", null, { panel: "friends", tab: "sent" })).toBe("/community?panel=friends&tab=sent");
     expect(communityHref("groups", "walk", { panel: "friends", tab: "requests" })).toBe("/community?space=groups&group=walk&panel=friends");
     expect(communityHref("settings", null, { panel: null, tab: "sent" })).toBe("/community?space=settings");
     expect(friendsHref()).toBe("/community?panel=friends");
@@ -174,14 +178,17 @@ describe("My community addresses", () => {
     expect(communityHref("settings", null, { section: "quiet" })).toBe("/community?space=settings&section=quiet");
     expect(communityHref("settings", null, { section: "friends", panel: "friends", tab: "sent" })).toBe("/community?space=settings&section=friends&panel=friends&tab=sent");
     expect(communityHref("safety", null, { section: "quiet" })).toBe("/community?space=safety");
-    for (const query of ["space=settings&section=see", "space=settings&section=friends&panel=friends&tab=sent", "space=groups&group=walk&panel=friends", "", "space=lounge"]) {
+    for (const query of ["space=settings&section=see", "space=settings&section=friends&panel=friends&tab=sent", "space=groups&group=walk&panel=friends", "", "space=circle"]) {
       expect(viewHref(communityViewFromQuery(query))).toBe(query ? `/community?${query}` : "/community");
     }
+    expect(viewHref(communityViewFromQuery("space=lounge"))).toBe("/community");
   });
 
   it("knows when a link leads to the view already showing", () => {
     expect(leadsHere("/community", "")).toBe(true);
-    expect(leadsHere("/community", "space=lounge")).toBe(false);
+    expect(leadsHere("/community", "space=circle")).toBe(false);
+    // The retired lounge address is the feed.
+    expect(leadsHere("/community", "space=lounge")).toBe(true);
     expect(leadsHere("/community?space=settings&section=quiet", "space=settings")).toBe(true);
     expect(leadsHere("/community?space=settings", "space=settings&section=see")).toBe(true);
     expect(leadsHere("/community?space=settings&section=friends", "space=settings&panel=friends")).toBe(false);
@@ -194,10 +201,10 @@ describe("My community addresses", () => {
   });
 
   it("sends each alert to the right place", () => {
-    const over = { space: "lounge" as const, group: null };
+    const over = { space: "circle" as const, group: null };
     const href = (id: string) => alertHref(communityAlerts.find(alert => alert.id === id)!, over);
-    expect(href("a-joan")).toBe("/community?space=lounge&panel=friends");
-    expect(href("a-liwei")).toBe("/community?space=lounge&panel=friends");
+    expect(href("a-joan")).toBe("/community?space=circle&panel=friends");
+    expect(href("a-liwei")).toBe("/community?space=circle&panel=friends");
     expect(href("a-garden")).toBe("/community?space=groups&group=garden");
     expect(href("a-circle")).toBe("/community?space=circle");
   });
@@ -856,11 +863,11 @@ describe("messages and the Friends tab", () => {
     expect(communityViewFromQuery("space=messages&chat=margaret")).toEqual({ space: "messages", group: null, chat: "margaret" });
     expect(communityViewFromQuery("space=messages&chat=bad%20id")).toEqual({ space: "messages", group: null });
     // A chat belongs to Messages only.
-    expect(communityViewFromQuery("space=lounge&chat=margaret")).toEqual({ space: "lounge", group: null });
+    expect(communityViewFromQuery("space=circle&chat=margaret")).toEqual({ space: "circle", group: null });
     expect(communityViewFromQuery("space=friends")).toEqual({ space: "friends", group: null });
     expect(messagesHref("garden")).toBe("/community?space=messages&chat=garden");
     expect(messagesHref()).toBe("/community?space=messages");
-    expect(communityHref("lounge", null, { chat: "margaret" })).toBe("/community?space=lounge");
+    expect(communityHref("circle", null, { chat: "margaret" })).toBe("/community?space=circle");
     expect(viewHref(communityViewFromQuery("space=messages&chat=anne&panel=friends"))).toBe("/community?space=messages&chat=anne&panel=friends");
     // The Friends drawer opens over the conversation, and closes back to it.
     const view = communityViewFromQuery("space=messages&chat=anne");

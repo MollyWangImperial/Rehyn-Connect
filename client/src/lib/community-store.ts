@@ -75,7 +75,8 @@ import { readBattleshipsSave, type BattleshipsSave } from "@/components/communit
 /* ------------------------------------------------------------------ views */
 
 export type CommunitySpace = "feed" | "lounge" | "circle" | "groups" | "messages" | "friends" | "start" | "settings" | "safety" | "poker";
-const namedSpaces: CommunitySpace[] = ["lounge", "circle", "groups", "messages", "friends", "start", "settings", "safety", "poker"];
+// The lounge is no longer a named space (review comment 12): ?space=lounge opens the feed instead.
+const namedSpaces: CommunitySpace[] = ["circle", "groups", "messages", "friends", "start", "settings", "safety", "poker"];
 /** Something that opens over a view. Only the Friends drawer has an address of its own. */
 export type CommunityPanel = "friends";
 /**
@@ -104,7 +105,7 @@ const isConditionId = (value: unknown): value is ConditionId => typeof value ===
 /**
  * Which view a link points at:
  *   /community                                   the feed
- *   /community?space=lounge                      the lounge
+ *   /community?space=lounge                      retired: opens the feed (the lounge was removed)
  *   /community?space=circle                      the Sunday circle
  *   /community?space=groups                      groups by condition (the person's own condition)
  *   /community?space=groups&cond=ms              groups by condition, inside Multiple sclerosis

@@ -73,23 +73,14 @@ describe("My community views", () => {
     expect(words(settings("profile"))).toContain("Who sees my posts by default");
   });
 
-  it("shows the lounge with its people, quick replies and house rules, without the head count, starter, waves, circle promo or poll", () => {
+  it("no longer has a lounge: its old address shows the feed", () => {
     const html = page("/community?space=lounge");
     const text = words(html);
-    expect(text).toContain("The lounge");
-    expect(text).toContain("Open to everyone in the community");
-    expect(text).not.toContain("people here now");
-    expect(text).not.toContain("conversation starter");
-    expect(text).toContain("It does get lighter, promise.");
-    expect(text).toContain("Tomasz New member");
-    expect(tagWith(html, "div", 'role="log"', 'aria-live="off"', 'tabindex="0"')).toBe(true);
-    for (const reply of ["Hello everyone", "Welcome, Tomasz", "Well done, Margaret", "Thinking of you all"]) expect(text).toContain(reply);
-    expect(tagWith(html, "button", 'aria-label="Send a heart"')).toBe(true);
-    expect(tagWith(html, "button", 'aria-label="Heart for Anne&#x27;s message, 5"', 'aria-pressed="false"')).toBe(true);
-    expect(text).toContain("Reply to Anne");
-    expect(tagWith(html, "button", 'aria-label="Send as a voice note"', 'aria-pressed="false"')).toBe(true);
-    expect(text).toContain("House rules 1 Be kind.");
-    for (const gone of ["Here right now", "Wave to Tomasz", "Photos are checked before they appear.", "seats taken", "Tea-break poll", "What's in your mug right now?"]) expect(text).not.toContain(gone);
+    expect(html).toMatch(/<div class="cm-space" data-space="feed">/);
+    expect(html).not.toMatch(/data-space="lounge"/);
+    expect(text).toContain("What's new with you, Zak?");
+    for (const gone of ["The lounge", "Open to everyone in the community", "It does get lighter, promise.", "House rules 1 Be kind."]) expect(text).not.toContain(gone);
+    expect(tagWith(html, "button", 'aria-label="Send a heart"')).toBe(false);
   });
 
   it("shows the Sunday circle with an empty seat kept for the person, captions and the circles coming up", () => {
@@ -303,9 +294,9 @@ describe("the toolbar's pages", () => {
   });
 
   it("opens the drawer at another tab, over another view", () => {
-    const sent = page("/community?space=lounge&panel=friends&tab=sent");
+    const sent = page("/community?space=circle&panel=friends&tab=sent");
     expect(words(sent)).toContain("Tomasz");
-    expect(words(sent)).toContain("The lounge");
+    expect(words(sent)).toContain("The teacup goes round. Whoever holds it speaks.");
     const blocked = page("/community?space=safety&panel=friends&tab=blocked");
     expect(words(blocked)).toContain("Gary");
     expect(tagWith(blocked, "div", 'role="dialog"')).toBe(true);

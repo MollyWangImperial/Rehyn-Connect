@@ -441,7 +441,7 @@ export const feedPosts: SamplePost[] = [
       { who: "joan", text: "I wrote down one good thing each night. It helped more than I expected." },
       { who: "samuel", text: "Let people help with the small jobs. They want to." },
       { who: "liwei", text: "Welcome, Tomasz. You're not on your own here." },
-      { who: "anne", text: "Pop into the lounge whenever you like. Someone's always about." },
+      { who: "anne", text: "Say hello in the groups whenever you like. Someone's always about." },
       { who: "margaret", text: "We're glad you're here." },
     ],
     quickReplies: ["Welcome, Tomasz.", "You're not alone.", "One day at a time."],
